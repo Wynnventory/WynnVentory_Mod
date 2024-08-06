@@ -1,0 +1,13 @@
+{
+  "client": [
+    "TradeMarketScannerMixin"
+  ],
+  "compatibilityLevel": "JAVA_17",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8.5",
+  "mixins": [],
+  "package": "com.wynnventory.mixin",
+  "required": true
+}

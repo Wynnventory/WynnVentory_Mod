@@ -3,8 +3,6 @@ package com.wynnventory;
 import com.wynntils.mc.event.ScreenInitEvent;
 import com.wynntils.models.containers.Container;
 import com.wynntils.models.containers.containers.TradeMarketPrimaryContainer;
-import com.wynntils.models.items.items.game.GearItem;
-import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -15,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Wynnventory_MarketContainer extends TradeMarketPrimaryContainer {
-    public static final Logger LOGGER = LoggerFactory.getLogger("wynnventory_mod");
+public class WynnventoryMarketContainer extends TradeMarketPrimaryContainer {
+    public static final Logger LOGGER = LoggerFactory.getLogger("wynnventory");
     private Container currentContainer = null;
     private static final List<Container> containerTypes = new ArrayList<>();
 

@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"id": "wynnventory_mod",
+	"id": "wynnventory",
 	"version": "${version}",
-	"name": "wynnventory_mod",
+	"name": "wynnventory",
 	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": [
 		"Me!"
@@ -12,11 +12,11 @@
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/wynnventory_mod/icon.png",
+	"icon": "assets/wynnventory/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.wynnventory.Wynnventory_mod"
+			"com.wynnventory.WynnventoryMod"
 		]
 	},
 	"depends": {
@@ -27,5 +27,8 @@
 	},
 	"suggests": {
 		"another-mod": "*"
-	}
+	},
+	"mixins": [
+		"wynnventory.mixins.json"
+	]
 }
