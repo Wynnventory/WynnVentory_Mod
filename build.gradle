@@ -32,6 +32,9 @@ dependencies {
 	modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
 	// Wynntils mc1.20.2 v1.2.32
 	modImplementation("maven.modrinth:dU5Gb9Ab:ihqDIGu8")
+
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.2'
+	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.17.2'
 }
 
 processResources {

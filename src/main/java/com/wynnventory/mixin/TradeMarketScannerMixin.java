@@ -2,6 +2,7 @@ package com.wynnventory.mixin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.wynntils.core.WynntilsMod;
 import com.wynntils.core.components.Models;
 import com.wynntils.core.events.MixinHelper;
@@ -9,9 +10,8 @@ import com.wynntils.mc.event.ContainerSetContentEvent;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.trademarket.TradeMarketModel;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
-import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
-import com.wynnventory.model.Item.TradeMarketItem;
+import com.wynnventory.model.item.TradeMarketItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -46,27 +46,35 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
             at = @At("HEAD"),
             cancellable = true)
     private void handleContainerContentPre(ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
-        WynnventoryMod.LOGGER.info("INJECTOR INJECTED THE INJECTION");
-        /*ContainerSetContentEvent event = new ContainerSetContentEvent.Pre(
+        ContainerSetContentEvent event = new ContainerSetContentEvent.Pre(
                 packet.getItems(), packet.getCarriedItem(), packet.getContainerId(), packet.getStateId());
         MixinHelper.post(event);
         if (event.isCanceled()) {
             ci.cancel();
-        }*/
+        }
 
         final List<TradeMarketItem> tradeMarketItems = new ArrayList<>();
         final ObjectMapper mapper = new ObjectMapper();
         final TradeMarketModel tm = new TradeMarketModel();
 
+        mapper.registerModule(new Jdk8Module());
+
         for(ItemStack item : packet.getItems()) {
-            TradeMarketPriceInfo priceInfo = tm.calculateItemPriceInfo(item);
             Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
 
-            gearItemOptional.ifPresent(gearItem -> tradeMarketItems.add(new TradeMarketItem(gearItem, priceInfo.price(), priceInfo.amount())));
+            if(gearItemOptional.isPresent()) {
+                TradeMarketPriceInfo priceInfo = tm.calculateItemPriceInfo(item);
+
+                if(priceInfo != TradeMarketPriceInfo.EMPTY) {
+                    tradeMarketItems.add(new TradeMarketItem(gearItemOptional.get(), priceInfo.price(), priceInfo.amount()));
+                }
+            }
         }
 
         try {
-            sendResults(mapper.writeValueAsString(tradeMarketItems));
+            if(!tradeMarketItems.isEmpty()) {
+                sendResults(mapper.writeValueAsString(tradeMarketItems));
+            }
         } catch (JsonProcessingException e) {
             WynntilsMod.error("Failed to send data to remote endpoint due to: " + e.getMessage());
         }

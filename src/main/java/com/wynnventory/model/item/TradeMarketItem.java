@@ -1,19 +1,19 @@
-package com.wynnventory.model.Item;
+package com.wynnventory.model.item;
 
 import com.wynntils.models.items.items.game.GearItem;
 
 public class TradeMarketItem {
-    private GearItem item;
+    private SimplifiedGearItem item;
     private int listingPrice;
     private int amount;
 
     public TradeMarketItem(GearItem item, int listingPrice, int amount) {
-        this.item = item;
+        this.item = new SimplifiedGearItem(item);
         this.listingPrice = listingPrice;
         this.amount = amount;
     }
 
-    public GearItem getItem() {
+    public SimplifiedGearItem getItem() {
         return item;
     }
 
