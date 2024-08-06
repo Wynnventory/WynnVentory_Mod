@@ -10,7 +10,6 @@ import com.wynntils.mc.event.ContainerSetContentEvent;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.trademarket.TradeMarketModel;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
-import com.wynnventory.WynnventoryMod;
 import com.wynnventory.model.item.TradeMarketItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
@@ -78,20 +77,6 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
         } catch (JsonProcessingException e) {
             WynntilsMod.error("Failed to send data to remote endpoint due to: " + e.getMessage());
         }
-
-/*        if (!packet.getItems().equals(event.getItems())) {
-            if (packet.getContainerId() == 0) {
-                McUtils.player()
-                        .inventoryMenu
-                        .initializeContents(packet.getStateId(), packet.getItems(), packet.getCarriedItem());
-            } else if (packet.getContainerId() == McUtils.containerMenu().containerId) {
-                McUtils.player()
-                        .containerMenu
-                        .initializeContents(packet.getStateId(), packet.getItems(), packet.getCarriedItem());
-            }
-
-            ci.cancel();
-        }*/
     }
 
     private void sendResults(String payload) {
