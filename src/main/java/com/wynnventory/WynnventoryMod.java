@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 public class WynnventoryMod implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("wynnventory");
-	public static final WynnventoryMarketContainer MARKET_LISTENER = new WynnventoryMarketContainer();
 
 	@Override
 	public void onInitialize() {
