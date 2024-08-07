@@ -56,8 +56,6 @@ jobs:
     - name: Download JAR from build
       id: download
       uses: actions/download-artifact@v4
-      with:
-        path: build/libs/
     
     - name: Create GitHub Release
       id: create_release
@@ -76,12 +74,15 @@ jobs:
     - name: give permission
       run: chmod -R 777 build/libs/artifact
 
+    - name: Print File System
+      run: ls -lf "${{ github.workspace}}/artifact"
+
     - name: Upload JAR to Release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: build/libs/artifact/
+        asset_path: ${{ github.workspace }}/artifact/
         asset_name: dev-build-${{ github.sha }}.jar
         asset_content_type: application/java-archive
