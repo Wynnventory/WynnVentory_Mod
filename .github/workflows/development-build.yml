@@ -73,12 +73,15 @@ jobs:
         draft: false
         prerelease: true
 
+    - name: give permission
+      run: chmod -R 777 build/libs/artifact
+
     - name: Upload JAR to Release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{steps.download.outputs.download-path}}
+        asset_path: build/libs/artifact/
         asset_name: dev-build-${{ github.sha }}.jar
         asset_content_type: application/java-archive
