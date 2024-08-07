@@ -72,7 +72,7 @@ jobs:
         prerelease: true
 
     - name: give permission
-      run: chmod -R 777 build/libs/artifact
+      run: chmod -R 777 "${{ github.workspace}}/artifact"
 
     - name: Print File System
       run: ls -lf "${{ github.workspace}}/artifact"
