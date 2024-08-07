@@ -57,7 +57,10 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: build/libs/
-
+    
+    - name: Print Filesystem
+      run: ls -lf build/libs/
+    
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
