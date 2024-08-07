@@ -54,12 +54,10 @@ jobs:
 
     steps:
     - name: Download JAR from build
+      id: download
       uses: actions/download-artifact@v4
       with:
         path: build/libs/
-    
-    - name: Print Filesystem
-      run: ls -lf build/libs/artifact/
     
     - name: Create GitHub Release
       id: create_release
@@ -81,6 +79,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: build/libs/*.jar
+        asset_path: ${{steps.download.download-path}}
         asset_name: dev-build-${{ github.sha }}.jar
         asset_content_type: application/java-archive
