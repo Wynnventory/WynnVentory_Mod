@@ -36,7 +36,7 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
 
-    - name: Create JAR fiel
+    - name: Create JAR file
       run: ./gradlew jar
 
     - name: Archive JAR
