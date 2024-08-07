@@ -49,9 +49,6 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
         ContainerSetContentEvent event = new ContainerSetContentEvent.Pre(
                 packet.getItems(), packet.getCarriedItem(), packet.getContainerId(), packet.getStateId());
         MixinHelper.post(event);
-//        if (event.isCanceled()) {
-//            ci.cancel();
-//        }
 
         final List<TradeMarketItem> tradeMarketItems = new ArrayList<>();
         final ObjectMapper mapper = new ObjectMapper();
@@ -92,7 +89,6 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
         CompletableFuture<HttpResponse<String>> responseFuture = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
 
         responseFuture.thenApply(HttpResponse::body)
-                .thenAccept(responseBody -> WynntilsMod.info("Response body: " + responseBody))
                 .exceptionally(e -> {
                     WynntilsMod.error("Failed to send data: " + e.getMessage());
                     return null;
