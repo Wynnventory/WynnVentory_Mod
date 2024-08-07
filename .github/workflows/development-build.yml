@@ -59,7 +59,7 @@ jobs:
         path: build/libs/
     
     - name: Print Filesystem
-      run: ls -lf build/libs/
+      run: ls -lf build/libs/artifact/
     
     - name: Create GitHub Release
       id: create_release
