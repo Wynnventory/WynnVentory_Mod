@@ -43,10 +43,10 @@ jobs:
       run: ./gradlew jar
 
     - name: Archive JAR
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: WynnventoryScanner
         path: build/libs/*.jar
+        if-no-files-found: error
   
   release:
     needs: build
