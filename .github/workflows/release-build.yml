@@ -8,9 +8,8 @@
 name: Gradle Package
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  release:
+    types: [created]
 
 jobs:
   build:
@@ -65,17 +64,18 @@ jobs:
       id: download
       uses: actions/download-artifact@v4
     
-    - name: Create GitHub Release
-      id: create_release
+    - name: Update Release
+      id: update_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: release-${{ github.ref_name }}
-        release_name: release-${{ github.ref_name }}
+        release_id: ${{ github.event.release.id }}
+        tag_name: ${{ env.tag_name }}
+        release_name: ${{ env.tag_name }}
         body: ${{ steps.changelog.outputs.changelog }}
-        draft: false
-        prerelease: false
+        draft: ${{ github.event.release.draft }}
+        prerelease: ${{ github.event.release.prerelease }}
 
     - name: give permission
       run: chmod -R 777 "${{ github.workspace }}/artifact"
@@ -88,7 +88,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ steps.update_release.outputs.upload_url }}
         asset_path: ${{ github.workspace }}/artifact/wynnventory-1.0.0.jar
         asset_name: release-${{ github.ref_name }}.jar
         asset_content_type: application/java-archive
