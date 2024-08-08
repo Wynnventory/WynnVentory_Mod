@@ -55,7 +55,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
-    steps:        
+    steps:
+    - uses: actions/checkout@v4    
     - name: Download JAR from build
       id: download
       uses: actions/download-artifact@v4
