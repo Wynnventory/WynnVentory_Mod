@@ -54,6 +54,8 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
     private void handleContainerSetSlotPre(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
 //        if (!isRenderThread()) return;
         WynnventoryMod.LOGGER.info("Entered handleContainerSetSlotPre");
+        WynnventoryMod.LOGGER.error("Entered handleContainerSetSlotPre");
+        System.out.println("Entered handleContainerSetSlotPre");
         ContainerSetSlotEvent event = new ContainerSetSlotEvent.Pre(
                 packet.getContainerId(), packet.getStateId(), packet.getSlot(), packet.getItem());
         MixinHelper.post(event);
@@ -75,6 +77,8 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
 
         try {
             WynnventoryMod.LOGGER.info("marketItems Size: {}", marketItems.size());
+            WynnventoryMod.LOGGER.error("marketItems Size: {}", marketItems.size());
+            System.out.println("marketItems Size: "+ marketItems.size());
             if(!marketItems.isEmpty()) {
                 sendResults(mapper.writeValueAsString(marketItems));
             }
@@ -86,6 +90,8 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
     @Unique
     private void sendResults(String payload) {
         WynnventoryMod.LOGGER.info("Sending data...");
+        WynnventoryMod.LOGGER.error("Sending data...");
+        System.out.println("Sending data...");
         HttpClient httpClient = HttpClient.newHttpClient();
 
         HttpRequest request = HttpRequest.newBuilder()
