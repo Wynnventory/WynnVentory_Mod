@@ -66,12 +66,15 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
 
             if(priceInfo != TradeMarketPriceInfo.EMPTY) {
                 marketItems.add(new TradeMarketItem(gearItemOptional.get(), priceInfo.price(), priceInfo.amount()));
+                WynnventoryMod.LOGGER.info("Received item {}", gearItemOptional.get().getName());
             }
         }
 
         final ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new Jdk8Module());
+
         try {
+            WynnventoryMod.LOGGER.info("marketItems Size: {}", marketItems.size());
             if(!marketItems.isEmpty()) {
                 sendResults(mapper.writeValueAsString(marketItems));
             }
@@ -82,6 +85,7 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
 
     @Unique
     private void sendResults(String payload) {
+        WynnventoryMod.LOGGER.info("Sending data...");
         HttpClient httpClient = HttpClient.newHttpClient();
 
         HttpRequest request = HttpRequest.newBuilder()
