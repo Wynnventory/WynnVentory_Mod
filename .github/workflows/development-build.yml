@@ -19,9 +19,15 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+        changelog: ${{ steps.changelog-ci.outputs.changelog }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4    
+    - name: Generate changelog
+      uses: saadmk11/changelog-ci@v1.1.2
+      id: changelog-ci
+    
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
@@ -52,12 +58,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Generate changelog
-      uses: saadmk11/changelog-ci@v1.1.2
-      id: changelog-ci
-        
+    steps:        
     - name: Download JAR from build
       id: download
       uses: actions/download-artifact@v4
@@ -70,7 +71,7 @@ jobs:
       with:
         tag_name: dev-build-${{ github.sha }}
         release_name: dev-build-${{ github.sha }}
-        body: ${{ steps.changelog-ci.outputs.changelog }}
+        body: ${{ needs.build.outputs.changelog }}
         draft: false
         prerelease: true
 
