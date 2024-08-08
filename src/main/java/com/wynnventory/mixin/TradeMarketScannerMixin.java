@@ -42,17 +42,17 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
         super(minecraft, connection, commonListenerCookie);
     }
 
-    @Unique
-    private static boolean isRenderThread() {
-        return McUtils.mc().isSameThread();
-    }
+//    @Unique
+//    private static boolean isRenderThread() {
+//        return McUtils.mc().isSameThread();
+//    }
 
     @Inject(
             method = "handleContainerSetSlot(Lnet/minecraft/network/protocol/game/ClientboundContainerSetSlotPacket;)V",
             at = @At("HEAD")
     )
     private void handleContainerSetSlot(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
-        if (!isRenderThread()) return;
+//        if (!isRenderThread()) return;
 
         ContainerSetSlotEvent event = new ContainerSetSlotEvent.Pre(
                 packet.getContainerId(), packet.getStateId(), packet.getSlot(), packet.getItem());
