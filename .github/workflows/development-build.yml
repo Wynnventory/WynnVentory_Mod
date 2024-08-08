@@ -19,8 +19,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    outputs:
-        changelog: ${{ steps.changelog-ci.outputs.changelog }}
 
     steps:
     - uses: actions/checkout@v4    
@@ -54,9 +52,14 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-
+        
     steps:
-    - uses: actions/checkout@v4    
+    - name: Build Changelog
+      id: github_release
+      uses: mikepenz/release-changelog-builder-action@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
     - name: Download JAR from build
       id: download
       uses: actions/download-artifact@v4
@@ -69,14 +72,9 @@ jobs:
       with:
         tag_name: dev-build-${{ github.sha }}
         release_name: dev-build-${{ github.sha }}
+        body: ${{steps.github_release.outputs.changelog}}
         draft: false
         prerelease: true
-        
-    - name: Generate changelog
-      uses: saadmk11/changelog-ci@v1.1.2
-      id: changelog-ci
-      with:
-       release_version: dev-build-${{ github.sha }}
        
     - name: give permission
       run: chmod -R 777 "${{ github.workspace }}/artifact"
