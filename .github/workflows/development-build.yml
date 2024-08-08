@@ -25,12 +25,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4    
     
-    - name: Generate changelog
-      uses: saadmk11/changelog-ci@v1.1.2
-      id: changelog-ci
-      with:
-       release_version: dev-build-${{ github.sha }}
-    
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
@@ -74,10 +68,15 @@ jobs:
       with:
         tag_name: dev-build-${{ github.sha }}
         release_name: dev-build-${{ github.sha }}
-        body: ${{ needs.build.outputs.changelog }}
         draft: false
         prerelease: true
-
+        
+    - name: Generate changelog
+      uses: saadmk11/changelog-ci@v1.1.2
+      id: changelog-ci
+      with:
+       release_version: dev-build-${{ github.sha }}
+       
     - name: give permission
       run: chmod -R 777 "${{ github.workspace }}/artifact"
 
