@@ -50,49 +50,17 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v4    
-
-    - name: Get tag name
-      id: get_tag_name
-      run: echo "tag_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
-    
-    - name: Create required package.json
-      run: test -f package.json || echo '{}' >package.json
-
-    - name: Changelog
-      uses: scottbrenner/generate-changelog-action@master
-      id: changelog
-      
+    steps:      
     - name: Download JAR from build
       id: download
       uses: actions/download-artifact@v4
-    
-    - name: Update Release
-      id: update_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        release_id: ${{ github.event.release.id }}
-        tag_name: ${{ env.tag_name }}
-        release_name: Release ${{ env.tag_name }}
-        body: ${{ steps.changelog.outputs.changelog }}
-        draft: ${{ github.event.release.draft }}
-        prerelease: ${{ github.event.release.prerelease }}
-
-    - name: give permission
-      run: chmod -R 777 "${{ github.workspace }}/artifact"
-
-    - name: Print File System
-      run: ls -la "${{ github.workspace }}/artifact"
 
     - name: Upload JAR to Release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.update_release.outputs.upload_url }}
+        upload_url: ${{ github.event.release.upload_url }}
         asset_path: ${{ github.workspace }}/artifact/wynnventory-1.0.0.jar
         asset_name: release-${{ github.ref_name }}.jar
         asset_content_type: application/java-archive
