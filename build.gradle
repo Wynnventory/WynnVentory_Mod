@@ -75,9 +75,3 @@ publishing {
 		}
 	}
 }
-
-loom {
-	mixin {
-		add(sourceSets.main, "wynnventory.mixins.json")
-	}
-}
