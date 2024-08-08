@@ -13,6 +13,7 @@ public class WynnventoryMod implements ModInitializer {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
-		LOGGER.info("Initialized WynnVentory_Mod");
+		LOGGER.info("Initialized WynnVentoryMod");
+		System.out.println("Initialized Wynnventory via Sout");
 	}
 }
