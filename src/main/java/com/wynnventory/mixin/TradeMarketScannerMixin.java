@@ -51,7 +51,7 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
             method = "handleContainerSetSlot(Lnet/minecraft/network/protocol/game/ClientboundContainerSetSlotPacket;)V",
             at = @At("HEAD")
     )
-    private void handleContainerSetSlot(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
+    private void handleContainerSetSlotPre(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
 //        if (!isRenderThread()) return;
 
         ContainerSetSlotEvent event = new ContainerSetSlotEvent.Pre(
