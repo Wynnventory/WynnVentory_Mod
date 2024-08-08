@@ -56,12 +56,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4    
     
-    #- name: Create required package.json
-    #  run: test -f package.json || echo '{}' >package.json
+    - name: Create required package.json
+      run: test -f package.json || echo '{}' >package.json
       
-    #- name: Changelog
-    #  uses: scottbrenner/generate-changelog-action@master
-    #  id: changelog
+    - name: Changelog
+      uses: scottbrenner/generate-changelog-action@master
+      id: changelog
         
     - name: Download JAR from build
       id: download
@@ -75,8 +75,7 @@ jobs:
       with:
         tag_name: dev-build-$(git rev-parse --short "$GITHUB_SHA")
         release_name: dev-build-$(git rev-parse --short "$GITHUB_SHA")
-    #    body: ${{ steps.changelog.outputs.changelog }}
-        generateReleaseNotes: true
+        body: ${{ steps.changelog.outputs.changelog }}
         draft: false
         prerelease: true
        
