@@ -6,17 +6,19 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.wynntils.core.WynntilsMod;
 import com.wynntils.core.components.Models;
 import com.wynntils.core.events.MixinHelper;
-import com.wynntils.mc.event.ContainerSetContentEvent;
+import com.wynntils.mc.event.ContainerSetSlotEvent;
 import com.wynntils.models.items.items.game.GearItem;
-import com.wynntils.models.trademarket.TradeMarketModel;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
+import com.wynntils.utils.mc.McUtils;
+import com.wynnventory.WynnventoryMod;
 import com.wynnventory.model.item.TradeMarketItem;
+import com.wynnventory.util.TradeMarketPriceParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.CommonListenerCookie;
 import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -40,36 +42,38 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
         super(minecraft, connection, commonListenerCookie);
     }
 
+    @Unique
+    private static boolean isRenderThread() {
+        return McUtils.mc().isSameThread();
+    }
+
     @Inject(
-            method =
-                    "handleContainerContent(Lnet/minecraft/network/protocol/game/ClientboundContainerSetContentPacket;)V",
-            at = @At("HEAD"))
-    private void handleContainerContentPre(ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
-        ContainerSetContentEvent event = new ContainerSetContentEvent.Pre(
-                packet.getItems(), packet.getCarriedItem(), packet.getContainerId(), packet.getStateId());
+            method = "handleContainerSetSlot(Lnet/minecraft/network/protocol/game/ClientboundContainerSetSlotPacket;)V",
+            at = @At("HEAD")
+    )
+    private void handleContainerSetSlot(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
+        if (!isRenderThread()) return;
+
+        ContainerSetSlotEvent event = new ContainerSetSlotEvent.Pre(
+                packet.getContainerId(), packet.getStateId(), packet.getSlot(), packet.getItem());
         MixinHelper.post(event);
+        ItemStack item = packet.getItem();
+        Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
+        List<TradeMarketItem> marketItems = new ArrayList<>();
 
-        final List<TradeMarketItem> tradeMarketItems = new ArrayList<>();
-        final ObjectMapper mapper = new ObjectMapper();
-        final TradeMarketModel tm = new TradeMarketModel();
+        if(gearItemOptional.isPresent()) {
+            TradeMarketPriceInfo priceInfo = TradeMarketPriceParser.calculateItemPriceInfo(item);
 
-        mapper.registerModule(new Jdk8Module());
-
-        for(ItemStack item : packet.getItems()) {
-            Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
-
-            if(gearItemOptional.isPresent()) {
-                TradeMarketPriceInfo priceInfo = tm.calculateItemPriceInfo(item);
-
-                if(priceInfo != TradeMarketPriceInfo.EMPTY) {
-                    tradeMarketItems.add(new TradeMarketItem(gearItemOptional.get(), priceInfo.price(), priceInfo.amount()));
-                }
+            if(priceInfo != TradeMarketPriceInfo.EMPTY) {
+                marketItems.add(new TradeMarketItem(gearItemOptional.get(), priceInfo.price(), priceInfo.amount()));
             }
         }
 
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new Jdk8Module());
         try {
-            if(!tradeMarketItems.isEmpty()) {
-                sendResults(mapper.writeValueAsString(tradeMarketItems));
+            if(!marketItems.isEmpty()) {
+                sendResults(mapper.writeValueAsString(marketItems));
             }
         } catch (JsonProcessingException e) {
             WynntilsMod.error("Failed to send data to remote endpoint due to: " + e.getMessage());
@@ -89,8 +93,9 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
         CompletableFuture<HttpResponse<String>> responseFuture = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
 
         responseFuture.thenApply(HttpResponse::body)
+                .thenAccept(responseBody -> WynnventoryMod.LOGGER.info("Response body: {}", responseBody))
                 .exceptionally(e -> {
-                    WynntilsMod.error("Failed to send data: " + e.getMessage());
+                    WynnventoryMod.LOGGER.error("Failed to send data: {}", e.getMessage());
                     return null;
                 });
     }
