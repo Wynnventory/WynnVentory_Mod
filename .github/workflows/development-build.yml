@@ -60,6 +60,7 @@ jobs:
       uses: mikepenz/release-changelog-builder-action@v5
       with:
         mode: "COMMIT"
+        fetchViaCommits: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
