@@ -53,6 +53,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Generate changelog
+      uses: saadmk11/changelog-ci@v1.1.2
+      id: changelog-ci
+        
     - name: Download JAR from build
       id: download
       uses: actions/download-artifact@v4
@@ -65,9 +69,7 @@ jobs:
       with:
         tag_name: dev-build-${{ github.sha }}
         release_name: dev-build-${{ github.sha }}
-        body: |
-          Changes in this release:
-          - List of changes here
+        body: ${{ steps.changelog-ci.outputs.changelog }}
         draft: false
         prerelease: true
 
