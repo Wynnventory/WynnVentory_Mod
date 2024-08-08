@@ -24,9 +24,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4    
+    
     - name: Generate changelog
       uses: saadmk11/changelog-ci@v1.1.2
       id: changelog-ci
+      with:
+       release_version: dev-build-${{ github.sha }}
     
     - name: Set up JDK 21
       uses: actions/setup-java@v4
