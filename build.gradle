@@ -70,6 +70,13 @@ shadowJar {
 	}
 }
 
+// Ensure that remapJar uses the output of shadowJar
+remapJar {
+	input.set(shadowJar.archiveFile)
+	archiveClassifier.set('')
+	dependsOn shadowJar
+}
+
 // configure the maven publication
 publishing {
 	publications {
@@ -95,4 +102,5 @@ publishing {
 
 build {
 	dependsOn shadowJar
+	dependsOn remapJar
 }
