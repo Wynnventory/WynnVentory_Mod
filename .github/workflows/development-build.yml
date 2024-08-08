@@ -63,9 +63,9 @@ jobs:
     #  uses: scottbrenner/generate-changelog-action@master
     #  id: changelog
         
-    #- name: Download JAR from build
-    #  id: download
-    #  uses: actions/download-artifact@v4
+    - name: Download JAR from build
+      id: download
+      uses: actions/download-artifact@v4
     
     - name: Create GitHub Release
       id: create_release
@@ -73,8 +73,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: dev-build-${{ github.sha }}
-        release_name: dev-build-${{ github.sha }}
+        tag_name: dev-build-$(git rev-parse --short "$GITHUB_SHA")
+        release_name: dev-build-$(git rev-parse --short "$GITHUB_SHA")
     #    body: ${{ steps.changelog.outputs.changelog }}
         generateReleaseNotes: true
         draft: false
@@ -93,5 +93,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ${{ github.workspace }}/artifact/wynnventory-1.0.0.jar
-        asset_name: dev-build-${{ github.sha }}.jar
+        asset_name: dev-build-$(git rev-parse --short "$GITHUB_SHA").jar
         asset_content_type: application/java-archive
