@@ -1,7 +1,7 @@
 plugins {
 	id 'fabric-loom' version '1.7-SNAPSHOT'
 	id 'maven-publish'
-	// id "com.github.johnrengelman.shadow" version "8.1.1"
+	id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
 version = project.mod_version
@@ -30,9 +30,9 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
-	
+
 	modImplementation files('libs/wynntils-2.0.0-beta.15-fabric+MC-1.21.jar')
-	
+
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.2'
 	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.17.2'
 }
@@ -61,12 +61,22 @@ jar {
 	}
 }
 
+shadowJar {
+	archiveClassifier.set('')
+	relocate 'com.fasterxml.jackson', 'com.wynnventory.shadow.jackson'
+	dependencies {
+		include(dependency('com.fasterxml.jackson.core:jackson-databind'))
+		include(dependency('com.fasterxml.jackson.datatype:jackson-datatype-jdk8'))
+	}
+}
+
 // configure the maven publication
 publishing {
 	publications {
 		create("mavenJava", MavenPublication) {
 			artifactId = project.archives_base_name
 			from components.java
+			artifact shadowJar.archiveFile.get()
 		}
 	}
 
@@ -75,4 +85,14 @@ publishing {
 			url "file:///${project.projectDir}/mcmodsrepo"
 		}
 	}
+}
+
+//loom {
+//	mixin {
+//		add(sourceSets.main, "wynnventory.mixins.json")
+//	}
+//}
+
+build {
+	dependsOn shadowJar
 }
