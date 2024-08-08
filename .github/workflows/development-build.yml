@@ -69,16 +69,16 @@ jobs:
 
     - name: Get Short Commit SHA
       id: shortsha
-      run: echo "::set-output name=shortsha::$(git rev-parse --short '$GITHUB_SHA')"
-    
+      run: echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_ENV    
+      
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: dev-build-${{ steps.shortsha.output.shortsha }}
-        release_name: dev-build-${{ steps.shortsha.output.shortsha }}
+        tag_name: dev-build-${{ env.short_sha }}
+        release_name: dev-build-${{ env.short_sha }}
         body: ${{ steps.changelog.outputs.changelog }}
         draft: false
         prerelease: true
@@ -96,5 +96,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ${{ github.workspace }}/artifact/wynnventory-1.0.0.jar
-        asset_name: dev-build-${{ steps.shortsha.output.shortsha }}.jar
+        asset_name: dev-build-${{ env.short_sha }}.jar
         asset_content_type: application/java-archive
