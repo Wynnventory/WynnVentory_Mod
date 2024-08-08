@@ -53,7 +53,7 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
     )
     private void handleContainerSetSlotPre(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
 //        if (!isRenderThread()) return;
-
+        WynnventoryMod.LOGGER.info("Entered handleContainerSetSlotPre");
         ContainerSetSlotEvent event = new ContainerSetSlotEvent.Pre(
                 packet.getContainerId(), packet.getStateId(), packet.getSlot(), packet.getItem());
         MixinHelper.post(event);
