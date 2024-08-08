@@ -52,12 +52,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4    
-    
-    - name: Create required package.json
-      run: test -f package.json || echo '{}' >package.json
+
     - name: Get tag name
       id: get_tag_name
       run: echo "tag_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
+    
+    - name: Create required package.json
+      run: test -f package.json || echo '{}' >package.json
 
     - name: Changelog
       uses: scottbrenner/generate-changelog-action@master
