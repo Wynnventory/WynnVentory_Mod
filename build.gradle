@@ -78,6 +78,6 @@ publishing {
 
 loom {
 	mixin {
-		add(sourceSets.main, "wynnventory_mod.mixins.json")
+		add(sourceSets.main, "wynnventory.mixins.json")
 	}
 }
