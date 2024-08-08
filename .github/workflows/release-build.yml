@@ -76,7 +76,7 @@ jobs:
       with:
         release_id: ${{ github.event.release.id }}
         tag_name: ${{ env.tag_name }}
-        release_name: ${{ env.tag_name }}
+        release_name: Release ${{ env.tag_name }}
         body: ${{ steps.changelog.outputs.changelog }}
         draft: ${{ github.event.release.draft }}
         prerelease: ${{ github.event.release.prerelease }}
