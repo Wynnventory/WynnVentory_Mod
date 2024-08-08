@@ -53,6 +53,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v4
     - name: Generate changelog
       uses: saadmk11/changelog-ci@v1.1.2
       id: changelog-ci
