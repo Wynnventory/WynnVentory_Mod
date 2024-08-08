@@ -29,8 +29,9 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
+	
 	modImplementation files('libs/wynntils-2.0.0-beta.15-fabric+MC-1.21.jar')
-
+	
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.2'
 	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.17.2'
 }
