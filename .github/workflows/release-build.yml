@@ -55,7 +55,10 @@ jobs:
     
     - name: Create required package.json
       run: test -f package.json || echo '{}' >package.json
-      
+    - name: Get tag name
+      id: get_tag_name
+      run: echo "tag_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
     - name: Changelog
       uses: scottbrenner/generate-changelog-action@master
       id: changelog
