@@ -40,6 +40,7 @@ public abstract class TradeMarketScannerMixin extends ClientCommonPacketListener
 
     protected TradeMarketScannerMixin(Minecraft minecraft, Connection connection, CommonListenerCookie commonListenerCookie) {
         super(minecraft, connection, commonListenerCookie);
+        WynnventoryMod.LOGGER.info("Created TradeMarketScannerMixin");
     }
 
 //    @Unique
