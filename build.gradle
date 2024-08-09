@@ -27,14 +27,20 @@ dependencies {
 	}
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
 
 	modImplementation files('libs/wynntils-2.0.0-beta.15-fabric+MC-1.21.jar')
 
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.2'
 	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.17.2'
+}
+
+configurations {
+	resolvableImplementation {
+		canBeResolved = true
+		canBeConsumed = false
+		extendsFrom implementation
+	}
 }
 
 processResources {
@@ -62,19 +68,25 @@ jar {
 }
 
 shadowJar {
-	archiveClassifier.set('')
-	relocate 'com.fasterxml.jackson', 'com.wynnventory.shadow.jackson'
-	dependencies {
-		include(dependency('com.fasterxml.jackson.core:jackson-databind'))
-		include(dependency('com.fasterxml.jackson.datatype:jackson-datatype-jdk8'))
+	dependsOn remapJar
+
+	from {
+		zipTree(remapJar.archiveFile.get().asFile)
 	}
+
+	archiveClassifier.set('shadow')
+	//relocate 'com.fasterxml.jackson', 'com.wynnventory.shadow.jackson'
+	configurations = [project.configurations.resolvableImplementation]
 }
 
 // Ensure that remapJar uses the output of shadowJar
 remapJar {
-	input.set(shadowJar.archiveFile)
-	archiveClassifier.set('')
-	dependsOn shadowJar
+	dependsOn jar
+
+	archiveClassifier.set('remapped')
+	inputFile = jar.archiveFile.get().asFile
+	sourceNamespace = "named"
+	targetNamespace = "intermediary"
 }
 
 // configure the maven publication
@@ -94,13 +106,6 @@ publishing {
 	}
 }
 
-//loom {
-//	mixin {
-//		add(sourceSets.main, "wynnventory.mixins.json")
-//	}
-//}
-
 build {
 	dependsOn shadowJar
-	dependsOn remapJar
 }
