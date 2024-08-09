@@ -46,7 +46,7 @@ jobs:
     - name: Archive JAR
       uses: actions/upload-artifact@v4
       with:
-        path: build/libs/*.jar
+        path: build/libs/*-shadow.jar
         if-no-files-found: error
   
   release:
@@ -95,6 +95,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ github.workspace }}/artifact/wynnventory-1.0.0.jar
+        asset_path: ${{ steps.download.outputs.download-path }}
         asset_name: dev-build-${{ env.short_sha }}.jar
         asset_content_type: application/java-archive
