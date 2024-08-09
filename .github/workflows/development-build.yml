@@ -20,7 +20,7 @@ jobs:
       packages: write
 
     outputs:
-      build_name: ${{ steps.assembleBuildName.buildName }}
+      build_name: ${{ steps.assembleBuildName.outputs.build_name }}
 
     steps:
     - uses: actions/checkout@v4    
