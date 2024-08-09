@@ -51,13 +51,19 @@ jobs:
     - name: Create JAR file
       run: ./gradlew jar
 
+    - name: Print Filesystem
+      run: ls -la build/libs/
+
     - name: Make filename unique
       run: mv build/libs/*-shadow.jar build/libs/${{ steps.assembleBuildName.outputs.build_name }}.jar
+
+    - name: Print Filesystem
+      run: ls -la build/libs/
 
     - name: Archive JAR
       uses: actions/upload-artifact@v4
       with:
-        path: build/libs/
+        path: build/libs/build/libs/${{ steps.assembleBuildName.outputs.build_name }}.jar
         if-no-files-found: error
   
   release:
