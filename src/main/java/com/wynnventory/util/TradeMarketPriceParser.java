@@ -17,12 +17,12 @@ public class TradeMarketPriceParser {
 
     public static TradeMarketPriceInfo calculateItemPriceInfo(ItemStack itemStack) {
         List<StyledText> loreLines = LoreUtils.getLore(itemStack);
-        StyledText priceLine = (StyledText)loreLines.get(1);
+        StyledText priceLine = loreLines.get(1);
         if (priceLine != null && priceLine.matches(PRICE_STR)) {
-            StyledText priceValueLine = (StyledText)loreLines.get(2);
+            StyledText priceValueLine = loreLines.get(2);
             Matcher matcher = priceValueLine.getMatcher(PRICE_PATTERN);
             if (!matcher.matches()) {
-                WynnventoryMod.LOGGER.warn("Trade Market item had an unexpected price value line: {}", String.valueOf(priceValueLine));
+                WynnventoryMod.warn("Trade Market item had an unexpected price value line: " + priceValueLine);
                 return TradeMarketPriceInfo.EMPTY;
             } else {
                 int price = Integer.parseInt(matcher.group("price").replace(",", ""));
@@ -33,7 +33,7 @@ public class TradeMarketPriceParser {
                 return new TradeMarketPriceInfo(price, silverbullPrice, amount);
             }
         } else {
-            WynnventoryMod.LOGGER.warn("Trade Market item had an unexpected price line: {}", String.valueOf(priceLine));
+            WynnventoryMod.warn("Trade Market item had an unexpected price line: " + priceLine);
             return TradeMarketPriceInfo.EMPTY;
         }
     }
