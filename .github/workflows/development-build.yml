@@ -22,6 +22,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4    
+
+    - name: Get Short Commit SHA
+      id: shortsha
+      run: echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
     
     - name: Set up JDK 21
       uses: actions/setup-java@v4
@@ -43,10 +47,13 @@ jobs:
     - name: Create JAR file
       run: ./gradlew jar
 
+    - name: Make filename unique
+      run: mv build/libs/*-shadow.jar build/libs/Wynnventory-${{ env.short_sha }}.jar 
+
     - name: Archive JAR
       uses: actions/upload-artifact@v4
       with:
-        path: build/libs/*-shadow.jar
+        path: build/libs/Wynnventory-${{ env.short_sha }}.jar 
         if-no-files-found: error
   
   release:
@@ -66,10 +73,6 @@ jobs:
     - name: Download JAR from build
       id: download
       uses: actions/download-artifact@v4
-
-    - name: Get Short Commit SHA
-      id: shortsha
-      run: echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_ENV    
       
     - name: Create GitHub Release
       id: create_release
@@ -95,6 +98,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ steps.download.outputs.download-path }}
+        asset_path: ${{ github.workspace }}/artifact/Wynnventory-${{ env.short_sha }}.jar 
         asset_name: dev-build-${{ env.short_sha }}.jar
         asset_content_type: application/java-archive
