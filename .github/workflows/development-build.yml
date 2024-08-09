@@ -48,9 +48,6 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
 
-    - name: Create JAR file
-      run: ./gradlew jar
-
     - name: Print Filesystem
       run: ls -la build/libs/
 
@@ -63,7 +60,7 @@ jobs:
     - name: Archive JAR
       uses: actions/upload-artifact@v4
       with:
-        path: build/libs/build/libs/${{ steps.assembleBuildName.outputs.build_name }}.jar
+        path: build/libs/${{ steps.assembleBuildName.outputs.build_name }}.jar
         if-no-files-found: error
   
   release:
