@@ -111,15 +111,17 @@ public class WynnventoryAPI {
     }
 
     public TradeMarketItemPriceInfo fetchItemPriceForItem(String itemName) {
-        final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8);
-        final URI endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price");
-
         try {
+            final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
+            final URI endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price");
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(endpointURI)
                     .header("Accept", "application/json")
                     .GET()
                     .build();
+
+            WynnventoryMod.info("SENT DATA TO API");
 
             // Send the request and get the response
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
