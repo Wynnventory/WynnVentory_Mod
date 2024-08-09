@@ -63,17 +63,21 @@ public class TooltipHandler {
                 int highestPrice = lastHoveredItemPriceInfo.getHighestPrice();
                 int medianPrice = lastHoveredItemPriceInfo.getAveragePrice();
                 int lowestPrice = lastHoveredItemPriceInfo.getLowestPrice();
-                int unidentifiedAveragePrice = lastHoveredItemPriceInfo.getUnidentifiedAveragePrice();
+
 
                 Component highestPriceComponent = Component.literal("Max: " + numberFormat.format(highestPrice) + EmeraldUnits.EMERALD.getSymbol()).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)).append(Component.literal(" (" + emeraldModel.getFormattedString(highestPrice, false) + ")").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
-                Component medianPriceComponent = Component.literal("Min: " + numberFormat.format(medianPrice) + EmeraldUnits.EMERALD.getSymbol()).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)).append(Component.literal(" (" + emeraldModel.getFormattedString(medianPrice, false) + ")").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
-                Component lowestPriceComponent = Component.literal("Avg: " + numberFormat.format(lowestPrice) + EmeraldUnits.EMERALD.getSymbol()).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)).append(Component.literal(" (" + emeraldModel.getFormattedString(lowestPrice, false) + ")").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
-                Component unidentifiedAveragePriceComponent = Component.literal("Unidentified Avg: " + numberFormat.format(unidentifiedAveragePrice) + EmeraldUnits.EMERALD.getSymbol()).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)).append(Component.literal(" (" + emeraldModel.getFormattedString(unidentifiedAveragePrice, false) + ")").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+                Component lowestPriceComponent = Component.literal("Min: " + numberFormat.format(lowestPrice) + EmeraldUnits.EMERALD.getSymbol()).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)).append(Component.literal(" (" + emeraldModel.getFormattedString(lowestPrice, false) + ")").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+                Component medianPriceComponent = Component.literal("Avg: " + numberFormat.format(medianPrice) + EmeraldUnits.EMERALD.getSymbol()).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)).append(Component.literal(" (" + emeraldModel.getFormattedString(medianPrice, false) + ")").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 
                 tooltips.add(highestPriceComponent);
                 tooltips.add(lowestPriceComponent);
                 tooltips.add(medianPriceComponent);
-                tooltips.add(unidentifiedAveragePriceComponent);
+
+                Double unidentifiedAveragePrice = lastHoveredItemPriceInfo.getUnidentifiedAveragePrice();
+                if(unidentifiedAveragePrice != null) {
+                    Component unidentifiedAveragePriceComponent = Component.literal("Unidentified Avg: " + numberFormat.format(unidentifiedAveragePrice.intValue()) + EmeraldUnits.EMERALD.getSymbol()).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)).append(Component.literal(" (" + emeraldModel.getFormattedString(unidentifiedAveragePrice.intValue(), false) + ")").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+                    tooltips.add(unidentifiedAveragePriceComponent);
+                }
             }
         }
     }

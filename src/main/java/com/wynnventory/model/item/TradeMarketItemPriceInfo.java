@@ -16,7 +16,7 @@ public class TradeMarketItemPriceInfo {
     private String name;
 
     @JsonProperty("unidentified_average_price")
-    private double unidentifiedAveragePrice;
+    private Double unidentifiedAveragePrice;
 
     // Default constructor
     public TradeMarketItemPriceInfo() {}
@@ -55,8 +55,8 @@ public class TradeMarketItemPriceInfo {
         this.name = name;
     }
 
-    public int getUnidentifiedAveragePrice() {
-        return (int) unidentifiedAveragePrice;
+    public Double getUnidentifiedAveragePrice() {
+        return unidentifiedAveragePrice;
     }
 
     public void setUnidentifiedAveragePrice(Double unidentifiedAveragePrice) {
