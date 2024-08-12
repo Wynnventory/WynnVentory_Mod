@@ -15,7 +15,6 @@ public class WynnventoryMod implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 		LOGGER.info("Initialized WynnVentoryMod");
-		System.out.println("Initialized Wynnventory via Sout");
 		TooltipHandler.registerTooltips();
 	}
 
@@ -27,7 +26,15 @@ public class WynnventoryMod implements ModInitializer {
 		LOGGER.warn(msg);
 	}
 
+	public static void warn(String msg, Throwable t) {
+		LOGGER.warn(msg, t);
+	}
+
 	public static void error(String msg) {
 		LOGGER.error(msg);
+	}
+
+	public static void error(String msg, Throwable t) {
+		LOGGER.error(msg, t);
 	}
 }

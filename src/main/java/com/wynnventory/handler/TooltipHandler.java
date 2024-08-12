@@ -18,78 +18,79 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class TooltipHandler {
     private static final WynnventoryAPI API = new WynnventoryAPI();
+    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.US);
+    private static final EmeraldModel EMERALD_MODEL = new EmeraldModel();
+    private static final String TITLE_TEXT = "Trade Market Price Info";
+
     private static GearItem lastHoveredItem;
     private static TradeMarketItemPriceInfo lastHoveredItemPriceInfo;
 
     public static void registerTooltips() {
-        // Register the ItemTooltipCallback event
         ItemTooltipCallback.EVENT.register(TooltipHandler::onTooltip);
     }
 
     private static void onTooltip(ItemStack itemStack, Item.TooltipContext tooltipContext, TooltipFlag tooltipFlag, List<Component> tooltips) {
-        final String tradeMarketTitleText = "Trademarket Price Info";
-        final Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(itemStack, GearItem.class);
+        if (containsComponent(tooltips, TITLE_TEXT)) return;
 
-        if (findComponentByText(tooltips, tradeMarketTitleText)) {
-            return;
-        }
+        Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(itemStack, GearItem.class);
+        gearItemOptional.ifPresent(gearItem -> {
+            if (!gearItem.equals(lastHoveredItem)) {
+                lastHoveredItem = gearItem;
 
-        if (gearItemOptional.isPresent()) {
-            TradeMarketItemPriceInfo priceInfo;
-            GearItem currentItem = gearItemOptional.get();
-
-            // Check if the price info is already cached
-            if (lastHoveredItem == null || !lastHoveredItem.getName().equals(currentItem.getName())) {
-                lastHoveredItem = currentItem;
-                lastHoveredItemPriceInfo = API.fetchItemPriceForItem(itemStack);
+                CompletableFuture<TradeMarketItemPriceInfo> priceInfoFuture = API.fetchItemPriceForItemAsync(itemStack);
+                priceInfoFuture.thenAccept(priceInfo -> lastHoveredItemPriceInfo = priceInfo);
             }
 
-            Component spacer = Component.literal("").withStyle(Style.EMPTY.withColor(ChatFormatting.RED));
-            Component priceInfoTitle = Component.literal("Trademarket Price Info").withStyle(ChatFormatting.GOLD);
-            tooltips.add(spacer);
-            tooltips.add(priceInfoTitle);
+            addPriceInfoToTooltip(tooltips, lastHoveredItemPriceInfo);
+        });
+    }
 
-            if (lastHoveredItemPriceInfo == null) {
-                Component noPriceData = Component.literal("No price data available yet!").withStyle(Style.EMPTY.withColor(ChatFormatting.RED));
-                tooltips.add(noPriceData);
-                tooltips.add(spacer);
-            } else {
-                final NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
-                final EmeraldModel emeraldModel = new EmeraldModel();
+    private static void addPriceInfoToTooltip(List<Component> tooltips, TradeMarketItemPriceInfo priceInfo) {
+        addTooltipSpacer(tooltips);
+        addTooltipTitle(tooltips, TITLE_TEXT);
 
-                int highestPrice = lastHoveredItemPriceInfo.getHighestPrice();
-                int medianPrice = lastHoveredItemPriceInfo.getAveragePrice();
-                int lowestPrice = lastHoveredItemPriceInfo.getLowestPrice();
+        if (priceInfo == null) {
+            addTooltipLine(tooltips, "No price data available yet!", ChatFormatting.RED);
+        } else {
+            addFormattedPrice(tooltips, "Max: ", priceInfo.getHighestPrice());
+            addFormattedPrice(tooltips, "Min: ", priceInfo.getLowestPrice());
+            addFormattedPrice(tooltips, "Avg: ", priceInfo.getAveragePrice());
 
-
-                Component highestPriceComponent = Component.literal("Max: " + numberFormat.format(highestPrice) + EmeraldUnits.EMERALD.getSymbol()).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)).append(Component.literal(" (" + emeraldModel.getFormattedString(highestPrice, false) + ")").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
-                Component lowestPriceComponent = Component.literal("Min: " + numberFormat.format(lowestPrice) + EmeraldUnits.EMERALD.getSymbol()).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)).append(Component.literal(" (" + emeraldModel.getFormattedString(lowestPrice, false) + ")").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
-                Component medianPriceComponent = Component.literal("Avg: " + numberFormat.format(medianPrice) + EmeraldUnits.EMERALD.getSymbol()).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)).append(Component.literal(" (" + emeraldModel.getFormattedString(medianPrice, false) + ")").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
-
-                tooltips.add(highestPriceComponent);
-                tooltips.add(lowestPriceComponent);
-                tooltips.add(medianPriceComponent);
-
-                Double unidentifiedAveragePrice = lastHoveredItemPriceInfo.getUnidentifiedAveragePrice();
-                if(unidentifiedAveragePrice != null) {
-                    Component unidentifiedAveragePriceComponent = Component.literal("Unidentified Avg: " + numberFormat.format(unidentifiedAveragePrice.intValue()) + EmeraldUnits.EMERALD.getSymbol()).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)).append(Component.literal(" (" + emeraldModel.getFormattedString(unidentifiedAveragePrice.intValue(), false) + ")").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
-                    tooltips.add(unidentifiedAveragePriceComponent);
-                }
+            if (priceInfo.getUnidentifiedAveragePrice() != null) {
+                addFormattedPrice(tooltips, "Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice().intValue());
             }
         }
     }
 
-    private static boolean findComponentByText(List<Component> tooltips, String searchText) {
-        for (Component component : tooltips) {
-            String text = component.getString();
-            if (text.contains(searchText)) {
-                return true;
-            }
+    private static void addFormattedPrice(List<Component> tooltips, String label, int price) {
+        if (price > 0) {
+            String formattedPrice = NUMBER_FORMAT.format(price) + EmeraldUnits.EMERALD.getSymbol();
+            String formattedEmeralds = EMERALD_MODEL.getFormattedString(price, false);
+            Component component = Component.literal(label + formattedPrice)
+                    .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE))
+                    .append(Component.literal(" (" + formattedEmeralds + ")")
+                            .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+            tooltips.add(component);
         }
+    }
 
-        return false; // If no matching component is found
+    private static void addTooltipSpacer(List<Component> tooltips) {
+        addTooltipTitle(tooltips, "");
+    }
+
+    private static void addTooltipTitle(List<Component> tooltips, String title) {
+        tooltips.add(Component.literal(title).withStyle(ChatFormatting.GOLD));
+    }
+
+    private static void addTooltipLine(List<Component> tooltips, String text, ChatFormatting color) {
+        tooltips.add(Component.literal(text).withStyle(Style.EMPTY.withColor(color)));
+    }
+
+    private static boolean containsComponent(List<Component> tooltips, String searchText) {
+        return tooltips.stream().anyMatch(component -> component.getString().contains(searchText));
     }
 }

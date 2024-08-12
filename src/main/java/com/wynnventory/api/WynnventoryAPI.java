@@ -4,16 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.wynntils.core.components.Models;
-import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.TradeMarketPriceParser;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import org.spongepowered.asm.mixin.Unique;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,17 +27,23 @@ import java.util.concurrent.CompletableFuture;
 public class WynnventoryAPI {
     private static final String BASE_URL = "https://www.wynnventory.com";
     private static final String API_IDENTIFIER = "api";
-    private static final URI API_BASE_URL;
+    private static final URI API_BASE_URL = createApiBaseUrl();
 
     private static final HttpClient httpClient = HttpClient.newHttpClient();
+    private static final ObjectMapper objectMapper = createObjectMapper();
 
-
-    static {
+    private static URI createApiBaseUrl() {
         try {
-            API_BASE_URL = new URI(BASE_URL).resolve("/" + API_IDENTIFIER + "/");
+            return new URI(BASE_URL).resolve("/" + API_IDENTIFIER + "/");
         } catch (URISyntaxException e) {
             throw new RuntimeException("Invalid URL format", e);
         }
+    }
+
+    private static ObjectMapper createObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new Jdk8Module());
+        return mapper;
     }
 
     private static URI getEndpointURI(String endpoint) {
@@ -51,45 +54,87 @@ public class WynnventoryAPI {
         sendTradeMarketResults(List.of(item));
     }
 
-    @Unique
     public void sendTradeMarketResults(List<ItemStack> items) {
-        if(items.isEmpty()) {
-            return;
+        if (items.isEmpty()) return;
+
+        List<TradeMarketItem> marketItems = createTradeMarketItems(items);
+
+        if (marketItems.isEmpty()) return;
+
+        sendHttpPostRequest(getEndpointURI("trademarket/items"), serializeMarketItems(marketItems));
+    }
+
+    public CompletableFuture<TradeMarketItemPriceInfo> fetchItemPriceForItemAsync(ItemStack item) {
+        return Models.Item.asWynnItem(item, GearItem.class)
+                .map(gearItem -> fetchItemPriceForItemAsync(gearItem.getName()))
+                .orElse(CompletableFuture.completedFuture(null));
+    }
+
+    public CompletableFuture<TradeMarketItemPriceInfo> fetchItemPriceForItemAsync(String itemName) {
+        try {
+            String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
+            URI endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price");
+
+            return sendHttpGetRequest(endpointURI)
+                    .thenApply(response -> {
+                        if (response.statusCode() == 200) {
+                            return parsePriceInfoResponse(response.body());
+                        } else if (response.statusCode() == 204) {
+                            return null;
+                        } else {
+                            WynnventoryMod.error("Unexpected status code: " + response.statusCode());
+                            return null;
+                        }
+                    })
+                    .exceptionally(e -> {
+                        WynnventoryMod.error("Failed to fetch item price from API {}", e);
+                        return null;
+                    });
+        } catch (Exception e) {
+            WynnventoryMod.error("Failed to initiate item price fetch {}", e);
+            return CompletableFuture.completedFuture(null);
         }
+    }
 
-        final List<TradeMarketItem> marketItems = new ArrayList<>();
-        final URI endpointURI = getEndpointURI("trademarket/items");
-        final ObjectMapper mapper = new ObjectMapper();
+    private List<TradeMarketItem> createTradeMarketItems(List<ItemStack> items) {
+        List<TradeMarketItem> marketItems = new ArrayList<>();
 
-        mapper.registerModule(new Jdk8Module());
-
-        for(ItemStack item : items) {
+        for (ItemStack item : items) {
             Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
 
-            if (gearItemOptional.isPresent()) {
+            gearItemOptional.ifPresent(gearItem -> {
                 TradeMarketPriceInfo priceInfo = TradeMarketPriceParser.calculateItemPriceInfo(item);
-
                 if (priceInfo != TradeMarketPriceInfo.EMPTY) {
-                    marketItems.add(new TradeMarketItem(gearItemOptional.get(), priceInfo.price(), priceInfo.amount()));
-                    WynnventoryMod.LOGGER.info("Received item {}", gearItemOptional.get().getName());
+                    marketItems.add(new TradeMarketItem(gearItem, priceInfo.price(), priceInfo.amount()));
                 }
-            }
+            });
         }
 
-        if(marketItems.isEmpty()) {
-            return;
-        }
+        return marketItems;
+    }
 
-        String payload;
+    private String serializeMarketItems(List<TradeMarketItem> marketItems) {
         try {
-            payload = mapper.writeValueAsString(marketItems);
+            return objectMapper.writeValueAsString(marketItems);
         } catch (JsonProcessingException e) {
             WynnventoryMod.LOGGER.error("Failed to serialize market items", e);
-            payload = "{}";
+            return "{}";
         }
+    }
 
-        final HttpRequest request = HttpRequest.newBuilder()
-                .uri(endpointURI)
+    private TradeMarketItemPriceInfo parsePriceInfoResponse(String responseBody) {
+        try {
+            List<TradeMarketItemPriceInfo> priceInfoList = objectMapper.readValue(responseBody, new com.fasterxml.jackson.core.type.TypeReference<>() {});
+            return priceInfoList.isEmpty() ? null : priceInfoList.getFirst();
+        } catch (JsonProcessingException e) {
+            WynnventoryMod.error("Failed to parse item price response {}", e);
+            return null;
+        }
+    }
+
+    private void sendHttpPostRequest(URI uri, String payload) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(payload))
                 .build();
@@ -97,46 +142,20 @@ public class WynnventoryAPI {
         CompletableFuture<HttpResponse<String>> responseFuture = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
 
         responseFuture.thenApply(HttpResponse::body)
-                .thenAccept(responseBody -> WynnventoryMod.LOGGER.info("Response body: {}", responseBody))
-                .exceptionally(e -> {
-                    WynnventoryMod.LOGGER.error("Failed to send data: {}", e.getMessage());
-                    return null;
-                });
+                        .exceptionally(e -> {
+                            WynnventoryMod.error("Failed to send data: {}", e);
+                            return null;
+                        });
     }
 
-    public TradeMarketItemPriceInfo fetchItemPriceForItem(ItemStack item) {
-        Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
+    private CompletableFuture<HttpResponse<String>> sendHttpGetRequest(URI uri) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
+                .header("Accept", "application/json")
+                .GET()
+                .build();
 
-        return gearItemOptional.map(gearItem -> fetchItemPriceForItem(gearItem.getName())).orElse(null);
-    }
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
 
-    public TradeMarketItemPriceInfo fetchItemPriceForItem(String itemName) {
-        try {
-            final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
-            final URI endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price");
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(endpointURI)
-                    .header("Accept", "application/json")
-                    .GET()
-                    .build();
-
-            WynnventoryMod.info("SENT DATA TO API");
-
-            // Send the request and get the response
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            // Check if the response status code is 200 OK
-            if (response.statusCode() == 200) {
-                return new ObjectMapper().readValue(response.body(), new com.fasterxml.jackson.core.type.TypeReference<List<TradeMarketItemPriceInfo>>() {}).getFirst();
-            } else {
-                WynnventoryMod.error("Failed to deserialize item price!" + response.body());
-                return null;
-            }
-        } catch (Exception e) {
-            WynnventoryMod.error("Failed to fetch item price from API: " + e.getMessage());
-        }
-
-        return null;
     }
 }
