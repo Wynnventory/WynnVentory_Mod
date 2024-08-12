@@ -40,9 +40,7 @@ public class TooltipHandler {
         gearItemOptional.ifPresent(gearItem -> {
             if (!gearItem.equals(lastHoveredItem)) {
                 lastHoveredItem = gearItem;
-
-                CompletableFuture<TradeMarketItemPriceInfo> priceInfoFuture = API.fetchItemPriceForItemAsync(itemStack);
-                priceInfoFuture.thenAccept(priceInfo -> lastHoveredItemPriceInfo = priceInfo);
+                lastHoveredItemPriceInfo = API.fetchItemPrices(itemStack);
             }
 
             addPriceInfoToTooltip(tooltips, lastHoveredItemPriceInfo);

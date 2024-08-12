@@ -12,6 +12,7 @@ import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.TradeMarketPriceParser;
 import net.minecraft.world.item.ItemStack;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -64,35 +65,30 @@ public class WynnventoryAPI {
         sendHttpPostRequest(getEndpointURI("trademarket/items"), serializeMarketItems(marketItems));
     }
 
-    public CompletableFuture<TradeMarketItemPriceInfo> fetchItemPriceForItemAsync(ItemStack item) {
+    public TradeMarketItemPriceInfo fetchItemPrices(ItemStack item) {
         return Models.Item.asWynnItem(item, GearItem.class)
-                .map(gearItem -> fetchItemPriceForItemAsync(gearItem.getName()))
-                .orElse(CompletableFuture.completedFuture(null));
+                .map(gearItem -> fetchItemPrices(gearItem.getName()))
+                .orElse(null);
     }
 
-    public CompletableFuture<TradeMarketItemPriceInfo> fetchItemPriceForItemAsync(String itemName) {
+    public TradeMarketItemPriceInfo fetchItemPrices(String itemName) {
         try {
             String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
             URI endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price");
 
-            return sendHttpGetRequest(endpointURI)
-                    .thenApply(response -> {
-                        if (response.statusCode() == 200) {
-                            return parsePriceInfoResponse(response.body());
-                        } else if (response.statusCode() == 204) {
-                            return null;
-                        } else {
-                            WynnventoryMod.error("Unexpected status code: " + response.statusCode());
-                            return null;
-                        }
-                    })
-                    .exceptionally(e -> {
-                        WynnventoryMod.error("Failed to fetch item price from API {}", e);
-                        return null;
-                    });
+            HttpResponse<String> response = sendHttpGetRequest(endpointURI);
+
+            if (response.statusCode() == 200) {
+                return parsePriceInfoResponse(response.body());
+            } else if (response.statusCode() == 204) {
+                return null;
+            } else {
+                WynnventoryMod.error("Failed to fetch item price from API: " + response.body());
+                return null;
+            }
         } catch (Exception e) {
             WynnventoryMod.error("Failed to initiate item price fetch {}", e);
-            return CompletableFuture.completedFuture(null);
+            return null;
         }
     }
 
@@ -148,14 +144,14 @@ public class WynnventoryAPI {
                         });
     }
 
-    private CompletableFuture<HttpResponse<String>> sendHttpGetRequest(URI uri) {
+    private HttpResponse<String> sendHttpGetRequest(URI uri) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .header("Accept", "application/json")
                 .GET()
                 .build();
 
-        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
     }
 }
