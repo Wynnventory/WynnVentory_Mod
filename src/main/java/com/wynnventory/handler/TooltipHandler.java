@@ -18,7 +18,6 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 public class TooltipHandler {
     private static final WynnventoryAPI API = new WynnventoryAPI();

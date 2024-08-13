@@ -9,49 +9,26 @@ import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
+import com.wynnventory.util.HttpUtil;
 import com.wynnventory.util.TradeMarketPriceParser;
 import net.minecraft.world.item.ItemStack;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 public class WynnventoryAPI {
     private static final String BASE_URL = "https://www.wynnventory.com";
     private static final String API_IDENTIFIER = "api";
-    private static final URI API_BASE_URL = createApiBaseUrl();
-
-    private static final HttpClient httpClient = HttpClient.newHttpClient();
+    private static final URI    API_BASE_URL = createApiBaseUrl();
     private static final ObjectMapper objectMapper = createObjectMapper();
 
-    private static URI createApiBaseUrl() {
-        try {
-            return new URI(BASE_URL).resolve("/" + API_IDENTIFIER + "/");
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Invalid URL format", e);
-        }
-    }
-
-    private static ObjectMapper createObjectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new Jdk8Module());
-        return mapper;
-    }
-
-    private static URI getEndpointURI(String endpoint) {
-        return API_BASE_URL.resolve(endpoint);
-    }
-
-    public void sendTradeMarketResults(ItemStack item) {
+public void sendTradeMarketResults(ItemStack item) {
         sendTradeMarketResults(List.of(item));
     }
 
@@ -62,7 +39,7 @@ public class WynnventoryAPI {
 
         if (marketItems.isEmpty()) return;
 
-        sendHttpPostRequest(getEndpointURI("trademarket/items"), serializeMarketItems(marketItems));
+        HttpUtil.sendHttpPostRequest(getEndpointURI("trademarket/items"), serializeMarketItems(marketItems));
     }
 
     public TradeMarketItemPriceInfo fetchItemPrices(ItemStack item) {
@@ -76,7 +53,7 @@ public class WynnventoryAPI {
             String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
             URI endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price");
 
-            HttpResponse<String> response = sendHttpGetRequest(endpointURI);
+            HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointURI);
 
             if (response.statusCode() == 200) {
                 return parsePriceInfoResponse(response.body());
@@ -128,30 +105,22 @@ public class WynnventoryAPI {
         }
     }
 
-    private void sendHttpPostRequest(URI uri, String payload) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(payload))
-                .build();
-
-        CompletableFuture<HttpResponse<String>> responseFuture = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-
-        responseFuture.thenApply(HttpResponse::body)
-                        .exceptionally(e -> {
-                            WynnventoryMod.error("Failed to send data: {}", e);
-                            return null;
-                        });
+    private static URI createApiBaseUrl() {
+        try {
+            return new URI(BASE_URL).resolve("/" + API_IDENTIFIER + "/");
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Invalid URL format", e);
+        }
     }
 
-    private HttpResponse<String> sendHttpGetRequest(URI uri) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .header("Accept", "application/json")
-                .GET()
-                .build();
-
-        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
+    private static ObjectMapper createObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new Jdk8Module());
+        return mapper;
     }
+
+    private static URI getEndpointURI(String endpoint) {
+        return API_BASE_URL.resolve(endpoint);
+    }
+
 }
