@@ -3,13 +3,13 @@
 	"id": "wynnventory",
 	"version": "${version}",
 	"name": "wynnventory",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Real-time insights and historical data from the Wynncraft Trade Market.",
 	"authors": [
 		"Me!"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://www.wynnventory.com/",
+		"sources": "https://github.com/Aruloci/WynnVentory"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/wynnventory/icon.png",
