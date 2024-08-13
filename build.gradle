@@ -69,6 +69,15 @@ jar {
 	}
 }
 
+remapJar {
+	dependsOn jar
+
+	archiveClassifier.set('remapped')
+	inputFile = jar.archiveFile.get().asFile
+	sourceNamespace = "named"
+	targetNamespace = "intermediary"
+}
+
 shadowJar {
 	dependsOn remapJar
 
@@ -81,17 +90,6 @@ shadowJar {
 	configurations = [project.configurations.resolvableImplementation]
 }
 
-// Ensure that remapJar uses the output of shadowJar
-remapJar {
-	dependsOn jar
-
-	archiveClassifier.set('remapped')
-	inputFile = jar.archiveFile.get().asFile
-	sourceNamespace = "named"
-	targetNamespace = "intermediary"
-}
-
-// configure the maven publication
 publishing {
 	publications {
 		create("mavenJava", MavenPublication) {
