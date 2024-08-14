@@ -66,6 +66,12 @@ jobs:
     - name: Download JAR from build
       id: download
       uses: actions/download-artifact@v4
+      with:
+        name: ${{ needs.build.outputs.jarName }}
+        path: ${{ $GITHUB_WORKSPACE }}
+
+    - name: Print Filesystem
+      run: "ls -la ${{ $GITHUB_WORKSPACE }}"
 
     - name: Upload JAR to Release
       uses: actions/upload-release-asset@v1
@@ -73,7 +79,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ${{ steps.download.outputs.download-path }}/artifact/${{ needs.build.outputs.jarName }}
+        asset_path: ${{ $GITHUB_WORKSPACE }}/${{ needs.build.outputs.jarName }}
         asset_name: ${{ needs.build.outputs.jarName }}
         asset_content_type: application/java-archive
     
@@ -89,36 +95,41 @@ jobs:
       env:
         MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
       run: |
+        JSON_PAYLOAD=$(cat <<EOF
+        {
+          "name": "WynnVentory ${{ needs.build.outputs.version }}",
+          "version_number": "${{ needs.build.outputs.version }}",
+          "changelog": "${{ steps.get_changelog.outputs.result }}",
+          "dependencies": [
+            {
+              "version_id": "oGwyXeEI",
+              "file_name": "fabric-api-0.102.1+1.21.1.jar",
+              "dependency_type": "required"
+            },
+            {
+              "project_id": "dU5Gb9Ab",
+              "dependency_type": "required"
+            }
+          ],
+          "game_versions": [
+            "1.21",
+            "1.21.1"
+          ],
+          "version_type": "release",
+          "loaders": [
+            "fabric"
+          ],
+          "featured": true,
+          "status": "listed",
+          "requested_status": "listed",
+          "project_id": "CORVJbiT",
+          "file_parts": ["jarFile"],
+          "primary_file": "jarFile"
+        }
+        EOF
+        )
+    
         curl -X POST "https://api.modrinth.com/v2/version" \
-        -H "Authorization: TokenAuth $MODRINTH_TOKEN" \
-        -F "data={
-            \"name\": \"WynnVentory ${{ needs.build.outputs.version }}\",
-            \"version_number\": \"${{ needs.build.outputs.version }}\",
-            \"changelog\": \"${{ steps.get_changelog.outputs.result }}\",
-            \"dependencies\": [
-              {
-                \"version_id\": \"oGwyXeEI\",
-                \"file_name\": \"fabric-api-0.102.1+1.21.1.jar\",
-                \"dependency_type\": \"required\"
-              },
-              {
-                \"project_id\": \"dU5Gb9Ab\",
-                \"dependency_type\": \"required\"
-              }
-            ],
-            \"game_versions\": [
-              \"1.21\",
-              \"1.21.1\"
-            ],
-            \"version_type\": \"release\",
-            \"loaders\": [
-              \"fabric\"
-            ],
-            \"featured\": true,
-            \"status\": \"listed\",
-            \"requested_status\": \"listed\",
-            \"project_id\": \"CORVJbiT\",
-            \"file_parts\": [\"jarFile\"],
-            \"primary_file\": \"jarFile\"
-          }" \
-        -F "jarFile=${{ steps.download.outputs.download-path }}/artifact/${{ needs.build.outputs.jarName }};type=application/java-archive"
+          -H "Authorization: TokenAuth $MODRINTH_TOKEN" \
+          -F "data=$JSON_PAYLOAD" \
+          -F "jarFile=@${{ $GITHUB_WORKSPACE }}/${{ needs.build.outputs.jarName }};type=application/java-archive"
