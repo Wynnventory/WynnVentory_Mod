@@ -1,7 +1,6 @@
 package com.wynnventory.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wynntils.core.WynntilsMod;
 import com.wynntils.utils.FileUtils;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
@@ -78,7 +77,7 @@ public class ModUpdater {
     }
 
     private static void notifyUserOfUpdate(String latestVersion) {
-        Component message = Component.literal("A new version of Wynnventory is available: " + latestVersion + ". Attempting to auto-update...")
+        Component message = Component.literal("[WynnVentory] New version available: " + latestVersion + ". Attempting to auto-update...")
                 .withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW));
         McUtils.sendMessageToClient(message);
     }
@@ -109,7 +108,7 @@ public class ModUpdater {
     }
 
     private static void notifyUserOfDownloadCompletion() {
-        Component message = Component.literal("Download completed! Restart Minecraft to apply the update.")
+        Component message = Component.literal("[WynnVentory] Download completed! Restart Minecraft to apply the update.")
                 .withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
         McUtils.sendMessageToClient(message);
     }
@@ -123,22 +122,22 @@ public class ModUpdater {
             try {
                 replaceOldFileWithNew(oldJar, newJar);
             } catch (IOException e) {
-                WynntilsMod.error("Cannot apply update!", e);
+                WynnventoryMod.error("Cannot apply update!", e);
             }
         }));
     }
 
     private static void replaceOldFileWithNew(File oldJar, File newJar) throws IOException {
         if (!isValidJarFile(oldJar)) {
-            WynntilsMod.warn("Mod jar file not found or incorrect.");
+            WynnventoryMod.warn("Mod jar file not found or incorrect.");
             return;
         }
 
         FileUtils.copyFile(newJar, oldJar);
         if (newJar.delete()) {
-            WynntilsMod.info("Successfully applied update!");
+            WynnventoryMod.info("Successfully applied update!");
         } else {
-            WynntilsMod.warn("Failed to delete the new JAR file after copying.");
+            WynnventoryMod.warn("Failed to delete the new JAR file after copying.");
         }
     }
 
