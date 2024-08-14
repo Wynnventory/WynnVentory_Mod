@@ -59,7 +59,8 @@ jobs:
         name: ${{ steps.make_unique.outputs.jar_name }}
         if-no-files-found: error
   
-  release:
+  release-github:
+    name: Release to Github
     needs: build
     runs-on: ubuntu-latest
 
@@ -83,54 +84,48 @@ jobs:
         asset_path: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
         asset_name: ${{ needs.build.outputs.jarName }}
         asset_content_type: application/java-archive
-    
+  
+  release-external:
+    name: Release to Modrinth and Curseforge
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:      
+    - name: Download JAR from build
+      id: download
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ needs.build.outputs.jarName }}
+        path: ${{ github.workspace }}
+        
     - name: Get Release Changelog
-      id: get_changelog
+      id: changelog
       uses: actions/github-script@v6
       with:
         script: |
           const release = context.payload.release;
           return release.body || "No changelog provided.";
-    
-    - name: Create Modrinth Version
-      env:
-        MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-      run: |
-        JSON_PAYLOAD=$(cat <<EOF
-        {
-          "name": "WynnVentory ${{ needs.build.outputs.version }}",
-          "version_number": "${{ needs.build.outputs.version }}",
-          "changelog": ${{ steps.get_changelog.outputs.result }},
-          "dependencies": [
-            {
-              "version_id": "oGwyXeEI",
-              "file_name": "fabric-api-0.102.1+1.21.1.jar",
-              "dependency_type": "required"
-            },
-            {
-              "project_id": "dU5Gb9Ab",
-              "dependency_type": "required"
-            }
-          ],
-          "game_versions": [
-            "1.21",
-            "1.21.1"
-          ],
-          "version_type": "release",
-          "loaders": [
-            "fabric"
-          ],
-          "featured": true,
-          "status": "listed",
-          "requested_status": "listed",
-          "project_id": "CORVJbiT",
-          "file_parts": ["jarFile"],
-          "primary_file": "jarFile"
-        }
-        EOF
-        )
-    
-        curl -X POST "https://api.modrinth.com/v2/version" \
-          -H "Authorization: ${{ secrets.MODRINTH_TOKEN }}" \
-          -F "data=$JSON_PAYLOAD" \
-          -F "jarFile=@${{ github.workspace }}/${{ needs.build.outputs.jarName }};type=application/java-archive"
+
+    - uses: Kir-Antipov/mc-publish@v3.3.0
+      with: 
+        modrinth-id: CORVJbiT
+        modrinth-featured: true
+        modrinth-unfeature-mode: subset
+        modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+        curseforge-id: 1083173
+        curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+        files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
+
+        name: WynnVentory ${{ needs.build.outputs.version }}
+        version: ${{ needs.build.outputs.version }}
+        version-type: release
+        game-versions: |
+          [1.21,1.21.1]
+        changelog: ${{ steps.changelog.outputs.result }}
+        dependencies: |
+          wynntils(required){modrinth:dU5Gb9Ab}{curseforge:303451}#(ignore:github)
+          fabric-api@0.102.1+1.21.1(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)
+        loaders: fabric
+        java: 21
