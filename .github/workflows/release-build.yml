@@ -121,4 +121,4 @@ jobs:
             \"file_parts\": [\"jarFile\"],
             \"primary_file\": \"jarFile\"
           }" \
-        -F "jarFile=@build/libs/${{ needs.build.outputs.jar_name }};type=application/java-archive"
+        -F "jarFile=@build/libs/${{ needs.build.outputs.jarName }};type=application/java-archive"
