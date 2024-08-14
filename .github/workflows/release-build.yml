@@ -97,14 +97,6 @@ jobs:
       with:
         name: ${{ needs.build.outputs.jarName }}
         path: ${{ github.workspace }}
-        
-    - name: Get Release Changelog
-      id: changelog
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const release = context.payload.release;
-          return release.body || "No changelog provided.";
 
     - uses: Kir-Antipov/mc-publish@v3.3.0
       with: 
@@ -123,7 +115,6 @@ jobs:
         version-type: release
         game-versions: |
           [1.21,1.21.1]
-        changelog: ${{ steps.changelog.outputs.result }}
         dependencies: |
           wynntils(required){modrinth:dU5Gb9Ab}{curseforge:303451}#(ignore:github)
           fabric-api@0.102.1+1.21.1(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)
