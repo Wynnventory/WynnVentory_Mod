@@ -76,8 +76,6 @@ jobs:
 
     - name: Upload JAR to Release
       uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
         asset_path: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
@@ -93,8 +91,6 @@ jobs:
           return release.body || "No changelog provided.";
     
     - name: Create Modrinth Version
-      env:
-        MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
       run: |
         JSON_PAYLOAD=$(cat <<EOF
         {
@@ -131,6 +127,6 @@ jobs:
         )
     
         curl -X POST "https://api.modrinth.com/v2/version" \
-          -H "Authorization: TokenAuth $MODRINTH_TOKEN" \
+          -H "Authorization: TokenAuth ${{ secrets.MODRINTH_TOKEN }}" \
           -F "data=$JSON_PAYLOAD" \
           -F "jarFile=@${{ github.workspace }}/${{ needs.build.outputs.jarName }};type=application/java-archive"
