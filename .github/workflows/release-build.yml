@@ -19,6 +19,7 @@ jobs:
       packages: write
     outputs:
       version: ${{ steps.set_version.outputs.version }}
+      jarName: ${{ steps.make_unique.outputs.jar_name }}
 
     steps:
     - uses: actions/checkout@v4
@@ -45,12 +46,16 @@ jobs:
       run: ./gradlew build
 
     - name: Make filename unique
-      run: mv build/libs/*-shadow.jar build/libs/Wynnventory-${{ steps.set_version.outputs.version }}.jar
+      id: make_unique
+      run: |
+        jar_name="Wynnventory-${{ steps.set_version.outputs.version }}.jar"
+        mv build/libs/*-shadow.jar build/libs/$jar_name
+        echo "::set-output name=jar_name::$jar_name"
 
     - name: Archive JAR
       uses: actions/upload-artifact@v4
       with:
-        path: build/libs/Wynnventory-${{ steps.set_version.outputs.version }}.jar
+        path: build/libs/${{ steps.make_unique.outputs.jar_name }}
         if-no-files-found: error
   
   release:
@@ -71,3 +76,49 @@ jobs:
         asset_path: ${{ github.workspace }}/artifact/Wynnventory-${{ needs.build.outputs.version }}.jar
         asset_name: Wynnventory-${{ needs.build.outputs.version }}.jar
         asset_content_type: application/java-archive
+    
+    - name: Get Release Changelog
+      id: get_changelog
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const release = context.payload.release;
+          return release.body || "No changelog provided.";
+    
+    - name: Create Modrinth Version
+      env:
+        MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+      run: |
+        curl -X POST "https://api.modrinth.com/v2/version" \
+        -H "Authorization: TokenAuth $MODRINTH_TOKEN" \
+        -F "data={
+            \"name\": \"WynnVentory ${{ needs.build.outputs.version }}\",
+            \"version_number\": \"${{ needs.build.outputs.version }}\",
+            \"changelog\": \"${{ steps.get_changelog.outputs.result }}\",
+            \"dependencies\": [
+              {
+                \"version_id\": \"oGwyXeEI\",
+                \"file_name\": \"fabric-api-0.102.1+1.21.1.jar\",
+                \"dependency_type\": \"required\"
+              },
+              {
+                \"project_id\": \"dU5Gb9Ab\",
+                \"dependency_type\": \"required\"
+              }
+            ],
+            \"game_versions\": [
+              \"1.21\",
+              \"1.21.1\"
+            ],
+            \"version_type\": \"release\",
+            \"loaders\": [
+              \"fabric\"
+            ],
+            \"featured\": true,
+            \"status\": \"listed\",
+            \"requested_status\": \"listed\",
+            \"project_id\": \"CORVJbiT\",
+            \"file_parts\": [\"jarFile\"],
+            \"primary_file\": \"jarFile\"
+          }" \
+        -F "jarFile=@build/libs/${{ needs.build.outputs.jar_name }};type=application/java-archive"
