@@ -100,7 +100,7 @@ jobs:
         {
           "name": "WynnVentory ${{ needs.build.outputs.version }}",
           "version_number": "${{ needs.build.outputs.version }}",
-          "changelog": "${{ steps.get_changelog.outputs.result }}",
+          "changelog": ${{ steps.get_changelog.outputs.result }},
           "dependencies": [
             {
               "version_id": "oGwyXeEI",
