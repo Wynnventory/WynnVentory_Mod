@@ -73,8 +73,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ${{ github.workspace }}/artifact/Wynnventory-${{ needs.build.outputs.version }}.jar
-        asset_name: Wynnventory-${{ needs.build.outputs.version }}.jar
+        asset_path: ${{ steps.download.download-path }}/${{ needs.build.outputs.jarName }}
+        asset_name: ${{ needs.build.outputs.jarName }}
         asset_content_type: application/java-archive
     
     - name: Get Release Changelog
@@ -121,4 +121,4 @@ jobs:
             \"file_parts\": [\"jarFile\"],
             \"primary_file\": \"jarFile\"
           }" \
-        -F "jarFile=@build/libs/${{ needs.build.outputs.jarName }};type=application/java-archive"
+        -F "jarFile=${{ steps.download.download-path }}/${{ needs.build.outputs.jarName }};type=application/java-archive"
