@@ -73,7 +73,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ${{ steps.download.outputs.download-path }}/${{ needs.build.outputs.jarName }}
+        asset_path: ${{ steps.download.outputs.download-path }}/artifact/${{ needs.build.outputs.jarName }}
         asset_name: ${{ needs.build.outputs.jarName }}
         asset_content_type: application/java-archive
     
@@ -121,4 +121,4 @@ jobs:
             \"file_parts\": [\"jarFile\"],
             \"primary_file\": \"jarFile\"
           }" \
-        -F "jarFile=${{ steps.download.outputs.download-path }}/${{ needs.build.outputs.jarName }};type=application/java-archive"
+        -F "jarFile=${{ steps.download.outputs.download-path }}/artifact/${{ needs.build.outputs.jarName }};type=application/java-archive"
