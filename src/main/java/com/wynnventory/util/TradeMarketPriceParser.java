@@ -17,6 +17,7 @@ public class TradeMarketPriceParser {
 
     public static TradeMarketPriceInfo calculateItemPriceInfo(ItemStack itemStack) {
         List<StyledText> loreLines = LoreUtils.getLore(itemStack);
+        if (loreLines.size() < 2) return TradeMarketPriceInfo.EMPTY;
         StyledText priceLine = loreLines.get(1);
         if (priceLine != null && priceLine.matches(PRICE_STR)) {
             StyledText priceValueLine = loreLines.get(2);

@@ -55,10 +55,10 @@ async function getOptions() {
                 { type: "revert", section: "Reverts" },
                 { type: "docs", section: "Documentation" },
                 { type: "style", section: "Styles" },
-                { type: "chore", section: "Miscellaneous Chores" },
                 { type: "refactor", section: "Code Refactoring" },
                 { type: "test", section: "Tests" },
                 { type: "build", section: "Build System" },
+                { type: "chore", section: "Miscellaneous Chores", hidden: true },
                 { type: "ci", section: "Continuous Integration", hidden: true },
             ]
         }
