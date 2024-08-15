@@ -8,7 +8,6 @@ import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
-import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -45,12 +44,14 @@ public class TooltipMixin {
 
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
     private void renderSecondaryTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
+        if(!Screen.hasAltDown()) { return; }
         // Access hoveredSlot using the accessor
         Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
 
         if (hoveredSlot == null || !hoveredSlot.hasItem()) {
             return;
         }
+
         ItemStack item = hoveredSlot.getItem();
         Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
         gearItemOptional.ifPresent(gearItem -> {
