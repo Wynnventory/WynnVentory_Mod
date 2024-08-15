@@ -1,6 +1,5 @@
 package com.wynnventory;
 
-import com.wynnventory.handler.TooltipHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
@@ -26,8 +25,6 @@ public class WynnventoryMod implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 		LOGGER.info("Initialized WynnVentoryMod with version {}", currentVersion);
-
-		TooltipHandler.registerTooltips();
 	}
 
 	public static void info(String msg) {
