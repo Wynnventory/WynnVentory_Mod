@@ -25,9 +25,7 @@
 		"minecraft": "~1.21",
 		"java": ">=21",
 		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
+  "wynntils": ">=2.0.0"
 	},
 	"mixins": [
 		"wynnventory.mixins.json"
