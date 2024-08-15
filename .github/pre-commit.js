@@ -10,5 +10,5 @@ exports.preCommit = (props) => {
     };
 
     // replace only the version string with new version generated from config.json:
-    replace("./build.gradle", /(?<=version = ")\d+\.\d+\.\d+((-\w+)+\.\d+)?(-SNAPSHOT)?(?=")/g, props.version);
+    replace("./build.gradle", /(?<=version = ")\d+\.\d+\.\d+((-\w+)+\.\d+)?(?=")/g, props.version);
 };
