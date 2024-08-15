@@ -90,8 +90,11 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    - name: Print build.gradle contents
+      run: cat build.gradle
+
     - name: Build with Gradle
-      run: ./gradlew shadowjar
+      run: ./gradlew shadowjar --stacktrace
 
     - name: Make filename unique
       id: make_unique
