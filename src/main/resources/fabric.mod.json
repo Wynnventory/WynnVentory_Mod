@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"id": "wynnventory",
-	"version": "${version}",
-	"name": "wynnventory",
+	"id": "${mod_id}",
+	"version": "${mod_version}",
+	"name": "WynnVentory",
 	"description": "Real-time insights and historical data from the Wynncraft Trade Market.",
 	"authors": [
 		"Aruloci",
@@ -21,11 +21,11 @@
 		]
 	},
 	"depends": {
-		"fabricloader": ">=0.16.0",
-		"minecraft": "~1.21",
-		"java": ">=21",
+		"fabricloader": ">=${loader_version}",
+		"minecraft": "${minecraft_version_range}",
+		"java": ">=${java_version}",
 		"fabric-api": "*"
-		"wynntils": "^2.0.0"
+		"wynntils": "^${wynntils_version}"
 	},
 	"mixins": [
 		"wynnventory.mixins.json"
