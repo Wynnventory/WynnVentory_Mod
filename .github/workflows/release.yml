@@ -58,7 +58,6 @@ jobs:
     needs: changelog
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.set_version.outputs.version }}
       jarName: ${{ steps.make_unique.outputs.jar_name }}
 
     steps:
@@ -67,11 +66,7 @@ jobs:
     - uses: actions/download-artifact@v4 # Download version information from changelog
       with:
         name: build
-
-    - name: Set version number
-      id: set_version
-      run: echo "::set-output name=version::${GITHUB_REF_NAME#v}"
-
+        
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
@@ -91,7 +86,7 @@ jobs:
     - name: Make filename unique
       id: make_unique
       run: |
-        jar_name="WynnVentory-${{ steps.set_version.outputs.version }}.jar"
+        jar_name="WynnVentory-${{ needs.changelog.outputs.tag }}.jar"
         mv build/libs/*-shadow.jar build/libs/$jar_name
         echo "::set-output name=jar_name::$jar_name"
 
@@ -154,8 +149,8 @@ jobs:
 
         files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
 
-        name: WynnVentory ${{ needs.build.outputs.version }}
-        version: ${{ needs.build.outputs.version }}
+        name: WynnVentory ${{ needs.changelog.outputs.tag }}
+        version: ${{ needs.changelog.outputs.tag }}
         version-type: release
         changelog: ${{ needs.changelog.outputs.changelog }}
 
