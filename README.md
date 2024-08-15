@@ -1,5 +1,5 @@
 ## Wynnventory
-https://github.com/Aruloci/WynnVentory
+Backend: https://github.com/Aruloci/WynnVentory_Web
 
 ## Download the mod!
 Currently only Fabric is supported. You can download our mod from one of the links below.<br/>
