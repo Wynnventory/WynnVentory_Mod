@@ -6,6 +6,7 @@ import com.wynntils.models.emeralds.EmeraldModel;
 import com.wynntils.models.emeralds.type.EmeraldUnits;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
+import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import net.minecraft.ChatFormatting;
@@ -84,7 +85,7 @@ public class TooltipMixin {
                 .max(Integer::compareTo)
                 .orElse(0);
 
-        Font font = Minecraft.getInstance().font;
+        Font font = FontRenderer.getInstance().getFont();
         if (mouseX + toBeRenderedWidth + hoveredWidth > Minecraft.getInstance().getWindow().getScreenWidth()) {
             guiGraphics.renderComponentTooltip(
                     font, tooltipLines, mouseX - toBeRenderedWidth - 10, mouseY);
