@@ -5,24 +5,68 @@
 # This workflow will build a package using Gradle and then publish it to GitHub packages when a release is created
 # For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#Publishing-using-gradle
 
-name: Gradle Package
+name: Publish Release
 
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      - release
 
 jobs:
-  build:
+  changelog:
+    name: Generate Changelog
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    outputs:
+      tag: ${{ steps.changelog.outputs.tag }}
+      skipped: ${{ steps.changelog.outputs.skipped }}
+      clean_changelog: ${{ steps.changelog.outputs.clean_changelog }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 16
+      - run: |
+          npm install conventional-changelog-conventionalcommits@7.0.2
+          npm install conventional-recommended-bump@9.0.0
+
+      - name: Set up version.json
+        run: echo "{"version":$(git describe --tags --abbrev=0)}" > version.json
+
+      - name: Create changelog
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v5.2.1
+        with:
+          pre-commit: ./.github/pre-commit.js
+          config-file-path: ./.github/config.js
+          version-file: ./version.json
+          skip-version-file: true
+          skip-git-pull: true
+          pre-release: false
+          output-file: false
+          
+      - name: Upload build.gradle with replaced version
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build.gradle
+  build:
+    name: Build
+    needs: changelog
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.set_version.outputs.version }}
       jarName: ${{ steps.make_unique.outputs.jar_name }}
 
     steps:
     - uses: actions/checkout@v4
+
+    - uses: actions/download-artifact@v4 # Download version information from changelog
+      with:
+        name: build
 
     - name: Set version number
       id: set_version
@@ -34,59 +78,56 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-        settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      uses: gradle/actions/setup-gradle@v3
 
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew shadowjar
 
     - name: Make filename unique
       id: make_unique
       run: |
-        jar_name="Wynnventory-${{ steps.set_version.outputs.version }}.jar"
+        jar_name="WynnVentory-${{ steps.set_version.outputs.version }}.jar"
         mv build/libs/*-shadow.jar build/libs/$jar_name
         echo "::set-output name=jar_name::$jar_name"
 
-    - name: Archive JAR
+    - name: Upload JAR
       uses: actions/upload-artifact@v4
       with:
         path: build/libs/${{ steps.make_unique.outputs.jar_name }}
         name: ${{ steps.make_unique.outputs.jar_name }}
         if-no-files-found: error
+        overwrite: true
   
   release-github:
     name: Release to Github
-    needs: build
+    if: ${{ needs.changelog.outputs.skipped != 'true' }}
     runs-on: ubuntu-latest
+    needs: [ build, changelog ]
 
     steps:      
-    - name: Download JAR from build
+    - name: Download JAR
       id: download
       uses: actions/download-artifact@v4
       with:
         name: ${{ needs.build.outputs.jarName }}
         path: ${{ github.workspace }}
-
-    - name: Print Filesystem
-      run: "ls -la ${{ github.workspace }}"
-
-    - name: Upload JAR to Release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+    - name: Create release and upload files
+      if: ${{ needs.changelog.outputs.skipped != 'true' }}
+      id: release
+      uses: softprops/action-gh-release@v2
       with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
-        asset_name: ${{ needs.build.outputs.jarName }}
-        asset_content_type: application/java-archive
+        tag_name: ${{ needs.changelog.outputs.tag }}
+        body: ${{ needs.changelog.outputs.changelog }}
+        draft: false
+        prerelease: false
+        files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
   
   release-external:
     name: Release to Modrinth and Curseforge
+    if: ${{ needs.changelog.outputs.skipped != 'true' }}
     needs: build
     runs-on: ubuntu-latest
 
@@ -113,10 +154,9 @@ jobs:
         name: WynnVentory ${{ needs.build.outputs.version }}
         version: ${{ needs.build.outputs.version }}
         version-type: release
+        changelog: ${{ needs.changelog.outputs.changelog }}
+
         game-versions: |
           [1.21,1.21.1]
-        dependencies: |
-          wynntils(required){modrinth:dU5Gb9Ab}{curseforge:303451}#(ignore:github)
-          fabric-api@0.102.1+1.21.1(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)
         loaders: fabric
         java: 21
