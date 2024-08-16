@@ -14,13 +14,12 @@ on:
 
 jobs:
   changelog:
-    name: Generate Changelog
+    name: Generate Changelog and Bump Version
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.changelog.outputs.tag }}
       skipped: ${{ steps.changelog.outputs.skipped }}
-      clean_changelog: ${{ steps.changelog.outputs.clean_changelog }}
-      changelog: ${{ steps.changelog.outputs.changelog }}
+      changelog: ${{ steps.changelog.outputs.clean_changelog }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,6 +52,8 @@ jobs:
         with:
           name: build
           path: build.gradle
+          overwrite: true
+
   build:
     name: Build
     needs: changelog
@@ -72,7 +73,7 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        server-id: github
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
@@ -86,7 +87,7 @@ jobs:
     - name: Make filename unique
       id: make_unique
       run: |
-        jar_name="WynnVentory-${{ needs.changelog.outputs.tag }}.jar"
+        jar_name="Wynnventory-${{ needs.changelog.outputs.tag }}.jar"
         mv build/libs/*-shadow.jar build/libs/$jar_name
         echo "::set-output name=jar_name::$jar_name"
 
@@ -102,7 +103,7 @@ jobs:
     name: Release to Github
     if: ${{ needs.changelog.outputs.skipped != 'true' }}
     runs-on: ubuntu-latest
-    needs: [ build, changelog ]
+    needs: [ changelog, build ]
 
     steps:      
     - name: Download JAR
@@ -122,11 +123,27 @@ jobs:
         draft: false
         prerelease: false
         files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
-  
+    
+    - name: Set current date
+        id: date
+        run: |
+          echo "::set-output name=short::$(date +'%Y-%m-%d')"
+          echo "::set-output name=long::$(date +'%Y-%m-%d %H:%M')"
+
+    - name: Post release on Discord
+      uses: tsickert/discord-webhook@v6.0.0
+      with:
+        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        embed-color: "9498256"
+        embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
+        embed-description: ${{ needs.changelog.outputs.changelog }}
+        embed-url: ${{ steps.release.outputs.url }}
+        embed-timestamp: ${{ steps.date.outputs.long }}
+
   release-external:
     name: Release to Modrinth and Curseforge
     if: ${{ needs.changelog.outputs.skipped != 'true' }}
-    needs: build
+    needs: [changelog, build]
     runs-on: ubuntu-latest
 
     steps:      
@@ -149,7 +166,7 @@ jobs:
 
         files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
 
-        name: WynnVentory ${{ needs.changelog.outputs.tag }}
+        name: Wynnventory ${{ needs.changelog.outputs.tag }}
         version: ${{ needs.changelog.outputs.tag }}
         version-type: release
         changelog: ${{ needs.changelog.outputs.changelog }}
@@ -158,3 +175,30 @@ jobs:
           [1.21,1.21.1]
         loaders: fabric
         java: 21
+
+  sync-master:
+    name: "Sync master with release branch after version bump"
+    needs: changelog
+    if: ${{ needs.changelog.outputs.skipped != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release branch
+        uses: actions/checkout@v4
+        with:
+          ref: release
+          fetch-depth: 0
+
+      - name: Pull Changes
+        run: git pull
+
+      - name: Checkout master branch
+        run: git checkout master
+  
+      - name: Merge release branch into master after version bump [skip ci]
+        run: |
+          git config --global user.email "continuousIntegration@wynnventory.com"
+          git config --global user.name "Wynnventory (Bot)"
+          git merge release --no-ff -m "chore(release): Merge release branch into master after version bump [skip ci]"
+          git push origin master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

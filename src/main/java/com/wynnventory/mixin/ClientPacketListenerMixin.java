@@ -1,7 +1,5 @@
 package com.wynnventory.mixin;
 
-import com.wynntils.core.events.MixinHelper;
-import com.wynntils.mc.event.ContainerSetSlotEvent;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.util.ModUpdater;
 import net.minecraft.client.Minecraft;

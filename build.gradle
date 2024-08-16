@@ -4,7 +4,7 @@ plugins {
 	id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
-version = "0.2.5-dev.2"
+version = "0.2.8-dev.8"
 group = project.maven_group
 
 base {
@@ -47,12 +47,12 @@ configurations {
 
 processResources {
 	var replaceProperties = [
-	java_version		: java_version,
-	mod_id			: mod_id,
-	mod_version		: project.version,
+	java_version			: java_version,
+	mod_id					: mod_id,
+	mod_version				: project.version,
 	minecraft_version_range	: minecraft_version_range,
-	loader_version		: loader_version,
-	wynntils_version	: wynntils_version
+	loader_version			: loader_version,
+	wynntils_version		: wynntils_version
 	]
 	inputs.properties replaceProperties
 	

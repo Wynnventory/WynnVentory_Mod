@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"id": "${mod_id}",
 	"version": "${mod_version}",
-	"name": "WynnVentory",
+	"name": "Wynnventory",
 	"description": "Real-time insights and historical data from the Wynncraft Trade Market.",
 	"authors": [
 		"Aruloci",

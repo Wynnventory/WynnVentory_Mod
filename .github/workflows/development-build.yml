@@ -20,7 +20,7 @@ jobs:
       tag: ${{ steps.changelog.outputs.tag }}
       skipped: ${{ steps.changelog.outputs.skipped }}
       clean_changelog: ${{ steps.changelog.outputs.clean_changelog }}
-      changelog: ${{ steps.changelog.outputs.changelog }}
+      changelog: ${{ steps.changelog.outputs.clean_changelog }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -61,7 +61,6 @@ jobs:
     needs: changelog
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.set_version.outputs.version }}
       jarName: ${{ steps.make_unique.outputs.jar_name }}
 
     steps:
@@ -70,12 +69,6 @@ jobs:
     - uses: actions/download-artifact@v4 # Download version information from changelog
       with:
         name: build
-
-    - name: Assemble Build Name
-      id: assembleBuildName
-      run: |
-        short_sha=$(git rev-parse --short HEAD)
-        echo "::set-output name=build_name::dev-build-${short_sha}"
   
     - name: Set up JDK 21
       uses: actions/setup-java@v4
@@ -96,7 +89,7 @@ jobs:
     - name: Make filename unique
       id: make_unique
       run: |
-        jar_name="WynnVentory-${{ needs.changelog.outputs.tag }}.jar"
+        jar_name="Wynnventory-${{ needs.changelog.outputs.tag }}.jar"
         mv build/libs/*-shadow.jar build/libs/$jar_name
         echo "::set-output name=jar_name::$jar_name"
 

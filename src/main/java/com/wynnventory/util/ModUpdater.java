@@ -31,7 +31,7 @@ public class ModUpdater {
         alreadyChecked = true;
 
         if (WynnventoryMod.WYNNVENTORY_INSTANCE.isEmpty()) {
-            WynnventoryMod.error("Could not find Wynnventory in Fabric Loader!");
+            WynnventoryMod.error("Could not find WynnVentory in Fabric Loader!");
             return;
         }
 
@@ -71,8 +71,9 @@ public class ModUpdater {
     private static void handleNewVersionFound(Release latestRelease, String latestVersion) {
         notifyUserOfUpdate(latestVersion);
 
+        String modName = WynnventoryMod.WYNNVENTORY_INSTANCE.get().getMetadata().getName();
         latestRelease.getAssets().stream()
-                .filter(asset -> asset.getName().startsWith("Wynnventory-") && asset.getName().endsWith(".jar"))
+                .filter(asset -> asset.getName().startsWith(modName) && asset.getName().endsWith(".jar"))
                 .forEach(ModUpdater::downloadAndApplyUpdate);
     }
 
@@ -91,7 +92,7 @@ public class ModUpdater {
                 File oldFile = getExistingModFile();
                 scheduleFileReplacementOnShutdown(oldFile, newFilePath.toFile());
             } catch (Exception e) {
-                WynnventoryMod.error("Failed to download Wynnventory update", e);
+                WynnventoryMod.error("Failed to download WynnVentory update", e);
             }
         }).start();
     }
