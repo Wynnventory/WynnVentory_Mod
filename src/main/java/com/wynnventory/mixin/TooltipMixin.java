@@ -32,6 +32,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Mixin(AbstractContainerScreen.class)
 public class TooltipMixin {
@@ -42,11 +45,14 @@ public class TooltipMixin {
     private static final WynnventoryAPI API = new WynnventoryAPI();
 
     private static GearItem lastHoveredItem;
-    private static TradeMarketItemPriceInfo lastHoveredItemPriceInfo;
+    private TradeMarketItemPriceInfo lastHoveredItemPriceInfo;
+    private static final TradeMarketItemPriceInfo EMPTY_PRICE = new TradeMarketItemPriceInfo();
+
+    private static final ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
     private void renderSecondaryTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
-        if(!Screen.hasAltDown()) { return; }
+//        if(!Screen.hasAltDown()) { return; } @TODO: Move to Mod Config
         Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
 
         if (hoveredSlot == null || !hoveredSlot.hasItem()) {
@@ -54,15 +60,32 @@ public class TooltipMixin {
         }
 
         ItemStack item = hoveredSlot.getItem();
+
         Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
         gearItemOptional.ifPresent(gearItem -> {
             if (!gearItem.equals(lastHoveredItem)) {
                 lastHoveredItem = gearItem;
-                lastHoveredItemPriceInfo = API.fetchItemPrices(item);
+                lastHoveredItemPriceInfo = EMPTY_PRICE;
+                // Fetch item prices async
+                CompletableFuture.supplyAsync(() -> API.fetchItemPrices(item), executorService)
+                        .thenAccept(priceInfo -> {
+                            Minecraft.getInstance().execute(() -> {
+                                lastHoveredItemPriceInfo = priceInfo;
+                                List<Component> priceTooltips = createPriceTooltip(lastHoveredItemPriceInfo);
+                                renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
+                            });
+                        });
+            } else {
+                if (lastHoveredItemPriceInfo == EMPTY_PRICE) { // Display retrieving info
+                    List<Component> fetchTooltip = new ArrayList<>();
+                    fetchTooltip.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
+                    fetchTooltip.add(formatText("Retrieving price information...", ChatFormatting.WHITE));
+                    renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, fetchTooltip);
+                } else { // Display fetched price
+                    List<Component> priceTooltips = createPriceTooltip(lastHoveredItemPriceInfo);
+                    renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
+                }
             }
-
-            List<Component> priceTooltips = createTooltip(lastHoveredItemPriceInfo);
-            renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
         });
     }
 
@@ -101,7 +124,7 @@ public class TooltipMixin {
     }
 
     @Unique
-    private List<Component> createTooltip(TradeMarketItemPriceInfo priceInfo) {
+    private List<Component> createPriceTooltip(TradeMarketItemPriceInfo priceInfo) {
         List<Component> tooltipLines = new ArrayList<>();
         tooltipLines.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
 
@@ -110,8 +133,8 @@ public class TooltipMixin {
             return tooltipLines;
         } else {
             tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
-            tooltipLines.add(formatPrice("Min:", priceInfo.getAveragePrice()));
-            tooltipLines.add(formatPrice("Avg:", priceInfo.getAveragePrice()));
+            tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice()));
+            tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice()));
             if (priceInfo.getUnidentifiedAveragePrice() != null) {
                 tooltipLines.add(formatPrice("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice().intValue()));
             }
