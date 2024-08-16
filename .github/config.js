@@ -60,25 +60,28 @@ async function getOptions() {
                 { type: "build", section: "Build System" },
                 { type: "chore", section: "Miscellaneous Chores", hidden: true },
                 { type: "ci", section: "Continuous Integration", hidden: true },
-            ]
+            ],
+            writerOpts: {
+                groupBy: 'type',
+                commitGroupsSort: 'title',
+                commitsSort: ['scope', 'subject'],
+                mainTemplate: `
+                {{#if commitGroups.length}}
+                {{#each commitGroups}}
+                {{#if title}}
+                ### {{title}}
+                {{/if}}
+    
+                {{#each commits}}
+                * **{{scope}}**: {{subject}} ({{hash}})
+                {{/each}}
+                {{/each}}
+                {{/if}}
+                `,
+                headerPartial: '',
+                footerPartial: ''
+            }
     });
-
-    options.writerOpts = options.writerOpts || {};
-
-    options.writerOpts.mainTemplate = `
-    {{#each commitGroups}}
-
-    {{#if title}}
-    ### {{title}}
-
-    {{/if}}
-    {{#each commits}}
-    {{> commit root=@root}}
-    {{/each}}
-
-    {{/each}}
-    `;
-
     // Both of these are used in different places...
     options.bumpType = determineVersionBump;
 
