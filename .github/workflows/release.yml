@@ -181,7 +181,7 @@ jobs:
   
       - name: Merge release into master after version bump
         run: |
-          git merge release --no-ff -m "chore(release): Merge release into master [skip ci]"
+          git merge release --no-ff -m "chore(release): Merge release into master after version bump [skip ci]"
           git push origin master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
