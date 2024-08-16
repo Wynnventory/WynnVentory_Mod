@@ -173,8 +173,8 @@ jobs:
           ref: release
           fetch-depth: 0
 
-      - name: Fetch all branches
-        run: git fetch --all
+      - name: Pull new changes
+        run: git pull
 
       - name: Merge release into master after version bump
         uses: devmasx/merge-branch@master
