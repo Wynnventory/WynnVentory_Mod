@@ -64,19 +64,22 @@ async function getOptions() {
     });
 
     options.writerOpts = options.writerOpts || {};
-    
-    options.writerOpts.mainTemplate = `
-    {{#if noteGroups.length}}
-        {{#each noteGroups}}
-            {{#if title}}
-                ## {{title}}
-            {{/if}}
 
-            {{#each notes}}
-                * {{this.commit.subject}} ({{this.commit.sha}})
-            {{/each}}
-        {{/each}}
+    options.writerOpts.mainTemplate = `
+    {{> header}}
+
+    {{#each commitGroups}}
+
+    {{#if title}}
+    ### {{title}}
+
     {{/if}}
+    {{#each commits}}
+    {{> commit root=@root}}
+    {{/each}}
+
+    {{/each}}
+    {{> footer}}
     `;
 
     // Both of these are used in different places...
