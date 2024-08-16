@@ -66,8 +66,6 @@ async function getOptions() {
     options.writerOpts = options.writerOpts || {};
 
     options.writerOpts.mainTemplate = `
-    {{> header}}
-
     {{#each commitGroups}}
 
     {{#if title}}
@@ -79,7 +77,6 @@ async function getOptions() {
     {{/each}}
 
     {{/each}}
-    {{> footer}}
     `;
 
     // Both of these are used in different places...
