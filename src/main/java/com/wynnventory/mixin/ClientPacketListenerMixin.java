@@ -26,7 +26,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
     @Inject(
             method = "handleContainerSetSlot(Lnet/minecraft/network/protocol/game/ClientboundContainerSetSlotPacket;)V",
-            at = @At("HEAD")
+            at = @At("RETURN")
     )
     private void handleContainerSetSlotPre(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
         ContainerSetSlotEvent event = new ContainerSetSlotEvent.Pre(packet.getContainerId(), packet.getStateId(), packet.getSlot(), packet.getItem());

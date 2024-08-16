@@ -7,6 +7,7 @@ import com.wynntils.models.emeralds.type.EmeraldUnits;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynntils.utils.render.FontRenderer;
+import com.wynnventory.WynnventoryMod;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import net.minecraft.ChatFormatting;
@@ -46,7 +47,6 @@ public class TooltipMixin {
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
     private void renderSecondaryTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
         if(!Screen.hasAltDown()) { return; }
-        // Access hoveredSlot using the accessor
         Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
 
         if (hoveredSlot == null || !hoveredSlot.hasItem()) {
@@ -86,12 +86,16 @@ public class TooltipMixin {
                 .orElse(0);
 
         Font font = FontRenderer.getInstance().getFont();
-        if (mouseX + toBeRenderedWidth + hoveredWidth > Minecraft.getInstance().getWindow().getScreenWidth()) {
-            guiGraphics.renderComponentTooltip(
-                    font, tooltipLines, mouseX - toBeRenderedWidth - 10, mouseY);
-        } else {
-            guiGraphics.renderComponentTooltip(
-                    font, tooltipLines, mouseX + hoveredWidth + 10, mouseY);
+        try {
+            if (mouseX + toBeRenderedWidth + hoveredWidth > Minecraft.getInstance().getWindow().getScreenWidth()) {
+                guiGraphics.renderComponentTooltip(
+                        font, tooltipLines, mouseX - toBeRenderedWidth - 10, mouseY);
+            } else {
+                guiGraphics.renderComponentTooltip(
+                        font, tooltipLines, mouseX + hoveredWidth + 10, mouseY);
+            }
+        } catch (Exception e) {
+            WynnventoryMod.error("Failed to render price tooltip for " + item.getDisplayName());
         }
         poseStack.popPose();
     }
