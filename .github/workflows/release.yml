@@ -167,7 +167,14 @@ jobs:
     if: ${{ needs.changelog.outputs.skipped != 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout release branch
+        uses: actions/checkout@v4
+        with:
+          ref: release
+          fetch-depth: 0
+
+      - name: Fetch all branches
+        run: git fetch --all
 
       - name: Merge release into master after version bump
         uses: devmasx/merge-branch@master
