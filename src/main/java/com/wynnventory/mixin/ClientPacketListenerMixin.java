@@ -30,7 +30,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     )
     private void handleContainerSetSlotPre(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
         Item item = packet.getItem().getItem();
-        if (packet.getContainerId() > 0) return;
+        if (packet.getContainerId() >= 0) return;
         if (item == Items.AIR || item == Items.COMPASS) return;
         API.sendTradeMarketResults(packet.getItem());
     }
