@@ -161,7 +161,7 @@ jobs:
 
   sync-master:
     name: "Sync master with new release after version bump"
-    needs: changelog
+    needs: release-github
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
