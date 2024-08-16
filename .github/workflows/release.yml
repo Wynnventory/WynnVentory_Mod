@@ -14,7 +14,7 @@ on:
 
 jobs:
   changelog:
-    name: Generate Changelog
+    name: Generate Changelog and Bump Version
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.changelog.outputs.tag }}
@@ -125,7 +125,7 @@ jobs:
   
   release-external:
     name: Release to Modrinth and Curseforge
-    if: ${{ needs.changelog.outputs.skipped != 'true' }}
+    if: false # ${{ needs.changelog.outputs.skipped != 'true' }}
     needs: [changelog, build]
     runs-on: ubuntu-latest
 
@@ -158,3 +158,18 @@ jobs:
           [1.21,1.21.1]
         loaders: fabric
         java: 21
+
+  sync-master:
+    name: "Sync master with new release after release version bump"
+    needs: changelog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Merge release into master after version bump
+        uses: devmasx/merge-branch@master
+        with:
+          type: now
+          target_branch: master
+          message: "chore(release): Merge staging into uat [skip ci]"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
