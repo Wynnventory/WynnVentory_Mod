@@ -72,7 +72,7 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        server-id: github
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
