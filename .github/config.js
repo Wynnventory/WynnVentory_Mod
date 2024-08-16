@@ -65,16 +65,6 @@ async function getOptions() {
 
     options.writerOpts = options.writerOpts || {};
     
-    options.writerOpts.transform = (commit, context) => {
-        console.log(`Processing commit: ${commit.header}`);
-        if (commit.version && commit.version.includes('dev')) {
-            console.log('Skipping dev version commit');
-            return;
-        }
-
-        return commit;
-    };
-
     options.writerOpts.mainTemplate = `
     {{#if noteGroups.length}}
         {{#each noteGroups}}
