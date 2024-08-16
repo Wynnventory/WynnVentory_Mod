@@ -127,7 +127,7 @@ jobs:
   
   release-external:
     name: Release to Modrinth and Curseforge
-    if: false # ${{ needs.changelog.outputs.skipped != 'true' }}
+    if: ${{ needs.changelog.outputs.skipped != 'true' }}
     needs: [changelog, build]
     runs-on: ubuntu-latest
 
