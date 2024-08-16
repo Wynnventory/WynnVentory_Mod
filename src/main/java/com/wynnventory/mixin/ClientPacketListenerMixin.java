@@ -1,7 +1,5 @@
 package com.wynnventory.mixin;
 
-import com.wynntils.core.events.MixinHelper;
-import com.wynntils.mc.event.ContainerSetSlotEvent;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.util.ModUpdater;
 import net.minecraft.client.Minecraft;
@@ -29,9 +27,6 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
             at = @At("RETURN")
     )
     private void handleContainerSetSlotPre(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
-        ContainerSetSlotEvent event = new ContainerSetSlotEvent.Pre(packet.getContainerId(), packet.getStateId(), packet.getSlot(), packet.getItem());
-        MixinHelper.post(event);
-
         API.sendTradeMarketResults(packet.getItem());
     }
 
