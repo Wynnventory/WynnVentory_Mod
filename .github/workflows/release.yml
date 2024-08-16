@@ -171,5 +171,5 @@ jobs:
         with:
           type: now
           target_branch: master
-          message: "chore(release): Merge staging into uat [skip ci]"
+          message: "chore(release): Merge release into master [skip ci]"
           github_token: ${{ secrets.GITHUB_TOKEN }}
