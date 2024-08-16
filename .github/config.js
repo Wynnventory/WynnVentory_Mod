@@ -60,39 +60,37 @@ async function getOptions() {
                 { type: "build", section: "Build System" },
                 { type: "chore", section: "Miscellaneous Chores", hidden: true },
                 { type: "ci", section: "Continuous Integration", hidden: true },
-            ],
-            transform: (commit, context) => {
-                // Log the context to understand its structure
-                console.log('Context:', context);
+            ]
+    });
 
-                // Example: check the current tag or version
-                const currentVersion = context.version || context.gitSemverTags && context.gitSemverTags[0];
+    options.writerOpts = options.writerOpts || {};
+    
+    options.writerOpts.transform = (commit, context) => {
+        console.log('Transforming commit:', commit);
 
-                // Skip dev versions
-                if (currentVersion && currentVersion.includes('dev')) {
-                    console.log(`Skipping commit for dev version: ${currentVersion}`);
-                    return;
-                }
+        const currentVersion = context.version || (context.gitSemverTags && context.gitSemverTags[0]);
 
-                return commit;
-            },
-            mainTemplate: `
-            {{#if noteGroups.length}}
-                {{#each noteGroups}}
-                    {{#if title}}
-                        ## {{title}}
-                    {{/if}}
-
-                    {{#each notes}}
-                        * {{this.commit.subject}}
-                    {{/each}}
-                {{/each}}
-            {{/if}}
-            `,
-            header: '',
-            footer: ''
+        if (currentVersion && currentVersion.includes('dev')) {
+            console.log(`Skipping dev version commit: ${currentVersion}`);
+            return;
         }
-    );
+        
+        return commit;
+    };
+
+    options.writerOpts.mainTemplate = `
+    {{#if noteGroups.length}}
+        {{#each noteGroups}}
+            {{#if title}}
+                ## {{title}}
+            {{/if}}
+
+            {{#each notes}}
+                * {{this.commit.subject}} ({{this.commit.sha}})
+            {{/each}}
+        {{/each}}
+    {{/if}}
+    `;
 
     // Both of these are used in different places...
     options.bumpType = determineVersionBump;
