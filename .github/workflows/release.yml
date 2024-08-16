@@ -53,6 +53,8 @@ jobs:
         with:
           name: build
           path: build.gradle
+          overwrite: true
+
   build:
     name: Build
     needs: changelog
@@ -72,7 +74,7 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        server-id: github
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
@@ -161,7 +163,8 @@ jobs:
 
   sync-master:
     name: "Sync master with release branch after version bump"
-    needs: release-github
+    needs: changelog
+    if: ${{ needs.changelog.outputs.skipped != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
