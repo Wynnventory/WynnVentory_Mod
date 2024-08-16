@@ -183,7 +183,7 @@ jobs:
         run: |
           git config --global user.email "continuousIntegration@wynnventory.com"
           git config --global user.name "WynnVentory (Bot)"
-          git merge release --no-ff -m "chore(release): Merge release into master after version bump [skip ci]"
+          git merge release --no-ff -m "chore(release): Merge release branch into master after version bump [skip ci]"
           git push origin master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
