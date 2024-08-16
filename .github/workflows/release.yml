@@ -160,7 +160,7 @@ jobs:
         java: 21
 
   sync-master:
-    name: "Sync master with new release after version bump"
+    name: "Sync master with release branch after version bump"
     needs: release-github
     runs-on: ubuntu-latest
     steps:
