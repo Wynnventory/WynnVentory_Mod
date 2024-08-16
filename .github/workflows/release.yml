@@ -179,7 +179,7 @@ jobs:
       - name: Checkout master branch
         run: git checkout master
   
-      - name: Merge release into master after version bump
+      - name: Merge release branch into master after version bump [skip ci]
         run: |
           git config --global user.email "continuousIntegration@wynnventory.com"
           git config --global user.name "WynnVentory (Bot)"
