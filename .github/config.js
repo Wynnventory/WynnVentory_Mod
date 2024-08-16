@@ -65,13 +65,10 @@ async function getOptions() {
 
     options.writerOpts = options.writerOpts || {};
     
-    options.writerOpts.transform = (commit, context) => {
-        console.log('Transforming commit:', commit);
-
-        const currentVersion = context.version || (context.gitSemverTags && context.gitSemverTags[0]);
-
-        if (currentVersion && currentVersion.includes('dev')) {
-            console.log(`Skipping dev version commit: ${currentVersion}`);
+    options.writerOpts.transform: (commit, context) => {
+        console.log(`Processing commit: ${commit.header}`);
+        if (commit.version && commit.version.includes('dev')) {
+            console.log('Skipping dev version commit');
             return;
         }
         
