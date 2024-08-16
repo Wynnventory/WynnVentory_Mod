@@ -173,7 +173,7 @@ jobs:
           ref: release
           fetch-depth: 0
 
-      - name: Pull new changes
+      - name: Pull Changes
         run: git pull
 
       - name: Merge release into master after version bump
