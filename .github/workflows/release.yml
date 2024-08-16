@@ -53,6 +53,8 @@ jobs:
         with:
           name: build
           path: build.gradle
+          overwrite: true
+
   build:
     name: Build
     needs: changelog
@@ -161,7 +163,8 @@ jobs:
 
   sync-master:
     name: "Sync master with release branch after version bump"
-    needs: release-github
+    needs: changelog
+    if: ${{ needs.changelog.outputs.skipped != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
