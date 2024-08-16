@@ -88,7 +88,7 @@ jobs:
     - name: Make filename unique
       id: make_unique
       run: |
-        jar_name="WynnVentory-${{ needs.changelog.outputs.tag }}.jar"
+        jar_name="Wynnventory-${{ needs.changelog.outputs.tag }}.jar"
         mv build/libs/*-shadow.jar build/libs/$jar_name
         echo "::set-output name=jar_name::$jar_name"
 
@@ -151,7 +151,7 @@ jobs:
 
         files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
 
-        name: WynnVentory ${{ needs.changelog.outputs.tag }}
+        name: Wynnventory ${{ needs.changelog.outputs.tag }}
         version: ${{ needs.changelog.outputs.tag }}
         version-type: release
         changelog: ${{ needs.changelog.outputs.changelog }}
@@ -182,7 +182,7 @@ jobs:
       - name: Merge release branch into master after version bump [skip ci]
         run: |
           git config --global user.email "continuousIntegration@wynnventory.com"
-          git config --global user.name "WynnVentory (Bot)"
+          git config --global user.name "Wynnventory (Bot)"
           git merge release --no-ff -m "chore(release): Merge release branch into master after version bump [skip ci]"
           git push origin master
         env:

@@ -47,12 +47,12 @@ configurations {
 
 processResources {
 	var replaceProperties = [
-	java_version		: java_version,
-	mod_id			: mod_id,
-	mod_version		: project.version,
+	java_version			: java_version,
+	mod_id					: mod_id,
+	mod_version				: project.version,
 	minecraft_version_range	: minecraft_version_range,
-	loader_version		: loader_version,
-	wynntils_version	: wynntils_version
+	loader_version			: loader_version,
+	wynntils_version		: wynntils_version
 	]
 	inputs.properties replaceProperties
 	

@@ -89,7 +89,7 @@ jobs:
     - name: Make filename unique
       id: make_unique
       run: |
-        jar_name="WynnVentory-${{ needs.changelog.outputs.tag }}.jar"
+        jar_name="Wynnventory-${{ needs.changelog.outputs.tag }}.jar"
         mv build/libs/*-shadow.jar build/libs/$jar_name
         echo "::set-output name=jar_name::$jar_name"
 
