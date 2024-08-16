@@ -160,7 +160,7 @@ jobs:
         java: 21
 
   sync-master:
-    name: "Sync master with new release after release version bump"
+    name: "Sync master with new release after version bump"
     needs: changelog
     runs-on: ubuntu-latest
     steps:
