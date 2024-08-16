@@ -60,7 +60,30 @@ async function getOptions() {
                 { type: "build", section: "Build System" },
                 { type: "chore", section: "Miscellaneous Chores", hidden: true },
                 { type: "ci", section: "Continuous Integration", hidden: true },
-            ]
+            ],
+            transform: (commit, context) => {
+                // Filter out dev versions and irrelevant commits
+                if (commit.version && commit.version.includes('dev')) {
+                    return;
+                }
+
+                return commit;
+            },
+            mainTemplate: `
+            {{#if noteGroups.length}}
+                {{#each noteGroups}}
+                    {{#if title}}
+                        ## {{title}}
+                    {{/if}}
+
+                    {{#each notes}}
+                        * {{this.commit.subject}}
+                    {{/each}}
+                {{/each}}
+            {{/if}}
+            `,
+            header: '',
+            footer: ''
         }
     );
 
