@@ -62,8 +62,15 @@ async function getOptions() {
                 { type: "ci", section: "Continuous Integration", hidden: true },
             ],
             transform: (commit, context) => {
-                // Filter out dev versions and irrelevant commits
-                if (commit.version && commit.version.includes('dev')) {
+                // Log the context to understand its structure
+                console.log('Context:', context);
+
+                // Example: check the current tag or version
+                const currentVersion = context.version || context.gitSemverTags && context.gitSemverTags[0];
+
+                // Skip dev versions
+                if (currentVersion && currentVersion.includes('dev')) {
+                    console.log(`Skipping commit for dev version: ${currentVersion}`);
                     return;
                 }
 
