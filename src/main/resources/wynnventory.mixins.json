@@ -1,6 +1,8 @@
 {
   "client": [
-    "ClientPacketListenerMixin"
+    "AbstractContainerScreenAccessor",
+    "ClientPacketListenerMixin",
+    "TooltipMixin"
   ],
   "compatibilityLevel": "JAVA_21",
   "injectors": {
