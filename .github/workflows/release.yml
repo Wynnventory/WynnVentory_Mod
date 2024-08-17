@@ -125,10 +125,10 @@ jobs:
         files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
     
     - name: Set current date
-        id: date
-        run: |
-          echo "::set-output name=short::$(date +'%Y-%m-%d')"
-          echo "::set-output name=long::$(date +'%Y-%m-%d %H:%M')"
+      id: date
+      run: |
+        echo "::set-output name=short::$(date +'%Y-%m-%d')"
+        echo "::set-output name=long::$(date +'%Y-%m-%d %H:%M')"
 
     - name: Post release on Discord
       uses: tsickert/discord-webhook@v6.0.0
