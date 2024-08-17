@@ -2,7 +2,6 @@ package com.wynnventory.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Models;
-import com.wynntils.models.emeralds.EmeraldModel;
 import com.wynntils.models.emeralds.type.EmeraldUnits;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
@@ -10,6 +9,7 @@ import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
+import com.wynnventory.util.EmeraldPrice;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -41,7 +41,7 @@ public class TooltipMixin {
 
     private static final String TITLE_TEXT = "Trade Market Price Info";
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.US);
-    private static final EmeraldModel EMERALD_MODEL = new EmeraldModel();
+    private static final EmeraldPrice EMERALD_PRICE = new EmeraldPrice();
     private static final WynnventoryAPI API = new WynnventoryAPI();
 
     private static GearItem lastHoveredItem;
@@ -146,7 +146,7 @@ public class TooltipMixin {
     private static MutableComponent formatPrice(String label, int price) {
         if (price > 0) {
             String formattedPrice = NUMBER_FORMAT.format(price) + EmeraldUnits.EMERALD.getSymbol();
-            String formattedEmeralds = EMERALD_MODEL.getFormattedString(price, false);
+            String formattedEmeralds = EMERALD_PRICE.getFormattedString(price, false);
             return Component.literal(label + formattedPrice)
                     .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE))
                     .append(Component.literal(" (" + formattedEmeralds + ")")
