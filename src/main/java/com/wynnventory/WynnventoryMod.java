@@ -11,6 +11,8 @@ import java.util.Optional;
 public class WynnventoryMod implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("wynnventory");
 	public static final Optional<ModContainer> WYNNVENTORY_INSTANCE = FabricLoader.getInstance().getModContainer("wynnventory");
+	public static final String WYNNVENTORY_VERSION = WYNNVENTORY_INSTANCE.get().getMetadata().getVersion().getFriendlyString();
+	public static final String WYNNVENTORY_MOD_NAME = WYNNVENTORY_INSTANCE.get().getMetadata().getName();
 
 	@Override
 	public void onInitialize() {
@@ -19,12 +21,10 @@ public class WynnventoryMod implements ModInitializer {
 			return;
 		}
 
-		String currentVersion = WYNNVENTORY_INSTANCE.get().getMetadata().getVersion().getFriendlyString();
-
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
-		LOGGER.info("Initialized WynnVentoryMod with version {}", currentVersion);
+		LOGGER.info("Initialized WynnVentoryMod with version {}", WYNNVENTORY_VERSION);
 	}
 
 	public static void info(String msg) {
