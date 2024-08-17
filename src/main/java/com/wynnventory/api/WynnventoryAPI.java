@@ -57,7 +57,7 @@ public void sendTradeMarketResults(ItemStack item) {
 
             if (response.statusCode() == 200) {
                 return parsePriceInfoResponse(response.body());
-            } else if (response.statusCode() == 204) {
+            } else if (response.statusCode() == 404) {
                 return null;
             } else {
                 WynnventoryMod.error("Failed to fetch item price from API: " + response.body());
