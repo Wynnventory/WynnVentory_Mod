@@ -36,7 +36,11 @@ public class ModUpdater {
         }
 
         String currentVersion = WynnventoryMod.WYNNVENTORY_INSTANCE.get().getMetadata().getVersion().getFriendlyString();
-        initiateUpdateCheck(currentVersion);
+        if (currentVersion.contains("dev")) {
+            WynnventoryMod.info("This is a dev build. Skipping auto update...");
+        } else {
+            initiateUpdateCheck(currentVersion);
+        }
     }
 
     private static void initiateUpdateCheck(String currentVersion) {
