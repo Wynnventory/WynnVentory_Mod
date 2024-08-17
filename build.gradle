@@ -4,7 +4,7 @@ plugins {
 	id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
-version = "0.2.7"
+version = "0.2.8-dev.10"
 group = project.maven_group
 
 base {
@@ -28,7 +28,7 @@ dependencies {
 
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	modImplementation files('libs/wynntils-2.0.3-fabric+MC-1.21.jar')
+	modImplementation files("libs/wynntils-2.0.7-fabric+MC-1.21.jar")
 
 	modRuntimeOnly "me.djtheredstoner:DevAuth-fabric:1.2.1"
 

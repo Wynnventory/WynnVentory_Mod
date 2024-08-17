@@ -35,8 +35,12 @@ public class ModUpdater {
             return;
         }
 
-        String currentVersion = WynnventoryMod.WYNNVENTORY_INSTANCE.get().getMetadata().getVersion().getFriendlyString();
-        initiateUpdateCheck(currentVersion);
+        String currentVersion = WynnventoryMod.WYNNVENTORY_VERSION;
+        if (currentVersion.contains("dev")) {
+            WynnventoryMod.info("This is a dev build. Skipping auto update...");
+        } else {
+            initiateUpdateCheck(currentVersion);
+        }
     }
 
     private static void initiateUpdateCheck(String currentVersion) {
@@ -71,7 +75,7 @@ public class ModUpdater {
     private static void handleNewVersionFound(Release latestRelease, String latestVersion) {
         notifyUserOfUpdate(latestVersion);
 
-        String modName = WynnventoryMod.WYNNVENTORY_INSTANCE.get().getMetadata().getName();
+        String modName = WynnventoryMod.WYNNVENTORY_MOD_NAME;
         latestRelease.getAssets().stream()
                 .filter(asset -> asset.getName().startsWith(modName) && asset.getName().endsWith(".jar"))
                 .forEach(ModUpdater::downloadAndApplyUpdate);

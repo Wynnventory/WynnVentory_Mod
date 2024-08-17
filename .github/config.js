@@ -61,8 +61,7 @@ async function getOptions() {
                 { type: "chore", section: "Miscellaneous Chores", hidden: true },
                 { type: "ci", section: "Continuous Integration", hidden: true },
             ]
-        }
-    );
+    });
 
     // Both of these are used in different places...
     options.bumpType = determineVersionBump;

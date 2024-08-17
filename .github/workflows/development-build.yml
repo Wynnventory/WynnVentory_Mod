@@ -20,7 +20,7 @@ jobs:
       tag: ${{ steps.changelog.outputs.tag }}
       skipped: ${{ steps.changelog.outputs.skipped }}
       clean_changelog: ${{ steps.changelog.outputs.clean_changelog }}
-      changelog: ${{ steps.changelog.outputs.changelog }}
+      changelog: ${{ steps.changelog.outputs.clean_changelog }}
     steps:
       - uses: actions/checkout@v4
         with:

@@ -25,7 +25,7 @@ import java.util.Optional;
 public class WynnventoryAPI {
     private static final String BASE_URL = "https://www.wynnventory.com";
     private static final String API_IDENTIFIER = "api";
-    private static final URI    API_BASE_URL = createApiBaseUrl();
+    private static final URI API_BASE_URL = createApiBaseUrl();
     private static final ObjectMapper objectMapper = createObjectMapper();
 
 public void sendTradeMarketResults(ItemStack item) {
@@ -39,7 +39,15 @@ public void sendTradeMarketResults(ItemStack item) {
 
         if (marketItems.isEmpty()) return;
 
-        HttpUtil.sendHttpPostRequest(getEndpointURI("trademarket/items"), serializeMarketItems(marketItems));
+        boolean isDev = WynnventoryMod.WYNNVENTORY_VERSION.contains("dev");
+        URI endpointURI;
+        if (isDev) {
+            WynnventoryMod.info("Sending item data to DEV endpoint.");
+            endpointURI = getEndpointURI("trademarket/items?env=dev");
+        } else {
+            endpointURI = getEndpointURI("trademarket/items/");
+        }
+        HttpUtil.sendHttpPostRequest(endpointURI, serializeMarketItems(marketItems));
     }
 
     public TradeMarketItemPriceInfo fetchItemPrices(ItemStack item) {
@@ -57,7 +65,7 @@ public void sendTradeMarketResults(ItemStack item) {
 
             if (response.statusCode() == 200) {
                 return parsePriceInfoResponse(response.body());
-            } else if (response.statusCode() == 204) {
+            } else if (response.statusCode() == 404) {
                 return null;
             } else {
                 WynnventoryMod.error("Failed to fetch item price from API: " + response.body());
