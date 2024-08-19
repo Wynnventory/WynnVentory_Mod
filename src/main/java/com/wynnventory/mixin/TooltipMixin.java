@@ -106,29 +106,38 @@ public class TooltipMixin {
     private void renderPriceInfoTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, ItemStack item, List<Component> tooltipLines) {
         mouseX = Math.min(mouseX, guiGraphics.guiWidth() - 10);
         mouseY = Math.max(mouseY, 10);
+        int guiScaledWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+        int guiScaleFactor = (int) Minecraft.getInstance().getWindow().getGuiScale();
+        int gap = 5 * guiScaleFactor;
 
         final PoseStack poseStack = new PoseStack();
         poseStack.pushPose();
         poseStack.translate(0, 0, 300);
 
-        int toBeRenderedWidth = Screen.getTooltipFromItem(McUtils.mc(), item).stream()
+        List<Component> primaryTooltip = Screen.getTooltipFromItem(McUtils.mc(), item);
+        int primaryTooltipWidth = primaryTooltip.stream()
                 .map(component -> McUtils.mc().font.width(component))
                 .max(Integer::compareTo)
                 .orElse(0);
 
-        int hoveredWidth = Screen.getTooltipFromItem(McUtils.mc(), item).stream()
+        int priceTooltipWidth = tooltipLines.stream()
                 .map(component -> McUtils.mc().font.width(component))
                 .max(Integer::compareTo)
                 .orElse(0);
+        priceTooltipWidth+=gap;
 
-        Font font = FontRenderer.getInstance().getFont();
+        int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipWidth + gap);
+
+        Font font = Minecraft.getInstance().font;
         try {
-            if (mouseX + toBeRenderedWidth + hoveredWidth > Minecraft.getInstance().getWindow().getScreenWidth()) {
+            if (priceTooltipWidth > spaceToRight) {
+                // Render on left
                 guiGraphics.renderComponentTooltip(
-                        font, tooltipLines, mouseX - toBeRenderedWidth - 10, mouseY);
+                        font, tooltipLines, mouseX - priceTooltipWidth - gap/guiScaleFactor, mouseY);
             } else {
+                // Render on right
                 guiGraphics.renderComponentTooltip(
-                        font, tooltipLines, mouseX + hoveredWidth + 10, mouseY);
+                        font, tooltipLines, mouseX + primaryTooltipWidth + gap, mouseY);
             }
         } catch (Exception e) {
             WynnventoryMod.error("Failed to render price tooltip for " + item.getDisplayName());
