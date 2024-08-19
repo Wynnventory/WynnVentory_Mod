@@ -6,7 +6,6 @@ import com.wynntils.models.emeralds.type.EmeraldUnits;
 import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
-import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
@@ -147,7 +146,6 @@ public class TooltipMixin {
 
         if (priceInfo == null) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
-            return tooltipLines;
         } else {
             if (priceInfo.getHighestPrice() > 0) {
                 tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
@@ -161,8 +159,8 @@ public class TooltipMixin {
             if (priceInfo.getUnidentifiedAveragePrice() != null) {
                 tooltipLines.add(formatPrice("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice().intValue()));
             }
-            return tooltipLines;
         }
+        return tooltipLines;
     }
 
     @Unique
