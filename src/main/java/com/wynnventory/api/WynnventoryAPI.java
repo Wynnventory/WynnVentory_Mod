@@ -39,13 +39,12 @@ public void sendTradeMarketResults(ItemStack item) {
 
         if (marketItems.isEmpty()) return;
 
-        boolean isDev = WynnventoryMod.WYNNVENTORY_VERSION.contains("dev");
         URI endpointURI;
-        if (isDev) {
+        if (WynnventoryMod.isDev()) {
             WynnventoryMod.info("Sending item data to DEV endpoint.");
-            endpointURI = getEndpointURI("trademarket/items?env=dev");
+            endpointURI = getEndpointURI("trademarket/items?env=dev2");
         } else {
-            endpointURI = getEndpointURI("trademarket/items/");
+            endpointURI = getEndpointURI("trademarket/items");
         }
         HttpUtil.sendHttpPostRequest(endpointURI, serializeMarketItems(marketItems));
     }
@@ -98,7 +97,8 @@ public void sendTradeMarketResults(ItemStack item) {
         try {
             return objectMapper.writeValueAsString(marketItems);
         } catch (JsonProcessingException e) {
-            WynnventoryMod.LOGGER.error("Failed to serialize market items", e);
+            WynnventoryMod.LOGGER.error("Failed to serialize market items ({})", marketItems.getFirst().getItem().getName());
+//            WynnventoryMod.LOGGER.error("Failed to serialize market items ({})", marketItems.getFirst().getItem().getName(), e);
             return "{}";
         }
     }

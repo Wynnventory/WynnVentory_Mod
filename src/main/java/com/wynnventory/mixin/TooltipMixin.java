@@ -3,9 +3,9 @@ package com.wynnventory.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.emeralds.type.EmeraldUnits;
+import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
-import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
@@ -47,44 +47,51 @@ public class TooltipMixin {
     private static GearItem lastHoveredItem;
     private TradeMarketItemPriceInfo lastHoveredItemPriceInfo;
     private static final TradeMarketItemPriceInfo EMPTY_PRICE = new TradeMarketItemPriceInfo();
+    private static final TradeMarketItemPriceInfo UNTRADABLE_PRICE = new TradeMarketItemPriceInfo();
 
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
-    private void renderSecondaryTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
+    private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
 //        if(!Screen.hasAltDown()) { return; } @TODO: Move to Mod Config
         Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
 
-        if (hoveredSlot == null || !hoveredSlot.hasItem()) {
-            return;
-        }
+        if (hoveredSlot == null || !hoveredSlot.hasItem()) return;
 
         ItemStack item = hoveredSlot.getItem();
 
         Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
         gearItemOptional.ifPresent(gearItem -> {
-            if (!gearItem.equals(lastHoveredItem)) {
+            if (lastHoveredItem == null || !gearItem.getName().equals(lastHoveredItem.getName())) {
                 lastHoveredItem = gearItem;
                 lastHoveredItemPriceInfo = EMPTY_PRICE;
-                // Fetch item prices async
-                CompletableFuture.supplyAsync(() -> API.fetchItemPrices(item), executorService)
-                        .thenAccept(priceInfo -> {
-                            Minecraft.getInstance().execute(() -> {
-                                lastHoveredItemPriceInfo = priceInfo;
-                                List<Component> priceTooltips = createPriceTooltip(lastHoveredItemPriceInfo);
-                                renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
+
+                // ignore untradable
+                if (gearItem.getItemInfo().metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
+                    lastHoveredItemPriceInfo = UNTRADABLE_PRICE;
+                } else {
+                    // Fetch item prices async
+                    CompletableFuture.supplyAsync(() -> API.fetchItemPrices(item), executorService)
+                            .thenAccept(priceInfo -> {
+                                Minecraft.getInstance().execute(() -> {
+                                    lastHoveredItemPriceInfo = priceInfo;
+                                    List<Component> priceTooltips = createPriceTooltip(lastHoveredItemPriceInfo);
+                                    renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
+                                });
                             });
-                        });
-            } else {
-                if (lastHoveredItemPriceInfo == EMPTY_PRICE) { // Display retrieving info
-                    List<Component> fetchTooltip = new ArrayList<>();
-                    fetchTooltip.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
-                    fetchTooltip.add(formatText("Retrieving price information...", ChatFormatting.WHITE));
-                    renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, fetchTooltip);
-                } else { // Display fetched price
-                    List<Component> priceTooltips = createPriceTooltip(lastHoveredItemPriceInfo);
-                    renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
                 }
+            } else {
+                List<Component> tooltips = new ArrayList<>();
+                if (lastHoveredItemPriceInfo == EMPTY_PRICE) { // Display retrieving info
+                    tooltips.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
+                    tooltips.add(formatText("Retrieving price information...", ChatFormatting.WHITE));
+                } else if (lastHoveredItemPriceInfo == UNTRADABLE_PRICE) { // Display untradable
+                    tooltips.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
+                    tooltips.add(formatText("Item is untradable.", ChatFormatting.RED));
+                } else { // Display fetched price
+                    tooltips = createPriceTooltip(lastHoveredItemPriceInfo);
+                }
+                renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, tooltips);
             }
         });
     }
@@ -93,29 +100,38 @@ public class TooltipMixin {
     private void renderPriceInfoTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, ItemStack item, List<Component> tooltipLines) {
         mouseX = Math.min(mouseX, guiGraphics.guiWidth() - 10);
         mouseY = Math.max(mouseY, 10);
+        int guiScaledWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+        int guiScaleFactor = (int) Minecraft.getInstance().getWindow().getGuiScale();
+        int gap = 5 * guiScaleFactor;
 
         final PoseStack poseStack = new PoseStack();
         poseStack.pushPose();
         poseStack.translate(0, 0, 300);
 
-        int toBeRenderedWidth = Screen.getTooltipFromItem(McUtils.mc(), item).stream()
+        List<Component> primaryTooltip = Screen.getTooltipFromItem(McUtils.mc(), item);
+        int primaryTooltipWidth = primaryTooltip.stream()
                 .map(component -> McUtils.mc().font.width(component))
                 .max(Integer::compareTo)
                 .orElse(0);
 
-        int hoveredWidth = Screen.getTooltipFromItem(McUtils.mc(), item).stream()
+        int priceTooltipWidth = tooltipLines.stream()
                 .map(component -> McUtils.mc().font.width(component))
                 .max(Integer::compareTo)
                 .orElse(0);
+        priceTooltipWidth+=gap;
 
-        Font font = FontRenderer.getInstance().getFont();
+        int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipWidth + gap);
+
+        Font font = Minecraft.getInstance().font;
         try {
-            if (mouseX + toBeRenderedWidth + hoveredWidth > Minecraft.getInstance().getWindow().getScreenWidth()) {
+            if (priceTooltipWidth > spaceToRight) {
+                // Render on left
                 guiGraphics.renderComponentTooltip(
-                        font, tooltipLines, mouseX - toBeRenderedWidth - 10, mouseY);
+                        font, tooltipLines, mouseX - priceTooltipWidth - gap, mouseY);
             } else {
+                // Render on right
                 guiGraphics.renderComponentTooltip(
-                        font, tooltipLines, mouseX + hoveredWidth + 10, mouseY);
+                        font, tooltipLines, mouseX + primaryTooltipWidth + gap, mouseY);
             }
         } catch (Exception e) {
             WynnventoryMod.error("Failed to render price tooltip for " + item.getDisplayName());
@@ -130,16 +146,21 @@ public class TooltipMixin {
 
         if (priceInfo == null) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
-            return tooltipLines;
         } else {
-            tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
-            tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice()));
-            tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice()));
+            if (priceInfo.getHighestPrice() > 0) {
+                tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
+            }
+            if (priceInfo.getLowestPrice() > 0) {
+                tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice()));
+            }
+            if (priceInfo.getAveragePrice() > 0.0) {
+                tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice()));
+            }
             if (priceInfo.getUnidentifiedAveragePrice() != null) {
                 tooltipLines.add(formatPrice("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice().intValue()));
             }
-            return tooltipLines;
         }
+        return tooltipLines;
     }
 
     @Unique
