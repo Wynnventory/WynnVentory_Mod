@@ -39,11 +39,10 @@ public void sendTradeMarketResults(ItemStack item) {
 
         if (marketItems.isEmpty()) return;
 
-        boolean isDev = WynnventoryMod.WYNNVENTORY_VERSION.contains("dev");
         URI endpointURI;
-        if (isDev) {
+        if (WynnventoryMod.isDev()) {
             WynnventoryMod.info("Sending item data to DEV endpoint.");
-            endpointURI = getEndpointURI("trademarket/items?env=dev");
+            endpointURI = getEndpointURI("trademarket/items?env=dev2");
         } else {
             endpointURI = getEndpointURI("trademarket/items/");
         }

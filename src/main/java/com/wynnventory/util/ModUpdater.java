@@ -35,10 +35,10 @@ public class ModUpdater {
             return;
         }
 
-        String currentVersion = WynnventoryMod.WYNNVENTORY_VERSION;
-        if (currentVersion.contains("dev")) {
+        if (WynnventoryMod.isDev()) {
             WynnventoryMod.info("This is a dev build. Skipping auto update...");
         } else {
+            String currentVersion = WynnventoryMod.WYNNVENTORY_VERSION;
             initiateUpdateCheck(currentVersion);
         }
     }

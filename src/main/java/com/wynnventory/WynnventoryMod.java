@@ -1,5 +1,6 @@
 package com.wynnventory;
 
+import com.sun.tools.javac.Main;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
@@ -24,6 +25,7 @@ public class WynnventoryMod implements ModInitializer {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
+		if (isDev()) warn("WynnVentory is running in dev environment. Mod will behave differently in non-dev environment.");
 		LOGGER.info("Initialized WynnVentoryMod with version {}", WYNNVENTORY_VERSION);
 	}
 
@@ -45,5 +47,14 @@ public class WynnventoryMod implements ModInitializer {
 
 	public static void error(String msg, Throwable t) {
 		LOGGER.error(msg, t);
+	}
+
+	public static boolean isDev() {
+		boolean isDev = false;
+		try {
+			isDev = Main.class.getClassLoader().loadClass("com.intellij.rt.execution.application.AppMainV2") != null;
+		} catch (ClassNotFoundException e) {
+		}
+		return isDev;
 	}
 }
