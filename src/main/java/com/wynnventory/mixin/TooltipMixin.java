@@ -53,13 +53,11 @@ public class TooltipMixin {
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
-    private void renderSecondaryTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
+    private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
 //        if(!Screen.hasAltDown()) { return; } @TODO: Move to Mod Config
         Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
 
-        if (hoveredSlot == null || !hoveredSlot.hasItem()) {
-            return;
-        }
+        if (hoveredSlot == null || !hoveredSlot.hasItem()) return;
 
         ItemStack item = hoveredSlot.getItem();
 
@@ -73,14 +71,19 @@ public class TooltipMixin {
                 if (gearItem.getItemInfo().metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
                     lastHoveredItemPriceInfo = UNTRADABLE_PRICE;
                 } else {
-                    // Fetch item prices async
+                    // save the current item and fetch item prices asynchronously
+                    ItemStack requestedItem = item.copy();
                     CompletableFuture.supplyAsync(() -> API.fetchItemPrices(item), executorService)
                         .thenAccept(priceInfo -> {
-                            Minecraft.getInstance().execute(() -> {
+                            // Ensure hovered item is still the same
+                            ItemStack currentlyHoveredItem = ((AbstractContainerScreenAccessor) this).getHoveredSlot().getItem();
+                            if (requestedItem.getItem() == currentlyHoveredItem.getItem()) {
                                 lastHoveredItemPriceInfo = priceInfo;
-                                List<Component> priceTooltips = createPriceTooltip(lastHoveredItemPriceInfo);
-                                renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
-                            });
+                                List<Component> priceTooltips = createPriceTooltip(priceInfo);
+                                Minecraft.getInstance().execute(() -> {
+                                    renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
+                                });
+                            }
                         });
                 }
             } else {
@@ -90,7 +93,7 @@ public class TooltipMixin {
                     tooltips.add(formatText("Retrieving price information...", ChatFormatting.WHITE));
                 } else if (lastHoveredItemPriceInfo == UNTRADABLE_PRICE) { // Display untradable
                     tooltips.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
-                    tooltips.add(formatText("Item is untradable.", ChatFormatting.WHITE));
+                    tooltips.add(formatText("Item is untradable.", ChatFormatting.RED));
                 } else { // Display fetched price
                     tooltips = createPriceTooltip(lastHoveredItemPriceInfo);
                 }
