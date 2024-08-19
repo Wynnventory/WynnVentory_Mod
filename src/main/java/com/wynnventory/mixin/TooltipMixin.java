@@ -71,22 +71,15 @@ public class TooltipMixin {
                 if (gearItem.getItemInfo().metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
                     lastHoveredItemPriceInfo = UNTRADABLE_PRICE;
                 } else {
+                    // Fetch item prices async
                     CompletableFuture.supplyAsync(() -> API.fetchItemPrices(item), executorService)
-                        .thenAccept(priceInfo -> {
-                            // Ensure hovered item is still the same
-                            ItemStack currentlyHoveredItem = ((AbstractContainerScreenAccessor) this).getHoveredSlot().getItem();
-                            Optional<GearItem> currentlyHoveredGearItemOpt = Models.Item.asWynnItem(currentlyHoveredItem, GearItem.class);
-
-                            currentlyHoveredGearItemOpt.ifPresent(currentlyHoveredGearItem -> {
-                                if (gearItem.getName().equals(currentlyHoveredGearItem.getName())) {
+                            .thenAccept(priceInfo -> {
+                                Minecraft.getInstance().execute(() -> {
                                     lastHoveredItemPriceInfo = priceInfo;
-                                    List<Component> priceTooltips = createPriceTooltip(priceInfo);
-                                    Minecraft.getInstance().execute(() -> {
-                                        renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
-                                    });
-                                }
+                                    List<Component> priceTooltips = createPriceTooltip(lastHoveredItemPriceInfo);
+                                    renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
+                                });
                             });
-                        });
                 }
             } else {
                 List<Component> tooltips = new ArrayList<>();
