@@ -127,7 +127,7 @@ public class TooltipMixin {
             if (priceTooltipWidth > spaceToRight) {
                 // Render on left
                 guiGraphics.renderComponentTooltip(
-                        font, tooltipLines, mouseX - priceTooltipWidth - gap/guiScaleFactor, mouseY);
+                        font, tooltipLines, mouseX - priceTooltipWidth - gap, mouseY);
             } else {
                 // Render on right
                 guiGraphics.renderComponentTooltip(
