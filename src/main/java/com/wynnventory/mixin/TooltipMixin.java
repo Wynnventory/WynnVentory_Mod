@@ -63,7 +63,7 @@ public class TooltipMixin {
 
         Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
         gearItemOptional.ifPresent(gearItem -> {
-            if (!gearItem.equals(lastHoveredItem)) {
+            if (lastHoveredItem == null || !gearItem.getName().equals(lastHoveredItem.getName())) {
                 lastHoveredItem = gearItem;
                 lastHoveredItemPriceInfo = EMPTY_PRICE;
 
@@ -71,19 +71,21 @@ public class TooltipMixin {
                 if (gearItem.getItemInfo().metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
                     lastHoveredItemPriceInfo = UNTRADABLE_PRICE;
                 } else {
-                    // save the current item and fetch item prices asynchronously
-                    ItemStack requestedItem = item.copy();
                     CompletableFuture.supplyAsync(() -> API.fetchItemPrices(item), executorService)
                         .thenAccept(priceInfo -> {
                             // Ensure hovered item is still the same
                             ItemStack currentlyHoveredItem = ((AbstractContainerScreenAccessor) this).getHoveredSlot().getItem();
-                            if (requestedItem.getItem() == currentlyHoveredItem.getItem()) {
-                                lastHoveredItemPriceInfo = priceInfo;
-                                List<Component> priceTooltips = createPriceTooltip(priceInfo);
-                                Minecraft.getInstance().execute(() -> {
-                                    renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
-                                });
-                            }
+                            Optional<GearItem> currentlyHoveredGearItemOpt = Models.Item.asWynnItem(currentlyHoveredItem, GearItem.class);
+
+                            currentlyHoveredGearItemOpt.ifPresent(currentlyHoveredGearItem -> {
+                                if (gearItem.getName().equals(currentlyHoveredGearItem.getName())) {
+                                    lastHoveredItemPriceInfo = priceInfo;
+                                    List<Component> priceTooltips = createPriceTooltip(priceInfo);
+                                    Minecraft.getInstance().execute(() -> {
+                                        renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
+                                    });
+                                }
+                            });
                         });
                 }
             } else {
