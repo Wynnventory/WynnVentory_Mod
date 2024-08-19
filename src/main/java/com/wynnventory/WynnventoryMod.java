@@ -53,7 +53,7 @@ public class WynnventoryMod implements ModInitializer {
 		boolean isDev = false;
 		try {
 			isDev = Main.class.getClassLoader().loadClass("com.intellij.rt.execution.application.AppMainV2") != null;
-		} catch (Exception e) {
+		} catch (NoClassDefFoundError | Exception e) {
 		}
 		return isDev;
 	}
