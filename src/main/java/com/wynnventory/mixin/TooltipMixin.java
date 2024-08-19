@@ -142,9 +142,15 @@ public class TooltipMixin {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
             return tooltipLines;
         } else {
-            tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
-            tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice()));
-            tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice()));
+            if (priceInfo.getHighestPrice() > 0) {
+                tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
+            }
+            if (priceInfo.getLowestPrice() > 0) {
+                tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice()));
+            }
+            if (priceInfo.getAveragePrice() > 0.0) {
+                tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice()));
+            }
             if (priceInfo.getUnidentifiedAveragePrice() != null) {
                 tooltipLines.add(formatPrice("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice().intValue()));
             }
