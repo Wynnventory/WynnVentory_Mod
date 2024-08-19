@@ -3,6 +3,7 @@ package com.wynnventory.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.emeralds.type.EmeraldUnits;
+import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynntils.utils.render.FontRenderer;
@@ -47,6 +48,7 @@ public class TooltipMixin {
     private static GearItem lastHoveredItem;
     private TradeMarketItemPriceInfo lastHoveredItemPriceInfo;
     private static final TradeMarketItemPriceInfo EMPTY_PRICE = new TradeMarketItemPriceInfo();
+    private static final TradeMarketItemPriceInfo UNTRADABLE_PRICE = new TradeMarketItemPriceInfo();
 
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -66,8 +68,13 @@ public class TooltipMixin {
             if (!gearItem.equals(lastHoveredItem)) {
                 lastHoveredItem = gearItem;
                 lastHoveredItemPriceInfo = EMPTY_PRICE;
-                // Fetch item prices async
-                CompletableFuture.supplyAsync(() -> API.fetchItemPrices(item), executorService)
+
+                // ignore untradable
+                if (gearItem.getItemInfo().metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
+                    lastHoveredItemPriceInfo = UNTRADABLE_PRICE;
+                } else {
+                    // Fetch item prices async
+                    CompletableFuture.supplyAsync(() -> API.fetchItemPrices(item), executorService)
                         .thenAccept(priceInfo -> {
                             Minecraft.getInstance().execute(() -> {
                                 lastHoveredItemPriceInfo = priceInfo;
@@ -75,16 +82,19 @@ public class TooltipMixin {
                                 renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
                             });
                         });
-            } else {
-                if (lastHoveredItemPriceInfo == EMPTY_PRICE) { // Display retrieving info
-                    List<Component> fetchTooltip = new ArrayList<>();
-                    fetchTooltip.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
-                    fetchTooltip.add(formatText("Retrieving price information...", ChatFormatting.WHITE));
-                    renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, fetchTooltip);
-                } else { // Display fetched price
-                    List<Component> priceTooltips = createPriceTooltip(lastHoveredItemPriceInfo);
-                    renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
                 }
+            } else {
+                List<Component> tooltips = new ArrayList<>();
+                if (lastHoveredItemPriceInfo == EMPTY_PRICE) { // Display retrieving info
+                    tooltips.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
+                    tooltips.add(formatText("Retrieving price information...", ChatFormatting.WHITE));
+                } else if (lastHoveredItemPriceInfo == UNTRADABLE_PRICE) { // Display untradable
+                    tooltips.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
+                    tooltips.add(formatText("Item is untradable.", ChatFormatting.WHITE));
+                } else { // Display fetched price
+                    tooltips = createPriceTooltip(lastHoveredItemPriceInfo);
+                }
+                renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, tooltips);
             }
         });
     }
