@@ -12,9 +12,6 @@ public class TradeMarketItemPriceInfo {
     @JsonProperty("lowest_price")
     private int lowestPrice;
 
-    @JsonProperty("name")
-    private String name;
-
     @JsonProperty("unidentified_average_price")
     private Double unidentifiedAveragePrice;
 
@@ -47,14 +44,6 @@ public class TradeMarketItemPriceInfo {
         this.lowestPrice = lowestPrice;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Double getUnidentifiedAveragePrice() {
         return unidentifiedAveragePrice;
     }
@@ -69,7 +58,6 @@ public class TradeMarketItemPriceInfo {
                 "averagePrice=" + averagePrice +
                 ", highestPrice=" + highestPrice +
                 ", lowestPrice=" + lowestPrice +
-                ", name='" + name + '\'' +
                 ", unidentifiedAveragePrice=" + unidentifiedAveragePrice +
                 '}';
     }
