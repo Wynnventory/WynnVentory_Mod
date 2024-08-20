@@ -45,7 +45,7 @@ public class TooltipMixin {
 
     private static final TradeMarketItemPriceInfo FETCHING = new TradeMarketItemPriceInfo();
     private static final TradeMarketItemPriceInfo UNTRADABLE = new TradeMarketItemPriceInfo();
-    private HashMap<String, TradeMarketItemPriceHolder> fetchedPrices = new HashMap<>();
+    private static HashMap<String, TradeMarketItemPriceHolder> fetchedPrices = new HashMap<>();
 
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
 
