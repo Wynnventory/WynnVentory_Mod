@@ -8,6 +8,7 @@ import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.api.WynnventoryAPI;
+import com.wynnventory.model.item.TradeMarketItemPriceHolder;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.EmeraldPrice;
 import net.minecraft.ChatFormatting;
@@ -28,10 +29,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,14 +38,14 @@ import java.util.concurrent.Executors;
 public class TooltipMixin {
 
     private static final String TITLE_TEXT = "Trade Market Price Info";
+    private static final long EXPIRE_MINS = 1;
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.US);
     private static final EmeraldPrice EMERALD_PRICE = new EmeraldPrice();
     private static final WynnventoryAPI API = new WynnventoryAPI();
 
-    private static GearItem lastHoveredItem;
-    private TradeMarketItemPriceInfo lastHoveredItemPriceInfo;
-    private static final TradeMarketItemPriceInfo EMPTY_PRICE = new TradeMarketItemPriceInfo();
-    private static final TradeMarketItemPriceInfo UNTRADABLE_PRICE = new TradeMarketItemPriceInfo();
+    private static final TradeMarketItemPriceInfo FETCHING = new TradeMarketItemPriceInfo();
+    private static final TradeMarketItemPriceInfo UNTRADABLE = new TradeMarketItemPriceInfo();
+    private static HashMap<String, TradeMarketItemPriceHolder> fetchedPrices = new HashMap<>();
 
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -55,45 +53,42 @@ public class TooltipMixin {
     private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
 //        if(!Screen.hasAltDown()) { return; } @TODO: Move to Mod Config
         Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
-
         if (hoveredSlot == null || !hoveredSlot.hasItem()) return;
 
         ItemStack item = hoveredSlot.getItem();
-
         Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
-        gearItemOptional.ifPresent(gearItem -> {
-            if (lastHoveredItem == null || !gearItem.getName().equals(lastHoveredItem.getName())) {
-                lastHoveredItem = gearItem;
-                lastHoveredItemPriceInfo = EMPTY_PRICE;
+        GearItem gearItem = gearItemOptional.orElse(null);
+        if (gearItem == null) return;
 
+        if (!fetchedPrices.containsKey(gearItem.getName())) {
+            TradeMarketItemPriceHolder requestedPrice = new TradeMarketItemPriceHolder(FETCHING, gearItem);
+            fetchedPrices.put(gearItem.getName(), requestedPrice);
+
+            if (gearItem.getItemInfo().metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
                 // ignore untradable
-                if (gearItem.getItemInfo().metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
-                    lastHoveredItemPriceInfo = UNTRADABLE_PRICE;
-                } else {
-                    // Fetch item prices async
-                    CompletableFuture.supplyAsync(() -> API.fetchItemPrices(item), executorService)
-                            .thenAccept(priceInfo -> {
-                                Minecraft.getInstance().execute(() -> {
-                                    lastHoveredItemPriceInfo = priceInfo;
-                                    List<Component> priceTooltips = createPriceTooltip(lastHoveredItemPriceInfo);
-                                    renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, priceTooltips);
-                                });
-                            });
-                }
+                requestedPrice.setPriceInfo(UNTRADABLE);
             } else {
-                List<Component> tooltips = new ArrayList<>();
-                if (lastHoveredItemPriceInfo == EMPTY_PRICE) { // Display retrieving info
-                    tooltips.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
-                    tooltips.add(formatText("Retrieving price information...", ChatFormatting.WHITE));
-                } else if (lastHoveredItemPriceInfo == UNTRADABLE_PRICE) { // Display untradable
-                    tooltips.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
-                    tooltips.add(formatText("Item is untradable.", ChatFormatting.RED));
-                } else { // Display fetched price
-                    tooltips = createPriceTooltip(lastHoveredItemPriceInfo);
-                }
-                renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, tooltips);
+                // fetch price async
+                CompletableFuture.supplyAsync(() -> API.fetchItemPrices(item), executorService)
+                        .thenAccept(requestedPrice::setPriceInfo);
             }
-        });
+        }
+
+        TradeMarketItemPriceInfo price = fetchedPrices.get(gearItem.getName()).getPriceInfo();
+        List<Component> tooltips = new ArrayList<>();
+        if (price == FETCHING) { // Display retrieving info
+            tooltips.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
+            tooltips.add(formatText("Retrieving price information...", ChatFormatting.WHITE));
+        } else if (price == UNTRADABLE) { // Display untradable
+            tooltips.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
+            tooltips.add(formatText("Item is untradable.", ChatFormatting.RED));
+        } else { // Display fetched price
+            tooltips = createPriceTooltip(price);
+        }
+        renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, tooltips);
+
+        // remove price if expired
+        if (fetchedPrices.get(gearItem.getName()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gearItem.getName());
     }
 
     @Unique
