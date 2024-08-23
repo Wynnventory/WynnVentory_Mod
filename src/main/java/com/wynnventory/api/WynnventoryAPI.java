@@ -20,6 +20,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class WynnventoryAPI {
@@ -28,7 +29,7 @@ public class WynnventoryAPI {
     private static final URI API_BASE_URL = createApiBaseUrl();
     private static final ObjectMapper objectMapper = createObjectMapper();
 
-public void sendTradeMarketResults(ItemStack item) {
+    public void sendTradeMarketResults(ItemStack item) {
         sendTradeMarketResults(List.of(item));
     }
 
@@ -47,6 +48,23 @@ public void sendTradeMarketResults(ItemStack item) {
             endpointURI = getEndpointURI("trademarket/items");
         }
         HttpUtil.sendHttpPostRequest(endpointURI, serializeMarketItems(marketItems));
+    }
+
+    public void sendLootpoolData(List<Map<String, Object>> lootpoolDataList) {
+        if (lootpoolDataList == null || lootpoolDataList.isEmpty()) return;
+
+        String serializedData = serializeLootpoolData(lootpoolDataList);
+        if (serializedData.equals("[]")) return;
+
+        URI endpointURI;
+        if (WynnventoryMod.isDev()) {
+            WynnventoryMod.info("Sending lootpool data to DEV endpoint.");
+//            endpointURI = getEndpointURI("lootpool/items?env=dev2");
+            endpointURI = URI.create("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/lootpool/items?env=dev2");
+        } else {
+            endpointURI = getEndpointURI("lootpool/items");
+        }
+        HttpUtil.sendHttpPostRequest(endpointURI, serializedData);
     }
 
     public TradeMarketItemPriceInfo fetchItemPrices(ItemStack item) {
@@ -100,6 +118,15 @@ public void sendTradeMarketResults(ItemStack item) {
             WynnventoryMod.LOGGER.error("Failed to serialize market items ({})", marketItems.getFirst().getItem().getName());
 //            WynnventoryMod.LOGGER.error("Failed to serialize market items ({})", marketItems.getFirst().getItem().getName(), e);
             return "{}";
+        }
+    }
+
+    private String serializeLootpoolData(List<Map<String, Object>> lootpoolDataList) {
+        try {
+            return objectMapper.writeValueAsString(lootpoolDataList);
+        } catch (JsonProcessingException e) {
+            WynnventoryMod.LOGGER.error("Failed to serialize lootpool data", e);
+            return "[]";
         }
     }
 
