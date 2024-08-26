@@ -1,6 +1,5 @@
 {
   "client": [
-    "AbstractContainerScreenMixin",
     "ClientPacketListenerMixin",
     "TooltipMixin",
     "AbstractContainerScreenAccessor"
