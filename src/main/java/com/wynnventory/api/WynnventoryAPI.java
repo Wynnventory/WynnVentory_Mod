@@ -6,15 +6,13 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
-import com.wynntils.models.items.items.game.*;
+import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.model.item.LootpoolItem;
-import com.wynnventory.model.item.SimplifiedGearItem;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
-import com.wynnventory.model.stat.ActualStatWithPercentage;
 import com.wynnventory.util.HttpUtil;
 import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.RegionDetector;
@@ -27,7 +25,6 @@ import java.net.URLEncoder;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +44,8 @@ public class WynnventoryAPI {
         URI endpointURI;
         if (WynnventoryMod.isDev()) {
             WynnventoryMod.info("Sending market data data to DEV endpoint.");
-            endpointURI = getEndpointURI("trademarket/items?env=dev2");
+//            endpointURI = getEndpointURI("trademarket/items?env=dev2");
+            endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/items?env=dev2");
         } else {
             endpointURI = getEndpointURI("trademarket/items");
         }
@@ -155,10 +153,8 @@ public class WynnventoryAPI {
     }
 
     private String serializeItemData(List<?> items) {
-        List<?> validItems = filterInvalidMarketItems(items);
-
         try {
-            return objectMapper.writeValueAsString(validItems);
+            return objectMapper.writeValueAsString(items);
         } catch (JsonProcessingException e) {
             WynnventoryMod.LOGGER.error("Failed to serialize item data", e);
             return "[]";
@@ -191,18 +187,5 @@ public class WynnventoryAPI {
 
     private static URI getEndpointURI(String endpoint) {
         return API_BASE_URL.resolve(endpoint);
-    }
-
-    private List<?> filterInvalidMarketItems(List<?> items) {
-        return items.stream()
-                .filter(item -> {
-                    if (item instanceof TradeMarketItem tradeMarketItem) {
-                        SimplifiedGearItem gearItem = tradeMarketItem.getItem();
-                        return gearItem.getActualStatsWithPercentage().stream()
-                                .allMatch(stat -> stat.getRange() != null);
-                    }
-                    return true;
-                })
-                .toList();
     }
 }
