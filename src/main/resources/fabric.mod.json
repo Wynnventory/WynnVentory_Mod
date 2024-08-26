@@ -16,9 +16,8 @@
 	"icon": "assets/wynnventory/icon-compressed.png",
 	"environment": "*",
 	"entrypoints": {
-		"main": [
-			"com.wynnventory.WynnventoryMod"
-		]
+		"main": [ "com.wynnventory.WynnventoryMod" ],
+		"modmenu": [ "com.wynnventory.config.WynnventoryModMenu" ]
 	},
 	"depends": {
 		"fabricloader": ">=${loader_version}",
@@ -29,5 +28,17 @@
 	},
 	"mixins": [
 		"wynnventory.mixins.json"
-	]
+	],
+	"custom": {
+		"modmenu": {
+			"links": {
+				"modmenu.discord": "https://discord.gg/b6ATfrePuR",
+				"modmenu.website": "https://www.wynnventory.com/"
+			},
+			"badges": [],
+			"parent": {
+			},
+			"update_checker": true
+		}
+	}
 }

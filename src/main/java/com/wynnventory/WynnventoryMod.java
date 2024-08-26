@@ -2,6 +2,7 @@ package com.wynnventory;
 
 import com.sun.tools.javac.Main;
 import com.wynnventory.api.WynnventoryScheduler;
+import com.wynnventory.config.ConfigManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -23,6 +24,9 @@ public class WynnventoryMod implements ModInitializer {
 			error("Could not find Wynnventory in Fabric Loader!");
 			return;
 		}
+
+		// Load configs
+		ConfigManager.loadConfig();
 
 		// Start WynnventoryScheduler
 		WynnventoryScheduler.startScheduledTask();
