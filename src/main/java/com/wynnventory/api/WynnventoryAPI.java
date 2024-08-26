@@ -7,6 +7,9 @@ import com.wynntils.core.components.Models;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.GearItem;
+import com.wynntils.models.items.items.game.InsulatorItem;
+import com.wynntils.models.items.items.game.SimulatorItem;
+import com.wynntils.models.items.properties.GearTierItemProperty;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
@@ -125,6 +128,7 @@ public class WynnventoryAPI {
                     String shiny = null;
                     String name = ItemStackUtils.getWynntilsOriginalName(wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getLastPart().getComponent().getString();
                     String rarity = null;
+                    String type = null;
 
                     if (wynnItem instanceof GearItem gearItem) {
                         if (name.contains("Shiny")) {
@@ -132,6 +136,10 @@ public class WynnventoryAPI {
                         }
                         name = gearItem.getName();
                         rarity = gearItem.getGearTier().getName();
+                        type = gearItem.getGearType().name();
+                    }
+                    if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
+                        rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
                     }
 
                     LootpoolItem lootpoolItem = new LootpoolItem(
@@ -140,7 +148,9 @@ public class WynnventoryAPI {
                             ((ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount(),
                             name,
                             rarity,
-                            shiny
+                            shiny,
+                            type,
+                            McUtils.playerName()
                     );
 
                     lootpoolItems.add(lootpoolItem);

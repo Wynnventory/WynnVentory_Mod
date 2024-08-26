@@ -7,12 +7,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class LootpoolItem {
-    private String type;
+    private String itemType;
     private String region;
     private int amount;
     private String name;
     private String rarity;
     private String shiny;
+    private String type;
+    private String sender;
     public static final List<Class<? extends WynnItem>> LOOT_CLASSES = Arrays.asList(
             GearItem.class,
             InsulatorItem.class,
@@ -23,23 +25,23 @@ public class LootpoolItem {
             DungeonKeyItem.class
     );
 
-    // Constructor
-    public LootpoolItem(String type, String region, int amount, String name, String rarity, String shiny) {
-        this.type = type;
+    public LootpoolItem(String itemType, String region, int amount, String name, String rarity, String shiny, String type, String sender) {
+        this.itemType = itemType;
         this.region = region;
         this.amount = amount;
         this.name = name;
         this.rarity = rarity;
         this.shiny = shiny;
-    }
-
-    // Getters and Setters
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
         this.type = type;
+        this.sender = sender;
+    }
+
+    public String getItemType() {
+        return itemType;
+    }
+
+    public void setItemType(String itemType) {
+        this.itemType = itemType;
     }
 
     public String getRegion() {
@@ -80,5 +82,21 @@ public class LootpoolItem {
 
     public void setShiny(String shiny) {
         this.shiny = shiny;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
     }
 }
