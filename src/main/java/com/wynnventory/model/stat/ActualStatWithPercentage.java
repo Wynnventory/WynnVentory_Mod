@@ -18,16 +18,17 @@ public class ActualStatWithPercentage {
         return statActualValue.statType().getKey();
     }
 
-    public RangedValue getRange() {
-        return possibleValues.range();
-    }
-
     public int getValue() {
         return statActualValue.value();
     }
 
-    public float getActualRollPercentage() {
-        return StatCalculator.getPercentage(statActualValue, possibleValues);
+    public String getActualRollPercentage() {
+        if (possibleValues == null) return "NaN";
+        float percent = StatCalculator.getPercentage(statActualValue, possibleValues);
+        if (Float.isInfinite(percent) || Float.isNaN(percent)) {
+            return "NaN";
+        }
+        return StatCalculator.getPercentage(statActualValue, possibleValues)+"%";
     }
 
     @Override
