@@ -1,7 +1,15 @@
 package com.wynnventory.model.item;
 
+import com.wynntils.core.components.Models;
 import com.wynntils.models.items.items.game.GearItem;
+import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynntils.utils.mc.McUtils;
+import com.wynnventory.util.TradeMarketPriceParser;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class TradeMarketItem {
     private SimplifiedGearItem item;
@@ -14,6 +22,27 @@ public class TradeMarketItem {
         this.listingPrice = listingPrice;
         this.amount = amount;
         this.playerName = McUtils.playerName();
+    }
+
+    public static List<TradeMarketItem> createTradeMarketItems(List<ItemStack> items) {
+        List<TradeMarketItem> marketItems = new ArrayList<>();
+
+        for (ItemStack item : items) {
+            Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
+            gearItemOptional.ifPresent(gearItem -> {
+                TradeMarketPriceInfo priceInfo = TradeMarketPriceParser.calculateItemPriceInfo(item);
+                if (priceInfo != TradeMarketPriceInfo.EMPTY) {
+                    marketItems.add(new TradeMarketItem(gearItem, priceInfo.price(), priceInfo.amount()));
+                }
+            });
+        }
+
+        return marketItems;
+    }
+
+    public static Optional<TradeMarketItem> createTradeMarketItem(ItemStack item) {
+        List<TradeMarketItem> items = createTradeMarketItems(List.of(item));
+        return items.isEmpty() ? Optional.empty() : Optional.of(items.getFirst());
     }
 
     public SimplifiedGearItem getItem() {

@@ -2,6 +2,8 @@ package com.wynnventory.mixin;
 
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.accessor.ItemQueueAccessor;
+import com.wynnventory.model.item.LootpoolItem;
+import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.util.ModUpdater;
 import com.wynnventory.util.RegionDetector;
 import net.minecraft.client.Minecraft;
@@ -32,9 +34,9 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     private static final String LOOTPOOL_TITLE = "󏿲";
 
     @Unique
-    private final List<ItemStack> marketItemsBuffer = new ArrayList<>();
+    private final List<TradeMarketItem> marketItemsBuffer = new ArrayList<>();
     @Unique
-    private final List<ItemStack> lootpoolItemsBuffer = new ArrayList<>();
+    private final List<LootpoolItem> lootpoolItemsBuffer = new ArrayList<>();
 
     protected ClientPacketListenerMixin(Minecraft minecraft, Connection connection, CommonListenerCookie commonListenerCookie) {
         super(minecraft, connection, commonListenerCookie);
@@ -54,7 +56,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         String screenTitle = currentScreen.getTitle().getString();
 
         if (screenTitle.equals(MARKET_TITLE)) {
-            marketItemsBuffer.add(item);
+            TradeMarketItem.createTradeMarketItem(item).ifPresent(marketItemsBuffer::add);
         }
     }
 
@@ -71,7 +73,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                 for (ItemStack item : packet.getItems()) {
                     if (item.getItem() != Items.AIR && item.getItem() != Items.COMPASS && item.getItem() != Items.POTION) {
                         if (!McUtils.player().getInventory().items.contains(item)) {
-                            lootpoolItemsBuffer.add(item);
+                            LootpoolItem.createLootpoolItem(item).ifPresent(lootpoolItemsBuffer::add);
                         }
                     }
                 }
@@ -80,12 +82,12 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     }
 
     @Override
-    public List<ItemStack> getQueuedMarketItems() {
+    public List<TradeMarketItem> getQueuedMarketItems() {
         return marketItemsBuffer;
     }
 
     @Override
-    public List<ItemStack> getQueuedLootItems() {
+    public List<LootpoolItem> getQueuedLootItems() {
         return lootpoolItemsBuffer;
     }
 }

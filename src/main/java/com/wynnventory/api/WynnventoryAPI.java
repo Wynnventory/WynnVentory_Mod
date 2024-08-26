@@ -4,22 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.wynntils.core.components.Models;
-import com.wynntils.models.items.WynnItem;
-import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.GearItem;
-import com.wynntils.models.items.items.game.InsulatorItem;
-import com.wynntils.models.items.items.game.SimulatorItem;
-import com.wynntils.models.items.properties.GearTierItemProperty;
-import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
-import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.model.item.LootpoolItem;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.HttpUtil;
-import com.wynnventory.util.ItemStackUtils;
-import com.wynnventory.util.RegionDetector;
-import com.wynnventory.util.TradeMarketPriceParser;
 import net.minecraft.world.item.ItemStack;
 
 import java.net.URI;
@@ -27,9 +17,7 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class WynnventoryAPI {
     private static final String BASE_URL = "https://www.wynnventory.com";
@@ -37,11 +25,7 @@ public class WynnventoryAPI {
     private static final URI API_BASE_URL = createApiBaseUrl();
     private static final ObjectMapper objectMapper = createObjectMapper();
 
-    public void sendTradeMarketResults(List<ItemStack> items) {
-        if (items.isEmpty()) return;
-
-        List<TradeMarketItem> marketItems = createTradeMarketItems(items);
-
+    public void sendTradeMarketResults(List<TradeMarketItem> marketItems) {
         if (marketItems.isEmpty()) return;
 
         URI endpointURI;
@@ -55,12 +39,8 @@ public class WynnventoryAPI {
         HttpUtil.sendHttpPostRequest(endpointURI, serializeItemData(marketItems));
     }
 
-    public void sendLootpoolData(List<ItemStack> items) {
-        if (items == null || items.isEmpty()) return;
-
-        List<LootpoolItem> lootpoolItems = createLootpoolItems(items);
-        String serializedData = serializeItemData(lootpoolItems);
-        if (serializedData.equals("[]")) return;
+    public void sendLootpoolData(List<LootpoolItem> lootpoolItems) {
+        if (lootpoolItems.isEmpty()) return;
 
         URI endpointURI;
         if (WynnventoryMod.isDev()) {
@@ -70,7 +50,7 @@ public class WynnventoryAPI {
         } else {
             endpointURI = getEndpointURI("lootpool/items");
         }
-        HttpUtil.sendHttpPostRequest(endpointURI, serializedData);
+        HttpUtil.sendHttpPostRequest(endpointURI, serializeItemData(lootpoolItems));
     }
 
     public TradeMarketItemPriceInfo fetchItemPrices(ItemStack item) {
@@ -98,68 +78,6 @@ public class WynnventoryAPI {
             WynnventoryMod.error("Failed to initiate item price fetch {}", e);
             return null;
         }
-    }
-
-    private List<TradeMarketItem> createTradeMarketItems(List<ItemStack> items) {
-        List<TradeMarketItem> marketItems = new ArrayList<>();
-
-        for (ItemStack item : items) {
-            Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
-            gearItemOptional.ifPresent(gearItem -> {
-                TradeMarketPriceInfo priceInfo = TradeMarketPriceParser.calculateItemPriceInfo(item);
-                if (priceInfo != TradeMarketPriceInfo.EMPTY) {
-                    marketItems.add(new TradeMarketItem(gearItem, priceInfo.price(), priceInfo.amount()));
-                }
-            });
-        }
-
-        return marketItems;
-    }
-
-    private List<LootpoolItem> createLootpoolItems(List<ItemStack> items) {
-        List<LootpoolItem> lootpoolItems = new ArrayList<>();
-        String region = RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ());
-
-        for (ItemStack item : items) {
-            Optional<WynnItem> wynnItemOptional = Optional.ofNullable(ItemStackUtils.getWynnItem(item));
-
-            wynnItemOptional.ifPresent(wynnItem -> {
-                if (LootpoolItem.LOOT_CLASSES.contains(wynnItem.getClass())) {
-                    String shiny = null;
-                    String name = ItemStackUtils.getWynntilsOriginalName(wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getLastPart().getComponent().getString();
-                    String rarity = null;
-                    String type = null;
-
-                    if (wynnItem instanceof GearItem gearItem) {
-                        if (name.contains("Shiny")) {
-                            shiny = "Shiny";
-                        }
-                        name = gearItem.getName();
-                        rarity = gearItem.getGearTier().getName();
-                        type = gearItem.getGearType().name();
-                    }
-                    if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
-                        rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
-                    }
-
-                    LootpoolItem lootpoolItem = new LootpoolItem(
-                            wynnItem.getClass().getSimpleName(),
-                            region,
-                            ((ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount(),
-                            name,
-                            rarity,
-                            shiny,
-                            type,
-                            McUtils.playerName()
-                    );
-
-                    lootpoolItems.add(lootpoolItem);
-                } else {
-                    WynnventoryMod.error("Unknown class: " + wynnItem.getClass());
-                }
-            });
-        }
-        return lootpoolItems;
     }
 
     private String serializeItemData(List<?> items) {
