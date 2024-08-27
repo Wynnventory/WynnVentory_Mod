@@ -23,7 +23,8 @@ public class LootpoolItem {
     private String rarity;
     private String shiny;
     private String type;
-    private String sender;
+    private String playerName;
+    private String modVersion;
     public static final List<Class<? extends WynnItem>> LOOT_CLASSES = Arrays.asList(
             GearItem.class,
             InsulatorItem.class,
@@ -34,7 +35,7 @@ public class LootpoolItem {
             DungeonKeyItem.class
     );
 
-    public LootpoolItem(String itemType, String region, int amount, String name, String rarity, String shiny, String type, String sender) {
+    public LootpoolItem(String itemType, String region, int amount, String name, String rarity, String shiny, String type, String playerName) {
         this.itemType = itemType;
         this.region = region;
         this.amount = amount;
@@ -42,7 +43,8 @@ public class LootpoolItem {
         this.rarity = rarity;
         this.shiny = shiny;
         this.type = type;
-        this.sender = sender;
+        this.playerName = playerName;
+        this.modVersion = WynnventoryMod.WYNNVENTORY_VERSION;
     }
 
     public static List<LootpoolItem> createLootpoolItems(List<ItemStack> items) {
@@ -152,11 +154,13 @@ public class LootpoolItem {
         this.type = type;
     }
 
-    public String getSender() {
-        return sender;
+    public String getPlayerName() {
+        return playerName;
     }
 
-    public void setSender(String sender) {
-        this.sender = sender;
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
     }
+
+    public String getModVersion() { return modVersion; }
 }
