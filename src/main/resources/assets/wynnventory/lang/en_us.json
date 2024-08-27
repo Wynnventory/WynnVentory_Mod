@@ -2,9 +2,11 @@
   "title.wynnventory.config": "WynnVentory Config",
 
   "category.wynnventory.general": "General",
-  "category.wynnventory.keybinding": "Keybindings",
+  "category.wynnventory.keybinding": "WynnVentory",
 
-  "option.wynnventory.api_delay": "Send items interval (mins)",
+  "option.wynnventory.api_delay.post": "Send items interval",
+  "option.wynnventory.api_delay.get": "Retrieve price data delay",
 
-  "key.wynnventory.open_config": "Open WynnVentory Config"
+  "key.wynnventory.open_config": "Open WynnVentory Config",
+  "key.wynnventory.toggle_tooltip": "Toggle Price Tooltip"
 }

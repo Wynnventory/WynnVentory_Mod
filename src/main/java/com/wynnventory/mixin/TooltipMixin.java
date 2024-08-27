@@ -8,6 +8,7 @@ import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.api.WynnventoryAPI;
+import com.wynnventory.config.ConfigManager;
 import com.wynnventory.model.item.TradeMarketItemPriceHolder;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.EmeraldPrice;
@@ -38,7 +39,7 @@ import java.util.concurrent.Executors;
 public class TooltipMixin {
 
     private static final String TITLE_TEXT = "Trade Market Price Info";
-    private static final long EXPIRE_MINS = 1;
+//    private static final long EXPIRE_MINS = 1;
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.US);
     private static final EmeraldPrice EMERALD_PRICE = new EmeraldPrice();
     private static final WynnventoryAPI API = new WynnventoryAPI();
@@ -51,7 +52,7 @@ public class TooltipMixin {
 
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
     private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
-//        if(!Screen.hasAltDown()) { return; } @TODO: Move to Mod Config
+        if (!ConfigManager.SHOW_TOOLTIP) return;
         Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
         if (hoveredSlot == null || !hoveredSlot.hasItem()) return;
 
@@ -88,7 +89,7 @@ public class TooltipMixin {
         renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, tooltips);
 
         // remove price if expired
-        if (fetchedPrices.get(gearItem.getName()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gearItem.getName());
+        if (fetchedPrices.get(gearItem.getName()).isPriceExpired(ConfigManager.FETCH_DELAY_MINS)) fetchedPrices.remove(gearItem.getName());
     }
 
     @Unique
