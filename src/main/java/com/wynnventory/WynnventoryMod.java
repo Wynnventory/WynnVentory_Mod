@@ -4,7 +4,6 @@ import com.sun.tools.javac.Main;
 import com.wynnventory.api.WynnventoryScheduler;
 import com.wynnventory.config.ConfigManager;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import org.slf4j.Logger;
@@ -31,10 +30,6 @@ public class WynnventoryMod implements ModInitializer {
 		// Start WynnventoryScheduler
 		WynnventoryScheduler.startScheduledTask();
 
-		// Ensure data is sent one last time when the game closes
-		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
-			WynnventoryScheduler.stopScheduledTask();
-		});
 
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
