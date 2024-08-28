@@ -15,7 +15,7 @@ public class WynnventoryScheduler {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public static void startScheduledTask() {
-        scheduler.scheduleAtFixedRate(WynnventoryScheduler::processMarketAndLootItems, 1, ConfigManager.WYNNVENTORY_CONFIG.getSendDelayMins(), TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(WynnventoryScheduler::processMarketAndLootItems, 1, ConfigManager.SEND_CONFIG.getUserSetting(), TimeUnit.MINUTES);
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
             WynnventoryScheduler.stopScheduledTask();
         });
@@ -26,7 +26,7 @@ public class WynnventoryScheduler {
         scheduler.shutdown();
 
         try {
-            if (!scheduler.awaitTermination(ConfigManager.WYNNVENTORY_CONFIG.getSendDelayMins(), TimeUnit.MINUTES)) {
+            if (!scheduler.awaitTermination(ConfigManager.SEND_CONFIG.getUserSetting(), TimeUnit.MINUTES)) {
                 scheduler.shutdownNow();
             }
         } catch (InterruptedException e) {
