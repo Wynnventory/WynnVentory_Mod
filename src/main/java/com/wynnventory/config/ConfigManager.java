@@ -44,6 +44,7 @@ public enum ConfigManager {
         this.minDelay = minDelay;
         this.maxDelay = maxDelay;
         this.defaultDelay = defaultDelay;
+        this.userSetting = this.defaultDelay;
 
         loadConfig();
     }
