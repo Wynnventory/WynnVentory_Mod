@@ -23,10 +23,10 @@ public enum ConfigManager {
     SEND_CONFIG(new File("config/Wynnventory/send_config.json"), 5, 30, 5);
 
     // Key Mappings
-    private KeyMapping openConfigKey;
-    private KeyMapping priceTooltipKey;
-    private boolean showTooltip = false; // Ugly way to detect keypress in screens
-    private boolean keyPressed = false; // Ugly way to detect keypress in screens
+    private static KeyMapping OPEN_CONFIG_KEY;
+    private static KeyMapping PRICE_TOOLTIP_KEY;
+    private static boolean SHOW_TOOLTIP = false; // Ugly way to detect keypress in screens
+    public static boolean KEY_PRESSED = false; // Ugly way to detect keypress in screens
 
     private final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -38,6 +38,7 @@ public enum ConfigManager {
     private int defaultDelay;
     private int userSetting;
 
+    // Initialize with default values
     ConfigManager(File configFile, int minDelay, int maxDelay, int defaultDelay) {
         this.configFile = configFile;
         this.minDelay = minDelay;
@@ -51,16 +52,13 @@ public enum ConfigManager {
         if (configFile.exists()) {
             try (FileReader reader = new FileReader(configFile)) {
                 ConfigManager config = GSON.fromJson(reader, ConfigManager.class);
-                this.minDelay = config.minDelay;
-                this.maxDelay = config.maxDelay;
-                this.defaultDelay = config.defaultDelay;
-                this.userSetting = validateUserSetting(this.userSetting);
+                this.userSetting = validateUserSetting(config.userSetting);
             } catch (IOException e) {
                 WynnventoryMod.error("Could not load config from: " + configFile);
             }
+        } else {
+            saveConfig();
         }
-
-        registerKeybinds();
     }
 
     private void saveConfig() {
@@ -71,38 +69,6 @@ public enum ConfigManager {
         } catch (IOException e) {
             WynnventoryMod.error("Could not save config to: " + configFile);
         }
-    }
-
-    private void registerKeybinds() {
-        openConfigKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key.wynnventory.open_config",
-                ConfigManager.GLFW.GLFW_KEY_N,
-                "category.wynnventory.keybinding"
-        ));
-        priceTooltipKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key.wynnventory.toggle_tooltip",
-                ConfigManager.GLFW.GLFW_KEY_F,
-                "category.wynnventory.keybinding"
-        ));
-
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (openConfigKey.consumeClick()) {
-                Minecraft.getInstance().setScreen(ConfigScreen.createConfigScreen(Minecraft.getInstance().screen));
-            }
-            if (client.screen != null || client.player != null) {
-                long windowHandle = Minecraft.getInstance().getWindow().getWindow();
-                int keyCode = Objects.requireNonNull(KeyMappingUtil.getBoundKey(priceTooltipKey)).getValue();
-
-                if (InputConstants.isKeyDown(windowHandle, keyCode)) {
-                    if (!keyPressed) {
-                        showTooltip = !showTooltip;
-                    }
-                    keyPressed = true;
-                } else {
-                    keyPressed = false;
-                }
-            }
-        });
     }
 
     public int getMinDelay() {
@@ -125,10 +91,6 @@ public enum ConfigManager {
         this.userSetting = validateUserSetting(userSetting);
     }
 
-    public boolean isShowTooltip() {
-        return showTooltip;
-    }
-
     private int validateUserSetting(int value) {
         if (value < this.minDelay || value > this.maxDelay) {
             WynnventoryMod.warn("Config value: " + value + " outside of value range: " + this.minDelay + " - " + this.maxDelay + ". Setting to default value: " + this.defaultDelay);
@@ -142,5 +104,37 @@ public enum ConfigManager {
         for(ConfigManager config : ConfigManager.values()) {
             config.saveConfig();
         }
+    }
+
+    public static void registerKeybinds() {
+        OPEN_CONFIG_KEY = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+                "key.wynnventory.open_config",
+                ConfigManager.GLFW.GLFW_KEY_N,
+                "category.wynnventory.keybinding"
+        ));
+        PRICE_TOOLTIP_KEY = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+                "key.wynnventory.toggle_tooltip",
+                ConfigManager.GLFW.GLFW_KEY_F,
+                "category.wynnventory.keybinding"
+        ));
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (OPEN_CONFIG_KEY.consumeClick()) {
+                Minecraft.getInstance().setScreen(ConfigScreen.createConfigScreen(Minecraft.getInstance().screen));
+            }
+            if (client.screen != null || client.player != null) {
+                long windowHandle = Minecraft.getInstance().getWindow().getWindow();
+                int keyCode = Objects.requireNonNull(KeyMappingUtil.getBoundKey(PRICE_TOOLTIP_KEY)).getValue();
+
+                if (InputConstants.isKeyDown(windowHandle, keyCode)) {
+                    if (!KEY_PRESSED) {
+                        SHOW_TOOLTIP = !SHOW_TOOLTIP;
+                    }
+                    KEY_PRESSED = true;
+                } else {
+                    KEY_PRESSED = false;
+                }
+            }
+        });
     }
 }
