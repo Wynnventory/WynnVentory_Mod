@@ -120,7 +120,7 @@ public enum ConfigManager {
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             handleOpenConfigKey(openConfigKey);
-            handlePriceTooltipKey(client, priceTooltipKey)    
+            handlePriceTooltipKey(client, priceTooltipKey);
         });
     }
 
@@ -133,11 +133,11 @@ public enum ConfigManager {
     private static void handlePriceTooltipKey(Minecraft client, KeyMapping priceTooltipKey) {
         if (client.screen != null || client.player != null) {
             long windowHandle = Minecraft.getInstance().getWindow().getWindow();
-            int keyCode = priceTooltipKey.getBoundKey().getValue();
+            int keyCode = Objects.requireNonNull(KeyMappingUtil.getBoundKey(priceTooltipKey)).getValue();
 
-            if (InputUtil.isKeyPressed(windowHandle, keyCode)) {
+            if (InputConstants.isKeyDown(windowHandle, keyCode)) {
                 if (!KEY_PRESSED) {
-                    SHOW_TOOLTIP = !SHOW_TOOLTIP
+                    SHOW_TOOLTIP = !SHOW_TOOLTIP;
                 }
                 KEY_PRESSED = true;
             } else {
