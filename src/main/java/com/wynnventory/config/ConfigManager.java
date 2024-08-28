@@ -19,9 +19,10 @@ import java.io.IOException;
 import java.util.Objects;
 
 public enum ConfigManager {
-    WYNNVENTORY_CONFIG(new File("config/wynnventory.json"));
+    WYNNVENTORY_CONFIG;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final File CONFIG_FILE = new File("config/wynnventory.json");
 
     // Boundaries
     public static final int MIN_SEND_DELAY_MINS = 5;
@@ -41,22 +42,13 @@ public enum ConfigManager {
     private boolean showTooltip = false; // Ugly way to detect keypress in screens
     private boolean keyPressed = false; // Ugly way to detect keypress in screens
 
-    // Config file
-    private File configFile;
-
     // Config values in file
     private int sendDelayMins;
     private int fetchDelayMins;
 
-    ConfigManager(File configFile) {
-        this.configFile = configFile;
-        // Initialize with defaults
-        this.sendDelayMins = DEFAULT_SEND_DELAY_MINS;
-        this.fetchDelayMins = DEFAULT_FETCH_DELAY_MINS;
-        loadConfig();
-    }
+    ConfigManager() { }
 
-    private void loadConfig() {
+    public void loadConfig() {
         if (CONFIG_FILE.exists()) {
             try (FileReader reader = new FileReader(CONFIG_FILE)) {
                 ConfigManager config = GSON.fromJson(reader, ConfigManager.class);
@@ -150,7 +142,7 @@ public enum ConfigManager {
     }
 
     private int validateValue(int value, int minValue, int maxValue, int defaultValue) {
-        if (value < minValue || value > maxValue) {
+        if (value == null || value < minValue || value > maxValue) {
             WynnventoryMod.warn("Config value: " + value + " outside of value range: " + minValue + " - " + maxValue + ". Setting to default value: " + defaultValue);
             return defaultValue;
         }
