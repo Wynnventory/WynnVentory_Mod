@@ -133,7 +133,7 @@ public enum ConfigManager {
 
     private int validateValue(int value, int minValue, int maxValue, int defaultValue) {
         if (value < minValue || value > maxValue) {
-            WynnventoryMod.warn("Config value: " + value + " outside of value range: " minValue + " - " maxValue + ". Setting to default value: " + defaultValue);
+            WynnventoryMod.warn("Config value: " + value + " outside of value range: " + minValue + " - " + maxValue + ". Setting to default value: " + defaultValue);
             return defaultValue;
         }
 
