@@ -16,7 +16,7 @@
 	"icon": "assets/wynnventory/icon-compressed.png",
 	"environment": "*",
 	"entrypoints": {
-		"main": [ "com.wynnventory.WynnventoryMod" ],
+		"client": [ "com.wynnventory.WynnventoryMod" ],
 		"modmenu": [ "com.wynnventory.config.WynnventoryModMenu" ]
 	},
 	"depends": {

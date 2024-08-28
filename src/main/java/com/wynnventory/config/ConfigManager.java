@@ -23,7 +23,7 @@ public class ConfigManager {
 
     // Key Mappings
     public static boolean SHOW_TOOLTIP = false;
-    public static boolean KEY_PRESSED = false;
+    public static boolean KEY_PRESSED = true;
 
     public static final int SEND_MIN_DELAY_MINS = 5;
     public static final int SEND_MAX_DELAY_MINS = 30;
@@ -119,7 +119,10 @@ public class ConfigManager {
     }
 
     private void handlePriceTooltipKey(Minecraft client, KeyMapping priceTooltipKey) {
-        if (client.screen != null || client.player != null) {
+        if (client.screen != null && client.player != null && KeyMappingUtil.getBoundKey(priceTooltipKey) != null) {
+            System.out.println(priceTooltipKey.toString());
+            System.out.println(KeyMappingUtil.getBoundKey(priceTooltipKey).toString());
+            System.out.println(Objects.requireNonNull(KeyMappingUtil.getBoundKey(priceTooltipKey)).getValue());
             long windowHandle = Minecraft.getInstance().getWindow().getWindow();
             int keyCode = Objects.requireNonNull(KeyMappingUtil.getBoundKey(priceTooltipKey)).getValue();
 
