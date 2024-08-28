@@ -19,10 +19,9 @@ import java.io.IOException;
 import java.util.Objects;
 
 public enum ConfigManager {
-    WYNNVENTORY_CONFIG;
+    WYNNVENTORY_CONFIG(new File("config/wynnventory.json"));
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File CONFIG_FILE = new File("config/wynnventory.json");
 
     // Boundaries
     public static final int MIN_SEND_DELAY_MINS = 5;
@@ -42,11 +41,15 @@ public enum ConfigManager {
     private boolean showTooltip = false; // Ugly way to detect keypress in screens
     private boolean keyPressed = false; // Ugly way to detect keypress in screens
 
+    // Config file
+    private File configFile;
+
     // Config values in file
     private int sendDelayMins;
     private int fetchDelayMins;
 
-    ConfigManager() {
+    ConfigManager(File configFile) {
+        this.configFile = configFile;
         // Initialize with defaults
         this.sendDelayMins = DEFAULT_SEND_DELAY_MINS;
         this.fetchDelayMins = DEFAULT_FETCH_DELAY_MINS;
