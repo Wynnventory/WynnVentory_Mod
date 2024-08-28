@@ -23,8 +23,6 @@ public enum ConfigManager {
     SEND_CONFIG(new File("config/Wynnventory/send_config.json"), 5, 30, 5);
 
     // Key Mappings
-    private static KeyMapping OPEN_CONFIG_KEY;
-    private static KeyMapping PRICE_TOOLTIP_KEY;
     private static boolean SHOW_TOOLTIP = false; // Ugly way to detect keypress in screens
     public static boolean KEY_PRESSED = false; // Ugly way to detect keypress in screens
 
@@ -108,12 +106,12 @@ public enum ConfigManager {
     }
 
     public static void registerKeybinds() {
-        OPEN_CONFIG_KEY = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        KeyMapping OPEN_CONFIG_KEY = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.wynnventory.open_config",
                 ConfigManager.GLFW.GLFW_KEY_N,
                 "category.wynnventory.keybinding"
         ));
-        PRICE_TOOLTIP_KEY = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        KeyMapping PRICE_TOOLTIP_KEY = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.wynnventory.toggle_tooltip",
                 ConfigManager.GLFW.GLFW_KEY_F,
                 "category.wynnventory.keybinding"
