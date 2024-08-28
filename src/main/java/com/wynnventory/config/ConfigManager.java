@@ -37,10 +37,11 @@ public class ConfigManager {
     // Singleton instance
     private static ConfigManager instance;
 
-    private int sendUserSetting = this.sendDefaultDelay;
-    private int fetchUserSetting = this.fetchDefaultDelay;
+    private int sendUserSetting = SEND_DEFAULT_DELAY_MINS;
+    private int fetchUserSetting = FETCH_DEFAULT_DELAY_MINS;
 
-    private ConfigManager() { }
+    private ConfigManager() {
+    }
 
     public static ConfigManager getInstance() {
         if (instance == null) {
@@ -87,14 +88,14 @@ public class ConfigManager {
     }
 
     private int validateFetchUserSetting(int value) {
-        return validateValue(value, FETCH_MIN_DELAY_MINS, FETCH_MAX_DELAY_MINS, FETCH_DEFAULT_DELAY_MINS) {
+        return validateValue(value, FETCH_MIN_DELAY_MINS, FETCH_MAX_DELAY_MINS, FETCH_DEFAULT_DELAY_MINS);
     }
 
     private int validateSendUserSetting(int value) {
-        return validateValue(value, SEND_MIN_DELAY_MINS, SEND_MAX_DELAY_MINS, SEND_DEFAULT_DELAY_MINS) {
+        return validateValue(value, SEND_MIN_DELAY_MINS, SEND_MAX_DELAY_MINS, SEND_DEFAULT_DELAY_MINS);
     }
 
-    private void registerKeybinds() {
+    private void registerKeybinds () {
         KeyMapping openConfigKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.wynnventory.open_config",
                 GLFW.GLFW_KEY_N,
@@ -113,13 +114,13 @@ public class ConfigManager {
         });
     }
 
-    private void handleOpenConfigKey(KeyMapping openConfigKey) {
+    private void handleOpenConfigKey (KeyMapping openConfigKey){
         if (openConfigKey.consumeClick()) {
             Minecraft.getInstance().setScreen(ConfigScreen.createConfigScreen(Minecraft.getInstance().screen));
         }
     }
 
-    private void handlePriceTooltipKey(Minecraft client, KeyMapping priceTooltipKey) {
+    private void handlePriceTooltipKey (Minecraft client, KeyMapping priceTooltipKey){
         if (client.screen != null || client.player != null) {
             long windowHandle = Minecraft.getInstance().getWindow().getWindow();
             int keyCode = Objects.requireNonNull(KeyMappingUtil.getBoundKey(priceTooltipKey)).getValue();
@@ -135,19 +136,19 @@ public class ConfigManager {
         }
     }
 
-    public int getFetchUserSetting() {
+    public int getFetchUserSetting () {
         return fetchUserSetting;
     }
 
-    public void setFetchUserSetting(int fetchUserSetting) {
+    public void setFetchUserSetting ( int fetchUserSetting){
         this.fetchUserSetting = validateFetchUserSetting(fetchUserSetting);
     }
 
-    public int getSendUserSetting() {
+    public int getSendUserSetting () {
         return sendUserSetting;
     }
 
-    public void setSendUserSetting(int sendUserSetting) {
+    public void setSendUserSetting ( int sendUserSetting){
         this.sendUserSetting = validateSendUserSetting(sendUserSetting);
     }
 }

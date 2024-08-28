@@ -89,7 +89,7 @@ public class TooltipMixin {
         renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, tooltips);
 
         // remove price if expired
-        if (fetchedPrices.get(gearItem.getName()).isPriceExpired(ConfigManager.WYNNVENTORY_CONFIG.getFetchDelayMins())) fetchedPrices.remove(gearItem.getName());
+        if (fetchedPrices.get(gearItem.getName()).isPriceExpired(ConfigManager.getInstance().getFetchUserSetting())) fetchedPrices.remove(gearItem.getName());
     }
 
     @Unique

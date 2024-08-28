@@ -1,6 +1,5 @@
 package com.wynnventory.config;
 
-import com.wynnventory.api.WynnventoryScheduler;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -24,13 +23,13 @@ public class ConfigScreen {
         general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.get"), configManager.getFetchUserSetting(), ConfigManager.FETCH_MIN_DELAY_MINS, ConfigManager.FETCH_MAX_DELAY_MINS)
                 .setDefaultValue(ConfigManager.FETCH_DEFAULT_DELAY_MINS)
 //                .setTooltip(Component.translatable("option.wynnventory.api_delay.tooltip"))
-                .setSaveConsumer(newValue -> configManager.setFetchUserSetting(newValue))
+                .setSaveConsumer(configManager::setFetchUserSetting)
                 .build());
 
         general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.post"), configManager.getSendUserSetting(), ConfigManager.SEND_MIN_DELAY_MINS, ConfigManager.SEND_MAX_DELAY_MINS)
                 .setDefaultValue(ConfigManager.SEND_DEFAULT_DELAY_MINS)
 //                .setTooltip(Component.translatable("option.wynnventory.api_delay.tooltip"))
-                .setSaveConsumer(newValue -> configManager.setSendUserSetting(newValue))
+                .setSaveConsumer(configManager::setSendUserSetting)
                 .build());
 
         builder.setSavingRunnable(ConfigManager.getInstance()::saveConfig);
