@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.wynnventory.WynnventoryMod;
-import com.wynnventory.api.WynnventoryScheduler;
 import com.wynnventory.util.KeyMappingUtil;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -18,94 +17,84 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Objects;
 
-public enum ConfigManager {
-    FETCH_CONFIG(new File("config/Wynnventory/fetch_config.json"), 1, 5, 2),
-    SEND_CONFIG(new File("config/Wynnventory/send_config.json"), 5, 30, 5);
+public class ConfigManager {
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final File CONFIG_FILE = new File("config/Wynnventory/config.json");
 
     // Key Mappings
-    private static boolean SHOW_TOOLTIP = false; // Ugly way to detect keypress in screens
-    public static boolean KEY_PRESSED = false; // Ugly way to detect keypress in screens
+    public static boolean SHOW_TOOLTIP = false;
+    public static boolean KEY_PRESSED = false;
 
-    private final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    // Config values for FETCH_CONFIG
+    private transient final int fetchMinDelay = 1
+    private transient final int fetchMaxDelay = 5
+    private transient final int fetchDefaultDelay = 2
+    private int fetchUserSetting = this.fetchDefaultDelay;
 
-    private File configFile;
+    // Config values for SEND_CONFIG
+    private transient final int sendMinDelay = 5;
+    private transient final int sendMaxDelay = 30;
+    private transient final int sendDefaultDelay = 5;
+    private int sendUserSetting = this.sendDefaultDelay;
 
-    // Config values in file
-    private int minDelay;
-    private int maxDelay;
-    private int defaultDelay;
-    private int userSetting;
+    // Singleton instance
+    private static ConfigManager instance;
 
-    // Initialize with default values
-    ConfigManager(File configFile, int minDelay, int maxDelay, int defaultDelay) {
-        this.configFile = configFile;
-        this.minDelay = minDelay;
-        this.maxDelay = maxDelay;
-        this.defaultDelay = defaultDelay;
-        this.userSetting = this.defaultDelay;
+    private ConfigManager() { }
 
-        loadConfig();
+    public static ConfigManager getInstance() {
+        if (instance == null) {
+            instance = new ConfigManager();
+        }
+
+        return instance;
     }
 
     public void loadConfig() {
-        if (configFile.exists()) {
-            try (FileReader reader = new FileReader(configFile)) {
+        if (CONFIG_FILE.exists()) {
+            try (FileReader reader = new FileReader(CONFIG_FILE)) {
                 ConfigManager config = GSON.fromJson(reader, ConfigManager.class);
-                this.userSetting = validateUserSetting(config.userSetting);
+                this.fetchUserSetting = validateFetchUserSetting(config.getFetchUserSetting());
+                this.sendUserSetting = validateSendUserSetting(config.getSendUserSetting());
             } catch (IOException e) {
-                WynnventoryMod.error("Could not load config from: " + configFile);
+                WynnventoryMod.error("Could not load config from: " + CONFIG_FILE);
             }
         } else {
-            saveConfig();
+            saveConfig(); // Save default config if not found
         }
+
+        registerKeybinds();
     }
 
-    private void saveConfig() {
-        this.userSetting = validateUserSetting(this.userSetting);
+    public void saveConfig() {
+        this.fetchUserSetting = validateFetchUserSetting(this.fetchUserSetting);
+        this.sendUserSetting = validateSendUserSetting(this.sendUserSetting);
 
-        try (FileWriter writer = new FileWriter(configFile)) {
+        try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
             GSON.toJson(this, writer);
         } catch (IOException e) {
-            WynnventoryMod.error("Could not save config to: " + configFile);
+            WynnventoryMod.error("Could not save config to: " + CONFIG_FILE);
         }
     }
 
-    public int getMinDelay() {
-        return minDelay;
-    }
-
-    public int getMaxDelay() {
-        return maxDelay;
-    }
-
-    public int getDefaultDelay() {
-        return defaultDelay;
-    }
-
-    public int getUserSetting() {
-        return userSetting;
-    }
-
-    public int setUserSetting(int userSetting) {
-        this.userSetting = validateUserSetting(userSetting);
-    }
-
-    private int validateUserSetting(int value) {
-        if (value < this.minDelay || value > this.maxDelay) {
-            WynnventoryMod.warn("Config value: " + value + " outside of value range: " + this.minDelay + " - " + this.maxDelay + ". Setting to default value: " + this.defaultDelay);
-            return this.defaultDelay;
+    private int validateValue(int value, int min, int max, int defaultValue) {
+        if (value < min || value > max) {
+            WynnventoryMod.warn("Config value: " + value + " outside of value range: " + min + " - " + max + ". Setting to default value: " + defaultValue);
+            return defaultValue;
         }
 
         return value;
     }
 
-    public static void saveConfigs() {
-        for(ConfigManager config : ConfigManager.values()) {
-            config.saveConfig();
-        }
+    private int validateFetchUserSetting(int value) {
+        return validateValue(value, fetchMinDelay, fetchMaxDelay, fetchDefaultDelay) {
     }
 
-    public static void registerKeybinds() {
+    private int validateSendUserSetting(int value) {
+        return validateValue(value, sendMinDelay, sendMaxDelay, sendDefaultDelay) {
+    }
+
+    private void registerKeybinds() {
         KeyMapping openConfigKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.wynnventory.open_config",
                 GLFW.GLFW_KEY_N,
@@ -124,13 +113,13 @@ public enum ConfigManager {
         });
     }
 
-    private static void handleOpenConfigKey(KeyMapping openConfigKey) {
+    private void handleOpenConfigKey(KeyMapping openConfigKey) {
         if (openConfigKey.consumeClick()) {
             Minecraft.getInstance().setScreen(ConfigScreen.createConfigScreen(Minecraft.getInstance().screen));
         }
     }
 
-    private static void handlePriceTooltipKey(Minecraft client, KeyMapping priceTooltipKey) {
+    private void handlePriceTooltipKey(Minecraft client, KeyMapping priceTooltipKey) {
         if (client.screen != null || client.player != null) {
             long windowHandle = Minecraft.getInstance().getWindow().getWindow();
             int keyCode = Objects.requireNonNull(KeyMappingUtil.getBoundKey(priceTooltipKey)).getValue();
@@ -144,5 +133,47 @@ public enum ConfigManager {
                 KEY_PRESSED = false;
             }
         }
+    }
+
+        // Getters and Setters for FETCH_CONFIG
+    public int getFetchMinDelay() {
+        return fetchMinDelay;
+    }
+
+    public int getFetchMaxDelay() {
+        return fetchMaxDelay;
+    }
+
+    public int getFetchDefaultDelay() {
+        return fetchDefaultDelay;
+    }
+
+    public int getFetchUserSetting() {
+        return fetchUserSetting;
+    }
+
+    public void setFetchUserSetting(int fetchUserSetting) {
+        this.fetchUserSetting = validateFetchUserSetting(fetchUserSetting);
+    }
+
+    // Getters and Setters for SEND_CONFIG
+    public int getSendMinDelay() {
+        return sendMinDelay;
+    }
+
+    public int getSendMaxDelay() {
+        return sendMaxDelay;
+    }
+
+    public int getSendDefaultDelay() {
+        return sendDefaultDelay;
+    }
+
+    public int getSendUserSetting() {
+        return sendUserSetting;
+    }
+
+    public void setSendUserSetting(int sendUserSetting) {
+        this.sendUserSetting = validateSendUserSetting(sendUserSetting);
     }
 }

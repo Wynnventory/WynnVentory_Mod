@@ -26,8 +26,8 @@ public class WynnventoryMod implements ModInitializer {
 		WYNNVENTORY_VERSION = WYNNVENTORY_INSTANCE.get().getMetadata().getVersion().getFriendlyString();
 		WYNNVENTORY_MOD_NAME = WYNNVENTORY_INSTANCE.get().getMetadata().getName();
 
-		// Register Mod Keybinds
-		ConfigManager.registerKeybinds();
+		// Load config and register keybinds
+		ConfigManager.getInstance().loadConfig();
 
 		// Start WynnventoryScheduler
 		WynnventoryScheduler.startScheduledTask();

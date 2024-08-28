@@ -19,20 +19,21 @@ public class ConfigScreen {
 
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
+        ConfigManager configManager = ConfigManager.getInstance();
         // Entries
-        general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.get"), ConfigManager.FETCH_CONFIG.getUserSetting(), ConfigManager.FETCH_CONFIG.getMinDelay(), ConfigManager.FETCH_CONFIG.getMaxDelay())
-                .setDefaultValue(ConfigManager.FETCH_CONFIG.getDefaultDelay())
+        general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.get"), configManager.getFetchUserSetting(), configManager.getFetchMinDelay(), configManager.getFetchMaxDelay())
+                .setDefaultValue(configManager.getFetchDefaultDelay())
 //                .setTooltip(Component.translatable("option.wynnventory.api_delay.tooltip"))
-                .setSaveConsumer(newValue -> ConfigManager.FETCH_CONFIG.setUserSetting(newValue))
+                .setSaveConsumer(newValue -> configManager.setFetchUserSetting(newValue))
                 .build());
 
-        general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.post"), ConfigManager.SEND_CONFIG.getUserSetting(), ConfigManager.SEND_CONFIG.getMinDelay(), ConfigManager.SEND_CONFIG.getMaxDelay())
-                .setDefaultValue(ConfigManager.SEND_CONFIG.getDefaultDelay())
+        general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.post"), configManager.getSendUserSetting(), configManager.getSendMinDelay(), configManager.getSendMaxDelay())
+                .setDefaultValue(configManager.getSendDefaultDelay())
 //                .setTooltip(Component.translatable("option.wynnventory.api_delay.tooltip"))
-                .setSaveConsumer(newValue -> ConfigManager.SEND_CONFIG.setUserSetting(newValue))
+                .setSaveConsumer(newValue -> configManager.setSendUserSetting(newValue))
                 .build());
 
-        builder.setSavingRunnable(ConfigManager::saveConfigs);
+        builder.setSavingRunnable(ConfigManager.getInstance()::saveConfig);
 
         return builder.build();
     }
