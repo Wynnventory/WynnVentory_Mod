@@ -25,20 +25,20 @@ public class ConfigManager {
     public static boolean SHOW_TOOLTIP = false;
     public static boolean KEY_PRESSED = false;
 
-    // Config values for FETCH_CONFIG
-    private transient final int fetchMinDelay = 1
-    private transient final int fetchMaxDelay = 5
-    private transient final int fetchDefaultDelay = 2
-    private int fetchUserSetting = this.fetchDefaultDelay;
+    public static final int SEND_MIN_DELAY_MINS = 5;
+    public static final int SEND_MAX_DELAY_MINS = 30;
+    public static final int SEND_DEFAULT_DELAY_MINS = 5;
 
-    // Config values for SEND_CONFIG
-    private transient final int sendMinDelay = 5;
-    private transient final int sendMaxDelay = 30;
-    private transient final int sendDefaultDelay = 5;
-    private int sendUserSetting = this.sendDefaultDelay;
+
+    public static final int FETCH_MIN_DELAY_MINS = 1;
+    public static final int FETCH_MAX_DELAY_MINS = 5;
+    public static final int FETCH_DEFAULT_DELAY_MINS = 2;
 
     // Singleton instance
     private static ConfigManager instance;
+
+    private int sendUserSetting = this.sendDefaultDelay;
+    private int fetchUserSetting = this.fetchDefaultDelay;
 
     private ConfigManager() { }
 
@@ -87,11 +87,11 @@ public class ConfigManager {
     }
 
     private int validateFetchUserSetting(int value) {
-        return validateValue(value, fetchMinDelay, fetchMaxDelay, fetchDefaultDelay) {
+        return validateValue(value, FETCH_MIN_DELAY_MINS, FETCH_MAX_DELAY_MINS, FETCH_DEFAULT_DELAY_MINS) {
     }
 
     private int validateSendUserSetting(int value) {
-        return validateValue(value, sendMinDelay, sendMaxDelay, sendDefaultDelay) {
+        return validateValue(value, SEND_MIN_DELAY_MINS, SEND_MAX_DELAY_MINS, SEND_DEFAULT_DELAY_MINS) {
     }
 
     private void registerKeybinds() {
@@ -135,38 +135,12 @@ public class ConfigManager {
         }
     }
 
-        // Getters and Setters for FETCH_CONFIG
-    public int getFetchMinDelay() {
-        return fetchMinDelay;
-    }
-
-    public int getFetchMaxDelay() {
-        return fetchMaxDelay;
-    }
-
-    public int getFetchDefaultDelay() {
-        return fetchDefaultDelay;
-    }
-
     public int getFetchUserSetting() {
         return fetchUserSetting;
     }
 
     public void setFetchUserSetting(int fetchUserSetting) {
         this.fetchUserSetting = validateFetchUserSetting(fetchUserSetting);
-    }
-
-    // Getters and Setters for SEND_CONFIG
-    public int getSendMinDelay() {
-        return sendMinDelay;
-    }
-
-    public int getSendMaxDelay() {
-        return sendMaxDelay;
-    }
-
-    public int getSendDefaultDelay() {
-        return sendDefaultDelay;
     }
 
     public int getSendUserSetting() {

@@ -21,14 +21,14 @@ public class ConfigScreen {
 
         ConfigManager configManager = ConfigManager.getInstance();
         // Entries
-        general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.get"), configManager.getFetchUserSetting(), configManager.getFetchMinDelay(), configManager.getFetchMaxDelay())
-                .setDefaultValue(configManager.getFetchDefaultDelay())
+        general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.get"), configManager.getFetchUserSetting(), ConfigManager.FETCH_MIN_DELAY_MINS, ConfigManager.FETCH_MAX_DELAY_MINS)
+                .setDefaultValue(ConfigManager.FETCH_DEFAULT_DELAY_MINS)
 //                .setTooltip(Component.translatable("option.wynnventory.api_delay.tooltip"))
                 .setSaveConsumer(newValue -> configManager.setFetchUserSetting(newValue))
                 .build());
 
-        general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.post"), configManager.getSendUserSetting(), configManager.getSendMinDelay(), configManager.getSendMaxDelay())
-                .setDefaultValue(configManager.getSendDefaultDelay())
+        general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.post"), configManager.getSendUserSetting(), ConfigManager.SEND_MIN_DELAY_MINS, ConfigManager.SEND_MAX_DELAY_MINS)
+                .setDefaultValue(ConfigManager.SEND_DEFAULT_DELAY_MINS)
 //                .setTooltip(Component.translatable("option.wynnventory.api_delay.tooltip"))
                 .setSaveConsumer(newValue -> configManager.setSendUserSetting(newValue))
                 .build());
