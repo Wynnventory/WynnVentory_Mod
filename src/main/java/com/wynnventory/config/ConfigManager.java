@@ -19,7 +19,7 @@ import java.util.Objects;
 
 public class ConfigManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File CONFIG_FILE = new File("config/Wynnventory/config.json");
+    private static final File CONFIG_FILE = new File("config/wynnventory.json");
 
     // Key Mappings
     public static boolean SHOW_TOOLTIP = false;
@@ -47,7 +47,6 @@ public class ConfigManager {
         if (instance == null) {
             instance = new ConfigManager();
         }
-
         return instance;
     }
 
@@ -63,7 +62,6 @@ public class ConfigManager {
         } else {
             saveConfig(); // Save default config if not found
         }
-
         registerKeybinds();
     }
 
@@ -83,7 +81,6 @@ public class ConfigManager {
             WynnventoryMod.warn("Config value: " + value + " outside of value range: " + min + " - " + max + ". Setting to default value: " + defaultValue);
             return defaultValue;
         }
-
         return value;
     }
 
