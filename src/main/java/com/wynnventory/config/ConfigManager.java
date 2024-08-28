@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.util.Objects;
 
 public enum ConfigManager {
-    FETCH_CONFIG(new File("config/Wynnventory/wynnventory_fetch.json"), 1, 5, 2),
-    SEND_CONFIG(new File("config/Wynnventory/wynnventory_send.json"), 5, 30, 5);
+    FETCH_CONFIG(new File("config/Wynnventory/fetch_config.json"), 1, 5, 2),
+    SEND_CONFIG(new File("config/Wynnventory/send_config.json"), 5, 30, 5);
 
     // Key Mappings
     private KeyMapping openConfigKey;
@@ -43,6 +43,8 @@ public enum ConfigManager {
         this.minDelay = minDelay;
         this.maxDelay = maxDelay;
         this.defaultDelay = defaultDelay;
+
+        loadConfig();
     }
 
     public void loadConfig() {
@@ -61,7 +63,7 @@ public enum ConfigManager {
         registerKeybinds();
     }
 
-    public void saveConfig() {
+    private void saveConfig() {
         this.userSetting = validateUserSetting(this.userSetting);
 
         try (FileWriter writer = new FileWriter(configFile)) {
@@ -127,10 +129,6 @@ public enum ConfigManager {
         return showTooltip;
     }
 
-    public boolean isKeyPressed() {
-        return keyPressed;
-    }
-
     private int validateUserSetting(int value) {
         if (value < this.minDelay || value > this.maxDelay) {
             WynnventoryMod.warn("Config value: " + value + " outside of value range: " + this.minDelay + " - " + this.maxDelay + ". Setting to default value: " + this.defaultDelay);
@@ -138,5 +136,11 @@ public enum ConfigManager {
         }
 
         return value;
+    }
+
+    public static void saveConfigs() {
+        for(ConfigManager config : ConfigManager.values()) {
+            config.saveConfig();
+        }
     }
 }
