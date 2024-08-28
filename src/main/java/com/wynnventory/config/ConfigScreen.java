@@ -20,14 +20,14 @@ public class ConfigScreen {
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
         // Entries
-        general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.get"), ConfigManager.WYNNVENTORY_CONFIG.getFetchDelayMins(), ConfigManager.MIN_FETCH_DELAY_MINS, ConfigManager.MAX_FETCH_DELAY_MINS)
-                .setDefaultValue(ConfigManager.DEFAULT_FETCH_DELAY_MINS)
+        general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.get"), ConfigManager.FETCH_CONFIG.getUserSetting(), ConfigManager.FETCH_CONFIG.getMinDelay(), ConfigManager.FETCH_CONFIG.getMaxDelay())
+                .setDefaultValue(ConfigManager.FETCH_CONFIG.getDefaultDelay())
 //                .setTooltip(Component.translatable("option.wynnventory.api_delay.tooltip"))
                 .setSaveConsumer(newValue -> ConfigManager.WYNNVENTORY_CONFIG.setFetchDelayMins(newValue))
                 .build());
 
-        general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.post"), ConfigManager.WYNNVENTORY_CONFIG.getSendDelayMins(), ConfigManager.MIN_SEND_DELAY_MINS, ConfigManager.MAX_SEND_DELAY_MINS)
-                .setDefaultValue(ConfigManager.DEFAULT_SEND_DELAY_MINS)
+        general.addEntry(entryBuilder.startIntSlider(Component.translatable("option.wynnventory.api_delay.post"), ConfigManager.SEND_CONFIG.getUserSetting(), ConfigManager.SEND_CONFIG.getMinDelay(), ConfigManager.SEND_CONFIG.getMaxDelay())
+                .setDefaultValue(ConfigManager.SEND_CONFIG.getDefaultDelay())
 //                .setTooltip(Component.translatable("option.wynnventory.api_delay.tooltip"))
                 .setSaveConsumer(newValue -> ConfigManager.WYNNVENTORY_CONFIG.setSendDelayMins(newValue))
                 .build());

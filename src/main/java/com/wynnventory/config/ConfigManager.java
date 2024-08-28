@@ -19,22 +19,8 @@ import java.io.IOException;
 import java.util.Objects;
 
 public enum ConfigManager {
-    WYNNVENTORY_CONFIG;
-
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File CONFIG_FILE = new File("config/wynnventory.json");
-
-    // Boundaries
-    public static final int MIN_SEND_DELAY_MINS = 5;
-    public static final int MAX_SEND_DELAY_MINS = 30;
-    public static final int MIN_FETCH_DELAY_MINS = 1;
-    public static final int MAX_FETCH_DELAY_MINS = 5;
-
-    // Defaults
-    public static final int DEFAULT_OPEN_CONFIG_KEY = GLFW.GLFW_KEY_N;
-    public static final int DEFAULT_DISPLAY_PRICE_TOOLTIP = GLFW.GLFW_KEY_F;
-    public static final int DEFAULT_SEND_DELAY_MINS = 5;
-    public static final int DEFAULT_FETCH_DELAY_MINS = 2;
+    FETCH_CONFIG(new File("config/Wynnventory/wynnventory_fetch.json"), 1, 5, 2),
+    SEND_CONFIG(new File("config/Wynnventory/wynnventory_send.json"), 5, 30, 5);
 
     // Key Mappings
     private KeyMapping openConfigKey;
@@ -42,21 +28,33 @@ public enum ConfigManager {
     private boolean showTooltip = false; // Ugly way to detect keypress in screens
     private boolean keyPressed = false; // Ugly way to detect keypress in screens
 
-    // Config values in file
-    private int sendDelayMins;
-    private int fetchDelayMins;
+    private final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    ConfigManager() { }
+    private File configFile;
+
+    // Config values in file
+    private int minDelay;
+    private int maxDelay;
+    private int defaultDelay;
+    private int userSetting;
+
+    ConfigManager(File configFile, int minDelay, int maxDelay, int defaultDelay) {
+        this.configFile = configFile;
+        this.minDelay = minDelay;
+        this.maxDelay = maxDelay;
+        this.defaultDelay = defaultDelay;
+    }
 
     public void loadConfig() {
-        if (CONFIG_FILE.exists()) {
-            try (FileReader reader = new FileReader(CONFIG_FILE)) {
+        if (configFile.exists()) {
+            try (FileReader reader = new FileReader(configFile)) {
                 ConfigManager config = GSON.fromJson(reader, ConfigManager.class);
-                this.sendDelayMins = config.sendDelayMins;
-                this.fetchDelayMins = config.fetchDelayMins;
-                validateConfig();
+                this.minDelay = config.minDelay;
+                this.maxDelay = config.maxDelay;
+                this.defaultDelay = config.defaultDelay;
+                this.userSetting = validateUserSetting(this.userSetting);
             } catch (IOException e) {
-                WynnventoryMod.error("Could not load config from: " + CONFIG_FILE);
+                WynnventoryMod.error("Could not load config from: " + configFile);
             }
         }
 
@@ -64,23 +62,24 @@ public enum ConfigManager {
     }
 
     public void saveConfig() {
-        validateConfig();
-        try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
+        this.userSetting = validateUserSetting(this.userSetting);
+
+        try (FileWriter writer = new FileWriter(configFile)) {
             GSON.toJson(this, writer);
         } catch (IOException e) {
-            WynnventoryMod.error("Could not save config to: " + CONFIG_FILE);
+            WynnventoryMod.error("Could not save config to: " + configFile);
         }
     }
 
     private void registerKeybinds() {
         openConfigKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.wynnventory.open_config",
-                ConfigManager.DEFAULT_OPEN_CONFIG_KEY,
+                ConfigManager.GLFW.GLFW_KEY_N,
                 "category.wynnventory.keybinding"
         ));
         priceTooltipKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.wynnventory.toggle_tooltip",
-                ConfigManager.DEFAULT_DISPLAY_PRICE_TOOLTIP,
+                ConfigManager.GLFW.GLFW_KEY_F,
                 "category.wynnventory.keybinding"
         ));
 
@@ -104,33 +103,24 @@ public enum ConfigManager {
         });
     }
 
-    private void validateConfig() {
-        this.sendDelayMins = validateValue(this.sendDelayMins, MIN_SEND_DELAY_MINS, MAX_SEND_DELAY_MINS, DEFAULT_SEND_DELAY_MINS);
-        this.fetchDelayMins = validateValue(this.fetchDelayMins, MIN_FETCH_DELAY_MINS, MAX_FETCH_DELAY_MINS, DEFAULT_FETCH_DELAY_MINS);
+    public int getMinDelay() {
+        return minDelay;
     }
 
-    public int getSendDelayMins() {
-        return sendDelayMins;
+    public int getMaxDelay() {
+        return maxDelay;
     }
 
-    public void setSendDelayMins(int sendDelayMins) {
-        this.sendDelayMins = validateValue(sendDelayMins, MIN_SEND_DELAY_MINS, MAX_SEND_DELAY_MINS, DEFAULT_SEND_DELAY_MINS);
+    public int getDefaultDelay() {
+        return defaultDelay;
     }
 
-    public int getFetchDelayMins() {
-        return fetchDelayMins;
+    public int getUserSetting() {
+        return userSetting;
     }
 
-    public void setFetchDelayMins(int fetchDelayMins) {
-        this.fetchDelayMins = validateValue(fetchDelayMins, MIN_FETCH_DELAY_MINS, MAX_FETCH_DELAY_MINS, DEFAULT_FETCH_DELAY_MINS);
-    }
-
-    public KeyMapping getOpenConfigKey() {
-        return openConfigKey;
-    }
-
-    public KeyMapping getPriceTooltipKey() {
-        return priceTooltipKey;
+    public int setUserSetting(int userSetting) {
+        this.userSetting = validateUserSetting(userSetting);
     }
 
     public boolean isShowTooltip() {
@@ -141,10 +131,10 @@ public enum ConfigManager {
         return keyPressed;
     }
 
-    private int validateValue(int value, int minValue, int maxValue, int defaultValue) {
-        if (value == null || value < minValue || value > maxValue) {
-            WynnventoryMod.warn("Config value: " + value + " outside of value range: " + minValue + " - " + maxValue + ". Setting to default value: " + defaultValue);
-            return defaultValue;
+    private int validateUserSetting(int value) {
+        if (value < this.minDelay || value > this.maxDelay) {
+            WynnventoryMod.warn("Config value: " + value + " outside of value range: " + this.minDelay + " - " + this.maxDelay + ". Setting to default value: " + this.defaultDelay);
+            return this.defaultDelay;
         }
 
         return value;
