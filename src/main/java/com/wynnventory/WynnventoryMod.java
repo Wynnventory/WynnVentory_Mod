@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.sun.tools.javac.Main;
 import com.wynnventory.api.WynnventoryScheduler;
 import com.wynnventory.util.KeyMappingUtil;
+import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.Optional;
 
-public class WynnventoryMod implements ModInitializer {
+public class WynnventoryMod implements ClientModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("wynnventory");
 	public static final Optional<ModContainer> WYNNVENTORY_INSTANCE = FabricLoader.getInstance().getModContainer("wynnventory");
 	public static String WYNNVENTORY_VERSION;
@@ -30,7 +31,7 @@ public class WynnventoryMod implements ModInitializer {
 	private boolean keyPressed = false;
 
 	@Override
-	public void onInitialize() {
+	public void onInitializeClient() {
 		if (WYNNVENTORY_INSTANCE.isEmpty()) {
 			error("Could not find Wynnventory in Fabric Loader!");
 			return;
