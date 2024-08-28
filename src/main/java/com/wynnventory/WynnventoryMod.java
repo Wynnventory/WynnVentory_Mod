@@ -14,8 +14,8 @@ import java.util.Optional;
 public class WynnventoryMod implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("wynnventory");
 	public static final Optional<ModContainer> WYNNVENTORY_INSTANCE = FabricLoader.getInstance().getModContainer("wynnventory");
-	public static final String WYNNVENTORY_VERSION = WYNNVENTORY_INSTANCE.get().getMetadata().getVersion().getFriendlyString();
-	public static final String WYNNVENTORY_MOD_NAME = WYNNVENTORY_INSTANCE.get().getMetadata().getName();
+	public static String WYNNVENTORY_VERSION;
+	public static String WYNNVENTORY_MOD_NAME;
 
 	@Override
 	public void onInitialize() {
@@ -23,14 +23,12 @@ public class WynnventoryMod implements ModInitializer {
 			error("Could not find Wynnventory in Fabric Loader!");
 			return;
 		}
+		WYNNVENTORY_VERSION = WYNNVENTORY_INSTANCE.get().getMetadata().getVersion().getFriendlyString();
+		WYNNVENTORY_MOD_NAME = WYNNVENTORY_INSTANCE.get().getMetadata().getName();
 
 		// Start WynnventoryScheduler
 		WynnventoryScheduler.startScheduledTask();
 
-		// Ensure data is sent one last time when the game closes
-		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
-			WynnventoryScheduler.stopScheduledTask();
-		});
 
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
