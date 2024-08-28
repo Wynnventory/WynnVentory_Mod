@@ -56,8 +56,9 @@ public class ConfigManager {
                 ConfigManager config = GSON.fromJson(reader, ConfigManager.class);
                 this.fetchUserSetting = validateFetchUserSetting(config.getFetchUserSetting());
                 this.sendUserSetting = validateSendUserSetting(config.getSendUserSetting());
-            } catch (IOException e) {
+            } catch (IOException | NullPointerException e) {
                 WynnventoryMod.error("Could not load config from: " + CONFIG_FILE);
+                saveConfig();
             }
         } else {
             saveConfig(); // Save default config if not found
@@ -101,7 +102,7 @@ public class ConfigManager {
 
         KeyMapping priceTooltipKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.wynnventory.toggle_tooltip",
-                GLFW.GLFW_KEY_F,
+                GLFW.GLFW_KEY_PERIOD,
                 "category.wynnventory.keybinding"
         ));
 
@@ -111,13 +112,13 @@ public class ConfigManager {
         });
     }
 
-    private void handleOpenConfigKey (KeyMapping openConfigKey){
+    private void handleOpenConfigKey(KeyMapping openConfigKey) {
         if (openConfigKey.consumeClick()) {
             Minecraft.getInstance().setScreen(ConfigScreen.createConfigScreen(Minecraft.getInstance().screen));
         }
     }
 
-    private void handlePriceTooltipKey (Minecraft client, KeyMapping priceTooltipKey){
+    private void handlePriceTooltipKey(Minecraft client, KeyMapping priceTooltipKey) {
         if (client.screen != null || client.player != null) {
             long windowHandle = Minecraft.getInstance().getWindow().getWindow();
             int keyCode = Objects.requireNonNull(KeyMappingUtil.getBoundKey(priceTooltipKey)).getValue();
