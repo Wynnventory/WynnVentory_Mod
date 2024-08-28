@@ -1,3 +1,4 @@
 {
-  "category.wynnventory.keybinding": "WynnVentory"
+  "category.wynnventory.keybinding": "WynnVentory",
+  "key.wynnventory.toggle_tooltip": "Toggle price tooltip"
 }
