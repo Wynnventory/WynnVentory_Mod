@@ -18,75 +18,64 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Objects;
 
-public class ConfigManager {
+public enum ConfigManager {
+    WYNNVENTORY_CONFIG;
+
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final File CONFIG_FILE = new File("config/wynnventory.json");
 
-    public static KeyMapping OPEN_CONFIG_KEY;
-    public static KeyMapping PRICE_TOOLTIP_KEY;
-    public static boolean SHOW_TOOLTIP = false; // Ugly way to detect keypress in screens
-    private static boolean wasKeyPressed = false; // Ugly way to detect keypress in screens
-
-    // Boundaries & Defaults
+    // Boundaries
     public static final int MIN_SEND_DELAY_MINS = 5;
     public static final int MAX_SEND_DELAY_MINS = 30;
     public static final int MIN_FETCH_DELAY_MINS = 1;
     public static final int MAX_FETCH_DELAY_MINS = 5;
 
+    // Defaults
     public static final int DEFAULT_OPEN_CONFIG_KEY = GLFW.GLFW_KEY_N;
     public static final int DEFAULT_DISPLAY_PRICE_TOOLTIP = GLFW.GLFW_KEY_F;
     public static final int DEFAULT_SEND_DELAY_MINS = 5;
     public static final int DEFAULT_FETCH_DELAY_MINS = 2;
 
+    // Key Mappings
+    private static KeyMapping OPEN_CONFIG_KEY;
+    private static KeyMapping PRICE_TOOLTIP_KEY;
+    private static boolean SHOW_TOOLTIP = false; // Ugly way to detect keypress in screens
+    private static boolean KEY_PRESSED = false; // Ugly way to detect keypress in screens
+
     // Config values in file
-    public static int SEND_DELAY_MINS;
     private int sendDelayMins;
-    public static int FETCH_DELAY_MINS;
     private int fetchDelayMins;
 
-    public static void loadConfig() {
+    ConfigManager() {
+        // Initialize with defaults
+        this.sendDelayMins = DEFAULT_SEND_DELAY_MINS;
+        this.fetchDelayMins = DEFAULT_FETCH_DELAY_MINS;
+        loadConfig();
+    }
+
+    private void loadConfig() {
         if (CONFIG_FILE.exists()) {
             try (FileReader reader = new FileReader(CONFIG_FILE)) {
                 ConfigManager config = GSON.fromJson(reader, ConfigManager.class);
-
-                config = validateConfig(config);
-                config.registerKeybinds();
-
-                SEND_DELAY_MINS = config.sendDelayMins;
-                FETCH_DELAY_MINS = config.fetchDelayMins;
+                this.sendDelayMins = config.sendDelayMins;
+                this.fetchDelayMins = config.fetchDelayMins;
+                validateConfig();
             } catch (IOException e) {
                 WynnventoryMod.error("Could not load config from: " + CONFIG_FILE);
             }
-        } else {
-            saveConfig(); // save default config
         }
+
+        registerKeybinds();
+        applyConfig();
     }
 
-    public static void saveConfig() {
-        ConfigManager config = new ConfigManager();
-
-        config.sendDelayMins = SEND_DELAY_MINS;
-        config.fetchDelayMins = FETCH_DELAY_MINS;
-        config = validateConfig(config);
-
+    public void saveConfig() {
+        validateConfig();
         try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
-            GSON.toJson(config, writer);
+            GSON.toJson(this, writer);
         } catch (IOException e) {
             WynnventoryMod.error("Could not save config to: " + CONFIG_FILE);
         }
-    }
-
-    public static ConfigManager validateConfig(ConfigManager config) {
-        if (config == null) config = new ConfigManager();
-        if (config.sendDelayMins < MIN_SEND_DELAY_MINS || config.sendDelayMins > MAX_SEND_DELAY_MINS) {
-            config.sendDelayMins = DEFAULT_SEND_DELAY_MINS;
-        }
-        if (config.fetchDelayMins < MIN_FETCH_DELAY_MINS || config.fetchDelayMins > MAX_FETCH_DELAY_MINS) {
-            config.fetchDelayMins = DEFAULT_FETCH_DELAY_MINS;
-        }
-        SEND_DELAY_MINS = config.sendDelayMins;
-        FETCH_DELAY_MINS = config.fetchDelayMins;
-        return config;
     }
 
     private void registerKeybinds() {
@@ -110,14 +99,44 @@ public class ConfigManager {
                 int keyCode = Objects.requireNonNull(KeyMappingUtil.getBoundKey(PRICE_TOOLTIP_KEY)).getValue();
 
                 if (InputConstants.isKeyDown(windowHandle, keyCode)) {
-                    if (!wasKeyPressed) {
+                    if (!KEY_PRESSED) {
                         SHOW_TOOLTIP = !SHOW_TOOLTIP;
                     }
-                    wasKeyPressed = true;
+                    KEY_PRESSED = true;
                 } else {
-                    wasKeyPressed = false;
+                    KEY_PRESSED = false;
                 }
             }
         });
+    }
+
+    private void validateConfig() {
+        this.sendDelayMins = validateValue(this.sendDelayMins, MIN_SEND_DELAY_MINS, MAX_SEND_DELAY_MINS, DEFAULT_SEND_DELAY_MINS);
+        this.fetchDelayMins = validateValue(this.fetchDelayMins, MIN_FETCH_DELAY_MINS, MAX_FETCH_DELAY_MINS, DEFAULT_FETCH_DELAY_MINS);
+    }
+
+    public int getSendDelayMins() {
+        return sendDelayMins;
+    }
+
+    public void setSendDelayMins(int sendDelayMins) {
+        this.sendDelayMins = validateValue(sendDelayMins, MIN_SEND_DELAY_MINS, MAX_SEND_DELAY_MINS, DEFAULT_SEND_DELAY_MINS);
+    }
+
+    public int getFetchDelayMins() {
+        return fetchDelayMins;
+    }
+
+    public void setFetchDelayMins(int fetchDelayMins) {
+        this.fetchDelayMins = validateValue(fetchDelayMins, MIN_FETCH_DELAY_MINS, MAX_FETCH_DELAY_MINS, DEFAULT_FETCH_DELAY_MINS);
+    }
+
+    private int validateValue(int value, int minValue, int maxValue, int defaultValue) {
+        if (value < minValue || value > maxValue) {
+            WynnventoryMod.warn("Config value: " + value + " outside of value range: " minValue + " - " maxValue + ". Setting to default value: " + defaultValue);
+            return defaultValue;
+        }
+
+        return value;
     }
 }
