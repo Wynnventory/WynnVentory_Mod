@@ -66,7 +66,6 @@ public enum ConfigManager {
         }
 
         registerKeybinds();
-        applyConfig();
     }
 
     public void saveConfig() {
