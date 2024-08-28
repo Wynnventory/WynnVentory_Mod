@@ -52,7 +52,7 @@ public class TooltipMixin {
 
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
     private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
-        if (!ConfigManager.SHOW_TOOLTIP) return;
+        if (!ConfigManager.WYNNVENTORY_CONFIG.isShowTooltip()) return;
         Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
         if (hoveredSlot == null || !hoveredSlot.hasItem()) return;
 

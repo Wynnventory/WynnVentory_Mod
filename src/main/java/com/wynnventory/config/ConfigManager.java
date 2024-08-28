@@ -37,10 +37,10 @@ public enum ConfigManager {
     public static final int DEFAULT_FETCH_DELAY_MINS = 2;
 
     // Key Mappings
-    private static KeyMapping OPEN_CONFIG_KEY;
-    private static KeyMapping PRICE_TOOLTIP_KEY;
-    private static boolean SHOW_TOOLTIP = false; // Ugly way to detect keypress in screens
-    private static boolean KEY_PRESSED = false; // Ugly way to detect keypress in screens
+    private KeyMapping openConfigKey;
+    private KeyMapping priceTooltipKey;
+    private boolean showTooltip = false; // Ugly way to detect keypress in screens
+    private boolean keyPressed = false; // Ugly way to detect keypress in screens
 
     // Config values in file
     private int sendDelayMins;
@@ -78,32 +78,32 @@ public enum ConfigManager {
     }
 
     private void registerKeybinds() {
-        OPEN_CONFIG_KEY = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        openConfigKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.wynnventory.open_config",
                 ConfigManager.DEFAULT_OPEN_CONFIG_KEY,
                 "category.wynnventory.keybinding"
         ));
-        PRICE_TOOLTIP_KEY = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        priceTooltipKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.wynnventory.toggle_tooltip",
                 ConfigManager.DEFAULT_DISPLAY_PRICE_TOOLTIP,
                 "category.wynnventory.keybinding"
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (OPEN_CONFIG_KEY.consumeClick()) {
+            if (openConfigKey.consumeClick()) {
                 Minecraft.getInstance().setScreen(ConfigScreen.createConfigScreen(Minecraft.getInstance().screen));
             }
             if (client.screen != null || client.player != null) {
                 long windowHandle = Minecraft.getInstance().getWindow().getWindow();
-                int keyCode = Objects.requireNonNull(KeyMappingUtil.getBoundKey(PRICE_TOOLTIP_KEY)).getValue();
+                int keyCode = Objects.requireNonNull(KeyMappingUtil.getBoundKey(priceTooltipKey)).getValue();
 
                 if (InputConstants.isKeyDown(windowHandle, keyCode)) {
-                    if (!KEY_PRESSED) {
-                        SHOW_TOOLTIP = !SHOW_TOOLTIP;
+                    if (!keyPressed) {
+                        showTooltip = !showTooltip;
                     }
-                    KEY_PRESSED = true;
+                    keyPressed = true;
                 } else {
-                    KEY_PRESSED = false;
+                    keyPressed = false;
                 }
             }
         });
@@ -128,6 +128,22 @@ public enum ConfigManager {
 
     public void setFetchDelayMins(int fetchDelayMins) {
         this.fetchDelayMins = validateValue(fetchDelayMins, MIN_FETCH_DELAY_MINS, MAX_FETCH_DELAY_MINS, DEFAULT_FETCH_DELAY_MINS);
+    }
+
+    public KeyMapping getOpenConfigKey() {
+        return openConfigKey;
+    }
+
+    public KeyMapping getPriceTooltipKey() {
+        return priceTooltipKey;
+    }
+
+    public boolean isShowTooltip() {
+        return showTooltip;
+    }
+
+    public boolean isKeyPressed() {
+        return keyPressed;
     }
 
     private int validateValue(int value, int minValue, int maxValue, int defaultValue) {
