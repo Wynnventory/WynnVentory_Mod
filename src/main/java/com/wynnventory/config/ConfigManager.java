@@ -106,34 +106,43 @@ public enum ConfigManager {
     }
 
     public static void registerKeybinds() {
-        KeyMapping OPEN_CONFIG_KEY = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        KeyMapping openConfigKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.wynnventory.open_config",
-                ConfigManager.GLFW.GLFW_KEY_N,
+                GLFW.GLFW_KEY_N,
                 "category.wynnventory.keybinding"
         ));
-        KeyMapping PRICE_TOOLTIP_KEY = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+
+        KeyMapping priceTooltipKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.wynnventory.toggle_tooltip",
-                ConfigManager.GLFW.GLFW_KEY_F,
+                GLFW.GLFW_KEY_F,
                 "category.wynnventory.keybinding"
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (OPEN_CONFIG_KEY.consumeClick()) {
-                Minecraft.getInstance().setScreen(ConfigScreen.createConfigScreen(Minecraft.getInstance().screen));
-            }
-            if (client.screen != null || client.player != null) {
-                long windowHandle = Minecraft.getInstance().getWindow().getWindow();
-                int keyCode = Objects.requireNonNull(KeyMappingUtil.getBoundKey(PRICE_TOOLTIP_KEY)).getValue();
-
-                if (InputConstants.isKeyDown(windowHandle, keyCode)) {
-                    if (!KEY_PRESSED) {
-                        SHOW_TOOLTIP = !SHOW_TOOLTIP;
-                    }
-                    KEY_PRESSED = true;
-                } else {
-                    KEY_PRESSED = false;
-                }
-            }
+            handleOpenConfigKey(openConfigKey);
+            handlePriceTooltipKey(client, priceTooltipKey)    
         });
+    }
+
+    private static void handleOpenConfigKey(KeyMapping openConfigKey) {
+        if (openConfigKey.consumeClick()) {
+            Minecraft.getInstance().setScreen(ConfigScreen.createConfigScreen(Minecraft.getInstance().screen));
+        }
+    }
+
+    private static void handlePriceTooltipKey(Minecraft client, KeyMapping priceTooltipKey) {
+        if (client.screen != null || client.player != null) {
+            long windowHandle = Minecraft.getInstance().getWindow().getWindow();
+            int keyCode = priceTooltipKey.getBoundKey().getValue();
+
+            if (InputUtil.isKeyPressed(windowHandle, keyCode)) {
+                if (!KEY_PRESSED) {
+                    SHOW_TOOLTIP = !SHOW_TOOLTIP
+                }
+                KEY_PRESSED = true;
+            } else {
+                KEY_PRESSED = false;
+            }
+        }
     }
 }
