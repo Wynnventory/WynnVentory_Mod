@@ -5,15 +5,12 @@ import com.sun.tools.javac.Main;
 import com.wynnventory.api.WynnventoryScheduler;
 import com.wynnventory.util.KeyMappingUtil;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.ToggleKeyMapping;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +23,8 @@ public class WynnventoryMod implements ClientModInitializer {
 	public static final Optional<ModContainer> WYNNVENTORY_INSTANCE = FabricLoader.getInstance().getModContainer("wynnventory");
 	public static String WYNNVENTORY_VERSION;
 	public static String WYNNVENTORY_MOD_NAME;
+
+	private static boolean isDev = false;
 
 	public static boolean SHOW_TOOLTIP = true;
 	private boolean keyPressed = false;
@@ -65,9 +64,12 @@ public class WynnventoryMod implements ClientModInitializer {
 			}
 		});
 
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
+		try {
+			isDev = Main.class.getClassLoader().loadClass("com.intellij.rt.execution.application.AppMainV2") != null;
+		} catch (NoClassDefFoundError | Exception ignored) {
+			isDev = WYNNVENTORY_VERSION.contains("dev");
+		}
+
 		if (isDev()) warn("WynnVentory is running in dev environment. Mod will behave differently in non-dev environment.");
 		LOGGER.info("Initialized WynnVentoryMod with version {}", WYNNVENTORY_VERSION);
 	}
@@ -93,11 +95,6 @@ public class WynnventoryMod implements ClientModInitializer {
 	}
 
 	public static boolean isDev() {
-		boolean isDev = false;
-		try {
-			isDev = Main.class.getClassLoader().loadClass("com.intellij.rt.execution.application.AppMainV2") != null;
-		} catch (NoClassDefFoundError | Exception e) {
-		}
 		return isDev;
 	}
 }
