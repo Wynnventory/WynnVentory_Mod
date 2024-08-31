@@ -38,7 +38,7 @@ import java.util.concurrent.Executors;
 public class TooltipMixin {
 
     private static final String TITLE_TEXT = "Trade Market Price Info";
-    private static final long EXPIRE_MINS = 1;
+    private static final long EXPIRE_MINS = 2;
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.US);
     private static final EmeraldPrice EMERALD_PRICE = new EmeraldPrice();
     private static final WynnventoryAPI API = new WynnventoryAPI();
