@@ -30,8 +30,7 @@ public class WynnventoryAPI {
 
         URI endpointURI;
         if (WynnventoryMod.isDev()) {
-            WynnventoryMod.info("Sending market data data to DEV endpoint.");
-//            endpointURI = getEndpointURI("trademarket/items?env=dev2");
+            WynnventoryMod.info("Sending market data to DEV endpoint.");
             endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/items?env=dev2");
         } else {
             endpointURI = getEndpointURI("trademarket/items");
@@ -45,7 +44,6 @@ public class WynnventoryAPI {
         URI endpointURI;
         if (WynnventoryMod.isDev()) {
             WynnventoryMod.info("Sending lootpool data to DEV endpoint.");
-//            endpointURI = getEndpointURI("lootpool/items?env=dev2");
             endpointURI = URI.create("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/lootpool/items?env=dev2");
         } else {
             endpointURI = getEndpointURI("lootpool/items");
@@ -61,8 +59,15 @@ public class WynnventoryAPI {
 
     public TradeMarketItemPriceInfo fetchItemPrices(String itemName) {
         try {
-            String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
-            URI endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price");
+            final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
+
+            URI endpointURI;
+            if (WynnventoryMod.isDev()) {
+                WynnventoryMod.info("Fetching market data from DEV endpoint.");
+                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/item/" + encodedItemName + "/price?env=dev2");
+            } else {
+                endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price");
+            }
 
             HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointURI);
 

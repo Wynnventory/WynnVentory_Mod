@@ -1,21 +1,21 @@
 package com.wynnventory;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import com.sun.tools.javac.Main;
+import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.api.WynnventoryScheduler;
-import com.wynnventory.util.KeyMappingUtil;
+import com.wynnventory.model.keymapping.StickyKeyMapping;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
 import java.util.Optional;
 
 public class WynnventoryMod implements ClientModInitializer {
@@ -24,10 +24,8 @@ public class WynnventoryMod implements ClientModInitializer {
 	public static String WYNNVENTORY_VERSION;
 	public static String WYNNVENTORY_MOD_NAME;
 
-	private static boolean isDev = false;
-
+	private static boolean IS_DEV = false;
 	public static boolean SHOW_TOOLTIP = true;
-	private boolean keyPressed = false;
 
 	@Override
 	public void onInitializeClient() {
@@ -41,37 +39,35 @@ public class WynnventoryMod implements ClientModInitializer {
 		// Start WynnventoryScheduler
 		WynnventoryScheduler.startScheduledTask();
 
-		KeyMapping priceTooltipKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+		StickyKeyMapping priceTooltipKey = (StickyKeyMapping) KeyBindingHelper.registerKeyBinding(new StickyKeyMapping(
 				"key.wynnventory.toggle_tooltip",
 				GLFW.GLFW_KEY_PERIOD,
-				"category.wynnventory.keybinding"
+				"category.wynnventory.keybinding",
+				() -> true
 		));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if (client.screen != null && client.player != null && KeyMappingUtil.getBoundKey(priceTooltipKey) != null) {
-				long windowHandle = Minecraft.getInstance().getWindow().getWindow();
-				int keyCode = Objects.requireNonNull(KeyMappingUtil.getBoundKey(priceTooltipKey)).getValue();
-
-				if (InputConstants.isKeyDown(windowHandle, keyCode)) {
-					System.out.println("CLICKED");
-					if (!keyPressed) {
-						SHOW_TOOLTIP = !SHOW_TOOLTIP;
-					}
-					keyPressed = true;
+			if(priceTooltipKey.hasStateChanged()) {
+				Component message;
+				if(priceTooltipKey.isDown()) {
+					message = Component.literal("[Wynnventory] Trade Market tooltips disabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
 				} else {
-					keyPressed = false;
+					message = Component.literal("[Wynnventory] Trade Market tooltips enabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
 				}
+
+				SHOW_TOOLTIP = !SHOW_TOOLTIP;
+				McUtils.sendMessageToClient(message);
 			}
 		});
 
 		try {
-			isDev = Main.class.getClassLoader().loadClass("com.intellij.rt.execution.application.AppMainV2") != null;
+			IS_DEV = Main.class.getClassLoader().loadClass("com.intellij.rt.execution.application.AppMainV2") != null;
 		} catch (NoClassDefFoundError | Exception ignored) {
-			isDev = WYNNVENTORY_VERSION.contains("dev");
+			IS_DEV = WYNNVENTORY_VERSION.contains("dev");
 		}
 
-		if (isDev()) warn("WynnVentory is running in dev environment. Mod will behave differently in non-dev environment.");
-		LOGGER.info("Initialized WynnVentoryMod with version {}", WYNNVENTORY_VERSION);
+		if (isDev()) warn("Wynnventory is running in dev environment. Mod will behave differently in non-dev environment.");
+		LOGGER.info("Initialized Wynnventory with version {}", WYNNVENTORY_VERSION);
 	}
 
 	public static void info(String msg) {
@@ -95,6 +91,6 @@ public class WynnventoryMod implements ClientModInitializer {
 	}
 
 	public static boolean isDev() {
-		return isDev;
+		return IS_DEV;
 	}
 }

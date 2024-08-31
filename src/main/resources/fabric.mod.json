@@ -10,7 +10,7 @@
 	],
 	"contact": {
 		"homepage": "https://www.wynnventory.com/",
-		"sources": "https://github.com/Aruloci/WynnVentory"
+		"sources": "https://github.com/Aruloci/Wynnventory"
 	},
 	"license": "MIT",
 	"icon": "assets/wynnventory/icon-compressed.png",
@@ -25,7 +25,7 @@
 		"minecraft": "${minecraft_version_range}",
 		"java": ">=${java_version}",
 		"fabric-api": "*",
-		"wynntils": "^${wynntils_version}"
+		"wynntils": ">=${wynntils_version}"
 	},
 	"mixins": [
 		"wynnventory.mixins.json"
