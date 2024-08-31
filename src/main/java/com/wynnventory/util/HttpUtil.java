@@ -13,7 +13,6 @@ public class HttpUtil {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
 
     public static void sendHttpPostRequest(URI uri, String payload) {
-        System.out.println(payload);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .header("Content-Type", "application/json")
