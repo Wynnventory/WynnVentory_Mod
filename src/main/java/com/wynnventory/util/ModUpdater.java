@@ -23,6 +23,8 @@ public class ModUpdater {
     private static final String LATEST_RELEASE_URL = "https://api.github.com/repos/Aruloci/Wynnventory/releases/latest";
     private static boolean alreadyChecked = false;
 
+    private ModUpdater() { }
+
     public static void checkForUpdates() {
         if (alreadyChecked) {
             return;
@@ -31,7 +33,7 @@ public class ModUpdater {
         alreadyChecked = true;
 
         if (WynnventoryMod.WYNNVENTORY_INSTANCE.isEmpty()) {
-            WynnventoryMod.error("Could not find WynnVentory in Fabric Loader!");
+            WynnventoryMod.error("Could not find Wynnventory in Fabric Loader!");
             return;
         }
 
@@ -82,7 +84,7 @@ public class ModUpdater {
     }
 
     private static void notifyUserOfUpdate(String latestVersion) {
-        Component message = Component.literal("[WynnVentory] New version available: " + latestVersion + ". Attempting to auto-update...")
+        Component message = Component.literal("[Wynnventory] New version available: " + latestVersion + ". Attempting to auto-update...")
                 .withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW));
         McUtils.sendMessageToClient(message);
     }
@@ -96,7 +98,7 @@ public class ModUpdater {
                 File oldFile = getExistingModFile();
                 scheduleFileReplacementOnShutdown(oldFile, newFilePath.toFile());
             } catch (Exception e) {
-                WynnventoryMod.error("Failed to download WynnVentory update", e);
+                WynnventoryMod.error("Failed to download Wynnventory update", e);
             }
         }).start();
     }
@@ -113,7 +115,7 @@ public class ModUpdater {
     }
 
     private static void notifyUserOfDownloadCompletion() {
-        Component message = Component.literal("[WynnVentory] Download completed! Restart Minecraft to apply the update.")
+        Component message = Component.literal("[Wynnventory] Download completed! Restart Minecraft to apply the update.")
                 .withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
         McUtils.sendMessageToClient(message);
     }

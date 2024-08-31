@@ -56,7 +56,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         String screenTitle = currentScreen.getTitle().getString();
 
         if (screenTitle.equals(MARKET_TITLE)) {
-            TradeMarketItem.createTradeMarketItem(item).ifPresent(marketItemsBuffer::add);
+            marketItemsBuffer.add(TradeMarketItem.createTradeMarketItem(item));
         }
     }
 
@@ -69,12 +69,10 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
             String title = containerScreen.getTitle().getString();
             if (title.equals(LOOTPOOL_TITLE)) {
                 // @TODO: TEST ONLY
-                McUtils.sendMessageToClient(Component.literal("LOOTPOOL DETECTED. Region is " + RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ())));
+                // McUtils.sendMessageToClient(Component.literal("LOOTPOOL DETECTED. Region is " + RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ())));
                 for (ItemStack item : packet.getItems()) {
-                    if (item.getItem() != Items.AIR && item.getItem() != Items.COMPASS && item.getItem() != Items.POTION) {
-                        if (!McUtils.player().getInventory().items.contains(item)) {
+                    if (item.getItem() != Items.AIR && item.getItem() != Items.COMPASS && item.getItem() != Items.POTION && !McUtils.player().getInventory().items.contains(item)) {
                             LootpoolItem.createLootpoolItem(item).ifPresent(lootpoolItemsBuffer::add);
-                        }
                     }
                 }
             }

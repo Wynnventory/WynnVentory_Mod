@@ -43,9 +43,8 @@ public class TradeMarketItem {
         return marketItems;
     }
 
-    public static Optional<TradeMarketItem> createTradeMarketItem(ItemStack item) {
-        List<TradeMarketItem> items = createTradeMarketItems(List.of(item));
-        return items.isEmpty() ? Optional.empty() : Optional.of(items.getFirst());
+    public static TradeMarketItem createTradeMarketItem(ItemStack item) {
+        return createTradeMarketItems(List.of(item)).getFirst();
     }
 
     public SimplifiedGearItem getItem() {

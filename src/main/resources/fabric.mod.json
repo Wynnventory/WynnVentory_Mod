@@ -10,13 +10,13 @@
 	],
 	"contact": {
 		"homepage": "https://www.wynnventory.com/",
-		"sources": "https://github.com/Aruloci/WynnVentory"
+		"sources": "https://github.com/Aruloci/Wynnventory"
 	},
 	"license": "MIT",
 	"icon": "assets/wynnventory/icon-compressed.png",
 	"environment": "*",
 	"entrypoints": {
-		"main": [
+		"client": [
 			"com.wynnventory.WynnventoryMod"
 		]
 	},
@@ -25,9 +25,19 @@
 		"minecraft": "${minecraft_version_range}",
 		"java": ">=${java_version}",
 		"fabric-api": "*",
-		"wynntils": "^${wynntils_version}"
+		"wynntils": ">=${wynntils_version}"
 	},
 	"mixins": [
 		"wynnventory.mixins.json"
-	]
+	],
+	"custom": {
+		"modmenu": {
+			"links": {
+				"modmenu.discord": "https://discord.gg/b6ATfrePuR",
+				"modmenu.website": "https://www.wynnventory.com/"
+			},
+			"badges": [],
+			"update_checker": true
+		}
+	}
 }

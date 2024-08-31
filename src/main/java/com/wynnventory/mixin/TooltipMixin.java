@@ -51,7 +51,7 @@ public class TooltipMixin {
 
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
     private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
-//        if(!Screen.hasAltDown()) { return; } @TODO: Move to Mod Config
+        if(!WynnventoryMod.SHOW_TOOLTIP) { return; }
         Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
         if (hoveredSlot == null || !hoveredSlot.hasItem()) return;
 
