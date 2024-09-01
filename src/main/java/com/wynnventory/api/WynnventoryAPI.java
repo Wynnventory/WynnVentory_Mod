@@ -5,12 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.items.items.game.GearItem;
-import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynnventory.WynnventoryMod;
+import com.wynnventory.model.item.LootpoolItem;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.HttpUtil;
-import com.wynnventory.util.TradeMarketPriceParser;
 import net.minecraft.world.item.ItemStack;
 
 import java.net.URI;
@@ -18,9 +17,7 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class WynnventoryAPI {
     private static final String BASE_URL = "https://www.wynnventory.com";
@@ -28,25 +25,30 @@ public class WynnventoryAPI {
     private static final URI API_BASE_URL = createApiBaseUrl();
     private static final ObjectMapper objectMapper = createObjectMapper();
 
-public void sendTradeMarketResults(ItemStack item) {
-        sendTradeMarketResults(List.of(item));
-    }
-
-    public void sendTradeMarketResults(List<ItemStack> items) {
-        if (items.isEmpty()) return;
-
-        List<TradeMarketItem> marketItems = createTradeMarketItems(items);
-
+    public void sendTradeMarketResults(List<TradeMarketItem> marketItems) {
         if (marketItems.isEmpty()) return;
 
         URI endpointURI;
         if (WynnventoryMod.isDev()) {
-            WynnventoryMod.info("Sending item data to DEV endpoint.");
-            endpointURI = getEndpointURI("trademarket/items?env=dev2");
+            WynnventoryMod.info("Sending market data to DEV endpoint.");
+            endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/items?env=dev2");
         } else {
             endpointURI = getEndpointURI("trademarket/items");
         }
-        HttpUtil.sendHttpPostRequest(endpointURI, serializeMarketItems(marketItems));
+        HttpUtil.sendHttpPostRequest(endpointURI, serializeItemData(marketItems));
+    }
+
+    public void sendLootpoolData(List<LootpoolItem> lootpoolItems) {
+        if (lootpoolItems.isEmpty()) return;
+
+        URI endpointURI;
+        if (WynnventoryMod.isDev()) {
+            WynnventoryMod.info("Sending lootpool data to DEV endpoint.");
+            endpointURI = URI.create("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/lootpool/items?env=dev2");
+        } else {
+            endpointURI = getEndpointURI("lootpool/items");
+        }
+        HttpUtil.sendHttpPostRequest(endpointURI, serializeItemData(lootpoolItems));
     }
 
     public TradeMarketItemPriceInfo fetchItemPrices(ItemStack item) {
@@ -57,8 +59,15 @@ public void sendTradeMarketResults(ItemStack item) {
 
     public TradeMarketItemPriceInfo fetchItemPrices(String itemName) {
         try {
-            String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
-            URI endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price");
+            final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
+
+            URI endpointURI;
+            if (WynnventoryMod.isDev()) {
+                WynnventoryMod.info("Fetching market data from DEV endpoint.");
+                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/item/" + encodedItemName + "/price?env=dev2");
+            } else {
+                endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price");
+            }
 
             HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointURI);
 
@@ -76,30 +85,12 @@ public void sendTradeMarketResults(ItemStack item) {
         }
     }
 
-    private List<TradeMarketItem> createTradeMarketItems(List<ItemStack> items) {
-        List<TradeMarketItem> marketItems = new ArrayList<>();
-
-        for (ItemStack item : items) {
-            Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
-
-            gearItemOptional.ifPresent(gearItem -> {
-                TradeMarketPriceInfo priceInfo = TradeMarketPriceParser.calculateItemPriceInfo(item);
-                if (priceInfo != TradeMarketPriceInfo.EMPTY) {
-                    marketItems.add(new TradeMarketItem(gearItem, priceInfo.price(), priceInfo.amount()));
-                }
-            });
-        }
-
-        return marketItems;
-    }
-
-    private String serializeMarketItems(List<TradeMarketItem> marketItems) {
+    private String serializeItemData(List<?> items) {
         try {
-            return objectMapper.writeValueAsString(marketItems);
+            return objectMapper.writeValueAsString(items);
         } catch (JsonProcessingException e) {
-            WynnventoryMod.LOGGER.error("Failed to serialize market items ({})", marketItems.getFirst().getItem().getName());
-//            WynnventoryMod.LOGGER.error("Failed to serialize market items ({})", marketItems.getFirst().getItem().getName(), e);
-            return "{}";
+            WynnventoryMod.LOGGER.error("Failed to serialize item data", e);
+            return "[]";
         }
     }
 
@@ -130,5 +121,4 @@ public void sendTradeMarketResults(ItemStack item) {
     private static URI getEndpointURI(String endpoint) {
         return API_BASE_URL.resolve(endpoint);
     }
-
 }
