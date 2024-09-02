@@ -62,7 +62,11 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         String screenTitle = currentScreen.getTitle().getString();
 
         if (screenTitle.equals(MARKET_TITLE)) {
-            marketItemsBuffer.add(TradeMarketItem.createTradeMarketItem(item));
+            TradeMarketItem marketItem = TradeMarketItem.createTradeMarketItem(item);
+
+            if(marketItem != null) {
+                marketItemsBuffer.add(marketItem);
+            }
         }
     }
 
