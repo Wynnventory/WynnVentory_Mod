@@ -1,7 +1,5 @@
 package com.wynnventory.mixin;
 
-import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.emeralds.type.EmeraldUnits;
@@ -10,7 +8,6 @@ import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.items.game.GearBoxItem;
 import com.wynntils.models.items.items.game.GearItem;
-import com.wynntils.utils.mc.ComponentUtils;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.api.WynnventoryAPI;
@@ -23,15 +20,12 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.joml.Vector2ic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -64,7 +58,7 @@ public abstract class TooltipMixin {
 
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
     private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
-        if(!WynnventoryMod.SHOW_TOOLTIP) { return; }
+        if(!WynnventoryMod.SHOW_TOOLTIP_GENERAL) { return; }
         Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
         if (hoveredSlot == null || !hoveredSlot.hasItem()) return;
 
@@ -84,7 +78,7 @@ public abstract class TooltipMixin {
 
                 // remove price if expired
                 if (fetchedPrices.get(gearItem.getName()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gearItem.getName());
-            } else if(wynnItem instanceof GearBoxItem gearBoxItem) {
+            } else if(wynnItem instanceof GearBoxItem gearBoxItem && WynnventoryMod.SHOW_BOXED_ITEM_TOOLTIP) {
                 tooltips.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
 
                 List<GearInfo> possibleGear = Models.Gear.getPossibleGears(gearBoxItem);
