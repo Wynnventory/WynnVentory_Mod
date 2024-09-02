@@ -1,10 +1,16 @@
 package com.wynnventory.mixin;
 
+import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.emeralds.type.EmeraldUnits;
+import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.gear.type.GearRestrictions;
+import com.wynntils.models.items.WynnItem;
+import com.wynntils.models.items.items.game.GearBoxItem;
 import com.wynntils.models.items.items.game.GearItem;
+import com.wynntils.utils.mc.ComponentUtils;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.api.WynnventoryAPI;
@@ -17,12 +23,17 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Vector2ic;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -35,7 +46,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Mixin(AbstractContainerScreen.class)
-public class TooltipMixin {
+public abstract class TooltipMixin {
+
+    @Shadow protected abstract void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type);
 
     private static final String TITLE_TEXT = "Trade Market Price Info";
     private static final long EXPIRE_MINS = 2;
@@ -56,52 +69,67 @@ public class TooltipMixin {
         if (hoveredSlot == null || !hoveredSlot.hasItem()) return;
 
         ItemStack item = hoveredSlot.getItem();
-        Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
-        GearItem gearItem = gearItemOptional.orElse(null);
-        if (gearItem == null) return;
+        Optional<WynnItem> wynnItemOptional = Models.Item.getWynnItem(item);
 
-        if (!fetchedPrices.containsKey(gearItem.getName())) {
-            TradeMarketItemPriceHolder requestedPrice = new TradeMarketItemPriceHolder(FETCHING, gearItem);
-            fetchedPrices.put(gearItem.getName(), requestedPrice);
+        if(wynnItemOptional.isPresent()) {
+            WynnItem wynnItem = wynnItemOptional.get();
 
-            if (gearItem.getItemInfo().metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
-                // ignore untradable
-                requestedPrice.setPriceInfo(UNTRADABLE);
-            } else {
-                // fetch price async
-                CompletableFuture.supplyAsync(() -> API.fetchItemPrices(item), executorService)
-                        .thenAccept(requestedPrice::setPriceInfo);
+            List<Component> tooltips = new ArrayList<>();
+            if(wynnItem instanceof GearItem gearItem) {
+                tooltips.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
+
+                fetchPricesForGear(gearItem.getItemInfo());
+
+                tooltips.addAll(getTooltipsForGear(gearItem.getItemInfo()));
+
+                // remove price if expired
+                if (fetchedPrices.get(gearItem.getName()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gearItem.getName());
+            } else if(wynnItem instanceof GearBoxItem gearBoxItem) {
+                tooltips.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
+
+                List<GearInfo> possibleGear = Models.Gear.getPossibleGears(gearBoxItem);
+                for(GearInfo gear : possibleGear) {
+                    fetchPricesForGear(gear);
+
+                    tooltips.addAll(getTooltipsForGear(gear));
+                    tooltips.add(Component.literal(""));
+
+                    // remove price if expired
+                    if (fetchedPrices.get(gear.name()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gear.name());
+                }
             }
-        }
 
-        TradeMarketItemPriceInfo price = fetchedPrices.get(gearItem.getName()).getPriceInfo();
-        List<Component> tooltips = new ArrayList<>();
-        if (price == FETCHING) { // Display retrieving info
-            tooltips.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
-            tooltips.add(formatText("Retrieving price information...", ChatFormatting.WHITE));
-        } else if (price == UNTRADABLE) { // Display untradable
-            tooltips.add(formatText(TITLE_TEXT, ChatFormatting.GOLD));
-            tooltips.add(formatText("Item is untradable.", ChatFormatting.RED));
-        } else { // Display fetched price
-            tooltips = createPriceTooltip(price);
+            renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, tooltips);
         }
-        renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, tooltips);
-
-        // remove price if expired
-        if (fetchedPrices.get(gearItem.getName()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gearItem.getName());
     }
 
     @Unique
     private void renderPriceInfoTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, ItemStack item, List<Component> tooltipLines) {
+        Font font = McUtils.mc().font;
+
         mouseX = Math.min(mouseX, guiGraphics.guiWidth() - 10);
         mouseY = Math.max(mouseY, 10);
-        int guiScaledWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+        int guiScaledWidth = McUtils.window().getGuiScaledWidth();
+        int guiScaledHeight = McUtils.window().getGuiScaledHeight();
         int guiScaleFactor = (int) Minecraft.getInstance().getWindow().getGuiScale();
         int gap = 5 * guiScaleFactor;
 
-        final PoseStack poseStack = new PoseStack();
+        // Calculate the height of the tooltip
+        int tooltipHeight = tooltipLines.size() * font.lineHeight;
+
+        // Calculate maximum allowed height based on screen size
+        int maxTooltipHeight = guiScaledHeight - (gap * 4); // 20px padding for top and bottom
+
+        // Calculate the scaling factor
+        float scaleFactor = tooltipHeight > maxTooltipHeight ? (float) maxTooltipHeight / tooltipHeight : 1.0f;
+
+        // Apply scaling to the PoseStack
+        PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
-        poseStack.translate(0, 0, 300);
+        poseStack.translate(0, (guiScaledHeight / 2f) - ((tooltipHeight * scaleFactor) / 2f), 1);
+        if (scaleFactor < 1.0f) {
+            poseStack.scale(scaleFactor, scaleFactor, 1.0f);
+        }
 
         List<Component> primaryTooltip = Screen.getTooltipFromItem(McUtils.mc(), item);
         int primaryTooltipWidth = primaryTooltip.stream()
@@ -117,16 +145,15 @@ public class TooltipMixin {
 
         int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipWidth + gap);
 
-        Font font = Minecraft.getInstance().font;
         try {
             if (priceTooltipWidth > spaceToRight) {
                 // Render on left
                 guiGraphics.renderComponentTooltip(
-                        font, tooltipLines, mouseX - priceTooltipWidth - gap, mouseY);
+                        font, tooltipLines, 0, 0);
             } else {
                 // Render on right
                 guiGraphics.renderComponentTooltip(
-                        font, tooltipLines, mouseX + primaryTooltipWidth + gap, mouseY);
+                        font, tooltipLines, 0, 0);
             }
         } catch (Exception e) {
             WynnventoryMod.error("Failed to render price tooltip for " + item.getDisplayName());
@@ -135,10 +162,9 @@ public class TooltipMixin {
     }
 
     @Unique
-    private List<Component> createPriceTooltip(TradeMarketItemPriceInfo priceInfo) {
+    private List<Component> createPriceTooltip(GearInfo info, TradeMarketItemPriceInfo priceInfo) {
         List<Component> tooltipLines = new ArrayList<>();
-        tooltipLines.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
-
+        tooltipLines.add(formatText(info.name(), info.tier().getChatFormatting()));
         if (priceInfo == null) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
         } else {
@@ -156,6 +182,37 @@ public class TooltipMixin {
             }
         }
         return tooltipLines;
+    }
+
+    private void fetchPricesForGear(GearInfo info) {
+        if (!fetchedPrices.containsKey(info.name())) {
+            TradeMarketItemPriceHolder requestedPrice = new TradeMarketItemPriceHolder(FETCHING, info);
+            fetchedPrices.put(info.name(), requestedPrice);
+
+            if (info.metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
+                // ignore untradable
+                requestedPrice.setPriceInfo(UNTRADABLE);
+            } else {
+                // fetch price async
+                CompletableFuture.supplyAsync(() -> API.fetchItemPrices(info.name()), executorService)
+                        .thenAccept(requestedPrice::setPriceInfo);
+            }
+        }
+    }
+
+    private List<Component> getTooltipsForGear(GearInfo info) {
+        TradeMarketItemPriceInfo price = fetchedPrices.get(info.name()).getPriceInfo();
+        List<Component> tooltips = new ArrayList<>();
+
+        if (price == FETCHING) { // Display retrieving info
+            tooltips.add(formatText("Retrieving price information...", ChatFormatting.WHITE));
+        } else if (price == UNTRADABLE) { // Display untradable
+            tooltips.add(formatText("Item is untradable.", ChatFormatting.RED));
+        } else { // Display fetched price
+            tooltips = createPriceTooltip(info, price);
+        }
+
+        return tooltips;
     }
 
     @Unique
