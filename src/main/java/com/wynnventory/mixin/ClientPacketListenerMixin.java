@@ -33,6 +33,8 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     private static final String MARKET_TITLE = "󏿨";
     private static final String LOOTPOOL_TITLE = "󏿲";
 
+    private static boolean IS_FIRST_WORLD_JOIN = true;
+
     @Unique
     private final List<TradeMarketItem> marketItemsBuffer = new ArrayList<>();
     @Unique
@@ -44,7 +46,11 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
     @Inject(method = "handleLogin", at = @At("RETURN"))
     private void onPlayerJoin(ClientboundLoginPacket packet, CallbackInfo ci) {
-        ModUpdater.checkForUpdates();
+        if(IS_FIRST_WORLD_JOIN) {
+           IS_FIRST_WORLD_JOIN = false;
+        } else {
+            ModUpdater.checkForUpdates();
+        }
     }
 
     @Inject(method = "handleContainerSetSlot", at = @At("RETURN"))
