@@ -8,8 +8,6 @@ import com.wynnventory.WynnventoryMod;
 import com.wynnventory.util.TradeMarketPriceParser;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class TradeMarketItem {
@@ -27,24 +25,18 @@ public class TradeMarketItem {
         this.modVersion = WynnventoryMod.WYNNVENTORY_VERSION;
     }
 
-    public static List<TradeMarketItem> createTradeMarketItems(List<ItemStack> items) {
-        List<TradeMarketItem> marketItems = new ArrayList<>();
+    public static TradeMarketItem createTradeMarketItem(ItemStack item) {
+        Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
+        if(gearItemOptional.isPresent()) {
+            GearItem gearItem = gearItemOptional.get();
+            TradeMarketPriceInfo priceInfo = TradeMarketPriceParser.calculateItemPriceInfo(item);
 
-        for (ItemStack item : items) {
-            Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
-            gearItemOptional.ifPresent(gearItem -> {
-                TradeMarketPriceInfo priceInfo = TradeMarketPriceParser.calculateItemPriceInfo(item);
-                if (priceInfo != TradeMarketPriceInfo.EMPTY) {
-                    marketItems.add(new TradeMarketItem(gearItem, priceInfo.price(), priceInfo.amount()));
-                }
-            });
+            if (priceInfo != TradeMarketPriceInfo.EMPTY) {
+                return new TradeMarketItem(gearItem, priceInfo.price(), priceInfo.amount());
+            }
         }
 
-        return marketItems;
-    }
-
-    public static TradeMarketItem createTradeMarketItem(ItemStack item) {
-        return createTradeMarketItems(List.of(item)).getFirst();
+        return null;
     }
 
     public SimplifiedGearItem getItem() {
