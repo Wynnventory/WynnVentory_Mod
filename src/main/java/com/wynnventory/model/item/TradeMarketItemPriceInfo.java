@@ -6,10 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TradeMarketItemPriceInfo {
     @JsonProperty("average_price")
-    private double averagePrice;
+    private Double averagePrice;
 
     @JsonProperty("average_mid_80_percent_price")
-    private double average80Price;
+    private Double average80Price;
 
     @JsonProperty("highest_price")
     private int highestPrice;
@@ -21,26 +21,26 @@ public class TradeMarketItemPriceInfo {
     private Double unidentifiedAveragePrice;
 
     @JsonProperty("unidentified_average_mid_80_percent_price")
-    private double unidentifiedAverage80Price;
+    private Double unidentifiedAverage80Price;
 
     // Default constructor
     public TradeMarketItemPriceInfo() {}
 
     // Getters and Setters
 
-    public int getAveragePrice() {
-        return (int) averagePrice;
+    public Double getAveragePrice() {
+        return averagePrice;
     }
 
     public void setAveragePrice(double averagePrice) {
         this.averagePrice = averagePrice;
     }
 
-    public int getAverage80Price() {
-        return (int) average80Price;
+    public Double getAverage80Price() {
+        return average80Price;
     }
 
-    public void setAverage80Price(double average80Price) {
+    public void setAverage80Price(Double average80Price) {
         this.average80Price = average80Price;
     }
 

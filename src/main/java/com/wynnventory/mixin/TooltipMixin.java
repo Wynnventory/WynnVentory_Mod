@@ -168,12 +168,12 @@ public abstract class TooltipMixin {
             if (priceInfo.getLowestPrice() > 0) {
                 tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice()));
             }
-            if (priceInfo.getAveragePrice() > 0.0) {
-                tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice()));
+            if (priceInfo.getAveragePrice() != null) {
+                tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice().intValue()));
             }
 
-            if (priceInfo.getAverage80Price() > 0.0) {
-                tooltipLines.add(formatPrice("Avg 80%: ", priceInfo.getAverage80Price()));
+            if (priceInfo.getAverage80Price() != null) {
+                tooltipLines.add(formatPrice("Avg 80%: ", priceInfo.getAverage80Price().intValue()));
             }
 
             if (priceInfo.getUnidentifiedAveragePrice() != null) {
