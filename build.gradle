@@ -32,7 +32,7 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
-	modImplementation("me.shedaniel.cloth:cloth-config-fabric:15.0.130") {
+	modImplementation("me.shedaniel.cloth:cloth-config-fabric:${project.clothconfig_version}") {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
 	modRuntimeOnly "me.djtheredstoner:DevAuth-fabric:1.2.1"
@@ -57,7 +57,9 @@ processResources {
 	mod_version				: project.version,
 	minecraft_version_range	: minecraft_version_range,
 	loader_version			: loader_version,
-	wynntils_version		: wynntils_version
+	wynntils_version		: wynntils_version,
+	modmenu_version			: modmenu_version,
+	clothconfig_version		: clothconfig_version
 	]
 	inputs.properties replaceProperties
 	
