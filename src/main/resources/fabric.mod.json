@@ -18,6 +18,8 @@
 	"entrypoints": {
 		"client": [
 			"com.wynnventory.WynnventoryMod"
+		], "modmenu": [
+			"com.wynnventory.config.WynnventoryModMenu"
 		]
 	},
 	"depends": {
@@ -36,8 +38,7 @@
 				"modmenu.discord": "https://discord.gg/b6ATfrePuR",
 				"modmenu.website": "https://www.wynnventory.com/"
 			},
-			"badges": [],
-			"update_checker": true
+			"update_checker": false
 		}
 	}
 }
