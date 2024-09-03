@@ -4,6 +4,7 @@ import com.sun.tools.javac.Main;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.api.WynnventoryScheduler;
 import com.wynnventory.config.ConfigManager;
+import com.wynnventory.config.ConfigScreen;
 import com.wynnventory.model.keymapping.StickyKeyMapping;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -11,6 +12,8 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import org.lwjgl.glfw.GLFW;
@@ -41,7 +44,25 @@ public class WynnventoryMod implements ClientModInitializer {
 		// Start WynnventoryScheduler
 		WynnventoryScheduler.startScheduledTask();
 
-		ConfigManager.getInstance();
+		ConfigManager.getInstance().loadConfig();
+		registerKeyBinds();
+
+		try {
+			IS_DEV = Main.class.getClassLoader().loadClass("com.intellij.rt.execution.application.AppMainV2") != null;
+		} catch (NoClassDefFoundError | Exception ignored) {
+			IS_DEV = WYNNVENTORY_VERSION.contains("dev");
+		}
+
+		if (isDev()) warn("Wynnventory is running in dev environment. Mod will behave differently in non-dev environment.");
+		LOGGER.info("Initialized Wynnventory with version {}", WYNNVENTORY_VERSION);
+	}
+
+	private static void registerKeyBinds() {
+		KeyMapping openConfigKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+				"key.wynnventory.open_config",
+				GLFW.GLFW_KEY_N,
+				"category.wynnventory.keybinding"
+		));
 
 		StickyKeyMapping priceTooltipKey = (StickyKeyMapping) KeyBindingHelper.registerKeyBinding(new StickyKeyMapping(
 				"key.wynnventory.toggle_tooltips",
@@ -56,6 +77,12 @@ public class WynnventoryMod implements ClientModInitializer {
 				"category.wynnventory.keybinding",
 				() -> true
 		));
+
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			if (openConfigKey.consumeClick()) {
+				Minecraft.getInstance().setScreen(ConfigScreen.createConfigScreen(Minecraft.getInstance().screen));
+			}
+		});
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if(priceTooltipKey.hasStateChanged()) {
@@ -84,15 +111,6 @@ public class WynnventoryMod implements ClientModInitializer {
 				McUtils.sendMessageToClient(message);
 			}
 		});
-
-		try {
-			IS_DEV = Main.class.getClassLoader().loadClass("com.intellij.rt.execution.application.AppMainV2") != null;
-		} catch (NoClassDefFoundError | Exception ignored) {
-			IS_DEV = WYNNVENTORY_VERSION.contains("dev");
-		}
-
-		if (isDev()) warn("Wynnventory is running in dev environment. Mod will behave differently in non-dev environment.");
-		LOGGER.info("Initialized Wynnventory with version {}", WYNNVENTORY_VERSION);
 	}
 
 	public static void info(String msg) {

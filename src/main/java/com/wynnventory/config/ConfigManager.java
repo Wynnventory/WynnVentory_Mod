@@ -1,5 +1,6 @@
 package com.wynnventory.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -31,10 +32,7 @@ public class ConfigManager {
     private boolean showUnidAveragePrice = true;
     private boolean showUnidAverage80Price = true;
 
-    private ConfigManager() {
-        loadConfig();
-        registerKeybinds();
-    }
+    private ConfigManager() { }
 
     public static ConfigManager getInstance() {
         if (instance == null) {
@@ -46,7 +44,8 @@ public class ConfigManager {
     public void loadConfig() {
         if (CONFIG_FILE.exists()) {
             try (FileReader reader = new FileReader(CONFIG_FILE)) {
-                ConfigManager config = GSON.fromJson(reader, ConfigManager.class);
+                ObjectMapper objectMapper = new ObjectMapper();
+                ConfigManager config = objectMapper.readValue(reader, ConfigManager.class);
                 this.showMaxPrice = validateValue(config.isShowMaxPrice());
                 this.showMinPrice = validateValue(config.isShowMinPrice());
                 this.showAveragePrice = validateValue(config.isShowAveragePrice());
@@ -54,7 +53,7 @@ public class ConfigManager {
                 this.showUnidAveragePrice = validateValue(config.isShowUnidAveragePrice());
                 this.showUnidAverage80Price = validateValue(config.isShowUnidAverage80Price());
             } catch (Exception e) {
-                WynnventoryMod.error("Could not load config from: " + CONFIG_FILE);
+                WynnventoryMod.error("Could not load config from: " + CONFIG_FILE, e);
                 saveConfig();
             }
         } else {
@@ -77,24 +76,6 @@ public class ConfigManager {
         }
 
         return true;
-    }
-
-    private void registerKeybinds () {
-        KeyMapping openConfigKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key.wynnventory.open_config",
-                GLFW.GLFW_KEY_N,
-                "category.wynnventory.keybinding"
-        ));
-
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            handleOpenConfigKey(openConfigKey);
-        });
-    }
-
-    private void handleOpenConfigKey(KeyMapping openConfigKey) {
-        if (openConfigKey.consumeClick()) {
-            Minecraft.getInstance().setScreen(ConfigScreen.createConfigScreen(Minecraft.getInstance().screen));
-        }
     }
 
     public boolean isShowMaxPrice() {
