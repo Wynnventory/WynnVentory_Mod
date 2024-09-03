@@ -11,6 +11,7 @@ import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.api.WynnventoryAPI;
+import com.wynnventory.config.ConfigManager;
 import com.wynnventory.model.item.TradeMarketItemPriceHolder;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.EmeraldPrice;
@@ -157,30 +158,33 @@ public abstract class TooltipMixin {
 
     @Unique
     private List<Component> createPriceTooltip(GearInfo info, TradeMarketItemPriceInfo priceInfo) {
-        List<Component> tooltipLines = new ArrayList<>();
+        final ConfigManager config = ConfigManager.getInstance();
+        final List<Component> tooltipLines = new ArrayList<>();
+
         tooltipLines.add(formatText(info.name(), info.tier().getChatFormatting()));
+
         if (priceInfo == null) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
         } else {
-            if (priceInfo.getHighestPrice() > 0) {
+            if (config.isShowMaxPrice() && priceInfo.getHighestPrice() > 0) {
                 tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
             }
-            if (priceInfo.getLowestPrice() > 0) {
+            if (config.isShowMinPrice() && priceInfo.getLowestPrice() > 0) {
                 tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice()));
             }
-            if (priceInfo.getAveragePrice() != null) {
+            if (config.isShowAveragePrice() && priceInfo.getAveragePrice() != null) {
                 tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice().intValue()));
             }
 
-            if (priceInfo.getAverage80Price() != null) {
+            if (config.isShowAverage80Price() && priceInfo.getAverage80Price() != null) {
                 tooltipLines.add(formatPrice("Avg 80%: ", priceInfo.getAverage80Price().intValue()));
             }
 
-            if (priceInfo.getUnidentifiedAveragePrice() != null) {
+            if (config.isShowUnidAveragePrice() && priceInfo.getUnidentifiedAveragePrice() != null) {
                 tooltipLines.add(formatPrice("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice().intValue()));
             }
 
-            if (priceInfo.getUnidentifiedAverage80Price() != null) {
+            if (config.isShowUnidAverage80Price() && priceInfo.getUnidentifiedAverage80Price() != null) {
                 tooltipLines.add(formatPrice("Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price().intValue()));
             }
         }
