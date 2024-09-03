@@ -18,6 +18,8 @@
 	"entrypoints": {
 		"client": [
 			"com.wynnventory.WynnventoryMod"
+		], "modmenu": [
+			"com.wynnventory.config.WynnventoryModMenu"
 		]
 	},
 	"depends": {

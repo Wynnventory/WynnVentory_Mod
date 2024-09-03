@@ -3,6 +3,7 @@ package com.wynnventory;
 import com.sun.tools.javac.Main;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.api.WynnventoryScheduler;
+import com.wynnventory.config.ConfigManager;
 import com.wynnventory.model.keymapping.StickyKeyMapping;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -39,6 +40,8 @@ public class WynnventoryMod implements ClientModInitializer {
 
 		// Start WynnventoryScheduler
 		WynnventoryScheduler.startScheduledTask();
+
+		ConfigManager.getInstance();
 
 		StickyKeyMapping priceTooltipKey = (StickyKeyMapping) KeyBindingHelper.registerKeyBinding(new StickyKeyMapping(
 				"key.wynnventory.toggle_tooltips",

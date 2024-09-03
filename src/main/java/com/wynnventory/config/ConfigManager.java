@@ -31,7 +31,10 @@ public class ConfigManager {
     private boolean showUnidAveragePrice = true;
     private boolean showUnidAverage80Price = true;
 
-    private ConfigManager() { registerKeybinds(); }
+    private ConfigManager() {
+        loadConfig();
+        registerKeybinds();
+    }
 
     public static ConfigManager getInstance() {
         if (instance == null) {
@@ -50,14 +53,13 @@ public class ConfigManager {
                 this.showAverage80Price = validateValue(config.isShowAverage80Price());
                 this.showUnidAveragePrice = validateValue(config.isShowUnidAveragePrice());
                 this.showUnidAverage80Price = validateValue(config.isShowUnidAverage80Price());
-            } catch (IOException | NullPointerException e) {
+            } catch (Exception e) {
                 WynnventoryMod.error("Could not load config from: " + CONFIG_FILE);
                 saveConfig();
             }
         } else {
             saveConfig(); // Save default config if not found
         }
-        registerKeybinds();
     }
 
     public void saveConfig() {
