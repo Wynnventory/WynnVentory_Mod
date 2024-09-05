@@ -56,10 +56,11 @@ public abstract class TooltipMixin {
     private static HashMap<String, TradeMarketItemPriceHolder> fetchedPrices = new HashMap<>();
 
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
+    private ConfigManager config = ConfigManager.getInstance();
 
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
     private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
-        if(!WynnventoryMod.SHOW_TOOLTIP_GENERAL) { return; }
+        if(!config.isShowTooltips()) { return; }
         Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
         if (hoveredSlot == null || !hoveredSlot.hasItem()) return;
 
@@ -79,7 +80,7 @@ public abstract class TooltipMixin {
 
                 // remove price if expired
                 if (fetchedPrices.get(gearItem.getName()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gearItem.getName());
-            } else if(wynnItem instanceof GearBoxItem gearBoxItem && WynnventoryMod.SHOW_BOXED_ITEM_TOOLTIP) {
+            } else if(wynnItem instanceof GearBoxItem gearBoxItem && config.isShowBoxedItemTooltips()) {
                 tooltips.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
 
                 List<GearInfo> possibleGear = Models.Gear.getPossibleGears(gearBoxItem);
@@ -118,38 +119,61 @@ public abstract class TooltipMixin {
         // Calculate the scaling factor
         float scaleFactor = tooltipHeight > maxTooltipHeight ? (float) maxTooltipHeight / tooltipHeight : 1.0f;
 
+        int priceTooltipWidth = tooltipLines.stream()
+                .map(font::width)
+                .max(Integer::compareTo)
+                .orElse(0);
+        priceTooltipWidth = Math.round(priceTooltipWidth * scaleFactor) + gap * 2;
+
+        float middleScreenTooltipPosition = (guiScaledHeight / 2f) - ((tooltipHeight * scaleFactor) / 2f);
+        float posX;
+        float posY;
+        if(config.isAnchorTooltips()) {
+            if(priceTooltipWidth > mouseX) {
+                scaleFactor = (float) mouseX / priceTooltipWidth;
+            }
+
+            posX = 0f;
+            posY = (guiScaledHeight / 2f) - ((tooltipHeight * scaleFactor) / 2f);
+        } else {
+            List<Component> primaryTooltip = Screen.getTooltipFromItem(McUtils.mc(), item);
+            int primaryTooltipWidth = primaryTooltip.stream()
+                    .map(font::width)
+                    .max(Integer::compareTo)
+                    .orElse(0);
+
+            int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipWidth + gap);
+
+            if (priceTooltipWidth > spaceToRight) {
+                if(priceTooltipWidth > mouseX) {
+                    scaleFactor = (float) mouseX / priceTooltipWidth;
+                    tooltipHeight *= Math.round(scaleFactor);
+
+                    posX = 0f;
+                } else {
+                    posX = mouseX - gap - (float) priceTooltipWidth; // Position tooltip on the left
+                }
+            } else {
+                posX = mouseX + gap + (float) primaryTooltipWidth; // Position tooltip on the right
+            }
+
+            if(mouseY + tooltipHeight > guiScaledHeight) {
+                posY = guiScaledHeight - (float) tooltipHeight;
+            } else {
+                posY = mouseY;
+            }
+        }
+
         // Apply scaling to the PoseStack
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
-        poseStack.translate(0, (guiScaledHeight / 2f) - ((tooltipHeight * scaleFactor) / 2f), 1);
+        poseStack.translate(posX, posY, 1);
         if (scaleFactor < 1.0f) {
             poseStack.scale(scaleFactor, scaleFactor, 1.0f);
         }
 
-        List<Component> primaryTooltip = Screen.getTooltipFromItem(McUtils.mc(), item);
-        int primaryTooltipWidth = primaryTooltip.stream()
-                .map(component -> McUtils.mc().font.width(component))
-                .max(Integer::compareTo)
-                .orElse(0);
-
-        int priceTooltipWidth = tooltipLines.stream()
-                .map(component -> McUtils.mc().font.width(component))
-                .max(Integer::compareTo)
-                .orElse(0);
-        priceTooltipWidth+=gap;
-
-        int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipWidth + gap);
-
         try {
-            if (priceTooltipWidth > spaceToRight) {
-                // Render on left
-                guiGraphics.renderComponentTooltip(
-                        font, tooltipLines, 0, 0);
-            } else {
-                // Render on right
-                guiGraphics.renderComponentTooltip(
-                        font, tooltipLines, 0, 0);
-            }
+            guiGraphics.renderComponentTooltip(font, tooltipLines, 0, 0);
         } catch (Exception e) {
             WynnventoryMod.error("Failed to render price tooltip for " + item.getDisplayName());
         }

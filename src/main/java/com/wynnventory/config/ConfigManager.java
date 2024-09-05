@@ -25,6 +25,12 @@ public class ConfigManager {
     // Singleton instance
     private static ConfigManager instance;
 
+    // General
+    private boolean showTooltips = true;
+    private boolean showBoxedItemTooltips = true;
+    private boolean anchorTooltips = true;
+
+    // Tooltip config
     private boolean showMaxPrice = true;
     private boolean showMinPrice = true;
     private boolean showAveragePrice = true;
@@ -46,6 +52,9 @@ public class ConfigManager {
             try (FileReader reader = new FileReader(CONFIG_FILE)) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 ConfigManager config = objectMapper.readValue(reader, ConfigManager.class);
+                this.showTooltips = validateValue(config.isShowTooltips());
+                this.showBoxedItemTooltips = validateValue(config.isShowBoxedItemTooltips());
+                this.anchorTooltips = validateValue(config.isAnchorTooltips());
                 this.showMaxPrice = validateValue(config.isShowMaxPrice());
                 this.showMinPrice = validateValue(config.isShowMinPrice());
                 this.showAveragePrice = validateValue(config.isShowAveragePrice());
@@ -76,6 +85,30 @@ public class ConfigManager {
         }
 
         return true;
+    }
+
+    public boolean isShowTooltips() {
+        return showTooltips;
+    }
+
+    public void setShowTooltips(boolean showTooltips) {
+        this.showTooltips = showTooltips;
+    }
+
+    public boolean isShowBoxedItemTooltips() {
+        return showBoxedItemTooltips;
+    }
+
+    public void setShowBoxedItemTooltips(boolean showBoxedItemTooltips) {
+        this.showBoxedItemTooltips = showBoxedItemTooltips;
+    }
+
+    public boolean isAnchorTooltips() {
+        return anchorTooltips;
+    }
+
+    public void setAnchorTooltips(boolean anchorTooltips) {
+        this.anchorTooltips = anchorTooltips;
     }
 
     public boolean isShowMaxPrice() {

@@ -29,8 +29,6 @@ public class WynnventoryMod implements ClientModInitializer {
 	public static String WYNNVENTORY_MOD_NAME;
 
 	private static boolean IS_DEV = false;
-	public static boolean SHOW_TOOLTIP_GENERAL = true;
-	public static boolean SHOW_BOXED_ITEM_TOOLTIP = true;
 
 	@Override
 	public void onInitializeClient() {
@@ -86,28 +84,35 @@ public class WynnventoryMod implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if(priceTooltipKey.hasStateChanged()) {
+				ConfigManager config = ConfigManager.getInstance();
+				config.setShowTooltips(!config.isShowTooltips());
+				config.saveConfig();
+
 				Component message;
-				if(priceTooltipKey.isDown()) {
-					message = Component.literal("[Wynnventory] Trade Market item tooltips disabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
-				} else {
+				if(config.isShowTooltips()) {
 					message = Component.literal("[Wynnventory] Trade Market item tooltips enabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
+				} else {
+					message = Component.literal("[Wynnventory] Trade Market item tooltips disabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
 				}
 
-				SHOW_TOOLTIP_GENERAL = !SHOW_TOOLTIP_GENERAL;
+
 				McUtils.sendMessageToClient(message);
 			}
 		});
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if(boxedPriceTooltipKey.hasStateChanged()) {
+				ConfigManager config = ConfigManager.getInstance();
+				config.setShowBoxedItemTooltips(!config.isShowBoxedItemTooltips());
+				config.saveConfig();
+
 				Component message;
-				if(boxedPriceTooltipKey.isDown()) {
-					message = Component.literal("[Wynnventory] Trade Market boxed item tooltips disabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
-				} else {
+				if(config.isShowBoxedItemTooltips()) {
 					message = Component.literal("[Wynnventory] Trade Market boxed item tooltips enabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
+				} else {
+					message = Component.literal("[Wynnventory] Trade Market boxed item tooltips disabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
 				}
 
-				SHOW_BOXED_ITEM_TOOLTIP = !SHOW_BOXED_ITEM_TOOLTIP;
 				McUtils.sendMessageToClient(message);
 			}
 		});
