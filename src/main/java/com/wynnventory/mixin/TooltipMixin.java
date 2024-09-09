@@ -143,7 +143,7 @@ public abstract class TooltipMixin {
 
             posY = Math.clamp(scaledTooltipY, minY, maxY);
 
-            WynnventoryMod.debug("Scaled Screenbounds: MinY: " + minY + " | MaxY: " + maxY + " | TTPosY: " + posY + " | TTHeight: " + priceTooltipDimension.height + " | ScaleFactor: " + scaleFactor);
+            //WynnventoryMod.debug("Scaled Screenbounds: MinY: " + minY + " | MaxY: " + maxY + " | TTPosY: " + posY + " | TTHeight: " + priceTooltipDimension.height + " | ScaleFactor: " + scaleFactor);
         } else {
             if (priceTooltipDimension.width > spaceToRight) {
                 posX = mouseX - gap - (float) priceTooltipDimension.width; // Position tooltip on the left
