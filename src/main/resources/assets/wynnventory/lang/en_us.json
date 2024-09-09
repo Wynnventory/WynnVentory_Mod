@@ -2,11 +2,15 @@
   "title.wynnventory.config": "Wynnventory Config",
 
   "category.wynnventory.general": "General",
+  "category.wynnventory.tooltips": "Tooltip Stats",
   "category.wynnventory.keybinding": "Wynnventory",
 
   "key.wynnventory.toggle_tooltips": "Toggle price tooltips",
   "key.wynnventory.toggle_boxed_item_tooltips": "Toggle boxed item price tooltips",
 
+  "option.wynnventory.general.toggle_tooltips": "Show tooltips",
+  "option.wynnventory.general.toggle_boxed_item_tooltips": "Show boxed item tooltips",
+  "option.wynnventory.general.anchor_tooltips": "Anchor tooltips to the sides of the screen",
   "option.wynnventory.tooltip.showMaxPrice": "Show max price for items",
   "option.wynnventory.tooltip.showMinPrice": "Show min price for items",
   "option.wynnventory.tooltip.showAvgPrice": "Show average price for items",
