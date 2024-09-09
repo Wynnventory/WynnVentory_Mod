@@ -118,6 +118,10 @@ public class WynnventoryMod implements ClientModInitializer {
 		});
 	}
 
+	public static void debug(String msg) {
+		LOGGER.debug(msg);
+	}
+
 	public static void info(String msg) {
 		LOGGER.info(msg);
 	}

@@ -120,36 +120,39 @@ public abstract class TooltipMixin {
 
         // Dimension and bounds for tooltip
         Dimension priceTooltipDimension = calculateTooltipDimension(tooltipLines);
-        int priceTooltipMaxHeight = guiScaledHeight - (gap * 2);
         int priceTooltipMaxWidth = mouseX - gap;
-
-        // Adjust dimension to scaling factor
+        int priceTooltipMaxHeight = Math.round(window.getGuiScaledHeight() * 0.8f);
         float scaleFactor = calculateScaleFactor(tooltipLines, priceTooltipMaxHeight, priceTooltipMaxWidth, 0.4f, 1.0f);
         priceTooltipDimension = new Dimension(Math.round(priceTooltipDimension.width * scaleFactor), Math.round(priceTooltipDimension.height * scaleFactor));
 
-        float posX;
-        float posY;
+        Dimension primaryTooltipDimension = calculateTooltipDimension(Screen.getTooltipFromItem(McUtils.mc(), item));
+
+        int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipDimension.width + gap);
+        int spaceToLeft = mouseX - gap;
+
+        float minY = (priceTooltipDimension.height / 4f) / scaleFactor;
+        float maxY = (guiScaledHeight / 2f) / scaleFactor;
+        float scaledTooltipY = ((guiScaledHeight / 2f) - (priceTooltipDimension.height / 2f)) / scaleFactor;
+
+        float posX = 0;
+        float posY = 0;
         if(config.isAnchorTooltips()) {
-            posX = 0f;
-            posY = (guiScaledHeight / 2f) - (priceTooltipDimension.height / 2f);
-            if(posY <= gap) {
-                WynnventoryMod.error("posY is too small: " + posY);
-                posY = gap;
+            if(spaceToRight > spaceToLeft * 1.3f) {
+                posX = guiScaledWidth - (float) priceTooltipDimension.width - (gap / scaleFactor);
             }
 
-            WynnventoryMod.error("MaxHeight: " + priceTooltipMaxHeight + " | TpHeight: " + priceTooltipDimension.height + " | Position: " + posY + " | GuiScale: " + guiScale + " | gap:" + gap + " | guiScaledHeight: " + guiScaledHeight + " | guiHeight: " + guiHeight + " | screenHeight: " + screenHeight + " | scaleFactor: " + scaleFactor);
-        } else {
-            Dimension primaryTooltipDimension = calculateTooltipDimension(Screen.getTooltipFromItem(McUtils.mc(), item));
-            int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipDimension.width + gap);
+            posY = Math.clamp(scaledTooltipY, minY, maxY);
 
-            if (priceTooltipDimension.height > spaceToRight) {
+            WynnventoryMod.debug("Scaled Screenbounds: MinY: " + minY + " | MaxY: " + maxY + " | TTPosY: " + posY + " | TTHeight: " + priceTooltipDimension.height + " | ScaleFactor: " + scaleFactor);
+        } else {
+            if (priceTooltipDimension.width > spaceToRight) {
                 posX = mouseX - gap - (float) priceTooltipDimension.width; // Position tooltip on the left
             } else {
                 posX = mouseX + gap + (float) primaryTooltipDimension.width; // Position tooltip on the right
             }
 
             if(mouseY + priceTooltipDimension.height > guiScaledHeight) {
-                posY = guiScaledHeight - (float) priceTooltipDimension.height;
+                posY = Math.clamp(scaledTooltipY, minY, maxY);
             } else {
                 posY = mouseY;
             }
