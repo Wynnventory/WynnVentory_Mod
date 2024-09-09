@@ -1,5 +1,6 @@
 package com.wynnventory.mixin;
 
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.emeralds.type.EmeraldUnits;
@@ -34,8 +35,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.awt.*;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -102,63 +105,51 @@ public abstract class TooltipMixin {
     @Unique
     private void renderPriceInfoTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, ItemStack item, List<Component> tooltipLines) {
         Font font = McUtils.mc().font;
+        Window window = McUtils.window();
 
+        // Adjust mouseX and mouseY within the screen bounds
         mouseX = Math.min(mouseX, guiGraphics.guiWidth() - 10);
         mouseY = Math.max(mouseY, 10);
-        int guiScaledWidth = McUtils.window().getGuiScaledWidth();
-        int guiScaledHeight = McUtils.window().getGuiScaledHeight();
-        int guiScaleFactor = (int) Minecraft.getInstance().getWindow().getGuiScale();
-        int gap = 5 * guiScaleFactor;
 
-        // Calculate the height of the tooltip
-        int tooltipHeight = tooltipLines.size() * font.lineHeight;
+        int guiScaledWidth = window.getGuiScaledWidth();
+        int guiScaledHeight = window.getGuiScaledHeight();
+        int guiHeight = window.getHeight();
+        int screenHeight = window.getScreenHeight();
+        int guiScale = (int) window.getGuiScale();
+        int gap = 5 * guiScale;
 
-        // Calculate maximum allowed height based on screen size
-        int maxTooltipHeight = guiScaledHeight - (gap * 4); // 20px padding for top and bottom
+        // Dimension and bounds for tooltip
+        Dimension priceTooltipDimension = calculateTooltipDimension(tooltipLines);
+        int priceTooltipMaxHeight = guiScaledHeight - (gap * 2);
+        int priceTooltipMaxWidth = mouseX - gap;
 
-        // Calculate the scaling factor
-        float scaleFactor = tooltipHeight > maxTooltipHeight ? (float) maxTooltipHeight / tooltipHeight : 1.0f;
+        // Adjust dimension to scaling factor
+        float scaleFactor = calculateScaleFactor(tooltipLines, priceTooltipMaxHeight, priceTooltipMaxWidth, 0.4f, 1.0f);
+        priceTooltipDimension = new Dimension(Math.round(priceTooltipDimension.width * scaleFactor), Math.round(priceTooltipDimension.height * scaleFactor));
 
-        int priceTooltipWidth = tooltipLines.stream()
-                .map(font::width)
-                .max(Integer::compareTo)
-                .orElse(0);
-        priceTooltipWidth = Math.round(priceTooltipWidth * scaleFactor) + gap * 2;
-
-        float middleScreenTooltipPosition = (guiScaledHeight / 2f) - ((tooltipHeight * scaleFactor) / 2f);
         float posX;
         float posY;
         if(config.isAnchorTooltips()) {
-            if(priceTooltipWidth > mouseX) {
-                scaleFactor = (float) mouseX / priceTooltipWidth;
-            }
-
             posX = 0f;
-            posY = (guiScaledHeight / 2f) - ((tooltipHeight * scaleFactor) / 2f);
-        } else {
-            List<Component> primaryTooltip = Screen.getTooltipFromItem(McUtils.mc(), item);
-            int primaryTooltipWidth = primaryTooltip.stream()
-                    .map(font::width)
-                    .max(Integer::compareTo)
-                    .orElse(0);
-
-            int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipWidth + gap);
-
-            if (priceTooltipWidth > spaceToRight) {
-                if(priceTooltipWidth > mouseX) {
-                    scaleFactor = (float) mouseX / priceTooltipWidth;
-                    tooltipHeight *= Math.round(scaleFactor);
-
-                    posX = 0f;
-                } else {
-                    posX = mouseX - gap - (float) priceTooltipWidth; // Position tooltip on the left
-                }
-            } else {
-                posX = mouseX + gap + (float) primaryTooltipWidth; // Position tooltip on the right
+            posY = (guiScaledHeight / 2f) - (priceTooltipDimension.height / 2f);
+            if(posY <= gap) {
+                WynnventoryMod.error("posY is too small: " + posY);
+                posY = gap;
             }
 
-            if(mouseY + tooltipHeight > guiScaledHeight) {
-                posY = guiScaledHeight - (float) tooltipHeight;
+            WynnventoryMod.error("MaxHeight: " + priceTooltipMaxHeight + " | TpHeight: " + priceTooltipDimension.height + " | Position: " + posY + " | GuiScale: " + guiScale + " | gap:" + gap + " | guiScaledHeight: " + guiScaledHeight + " | guiHeight: " + guiHeight + " | screenHeight: " + screenHeight + " | scaleFactor: " + scaleFactor);
+        } else {
+            Dimension primaryTooltipDimension = calculateTooltipDimension(Screen.getTooltipFromItem(McUtils.mc(), item));
+            int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipDimension.width + gap);
+
+            if (priceTooltipDimension.height > spaceToRight) {
+                posX = mouseX - gap - (float) priceTooltipDimension.width; // Position tooltip on the left
+            } else {
+                posX = mouseX + gap + (float) primaryTooltipDimension.width; // Position tooltip on the right
+            }
+
+            if(mouseY + priceTooltipDimension.height > guiScaledHeight) {
+                posY = guiScaledHeight - (float) priceTooltipDimension.height;
             } else {
                 posY = mouseY;
             }
@@ -167,17 +158,42 @@ public abstract class TooltipMixin {
         // Apply scaling to the PoseStack
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
-        poseStack.translate(posX, posY, 1);
-        if (scaleFactor < 1.0f) {
-            poseStack.scale(scaleFactor, scaleFactor, 1.0f);
+        poseStack.translate(posX, posY, 0);
+        poseStack.scale(scaleFactor, scaleFactor, 1.0f);
+
+        guiGraphics.renderComponentTooltip(font, tooltipLines, 0, 0);
+        poseStack.popPose();
+    }
+
+    private Dimension calculateTooltipDimension(List<Component> tooltipLines) {
+        Font font = McUtils.mc().font;
+
+        int tooltipHeight = tooltipLines.size() * font.lineHeight;
+
+        int priceTooltipWidth = tooltipLines.stream()
+                .map(font::width)
+                .max(Integer::compareTo)
+                .orElse(0);
+
+        return new Dimension(priceTooltipWidth, tooltipHeight);
+    }
+
+    private float calculateScaleFactor(List<Component> tooltipLines, int maxHeight, int maxWidth, float minScaleFactor, float maxScaleFactor) {
+        Dimension tooltipDimension = calculateTooltipDimension(tooltipLines);
+
+        float heightScaleFactor = maxHeight / (float) tooltipDimension.height;
+        float scaleFactor = Math.clamp(heightScaleFactor, minScaleFactor, maxScaleFactor);
+
+        tooltipDimension.width = Math.round(tooltipDimension.width * scaleFactor);
+        if(tooltipDimension.width > maxWidth) {
+            float widthScaleFactor = (float) maxWidth / tooltipDimension.width;
+
+            if(widthScaleFactor < scaleFactor) {
+                scaleFactor = Math.clamp(widthScaleFactor, minScaleFactor, maxScaleFactor);
+            }
         }
 
-        try {
-            guiGraphics.renderComponentTooltip(font, tooltipLines, 0, 0);
-        } catch (Exception e) {
-            WynnventoryMod.error("Failed to render price tooltip for " + item.getDisplayName());
-        }
-        poseStack.popPose();
+        return scaleFactor;
     }
 
     @Unique
