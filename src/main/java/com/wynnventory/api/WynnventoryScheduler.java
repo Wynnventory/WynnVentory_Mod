@@ -1,9 +1,11 @@
 package com.wynnventory.api;
 
 import com.wynnventory.accessor.ItemQueueAccessor;
+import com.wynnventory.model.item.Lootpool;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.Minecraft;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -43,9 +45,10 @@ public class WynnventoryScheduler {
                     API.sendTradeMarketResults(accessor.getQueuedMarketItems());
                     accessor.getQueuedMarketItems().clear();
                 }
-                if (!accessor.getQueuedLootItems().isEmpty()) {
-                    API.sendLootpoolData(accessor.getQueuedLootItems());
-                    accessor.getQueuedLootItems().clear();
+
+                if (!accessor.getQueuedLootpools().isEmpty()) {
+                    API.sendLootpoolData(accessor.getQueuedLootpools());
+                    accessor.getQueuedLootpools().clear();
                 }
             }
         }

@@ -17,14 +17,11 @@ import java.util.Optional;
 
 public class LootpoolItem {
     private String itemType;
-    private String region;
     private int amount;
     private String name;
     private String rarity;
     private String shiny;
     private String type;
-    private String playerName;
-    private String modVersion;
     public static final List<Class<? extends WynnItem>> LOOT_CLASSES = Arrays.asList(
             GearItem.class,
             InsulatorItem.class,
@@ -35,21 +32,17 @@ public class LootpoolItem {
             DungeonKeyItem.class
     );
 
-    public LootpoolItem(String itemType, String region, int amount, String name, String rarity, String shiny, String type, String playerName) {
+    public LootpoolItem(String itemType, int amount, String name, String rarity, String shiny, String type) {
         this.itemType = itemType;
-        this.region = region;
         this.amount = amount;
         this.name = name;
         this.rarity = rarity;
         this.shiny = shiny;
         this.type = type;
-        this.playerName = playerName;
-        this.modVersion = WynnventoryMod.WYNNVENTORY_VERSION;
     }
 
     public static List<LootpoolItem> createLootpoolItems(List<ItemStack> items) {
         List<LootpoolItem> lootpoolItems = new ArrayList<>();
-        String region = RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ());
 
         for (ItemStack item : items) {
             Optional<WynnItem> wynnItemOptional = Optional.ofNullable(ItemStackUtils.getWynnItem(item));
@@ -75,13 +68,11 @@ public class LootpoolItem {
 
                     LootpoolItem lootpoolItem = new LootpoolItem(
                             wynnItem.getClass().getSimpleName(),
-                            region,
                             ((ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount(),
                             name,
                             rarity,
                             shiny,
-                            type,
-                            McUtils.playerName()
+                            type
                     );
 
                     lootpoolItems.add(lootpoolItem);
@@ -90,6 +81,7 @@ public class LootpoolItem {
                 }
             });
         }
+
         return lootpoolItems;
     }
 
@@ -104,14 +96,6 @@ public class LootpoolItem {
 
     public void setItemType(String itemType) {
         this.itemType = itemType;
-    }
-
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
     }
 
     public int getAmount() {
@@ -153,14 +137,4 @@ public class LootpoolItem {
     public void setType(String type) {
         this.type = type;
     }
-
-    public String getPlayerName() {
-        return playerName;
-    }
-
-    public void setPlayerName(String playerName) {
-        this.playerName = playerName;
-    }
-
-    public String getModVersion() { return modVersion; }
 }
