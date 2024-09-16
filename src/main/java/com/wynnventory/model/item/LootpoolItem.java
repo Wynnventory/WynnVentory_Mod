@@ -10,10 +10,7 @@ import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.RegionDetector;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class LootpoolItem {
     private String itemType;
@@ -136,5 +133,30 @@ public class LootpoolItem {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        // If the object is compared with itself, return true
+        if (this == o) return true;
+
+        // Check if o is an instance of LootpoolItem or return false
+        if (o == null || getClass() != o.getClass()) return false;
+
+        // Typecast o to LootpoolItem to compare the attributes
+        LootpoolItem that = (LootpoolItem) o;
+
+        // Compare each field of the class
+        return amount == that.amount &&
+                Objects.equals(itemType, that.itemType) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(rarity, that.rarity) &&
+                Objects.equals(shiny, that.shiny) &&
+                Objects.equals(type, that.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(itemType, amount, name, rarity, shiny, type);
     }
 }
