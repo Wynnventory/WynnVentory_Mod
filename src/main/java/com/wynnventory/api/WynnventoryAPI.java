@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.items.items.game.GearItem;
+import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.TradeMarketItem;
@@ -61,15 +62,16 @@ public class WynnventoryAPI {
     }
 
     public TradeMarketItemPriceInfo fetchItemPrices(String itemName) {
+        String playerName = McUtils.playerName();
         try {
             final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
 
             URI endpointURI;
             if (WynnventoryMod.isDev()) {
                 WynnventoryMod.info("Fetching market data from DEV endpoint.");
-                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/item/" + encodedItemName + "/price?env=dev2");
+                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/item/" + encodedItemName + "/price?env=dev2&playername=" + playerName);
             } else {
-                endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price");
+                endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price?playername=" + playerName);
             }
 
             HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointURI);

@@ -26,8 +26,8 @@ public class ConfigManager {
     private static ConfigManager instance;
 
     // General
-    private boolean showTooltips = true;
-    private boolean showBoxedItemTooltips = true;
+    private boolean showTooltips = false;
+    private boolean showBoxedItemTooltips = false;
     private boolean anchorTooltips = true;
 
     // Tooltip config
