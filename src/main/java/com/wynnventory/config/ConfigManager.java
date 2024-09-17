@@ -41,7 +41,7 @@ public class ConfigManager {
 
     // Static
     @JsonIgnore
-    private boolean showTooltipsOutsideMarketWindow = true;
+    private boolean showTooltipsOutsideMarketWindow = false;
 
     private ConfigManager() { }
 
