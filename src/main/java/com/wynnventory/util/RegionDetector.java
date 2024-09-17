@@ -1,13 +1,14 @@
 package com.wynnventory.util;
 
 public class RegionDetector {
+    public static final String UNDEFINED_REGION = "undefined region";
 
     public enum Region {
-        SKY("Sky Islands", 1026, -4421, 1040, -4409),
-        COTL("COTL", 583, -5028, 590, -5015),
-        MOLTEN("Molten Heights", 1265, -5131, 1278, -5123),
-        CORKUS("Corkus", -1556, -2678, -1546, -2668),
-        SE("Silent Expanse", 992, -792, 1005, -782);
+        SKY("Sky Islands", 900, -4500, 1100, -4300),
+        COTL("COTL", 400, -5500, 700, -4800),
+        MOLTEN("Molten Heights", 1000, -5300, 1400, -4900),
+        CORKUS("Corkus", -1700, -2800, -1400, -2500),
+        SE("Silent Expanse", 900, -900, 1100, -700);
 
         private final String displayName;
         private final int minX;
@@ -38,6 +39,6 @@ public class RegionDetector {
                 return region.getName();
             }
         }
-        return "undefined region";
+        return UNDEFINED_REGION;
     }
 }

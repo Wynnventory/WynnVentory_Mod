@@ -17,7 +17,7 @@ public class LootpoolItem {
     private int amount;
     private String name;
     private String rarity;
-    private String shiny;
+    private boolean shiny;
     private String type;
     public static final List<Class<? extends WynnItem>> LOOT_CLASSES = Arrays.asList(
             GearItem.class,
@@ -34,7 +34,7 @@ public class LootpoolItem {
         this.amount = amount;
         this.name = name;
         this.rarity = rarity;
-        this.shiny = shiny;
+        this.shiny = shiny != null;
         this.type = type;
     }
 
@@ -119,11 +119,11 @@ public class LootpoolItem {
         this.rarity = rarity;
     }
 
-    public String getShiny() {
+    public boolean getShiny() {
         return shiny;
     }
 
-    public void setShiny(String shiny) {
+    public void setShiny(boolean shiny) {
         this.shiny = shiny;
     }
 
