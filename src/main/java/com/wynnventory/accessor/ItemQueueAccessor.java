@@ -10,4 +10,5 @@ import java.util.Map;
 public interface ItemQueueAccessor {
     List<TradeMarketItem> getQueuedMarketItems();
     List<Lootpool> getQueuedLootpools();
+    List<Lootpool> getQueuedRaidpools();
 }

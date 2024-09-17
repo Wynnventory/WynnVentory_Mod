@@ -36,6 +36,7 @@ import java.util.*;
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl implements ItemQueueAccessor {
     private static final String MARKET_TITLE = "󏿨";
     private static final String LOOTPOOL_TITLE = "󏿲";
+    private static final String RAIDPOOL_TITLE = "󏿪";
 
     private static boolean IS_FIRST_WORLD_JOIN = true;
 
@@ -43,6 +44,8 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     private final List<TradeMarketItem> marketItemsBuffer = new ArrayList<>();
     @Unique
     private final Map<String, Lootpool> lootpoolBuffer = new HashMap<>();
+    @Unique
+    private final Map<String, Lootpool> raidpoolBuffer = new HashMap<>();
 
     protected ClientPacketListenerMixin(Minecraft minecraft, Connection connection, CommonListenerCookie commonListenerCookie) {
         super(minecraft, connection, commonListenerCookie);
@@ -102,6 +105,27 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
                     lootpoolBuffer.get(region).addItems(lootpoolItems);
                 }
+            } else if (title.equals(RAIDPOOL_TITLE)) {
+                String region = RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ());
+
+                if(WynnventoryMod.isDev()) {
+                    McUtils.sendMessageToClient(Component.literal("RAIDPOOL DETECTED. Region is " + region));
+                }
+
+                if(!region.equals(RegionDetector.UNDEFINED_REGION) && !raidpoolBuffer.containsKey(region)) {
+                    raidpoolBuffer.put(region, new Lootpool(region, McUtils.playerName(), WynnventoryMod.WYNNVENTORY_VERSION));
+                }
+
+                if (!region.equals(RegionDetector.UNDEFINED_REGION)) {
+                    List<LootpoolItem> lootpoolItems = LootpoolItem.createLootpoolItems(packet.getItems().stream()
+                            .filter(item ->
+                                    item.getItem() != Items.AIR &&
+                                            item.getItem() != Items.COMPASS &&
+//                                            item.getItem() != Items.POTION &&
+                                            !McUtils.player().getInventory().items.contains(item)).toList());
+
+                    raidpoolBuffer.get(region).addItems(lootpoolItems);
+                }
             }
         }
     }
@@ -114,5 +138,10 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     @Override
     public List<Lootpool> getQueuedLootpools() {
         return lootpoolBuffer.values().stream().toList();
+    }
+
+    @Override
+    public List<Lootpool> getQueuedRaidpools() {
+        return raidpoolBuffer.values().stream().toList();
     }
 }

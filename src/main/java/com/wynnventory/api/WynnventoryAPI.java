@@ -55,6 +55,22 @@ public class WynnventoryAPI {
         }
     }
 
+    public void sendRaidpoolData(List<Lootpool> lootpools) {
+        if (lootpools.isEmpty()) return;
+
+        URI endpointURI;
+        if (WynnventoryMod.isDev()) {
+            WynnventoryMod.info("Sending raidpool data to DEV endpoint.");
+            endpointURI = URI.create("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/raidpool/items?env=dev2");
+        } else {
+            endpointURI = getEndpointURI("raidpool/items");
+        }
+
+        for(Lootpool lootpool : lootpools) {
+            HttpUtil.sendHttpPostRequest(endpointURI, serializeData(lootpool));
+        }
+    }
+
     public TradeMarketItemPriceInfo fetchItemPrices(ItemStack item) {
         return Models.Item.asWynnItem(item, GearItem.class)
                 .map(gearItem -> fetchItemPrices(gearItem.getName()))

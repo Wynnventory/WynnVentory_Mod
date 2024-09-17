@@ -26,7 +26,10 @@ public class LootpoolItem {
             EmeraldItem.class,
             MiscItem.class,
             RuneItem.class,
-            DungeonKeyItem.class
+            DungeonKeyItem.class,
+            AspectItem.class,
+            AmplifierItem.class,
+            PowderItem.class
     );
 
     public LootpoolItem(String itemType, int amount, String name, String rarity, String shiny, String type) {
@@ -61,6 +64,17 @@ public class LootpoolItem {
                     }
                     if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
                         rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
+                    }
+                    if (wynnItem instanceof AspectItem) {
+                        type = "Aspect";
+                    }
+                    if (wynnItem instanceof AmplifierItem) {
+                        type = "Amplifier";
+                    }
+                    if (wynnItem instanceof MiscItem) {
+                        if (((MiscItem) wynnItem).getName().contains("Tome")) {
+                            type = "Tome";
+                        }
                     }
 
                     LootpoolItem lootpoolItem = new LootpoolItem(

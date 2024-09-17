@@ -50,6 +50,11 @@ public class WynnventoryScheduler {
                     API.sendLootpoolData(accessor.getQueuedLootpools());
                     accessor.getQueuedLootpools().clear();
                 }
+
+                if (!accessor.getQueuedRaidpools().isEmpty()) {
+                    API.sendRaidpoolData(accessor.getQueuedRaidpools());
+                    accessor.getQueuedRaidpools().clear();
+                }
             }
         }
     }
