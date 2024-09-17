@@ -34,7 +34,6 @@ import java.util.*;
 
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl implements ItemQueueAccessor {
-    @Shadow @Final private RegistryAccess.Frozen registryAccess;
     private static final String MARKET_TITLE = "󏿨";
     private static final String LOOTPOOL_TITLE = "󏿲";
 

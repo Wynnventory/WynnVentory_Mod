@@ -30,7 +30,7 @@ public class Lootpool {
     }
 
     public void removeItems(List<LootpoolItem> items) {
-        lootpoolItems.removeAll(items);
+        items.forEach(lootpoolItems::remove);
     }
 
     public Set<LootpoolItem> getItems() {
