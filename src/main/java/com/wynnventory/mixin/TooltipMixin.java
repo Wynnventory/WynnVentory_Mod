@@ -71,7 +71,7 @@ public abstract class TooltipMixin {
         }
 
         String screenTitle = Minecraft.getInstance().screen.getTitle().getString();
-        if(!config.isShowTooltips() || !screenTitle.equals(MARKET_TITLE)) {
+        if(!config.isShowTooltips() || (!screenTitle.equals(MARKET_TITLE) && !config.isShowTooltipsOutsideMarketWindow())) {
             return;
         }
 
