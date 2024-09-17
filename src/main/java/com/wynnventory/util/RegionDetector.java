@@ -1,5 +1,8 @@
 package com.wynnventory.util;
 
+import com.wynntils.utils.mc.McUtils;
+import com.wynnventory.WynnventoryMod;
+
 public class RegionDetector {
     public static final String UNDEFINED_REGION = "undefined region";
 
@@ -12,7 +15,7 @@ public class RegionDetector {
         SE("Silent Expanse", 900, -900, 1100, -700),
 
         // RAIDPOOLS
-        TNA("TNA", 24400, -23800, 24600, -23900),
+        TNA("TNA", 24400, -23900, 24600, -23700),
         TCC("TCC", 10800, 3800, 10850, 4000),
         NOL("NOL", 10900, 2800, 11100, 3000),
         NOTG("NOTG", 10250, 3050, 10400, 3200);
@@ -42,6 +45,7 @@ public class RegionDetector {
     }
 
     public static String getRegion(int x, int z) {
+        WynnventoryMod.error("Looking for X" + x + " and Z" + z);
         for (Region region : Region.values()) {
             if (region.contains(x, z)) {
                 return region.getName();

@@ -38,6 +38,6 @@ public class ItemStackUtils {
         WynnItem wynnItem = getWynntilsAnnotation(itemStack);
         assert wynnItem != null;
         ItemStack item = wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY);
-        return (WynnItem) ItemStackUtils.getWynntilsAnnotation(item);
+        return ItemStackUtils.getWynntilsAnnotation(item);
     }
 }

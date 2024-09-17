@@ -1,5 +1,7 @@
 package com.wynnventory.mixin;
 
+import com.wynntils.core.components.Models;
+import com.wynntils.models.items.WynnItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.accessor.ItemQueueAccessor;
@@ -88,23 +90,14 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                 String region = RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ());
 
                 if(WynnventoryMod.isDev()) {
-                     McUtils.sendMessageToClient(Component.literal("LOOTPOOL DETECTED. Region is " + region));
+                    McUtils.sendMessageToClient(Component.literal("LOOTPOOL DETECTED. Region is " + region));
                 }
 
-                if(!region.equals(RegionDetector.UNDEFINED_REGION) && !lootpoolBuffer.containsKey(region)) {
-                    lootpoolBuffer.put(region, new Lootpool(region, McUtils.playerName(), WynnventoryMod.WYNNVENTORY_VERSION));
+                if(region.equals(RegionDetector.UNDEFINED_REGION)) {
+                    return;
                 }
 
-                if (!region.equals(RegionDetector.UNDEFINED_REGION)) {
-                    List<LootpoolItem> lootpoolItems = LootpoolItem.createLootpoolItems(packet.getItems().stream()
-                            .filter(item ->
-                                    item.getItem() != Items.AIR &&
-                                            item.getItem() != Items.COMPASS &&
-                                            item.getItem() != Items.POTION &&
-                                            !McUtils.player().getInventory().items.contains(item)).toList());
-
-                    lootpoolBuffer.get(region).addItems(lootpoolItems);
-                }
+                addItemsToQueue(lootpoolBuffer, region, packet.getItems());
             } else if (title.equals(RAIDPOOL_TITLE)) {
                 String region = RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ());
 
@@ -112,22 +105,24 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                     McUtils.sendMessageToClient(Component.literal("RAIDPOOL DETECTED. Region is " + region));
                 }
 
-                if(!region.equals(RegionDetector.UNDEFINED_REGION) && !raidpoolBuffer.containsKey(region)) {
-                    raidpoolBuffer.put(region, new Lootpool(region, McUtils.playerName(), WynnventoryMod.WYNNVENTORY_VERSION));
+                if(region.equals(RegionDetector.UNDEFINED_REGION)) {
+                    return;
                 }
 
-                if (!region.equals(RegionDetector.UNDEFINED_REGION)) {
-                    List<LootpoolItem> lootpoolItems = LootpoolItem.createLootpoolItems(packet.getItems().stream()
-                            .filter(item ->
-                                    item.getItem() != Items.AIR &&
-                                            item.getItem() != Items.COMPASS &&
-//                                            item.getItem() != Items.POTION &&
-                                            !McUtils.player().getInventory().items.contains(item)).toList());
-
-                    raidpoolBuffer.get(region).addItems(lootpoolItems);
-                }
+                addItemsToQueue(raidpoolBuffer, region, packet.getItems());
             }
         }
+    }
+
+    private void addItemsToQueue(Map<String, Lootpool> queue, String region, List<ItemStack> items) {
+        if(!queue.containsKey(region)) {
+            queue.put(region, new Lootpool(region, McUtils.playerName(), WynnventoryMod.WYNNVENTORY_VERSION));
+        }
+
+        List<LootpoolItem> lootpoolItems = LootpoolItem.createLootpoolItemsFromItemStack(items.stream()
+                .filter(item -> !McUtils.player().getInventory().items.contains(item)).toList());
+
+        queue.get(region).addItems(lootpoolItems);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.wynnventory.model.item;
 
+import com.wynntils.core.components.Models;
+import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
@@ -29,76 +31,84 @@ public class LootpoolItem {
             DungeonKeyItem.class,
             AspectItem.class,
             AmplifierItem.class,
-            PowderItem.class
+            PowderItem.class,
+            GearBoxItem.class
     );
 
-    public LootpoolItem(String itemType, int amount, String name, String rarity, String shiny, String type) {
+    public LootpoolItem(String itemType, int amount, String name, String rarity, boolean shiny, String type) {
         this.itemType = itemType;
         this.amount = amount;
         this.name = name;
         this.rarity = rarity;
-        this.shiny = shiny != null;
+        this.shiny = shiny;
         this.type = type;
     }
 
-    public static List<LootpoolItem> createLootpoolItems(List<ItemStack> items) {
+    public LootpoolItem(WynnItem wynnItem) {
+        this.itemType = wynnItem.getClass().getSimpleName();
+        this.name = Objects.requireNonNull(ItemStackUtils.getWynntilsOriginalName(wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY))).getLastPart().getComponent().getString();
+        this.amount = ((ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
+
+        if (wynnItem instanceof GearItem gearItem) {
+            shiny = name.contains("Shiny");
+            name = gearItem.getName();
+            rarity = gearItem.getGearTier().getName();
+            type = gearItem.getGearType().name();
+        }
+        if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
+            rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
+        }
+    }
+
+    public static List<LootpoolItem> createLootpoolItemsFromWynnItem(List<WynnItem> wynnItems) {
         List<LootpoolItem> lootpoolItems = new ArrayList<>();
 
-        for (ItemStack item : items) {
-            Optional<WynnItem> wynnItemOptional = Optional.ofNullable(ItemStackUtils.getWynnItem(item));
-
-            wynnItemOptional.ifPresent(wynnItem -> {
-                if (LootpoolItem.LOOT_CLASSES.contains(wynnItem.getClass())) {
-                    String shiny = null;
-                    String name = ItemStackUtils.getWynntilsOriginalName(wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getLastPart().getComponent().getString();
-                    String rarity = null;
-                    String type = null;
-
-                    if (wynnItem instanceof GearItem gearItem) {
-                        if (name.contains("Shiny")) {
-                            shiny = "Shiny";
-                        }
-                        name = gearItem.getName();
-                        rarity = gearItem.getGearTier().getName();
-                        type = gearItem.getGearType().name();
-                    }
-                    if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
-                        rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
-                    }
-                    if (wynnItem instanceof AspectItem) {
-                        type = "Aspect";
-                    }
-                    if (wynnItem instanceof AmplifierItem) {
-                        type = "Amplifier";
-                    }
-                    if (wynnItem instanceof MiscItem) {
-                        if (((MiscItem) wynnItem).getName().contains("Tome")) {
-                            type = "Tome";
-                        }
-                    }
-
-                    LootpoolItem lootpoolItem = new LootpoolItem(
-                            wynnItem.getClass().getSimpleName(),
-                            ((ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount(),
-                            name,
-                            rarity,
-                            shiny,
-                            type
-                    );
-
-                    lootpoolItems.add(lootpoolItem);
-                } else {
-                    WynnventoryMod.error("Unknown class: " + wynnItem.getClass());
-                }
-            });
+        for(WynnItem wynnItem : wynnItems) {
+            lootpoolItems.addAll(createLootpoolItemFromWynnItem(wynnItem));
         }
 
         return lootpoolItems;
     }
 
-    public static Optional<LootpoolItem> createLootpoolItem(ItemStack item) {
-        List<LootpoolItem> items = createLootpoolItems(List.of(item));
-        return items.isEmpty() ? Optional.empty() : Optional.of(items.getFirst());
+    public static List<LootpoolItem> createLootpoolItemsFromItemStack(List<ItemStack> items) {
+        List<WynnItem> wynnItems = new ArrayList<>();
+        items.forEach(item -> Models.Item.getWynnItem(item).ifPresent(wynnItems::add));
+
+        return createLootpoolItemsFromWynnItem(wynnItems);
+    }
+
+    public static List<LootpoolItem> createLootpoolItemFromWynnItem(WynnItem wynnItem) {
+        List<LootpoolItem> lootpoolItems = new ArrayList<>();
+
+        if(wynnItem instanceof GearBoxItem gearBoxItem) {
+            List<GearInfo> possibleGear = Models.Gear.getPossibleGears(gearBoxItem);
+
+            String name, rarity, type;
+            for(GearInfo gearInfo : possibleGear) {
+                name = gearInfo.name();
+                rarity = gearInfo.tier().name();
+                type = gearInfo.type().name();
+
+                lootpoolItems.add(new LootpoolItem("GearItem", 1, name, rarity, false, type));
+            }
+
+            return lootpoolItems;
+        }
+
+        if (LootpoolItem.LOOT_CLASSES.contains(wynnItem.getClass())) {
+            lootpoolItems.add(new LootpoolItem(wynnItem));
+        } else {
+            WynnventoryMod.error("Unknown class: " + wynnItem.getClass());
+        }
+
+
+        return lootpoolItems;
+    }
+
+    public static List<LootpoolItem> createLootpoolItemFromItemStack(ItemStack item) {
+        Optional<WynnItem> wynnItem = Models.Item.getWynnItem(item);
+        return wynnItem.map(LootpoolItem::createLootpoolItemFromWynnItem).orElseGet(ArrayList::new);
+
     }
 
     public String getItemType() {
