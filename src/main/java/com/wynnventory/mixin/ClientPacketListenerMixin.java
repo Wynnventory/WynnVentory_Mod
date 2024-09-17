@@ -89,18 +89,20 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                      McUtils.sendMessageToClient(Component.literal("LOOTPOOL DETECTED. Region is " + region));
                 }
 
-                if(!lootpoolBuffer.containsKey(region)) {
+                if(!region.equals(RegionDetector.UNDEFINED_REGION) && !lootpoolBuffer.containsKey(region)) {
                     lootpoolBuffer.put(region, new Lootpool(region, McUtils.playerName(), WynnventoryMod.WYNNVENTORY_VERSION));
                 }
 
-                List<LootpoolItem> lootpoolItems = LootpoolItem.createLootpoolItems(packet.getItems().stream()
-                        .filter(item ->
-                                item.getItem() != Items.AIR &&
-                                item.getItem() != Items.COMPASS &&
-                                item.getItem() != Items.POTION &&
-                                !McUtils.player().getInventory().items.contains(item)).toList());
+                if (!region.equals(RegionDetector.UNDEFINED_REGION)) {
+                    List<LootpoolItem> lootpoolItems = LootpoolItem.createLootpoolItems(packet.getItems().stream()
+                            .filter(item ->
+                                    item.getItem() != Items.AIR &&
+                                            item.getItem() != Items.COMPASS &&
+                                            item.getItem() != Items.POTION &&
+                                            !McUtils.player().getInventory().items.contains(item)).toList());
 
-                lootpoolBuffer.get(region).addItems(lootpoolItems);
+                    lootpoolBuffer.get(region).addItems(lootpoolItems);
+                }
             }
         }
     }
