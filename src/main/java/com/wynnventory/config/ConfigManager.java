@@ -3,20 +3,12 @@ package com.wynnventory.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.blaze3d.platform.InputConstants;
 import com.wynnventory.WynnventoryMod;
-import com.wynnventory.util.KeyMappingUtil;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Objects;
 
 public class ConfigManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -26,7 +18,7 @@ public class ConfigManager {
     private static ConfigManager instance;
 
     // General
-    private boolean showTooltips = true;
+    private boolean showTooltips = false;
     private boolean showBoxedItemTooltips = true;
     private boolean anchorTooltips = true;
 
@@ -52,7 +44,8 @@ public class ConfigManager {
             try (FileReader reader = new FileReader(CONFIG_FILE)) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 ConfigManager config = objectMapper.readValue(reader, ConfigManager.class);
-                this.showTooltips = validateValue(config.isShowTooltips());
+//                this.showTooltips = validateValue(config.isShowTooltips());
+                this.showTooltips = false;
                 this.showBoxedItemTooltips = validateValue(config.isShowBoxedItemTooltips());
                 this.anchorTooltips = validateValue(config.isAnchorTooltips());
                 this.showMaxPrice = validateValue(config.isShowMaxPrice());
