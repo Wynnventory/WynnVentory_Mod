@@ -62,19 +62,19 @@ public class WynnventoryMod implements ClientModInitializer {
 				"category.wynnventory.keybinding"
 		));
 
-		StickyKeyMapping priceTooltipKey = (StickyKeyMapping) KeyBindingHelper.registerKeyBinding(new StickyKeyMapping(
-				"key.wynnventory.toggle_tooltips",
-				GLFW.GLFW_KEY_PERIOD,
-				"category.wynnventory.keybinding",
-				() -> true
-		));
+//		StickyKeyMapping priceTooltipKey = (StickyKeyMapping) KeyBindingHelper.registerKeyBinding(new StickyKeyMapping(
+//				"key.wynnventory.toggle_tooltips",
+//				GLFW.GLFW_KEY_PERIOD,
+//				"category.wynnventory.keybinding",
+//				() -> true
+//		));
 
-		StickyKeyMapping boxedPriceTooltipKey = (StickyKeyMapping) KeyBindingHelper.registerKeyBinding(new StickyKeyMapping(
-				"key.wynnventory.toggle_boxed_item_tooltips",
-				GLFW.GLFW_KEY_COMMA,
-				"category.wynnventory.keybinding",
-				() -> true
-		));
+//		StickyKeyMapping boxedPriceTooltipKey = (StickyKeyMapping) KeyBindingHelper.registerKeyBinding(new StickyKeyMapping(
+//				"key.wynnventory.toggle_boxed_item_tooltips",
+//				GLFW.GLFW_KEY_COMMA,
+//				"category.wynnventory.keybinding",
+//				() -> true
+//		));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (openConfigKey.consumeClick()) {
@@ -82,40 +82,40 @@ public class WynnventoryMod implements ClientModInitializer {
 			}
 		});
 
-		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if(priceTooltipKey.hasStateChanged()) {
-				ConfigManager config = ConfigManager.getInstance();
-				config.setShowTooltips(!config.isShowTooltips());
-				config.saveConfig();
+//		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+//			if(priceTooltipKey.hasStateChanged()) {
+//				ConfigManager config = ConfigManager.getInstance();
+//				config.setShowTooltips(!config.isShowTooltips());
+//				config.saveConfig();
+//
+//				Component message;
+//				if(config.isShowTooltips()) {
+//					message = Component.literal("[Wynnventory] Trade Market item tooltips enabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
+//				} else {
+//					message = Component.literal("[Wynnventory] Trade Market item tooltips disabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
+//				}
+//
+//
+//				McUtils.sendMessageToClient(message);
+//			}
+//		});
 
-				Component message;
-				if(config.isShowTooltips()) {
-					message = Component.literal("[Wynnventory] Trade Market item tooltips enabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
-				} else {
-					message = Component.literal("[Wynnventory] Trade Market item tooltips disabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
-				}
-
-
-				McUtils.sendMessageToClient(message);
-			}
-		});
-
-		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if(boxedPriceTooltipKey.hasStateChanged()) {
-				ConfigManager config = ConfigManager.getInstance();
-				config.setShowBoxedItemTooltips(!config.isShowBoxedItemTooltips());
-				config.saveConfig();
-
-				Component message;
-				if(config.isShowBoxedItemTooltips()) {
-					message = Component.literal("[Wynnventory] Trade Market boxed item tooltips enabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
-				} else {
-					message = Component.literal("[Wynnventory] Trade Market boxed item tooltips disabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
-				}
-
-				McUtils.sendMessageToClient(message);
-			}
-		});
+//		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+//			if(boxedPriceTooltipKey.hasStateChanged()) {
+//				ConfigManager config = ConfigManager.getInstance();
+//				config.setShowBoxedItemTooltips(!config.isShowBoxedItemTooltips());
+//				config.saveConfig();
+//
+//				Component message;
+//				if(config.isShowBoxedItemTooltips()) {
+//					message = Component.literal("[Wynnventory] Trade Market boxed item tooltips enabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
+//				} else {
+//					message = Component.literal("[Wynnventory] Trade Market boxed item tooltips disabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
+//				}
+//
+//				McUtils.sendMessageToClient(message);
+//			}
+//		});
 	}
 
 	public static void debug(String msg) {

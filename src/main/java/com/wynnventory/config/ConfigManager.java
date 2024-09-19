@@ -19,16 +19,16 @@ public class ConfigManager {
 
     // General
     private boolean showTooltips = false;
-    private boolean showBoxedItemTooltips = true;
-    private boolean anchorTooltips = true;
-
-    // Tooltip config
-    private boolean showMaxPrice = true;
-    private boolean showMinPrice = true;
-    private boolean showAveragePrice = true;
-    private boolean showAverage80Price = true;
-    private boolean showUnidAveragePrice = true;
-    private boolean showUnidAverage80Price = true;
+//    private boolean showBoxedItemTooltips = true;
+//    private boolean anchorTooltips = true;
+//
+//    // Tooltip config
+//    private boolean showMaxPrice = true;
+//    private boolean showMinPrice = true;
+//    private boolean showAveragePrice = true;
+//    private boolean showAverage80Price = true;
+//    private boolean showUnidAveragePrice = true;
+//    private boolean showUnidAverage80Price = true;
 
     private ConfigManager() { }
 
@@ -46,14 +46,14 @@ public class ConfigManager {
                 ConfigManager config = objectMapper.readValue(reader, ConfigManager.class);
 //                this.showTooltips = validateValue(config.isShowTooltips());
                 this.showTooltips = false;
-                this.showBoxedItemTooltips = validateValue(config.isShowBoxedItemTooltips());
-                this.anchorTooltips = validateValue(config.isAnchorTooltips());
-                this.showMaxPrice = validateValue(config.isShowMaxPrice());
-                this.showMinPrice = validateValue(config.isShowMinPrice());
-                this.showAveragePrice = validateValue(config.isShowAveragePrice());
-                this.showAverage80Price = validateValue(config.isShowAverage80Price());
-                this.showUnidAveragePrice = validateValue(config.isShowUnidAveragePrice());
-                this.showUnidAverage80Price = validateValue(config.isShowUnidAverage80Price());
+//                this.showBoxedItemTooltips = validateValue(config.isShowBoxedItemTooltips());
+//                this.anchorTooltips = validateValue(config.isAnchorTooltips());
+//                this.showMaxPrice = validateValue(config.isShowMaxPrice());
+//                this.showMinPrice = validateValue(config.isShowMinPrice());
+//                this.showAveragePrice = validateValue(config.isShowAveragePrice());
+//                this.showAverage80Price = validateValue(config.isShowAverage80Price());
+//                this.showUnidAveragePrice = validateValue(config.isShowUnidAveragePrice());
+//                this.showUnidAverage80Price = validateValue(config.isShowUnidAverage80Price());
             } catch (Exception e) {
                 WynnventoryMod.error("Could not load config from: " + CONFIG_FILE, e);
                 saveConfig();
@@ -88,67 +88,67 @@ public class ConfigManager {
         this.showTooltips = showTooltips;
     }
 
-    public boolean isShowBoxedItemTooltips() {
-        return showBoxedItemTooltips;
-    }
-
-    public void setShowBoxedItemTooltips(boolean showBoxedItemTooltips) {
-        this.showBoxedItemTooltips = showBoxedItemTooltips;
-    }
-
-    public boolean isAnchorTooltips() {
-        return anchorTooltips;
-    }
-
-    public void setAnchorTooltips(boolean anchorTooltips) {
-        this.anchorTooltips = anchorTooltips;
-    }
-
-    public boolean isShowMaxPrice() {
-        return showMaxPrice;
-    }
-
-    public void setShowMaxPrice(boolean showMaxPrice) {
-        this.showMaxPrice = showMaxPrice;
-    }
-
-    public boolean isShowMinPrice() {
-        return showMinPrice;
-    }
-
-    public void setShowMinPrice(boolean showMinPrice) {
-        this.showMinPrice = showMinPrice;
-    }
-
-    public boolean isShowAveragePrice() {
-        return showAveragePrice;
-    }
-
-    public void setShowAveragePrice(boolean showAveragePrice) {
-        this.showAveragePrice = showAveragePrice;
-    }
-
-    public boolean isShowAverage80Price() {
-        return showAverage80Price;
-    }
-
-    public void setShowAverage80Price(boolean showAverage80Price) {
-        this.showAverage80Price = showAverage80Price;
-    }
-
-    public boolean isShowUnidAveragePrice() {
-        return showUnidAveragePrice;
-    }
-
-    public void setShowUnidAveragePrice(boolean showUnidAveragePrice) {
-        this.showUnidAveragePrice = showUnidAveragePrice;
-    }
-
-    public boolean isShowUnidAverage80Price() {
-        return showUnidAverage80Price;
-    }
-
-    public void setShowUnidAverage80Price(boolean showUnidAverage80Price) {
-        this.showUnidAverage80Price = showUnidAverage80Price;
-    }
+//    public boolean isShowBoxedItemTooltips() {
+//        return showBoxedItemTooltips;
+//    }
+//
+//    public void setShowBoxedItemTooltips(boolean showBoxedItemTooltips) {
+//        this.showBoxedItemTooltips = showBoxedItemTooltips;
+//    }
+//
+//    public boolean isAnchorTooltips() {
+//        return anchorTooltips;
+//    }
+//
+//    public void setAnchorTooltips(boolean anchorTooltips) {
+//        this.anchorTooltips = anchorTooltips;
+//    }
+//
+//    public boolean isShowMaxPrice() {
+//        return showMaxPrice;
+//    }
+//
+//    public void setShowMaxPrice(boolean showMaxPrice) {
+//        this.showMaxPrice = showMaxPrice;
+//    }
+//
+//    public boolean isShowMinPrice() {
+//        return showMinPrice;
+//    }
+//
+//    public void setShowMinPrice(boolean showMinPrice) {
+//        this.showMinPrice = showMinPrice;
+//    }
+//
+//    public boolean isShowAveragePrice() {
+//        return showAveragePrice;
+//    }
+//
+//    public void setShowAveragePrice(boolean showAveragePrice) {
+//        this.showAveragePrice = showAveragePrice;
+//    }
+//
+//    public boolean isShowAverage80Price() {
+//        return showAverage80Price;
+//    }
+//
+//    public void setShowAverage80Price(boolean showAverage80Price) {
+//        this.showAverage80Price = showAverage80Price;
+//    }
+//
+//    public boolean isShowUnidAveragePrice() {
+//        return showUnidAveragePrice;
+//    }
+//
+//    public void setShowUnidAveragePrice(boolean showUnidAveragePrice) {
+//        this.showUnidAveragePrice = showUnidAveragePrice;
+//    }
+//
+//    public boolean isShowUnidAverage80Price() {
+//        return showUnidAverage80Price;
+//    }
+//
+//    public void setShowUnidAverage80Price(boolean showUnidAverage80Price) {
+//        this.showUnidAverage80Price = showUnidAverage80Price;
+//    }
 }

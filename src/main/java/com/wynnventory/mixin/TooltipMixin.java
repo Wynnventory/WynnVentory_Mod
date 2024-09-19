@@ -83,7 +83,8 @@ public abstract class TooltipMixin {
 
                 // remove price if expired
                 if (fetchedPrices.get(gearItem.getName()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gearItem.getName());
-            } else if(wynnItem instanceof GearBoxItem gearBoxItem && config.isShowBoxedItemTooltips()) {
+//            } else if(wynnItem instanceof GearBoxItem gearBoxItem && config.isShowBoxedItemTooltips()) {
+            } else if(wynnItem instanceof GearBoxItem gearBoxItem) {
                 tooltips.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
 
                 List<GearInfo> possibleGear = Models.Gear.getPossibleGears(gearBoxItem);
@@ -136,27 +137,27 @@ public abstract class TooltipMixin {
 
         float posX = 0;
         float posY = 0;
-        if(config.isAnchorTooltips()) {
-            if(spaceToRight > spaceToLeft * 1.3f) {
-                posX = guiScaledWidth - (float) priceTooltipDimension.width - (gap / scaleFactor);
-            }
+//        if(config.isAnchorTooltips()) {
+        if(spaceToRight > spaceToLeft * 1.3f) {
+            posX = guiScaledWidth - (float) priceTooltipDimension.width - (gap / scaleFactor);
+        }
 
-            posY = Math.clamp(scaledTooltipY, minY, maxY);
+        posY = Math.clamp(scaledTooltipY, minY, maxY);
 
             //WynnventoryMod.debug("Scaled Screenbounds: MinY: " + minY + " | MaxY: " + maxY + " | TTPosY: " + posY + " | TTHeight: " + priceTooltipDimension.height + " | ScaleFactor: " + scaleFactor);
-        } else {
-            if (priceTooltipDimension.width > spaceToRight) {
-                posX = mouseX - gap - (float) priceTooltipDimension.width; // Position tooltip on the left
-            } else {
-                posX = mouseX + gap + (float) primaryTooltipDimension.width; // Position tooltip on the right
-            }
-
-            if(mouseY + priceTooltipDimension.height > guiScaledHeight) {
-                posY = Math.clamp(scaledTooltipY, minY, maxY);
-            } else {
-                posY = mouseY;
-            }
-        }
+//        } else {
+//            if (priceTooltipDimension.width > spaceToRight) {
+//                posX = mouseX - gap - (float) priceTooltipDimension.width; // Position tooltip on the left
+//            } else {
+//                posX = mouseX + gap + (float) primaryTooltipDimension.width; // Position tooltip on the right
+//            }
+//
+//            if(mouseY + priceTooltipDimension.height > guiScaledHeight) {
+//                posY = Math.clamp(scaledTooltipY, minY, maxY);
+//            } else {
+//                posY = mouseY;
+//            }
+//        }
 
         // Apply scaling to the PoseStack
         PoseStack poseStack = guiGraphics.pose();
@@ -209,27 +210,27 @@ public abstract class TooltipMixin {
         if (priceInfo == null) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
         } else {
-            if (config.isShowMaxPrice() && priceInfo.getHighestPrice() > 0) {
+//            if (config.isShowMaxPrice() && priceInfo.getHighestPrice() > 0) {
                 tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
-            }
-            if (config.isShowMinPrice() && priceInfo.getLowestPrice() > 0) {
+//            }
+//            if (config.isShowMinPrice() && priceInfo.getLowestPrice() > 0) {
                 tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice()));
-            }
-            if (config.isShowAveragePrice() && priceInfo.getAveragePrice() != null) {
+//            }
+//            if (config.isShowAveragePrice() && priceInfo.getAveragePrice() != null) {
                 tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice().intValue()));
-            }
+//            }
 
-            if (config.isShowAverage80Price() && priceInfo.getAverage80Price() != null) {
+//            if (config.isShowAverage80Price() && priceInfo.getAverage80Price() != null) {
                 tooltipLines.add(formatPrice("Avg 80%: ", priceInfo.getAverage80Price().intValue()));
-            }
+//            }
 
-            if (config.isShowUnidAveragePrice() && priceInfo.getUnidentifiedAveragePrice() != null) {
+//            if (config.isShowUnidAveragePrice() && priceInfo.getUnidentifiedAveragePrice() != null) {
                 tooltipLines.add(formatPrice("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice().intValue()));
-            }
+//            }
 
-            if (config.isShowUnidAverage80Price() && priceInfo.getUnidentifiedAverage80Price() != null) {
+//            if (config.isShowUnidAverage80Price() && priceInfo.getUnidentifiedAverage80Price() != null) {
                 tooltipLines.add(formatPrice("Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price().intValue()));
-            }
+//            }
         }
         return tooltipLines;
     }
