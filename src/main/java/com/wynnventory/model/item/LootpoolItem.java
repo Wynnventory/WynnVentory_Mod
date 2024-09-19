@@ -48,6 +48,7 @@ public class LootpoolItem {
         this.itemType = wynnItem.getClass().getSimpleName();
         this.name = Objects.requireNonNull(ItemStackUtils.getWynntilsOriginalName(wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY))).getLastPart().getComponent().getString();
         this.amount = ((ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
+        name = name.replace("Unidentified ", "");
 
         if (wynnItem instanceof GearItem gearItem) {
             shiny = name.contains("Shiny");

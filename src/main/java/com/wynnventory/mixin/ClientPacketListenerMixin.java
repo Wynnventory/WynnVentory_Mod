@@ -86,6 +86,13 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
         if (currentScreen instanceof AbstractContainerScreen<?> containerScreen) {
             String title = containerScreen.getTitle().getString();
+            List<ItemStack> items = packet.getItems().stream()
+                    .filter(item ->
+                            item.getItem() != Items.AIR &&
+                                    item.getItem() != Items.COMPASS &&
+//                                            item.getItem() != Items.POTION &&
+                                    !McUtils.player().getInventory().items.contains(item)).toList();
+
             if (title.equals(LOOTPOOL_TITLE)) {
                 String region = RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ());
 
@@ -97,7 +104,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                     return;
                 }
 
-                addItemsToQueue(lootpoolBuffer, region, packet.getItems());
+                addItemsToQueue(lootpoolBuffer, region, items);
             } else if (title.equals(RAIDPOOL_TITLE)) {
                 String region = RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ());
 
@@ -109,7 +116,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                     return;
                 }
 
-                addItemsToQueue(raidpoolBuffer, region, packet.getItems());
+                addItemsToQueue(raidpoolBuffer, region, items);
             }
         }
     }
