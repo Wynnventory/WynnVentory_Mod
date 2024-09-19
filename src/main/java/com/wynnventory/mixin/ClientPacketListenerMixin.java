@@ -1,7 +1,11 @@
 package com.wynnventory.mixin;
 
+import com.wynntils.core.components.Models;
+import com.wynntils.models.items.WynnItem;
 import com.wynntils.utils.mc.McUtils;
+import com.wynnventory.WynnventoryMod;
 import com.wynnventory.accessor.ItemQueueAccessor;
+import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.util.ModUpdater;
@@ -12,6 +16,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.CommonListenerCookie;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
@@ -19,26 +24,30 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl implements ItemQueueAccessor {
     private static final String MARKET_TITLE = "󏿨";
     private static final String LOOTPOOL_TITLE = "󏿲";
+    private static final String RAIDPOOL_TITLE = "󏿪";
 
     private static boolean IS_FIRST_WORLD_JOIN = true;
 
     @Unique
     private final List<TradeMarketItem> marketItemsBuffer = new ArrayList<>();
     @Unique
-    private final List<LootpoolItem> lootpoolItemsBuffer = new ArrayList<>();
+    private final Map<String, Lootpool> lootpoolBuffer = new HashMap<>();
+    @Unique
+    private final Map<String, Lootpool> raidpoolBuffer = new HashMap<>();
 
     protected ClientPacketListenerMixin(Minecraft minecraft, Connection connection, CommonListenerCookie commonListenerCookie) {
         super(minecraft, connection, commonListenerCookie);
@@ -77,16 +86,50 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
         if (currentScreen instanceof AbstractContainerScreen<?> containerScreen) {
             String title = containerScreen.getTitle().getString();
+            List<ItemStack> items = packet.getItems().stream()
+                    .filter(item ->
+                            item.getItem() != Items.AIR &&
+                                    item.getItem() != Items.COMPASS &&
+//                                            item.getItem() != Items.POTION &&
+                                    !McUtils.player().getInventory().items.contains(item)).toList();
+
             if (title.equals(LOOTPOOL_TITLE)) {
-                // @TODO: TEST ONLY
-                // McUtils.sendMessageToClient(Component.literal("LOOTPOOL DETECTED. Region is " + RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ())));
-                for (ItemStack item : packet.getItems()) {
-                    if (item.getItem() != Items.AIR && item.getItem() != Items.COMPASS && item.getItem() != Items.POTION && !McUtils.player().getInventory().items.contains(item)) {
-                            LootpoolItem.createLootpoolItem(item).ifPresent(lootpoolItemsBuffer::add);
-                    }
+                String region = RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ());
+
+                if(WynnventoryMod.isDev()) {
+                    McUtils.sendMessageToClient(Component.literal("LOOTPOOL DETECTED. Region is " + region));
                 }
+
+                if(region.equals(RegionDetector.UNDEFINED_REGION)) {
+                    return;
+                }
+
+                addItemsToQueue(lootpoolBuffer, region, items);
+            } else if (title.equals(RAIDPOOL_TITLE)) {
+                String region = RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ());
+
+                if(WynnventoryMod.isDev()) {
+                    McUtils.sendMessageToClient(Component.literal("RAIDPOOL DETECTED. Region is " + region));
+                }
+
+                if(region.equals(RegionDetector.UNDEFINED_REGION)) {
+                    return;
+                }
+
+                addItemsToQueue(raidpoolBuffer, region, items);
             }
         }
+    }
+
+    private void addItemsToQueue(Map<String, Lootpool> queue, String region, List<ItemStack> items) {
+        if(!queue.containsKey(region)) {
+            queue.put(region, new Lootpool(region, McUtils.playerName(), WynnventoryMod.WYNNVENTORY_VERSION));
+        }
+
+        List<LootpoolItem> lootpoolItems = LootpoolItem.createLootpoolItemsFromItemStack(items.stream()
+                .filter(item -> !McUtils.player().getInventory().items.contains(item)).toList());
+
+        queue.get(region).addItems(lootpoolItems);
     }
 
     @Override
@@ -95,7 +138,12 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     }
 
     @Override
-    public List<LootpoolItem> getQueuedLootItems() {
-        return lootpoolItemsBuffer;
+    public Map<String, Lootpool> getQueuedLootpools() {
+        return lootpoolBuffer;
+    }
+
+    @Override
+    public Map<String, Lootpool> getQueuedRaidpools() {
+        return raidpoolBuffer;
     }
 }
