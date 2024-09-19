@@ -47,7 +47,6 @@ import java.util.concurrent.Executors;
 public abstract class TooltipMixin {
 
     @Shadow protected abstract void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type);
-    private static final String MARKET_TITLE = "󏿨";
 
     private static final String TITLE_TEXT = "Trade Market Price Info";
     private static final long EXPIRE_MINS = 2;
@@ -70,8 +69,7 @@ public abstract class TooltipMixin {
             return;
         }
 
-        String screenTitle = Minecraft.getInstance().screen.getTitle().getString();
-        if(!config.isShowTooltips() || (!screenTitle.equals(MARKET_TITLE) && !config.isShowTooltipsOutsideMarketWindow())) {
+        if(!config.isShowTooltips()) {
             return;
         }
 

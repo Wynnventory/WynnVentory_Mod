@@ -31,10 +31,6 @@ public class ConfigManager {
 //    private boolean showUnidAveragePrice = true;
 //    private boolean showUnidAverage80Price = true;
 
-    // Static
-    @JsonIgnore
-    private boolean showTooltipsOutsideMarketWindow = false;
-
     private ConfigManager() { }
 
     public static ConfigManager getInstance() {
