@@ -131,12 +131,12 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     }
 
     @Override
-    public List<Lootpool> getQueuedLootpools() {
-        return lootpoolBuffer.values().stream().toList();
+    public Map<String, Lootpool> getQueuedLootpools() {
+        return lootpoolBuffer;
     }
 
     @Override
-    public List<Lootpool> getQueuedRaidpools() {
-        return raidpoolBuffer.values().stream().toList();
+    public Map<String, Lootpool> getQueuedRaidpools() {
+        return raidpoolBuffer;
     }
 }

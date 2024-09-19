@@ -58,6 +58,14 @@ public class LootpoolItem {
         if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
             rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
         }
+        if (wynnItem instanceof MiscItem miscItem) {
+            if (miscItem.getName().contains("Tome")) {
+                type = "Tome";
+            }
+        }
+        if (wynnItem instanceof PowderItem powderItem) {
+            name = powderItem.getName().replaceAll("[✹✦❉❋✤]", "").trim();
+        }
     }
 
     public static List<LootpoolItem> createLootpoolItemsFromWynnItem(List<WynnItem> wynnItems) {

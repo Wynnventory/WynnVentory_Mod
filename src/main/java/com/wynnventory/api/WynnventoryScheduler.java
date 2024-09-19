@@ -1,5 +1,6 @@
 package com.wynnventory.api;
 
+import com.wynnventory.WynnventoryMod;
 import com.wynnventory.accessor.ItemQueueAccessor;
 import com.wynnventory.model.item.Lootpool;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -40,21 +41,20 @@ public class WynnventoryScheduler {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.getConnection() != null) {
             ItemQueueAccessor accessor = (ItemQueueAccessor) minecraft.getConnection();
-            if (accessor != null) {
-                if (!accessor.getQueuedMarketItems().isEmpty()) {
-                    API.sendTradeMarketResults(accessor.getQueuedMarketItems());
-                    accessor.getQueuedMarketItems().clear();
-                }
 
-                if (!accessor.getQueuedLootpools().isEmpty()) {
-                    API.sendLootpoolData(accessor.getQueuedLootpools());
-                    accessor.getQueuedLootpools().clear();
-                }
+            if (!accessor.getQueuedMarketItems().isEmpty()) {
+                API.sendTradeMarketResults(accessor.getQueuedMarketItems());
+                accessor.getQueuedMarketItems().clear();
+            }
 
-                if (!accessor.getQueuedRaidpools().isEmpty()) {
-                    API.sendRaidpoolData(accessor.getQueuedRaidpools());
-                    accessor.getQueuedRaidpools().clear();
-                }
+            if (!accessor.getQueuedLootpools().isEmpty()) {
+                API.sendLootpoolData(accessor.getQueuedLootpools().values().stream().toList());
+                accessor.getQueuedLootpools().clear();
+            }
+
+            if (!accessor.getQueuedRaidpools().isEmpty()) {
+                API.sendRaidpoolData(accessor.getQueuedRaidpools().values().stream().toList());
+                accessor.getQueuedRaidpools().clear();
             }
         }
     }

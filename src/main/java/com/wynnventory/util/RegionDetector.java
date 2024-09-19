@@ -45,7 +45,6 @@ public class RegionDetector {
     }
 
     public static String getRegion(int x, int z) {
-        WynnventoryMod.error("Looking for X" + x + " and Z" + z);
         for (Region region : Region.values()) {
             if (region.contains(x, z)) {
                 return region.getName();
