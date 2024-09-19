@@ -5,8 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.items.items.game.GearItem;
+import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
-import com.wynnventory.model.item.LootpoolItem;
+import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.HttpUtil;
@@ -35,11 +36,11 @@ public class WynnventoryAPI {
         } else {
             endpointURI = getEndpointURI("trademarket/items");
         }
-        HttpUtil.sendHttpPostRequest(endpointURI, serializeItemData(marketItems));
+        HttpUtil.sendHttpPostRequest(endpointURI, serializeData(marketItems));
     }
 
-    public void sendLootpoolData(List<LootpoolItem> lootpoolItems) {
-        if (lootpoolItems.isEmpty()) return;
+    public void sendLootpoolData(List<Lootpool> lootpools) {
+        if (lootpools.isEmpty()) return;
 
         URI endpointURI;
         if (WynnventoryMod.isDev()) {
@@ -48,7 +49,26 @@ public class WynnventoryAPI {
         } else {
             endpointURI = getEndpointURI("lootpool/items");
         }
-        HttpUtil.sendHttpPostRequest(endpointURI, serializeItemData(lootpoolItems));
+
+        for(Lootpool lootpool : lootpools) {
+            HttpUtil.sendHttpPostRequest(endpointURI, serializeData(lootpool));
+        }
+    }
+
+    public void sendRaidpoolData(List<Lootpool> lootpools) {
+        if (lootpools.isEmpty()) return;
+
+        URI endpointURI;
+        if (WynnventoryMod.isDev()) {
+            WynnventoryMod.info("Sending raidpool data to DEV endpoint.");
+            endpointURI = URI.create("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/raidpool/items?env=dev2");
+        } else {
+            endpointURI = getEndpointURI("raidpool/items");
+        }
+
+        for(Lootpool lootpool : lootpools) {
+            HttpUtil.sendHttpPostRequest(endpointURI, serializeData(lootpool));
+        }
     }
 
     public TradeMarketItemPriceInfo fetchItemPrices(ItemStack item) {
@@ -58,15 +78,16 @@ public class WynnventoryAPI {
     }
 
     public TradeMarketItemPriceInfo fetchItemPrices(String itemName) {
+        String playerName = McUtils.playerName();
         try {
             final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
 
             URI endpointURI;
             if (WynnventoryMod.isDev()) {
                 WynnventoryMod.info("Fetching market data from DEV endpoint.");
-                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/item/" + encodedItemName + "/price?env=dev2");
+                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/item/" + encodedItemName + "/price?env=dev2&playername=" + playerName);
             } else {
-                endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price");
+                endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price?playername=" + playerName);
             }
 
             HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointURI);
@@ -85,11 +106,11 @@ public class WynnventoryAPI {
         }
     }
 
-    private String serializeItemData(List<?> items) {
+    private String serializeData(Object data) {
         try {
-            return objectMapper.writeValueAsString(items);
+            return objectMapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
-            WynnventoryMod.LOGGER.error("Failed to serialize item data", e);
+            WynnventoryMod.LOGGER.error("Failed to serialize data", e);
             return "[]";
         }
     }
