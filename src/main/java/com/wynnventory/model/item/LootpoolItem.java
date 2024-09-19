@@ -1,5 +1,7 @@
 package com.wynnventory.model.item;
 
+import com.wynntils.core.components.Models;
+import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
@@ -10,21 +12,15 @@ import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.RegionDetector;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class LootpoolItem {
     private String itemType;
-    private String region;
     private int amount;
     private String name;
     private String rarity;
-    private String shiny;
+    private boolean shiny;
     private String type;
-    private String playerName;
-    private String modVersion;
     public static final List<Class<? extends WynnItem>> LOOT_CLASSES = Arrays.asList(
             GearItem.class,
             InsulatorItem.class,
@@ -32,70 +28,87 @@ public class LootpoolItem {
             EmeraldItem.class,
             MiscItem.class,
             RuneItem.class,
-            DungeonKeyItem.class
+            DungeonKeyItem.class,
+            AspectItem.class,
+            AmplifierItem.class,
+            PowderItem.class,
+            GearBoxItem.class
     );
 
-    public LootpoolItem(String itemType, String region, int amount, String name, String rarity, String shiny, String type, String playerName) {
+    public LootpoolItem(String itemType, int amount, String name, String rarity, boolean shiny, String type) {
         this.itemType = itemType;
-        this.region = region;
         this.amount = amount;
         this.name = name;
         this.rarity = rarity;
         this.shiny = shiny;
         this.type = type;
-        this.playerName = playerName;
-        this.modVersion = WynnventoryMod.WYNNVENTORY_VERSION;
     }
 
-    public static List<LootpoolItem> createLootpoolItems(List<ItemStack> items) {
-        List<LootpoolItem> lootpoolItems = new ArrayList<>();
-        String region = RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ());
+    public LootpoolItem(WynnItem wynnItem) {
+        this.itemType = wynnItem.getClass().getSimpleName();
+        this.name = Objects.requireNonNull(ItemStackUtils.getWynntilsOriginalName(wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY))).getLastPart().getComponent().getString();
+        this.amount = ((ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
 
-        for (ItemStack item : items) {
-            Optional<WynnItem> wynnItemOptional = Optional.ofNullable(ItemStackUtils.getWynnItem(item));
-
-            wynnItemOptional.ifPresent(wynnItem -> {
-                if (LootpoolItem.LOOT_CLASSES.contains(wynnItem.getClass())) {
-                    String shiny = null;
-                    String name = ItemStackUtils.getWynntilsOriginalName(wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getLastPart().getComponent().getString();
-                    String rarity = null;
-                    String type = null;
-
-                    if (wynnItem instanceof GearItem gearItem) {
-                        if (name.contains("Shiny")) {
-                            shiny = "Shiny";
-                        }
-                        name = gearItem.getName();
-                        rarity = gearItem.getGearTier().getName();
-                        type = gearItem.getGearType().name();
-                    }
-                    if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
-                        rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
-                    }
-
-                    LootpoolItem lootpoolItem = new LootpoolItem(
-                            wynnItem.getClass().getSimpleName(),
-                            region,
-                            ((ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount(),
-                            name,
-                            rarity,
-                            shiny,
-                            type,
-                            McUtils.playerName()
-                    );
-
-                    lootpoolItems.add(lootpoolItem);
-                } else {
-                    WynnventoryMod.error("Unknown class: " + wynnItem.getClass());
-                }
-            });
+        if (wynnItem instanceof GearItem gearItem) {
+            shiny = name.contains("Shiny");
+            name = gearItem.getName();
+            rarity = gearItem.getGearTier().getName();
+            type = gearItem.getGearType().name();
         }
+        if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
+            rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
+        }
+    }
+
+    public static List<LootpoolItem> createLootpoolItemsFromWynnItem(List<WynnItem> wynnItems) {
+        List<LootpoolItem> lootpoolItems = new ArrayList<>();
+
+        for(WynnItem wynnItem : wynnItems) {
+            lootpoolItems.addAll(createLootpoolItemFromWynnItem(wynnItem));
+        }
+
         return lootpoolItems;
     }
 
-    public static Optional<LootpoolItem> createLootpoolItem(ItemStack item) {
-        List<LootpoolItem> items = createLootpoolItems(List.of(item));
-        return items.isEmpty() ? Optional.empty() : Optional.of(items.getFirst());
+    public static List<LootpoolItem> createLootpoolItemsFromItemStack(List<ItemStack> items) {
+        List<WynnItem> wynnItems = new ArrayList<>();
+        items.forEach(item -> Models.Item.getWynnItem(item).ifPresent(wynnItems::add));
+
+        return createLootpoolItemsFromWynnItem(wynnItems);
+    }
+
+    public static List<LootpoolItem> createLootpoolItemFromWynnItem(WynnItem wynnItem) {
+        List<LootpoolItem> lootpoolItems = new ArrayList<>();
+
+        if(wynnItem instanceof GearBoxItem gearBoxItem) {
+            List<GearInfo> possibleGear = Models.Gear.getPossibleGears(gearBoxItem);
+
+            String name, rarity, type;
+            for(GearInfo gearInfo : possibleGear) {
+                name = gearInfo.name();
+                rarity = gearInfo.tier().name();
+                type = gearInfo.type().name();
+
+                lootpoolItems.add(new LootpoolItem("GearItem", 1, name, rarity, false, type));
+            }
+
+            return lootpoolItems;
+        }
+
+        if (LootpoolItem.LOOT_CLASSES.contains(wynnItem.getClass())) {
+            lootpoolItems.add(new LootpoolItem(wynnItem));
+        } else {
+            WynnventoryMod.error("Unknown class: " + wynnItem.getClass());
+        }
+
+
+        return lootpoolItems;
+    }
+
+    public static List<LootpoolItem> createLootpoolItemFromItemStack(ItemStack item) {
+        Optional<WynnItem> wynnItem = Models.Item.getWynnItem(item);
+        return wynnItem.map(LootpoolItem::createLootpoolItemFromWynnItem).orElseGet(ArrayList::new);
+
     }
 
     public String getItemType() {
@@ -104,14 +117,6 @@ public class LootpoolItem {
 
     public void setItemType(String itemType) {
         this.itemType = itemType;
-    }
-
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
     }
 
     public int getAmount() {
@@ -138,11 +143,11 @@ public class LootpoolItem {
         this.rarity = rarity;
     }
 
-    public String getShiny() {
+    public boolean getShiny() {
         return shiny;
     }
 
-    public void setShiny(String shiny) {
+    public void setShiny(boolean shiny) {
         this.shiny = shiny;
     }
 
@@ -154,13 +159,28 @@ public class LootpoolItem {
         this.type = type;
     }
 
-    public String getPlayerName() {
-        return playerName;
+    @Override
+    public boolean equals(Object o) {
+        // If the object is compared with itself, return true
+        if (this == o) return true;
+
+        // Check if o is an instance of LootpoolItem or return false
+        if (o == null || getClass() != o.getClass()) return false;
+
+        // Typecast o to LootpoolItem to compare the attributes
+        LootpoolItem that = (LootpoolItem) o;
+
+        // Compare each field of the class
+        return amount == that.amount &&
+                Objects.equals(itemType, that.itemType) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(rarity, that.rarity) &&
+                Objects.equals(shiny, that.shiny) &&
+                Objects.equals(type, that.type);
     }
 
-    public void setPlayerName(String playerName) {
-        this.playerName = playerName;
+    @Override
+    public int hashCode() {
+        return Objects.hash(itemType, amount, name, rarity, shiny, type);
     }
-
-    public String getModVersion() { return modVersion; }
 }

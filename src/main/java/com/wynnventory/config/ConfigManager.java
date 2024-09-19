@@ -1,5 +1,6 @@
 package com.wynnventory.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,6 +30,10 @@ public class ConfigManager {
 //    private boolean showAverage80Price = true;
 //    private boolean showUnidAveragePrice = true;
 //    private boolean showUnidAverage80Price = true;
+
+    // Static
+    @JsonIgnore
+    private boolean showTooltipsOutsideMarketWindow = false;
 
     private ConfigManager() { }
 
