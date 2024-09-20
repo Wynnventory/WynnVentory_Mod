@@ -49,6 +49,7 @@ public class LootpoolItem {
         this.name = Objects.requireNonNull(ItemStackUtils.getWynntilsOriginalName(wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY))).getLastPart().getComponent().getString();
         this.amount = ((ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
         name = name.replace("Unidentified ", "");
+        type = wynnItem.getClass().getSimpleName().replace("Item", "");
 
         if (wynnItem instanceof GearItem gearItem) {
             shiny = name.contains("Shiny");
@@ -63,6 +64,12 @@ public class LootpoolItem {
             if (miscItem.getName().contains("Tome")) {
                 type = "Tome";
             }
+        }
+        if (wynnItem instanceof EmeraldItem emeraldItem) {
+            type = emeraldItem.getUnit().name();
+        }
+        if (wynnItem instanceof RuneItem runeItem) {
+            type = runeItem.getType().name();
         }
         if (wynnItem instanceof PowderItem powderItem) {
             name = powderItem.getName().replaceAll("[✹✦❉❋✤]", "").trim();
