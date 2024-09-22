@@ -60,17 +60,26 @@ public class LootpoolItem {
         if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
             rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
         }
-        if (wynnItem instanceof MiscItem miscItem) {
-            if (miscItem.getName().contains("Tome")) {
-                type = "Tome";
-            }
+
+        if(wynnItem instanceof TomeItem tomeItem) {
+            name = tomeItem.getName();
+            rarity = tomeItem.getGearTier().getName();
+            type = "Tome";
         }
+
+        if(wynnItem instanceof AspectItem aspectItem) {
+            rarity = aspectItem.getGearTier().getName();
+            type = aspectItem.getClassType().getName() + itemType;
+        }
+
         if (wynnItem instanceof EmeraldItem emeraldItem) {
             type = emeraldItem.getUnit().name();
         }
+
         if (wynnItem instanceof RuneItem runeItem) {
             type = runeItem.getType().name();
         }
+
         if (wynnItem instanceof PowderItem powderItem) {
             name = powderItem.getName().replaceAll("[✹✦❉❋✤]", "").trim();
         }
