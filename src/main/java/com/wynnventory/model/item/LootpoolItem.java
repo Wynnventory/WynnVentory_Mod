@@ -50,6 +50,7 @@ public class LootpoolItem {
         this.amount = ((ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
         name = name.replace("Unidentified ", "");
         type = wynnItem.getClass().getSimpleName().replace("Item", "");
+        rarity = "Common";
 
         if (wynnItem instanceof GearItem gearItem) {
             shiny = name.contains("Shiny");
@@ -58,45 +59,49 @@ public class LootpoolItem {
             type = gearItem.getGearType().name();
         }
 
-        if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
+        else if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
             rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
         }
 
-        if(wynnItem instanceof TomeItem tomeItem) {
+        else if(wynnItem instanceof TomeItem tomeItem) {
             name = tomeItem.getName();
             rarity = tomeItem.getGearTier().getName();
             type = "Tome";
         }
 
-        if(wynnItem instanceof AspectItem aspectItem) {
+        else if(wynnItem instanceof AspectItem aspectItem) {
             rarity = aspectItem.getGearTier().getName();
-            type = aspectItem.getClassType().getName() + itemType;
-        }
 
-        if (wynnItem instanceof EmeraldItem emeraldItem) {
-            type = emeraldItem.getUnit().name();
-        }
-
-        if (wynnItem instanceof RuneItem runeItem) {
-            type = runeItem.getType().name();
-        }
-
-        if (wynnItem instanceof PowderItem powderItem) {
-            name = powderItem.getName().replaceAll("[✹✦❉❋✤]", "").trim();
-            String[] nameParts = name.split(" ");
-
-            if(nameParts.length > 1) {
-                type = nameParts[0] + nameParts[1];
+            String classReq = aspectItem.getClassType().getName();
+            if(classReq != null && !classReq.isEmpty()) {
+                type = classReq + type;
             }
         }
 
-        if(wynnItem instanceof AmplifierItem amplifierItem) {
+        else if (wynnItem instanceof EmeraldItem emeraldItem) {
+            type = emeraldItem.getUnit().name();
+        }
+
+        else if (wynnItem instanceof RuneItem runeItem) {
+            type = runeItem.getType().name();
+        }
+
+        else if (wynnItem instanceof PowderItem powderItem) {
+            name = powderItem.getName().replaceAll("[✹✦❉❋✤]", "").trim();
+            type = powderItem.getPowderProfile().element().getName() + type;
+        }
+
+        else if(wynnItem instanceof AmplifierItem amplifierItem) {
             rarity = amplifierItem.getGearTier().getName();
             String[] nameParts = name.split(" ");
 
             if(nameParts.length > 1) {
                 type = nameParts[0] + nameParts[1];
             }
+        }
+
+        else if(wynnItem instanceof MiscItem && name.contains("Tome")) {
+            type = "Tome";
         }
     }
 
