@@ -57,6 +57,7 @@ public class LootpoolItem {
             rarity = gearItem.getGearTier().getName();
             type = gearItem.getGearType().name();
         }
+
         if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
             rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
         }
@@ -82,6 +83,20 @@ public class LootpoolItem {
 
         if (wynnItem instanceof PowderItem powderItem) {
             name = powderItem.getName().replaceAll("[✹✦❉❋✤]", "").trim();
+            String[] nameParts = name.split(" ");
+
+            if(nameParts.length > 1) {
+                type = nameParts[0] + nameParts[1];
+            }
+        }
+
+        if(wynnItem instanceof AmplifierItem amplifierItem) {
+            rarity = amplifierItem.getGearTier().getName();
+            String[] nameParts = name.split(" ");
+
+            if(nameParts.length > 1) {
+                type = nameParts[0] + nameParts[1];
+            }
         }
     }
 
