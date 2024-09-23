@@ -135,6 +135,10 @@ public class LootpoolItem {
 
             String name, rarity, type;
             for(GearInfo gearInfo : possibleGear) {
+                if(gearInfo.requirements().quest().isPresent()) {
+                    continue;
+                }
+
                 name = gearInfo.name();
                 rarity = gearInfo.tier().name();
                 type = gearInfo.type().name();
