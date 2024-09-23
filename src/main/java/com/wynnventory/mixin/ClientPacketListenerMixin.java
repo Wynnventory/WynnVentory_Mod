@@ -126,10 +126,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
             queue.put(region, new Lootpool(region, McUtils.playerName(), WynnventoryMod.WYNNVENTORY_VERSION));
         }
 
-        List<LootpoolItem> lootpoolItems = LootpoolItem.createLootpoolItemsFromItemStack(items.stream()
-                .filter(item -> !McUtils.player().getInventory().items.contains(item)).toList());
-
-        queue.get(region).addItems(lootpoolItems);
+        queue.get(region).addItems(LootpoolItem.createLootpoolItemsFromItemStack(items));
     }
 
     @Override
