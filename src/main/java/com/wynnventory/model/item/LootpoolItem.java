@@ -6,6 +6,7 @@ import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
 import com.wynntils.models.items.properties.GearTierItemProperty;
+import com.wynntils.models.rewards.type.TomeInfo;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.util.ItemStackUtils;
@@ -63,11 +64,11 @@ public class LootpoolItem {
             rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
         }
 
-        else if(wynnItem instanceof TomeItem tomeItem) {
+/*        else if(wynnItem instanceof TomeItem tomeItem) {
             name = tomeItem.getName();
             rarity = tomeItem.getGearTier().getName();
-            type = "Tome";
-        }
+            type = tomeItem.getItemInfo().type().name();
+        }*/
 
         else if(wynnItem instanceof AspectItem aspectItem) {
             rarity = aspectItem.getGearTier().getName();
@@ -101,7 +102,11 @@ public class LootpoolItem {
         }
 
         else if(wynnItem instanceof MiscItem && name.contains("Tome")) {
-            type = "Tome";
+            TomeInfo info = Models.Rewards.getTomeInfoFromDisplayName(name);
+            if(info != null) {
+                type = info.type().name();
+                rarity = info.tier().getName();
+            }
         }
     }
 
