@@ -10,7 +10,6 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
@@ -25,6 +24,8 @@ public class WynnventoryMod implements ClientModInitializer {
 	public static String WYNNVENTORY_MOD_NAME;
 
 	private static boolean IS_DEV = false;
+
+	public static KeyMapping KEY_OPEN_CONFIG;
 
 	@Override
 	public void onInitializeClient() {
@@ -52,7 +53,7 @@ public class WynnventoryMod implements ClientModInitializer {
 	}
 
 	private static void registerKeyBinds() {
-		KeyMapping openConfigKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+		KEY_OPEN_CONFIG = KeyBindingHelper.registerKeyBinding(new KeyMapping(
 				"key.wynnventory.open_config",
 				GLFW.GLFW_KEY_N,
 				"category.wynnventory.keybinding"
@@ -73,10 +74,11 @@ public class WynnventoryMod implements ClientModInitializer {
 //		));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if (openConfigKey.consumeClick()) {
-				Minecraft.getInstance().setScreen(new CustomScreen(Component.literal("Lootruns")));
+			if (KEY_OPEN_CONFIG.consumeClick()) {
+				client.setScreen(new CustomScreen(Component.literal("Lootruns")));
 			}
 		});
+
 
 //		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 //			if(priceTooltipKey.hasStateChanged()) {

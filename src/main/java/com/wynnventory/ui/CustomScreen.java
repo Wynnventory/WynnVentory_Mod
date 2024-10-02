@@ -1,10 +1,12 @@
 package com.wynnventory.ui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.wynntils.core.components.Models;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.render.FontRenderer;
+import com.wynnventory.WynnventoryMod;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
@@ -103,6 +105,20 @@ public class CustomScreen extends Screen {
                 guiGraphics.renderTooltip(FontRenderer.getInstance().getFont(), button.getItemStack(), mouseX, mouseY);
             }
         }
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int arg1, int arg2, float arg3) {
+        guiGraphics.fill(0, 0, this.width, this.height, 0xFF000000); // Solid black
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (WynnventoryMod.KEY_OPEN_CONFIG.matches(keyCode, scanCode)) {
+            this.onClose();
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     private void loadAllItems() {
