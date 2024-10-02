@@ -1,6 +1,5 @@
 package com.wynnventory.ui;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import com.wynntils.core.components.Models;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
@@ -108,8 +107,8 @@ public class CustomScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics guiGraphics, int arg1, int arg2, float arg3) {
-        guiGraphics.fill(0, 0, this.width, this.height, 0xFF000000); // Solid black
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        guiGraphics.fillGradient(0, 0, this.width, this.height, 0xFF202020, 0xFF000000);
     }
 
     @Override
