@@ -74,7 +74,7 @@ public class WynnventoryMod implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (openConfigKey.consumeClick()) {
-				Minecraft.getInstance().setScreen(CustomScreen.create());
+				Minecraft.getInstance().setScreen(new CustomScreen(Component.literal("Lootruns")));
 			}
 		});
 
