@@ -1,6 +1,7 @@
 package com.wynnventory.ui;
 
 import com.wynntils.core.components.Models;
+import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.render.FontRenderer;
@@ -14,12 +15,14 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Environment(EnvType.CLIENT)
 public class CustomScreen extends Screen {
-    protected List<GuideGearItemStack> allGearItems = List.of();
-    protected List<GuideTomeItemStack> allTomeItems = List.of();
+    Map<String, List<GuideItemStack>> stacksByName = new HashMap<>();
+
     private final List<WynnventoryButton> elementButtons = new ArrayList<>();
 
     private List<Lootpool> raidpools = new ArrayList<>();
@@ -38,8 +41,7 @@ public class CustomScreen extends Screen {
         raidpools = api.getLootpools("raid");
         lootrunpools = api.getLootpools("lootrun");
 
-        getAllGearItems();
-        getAllTomeItems();
+        loadAllItems();
     }
 
     @Override
@@ -63,18 +65,11 @@ public class CustomScreen extends Screen {
                 int x = gridX + (renderedItems % itemsPerRow) * (itemSize + itemPadding);
                 int y = gridY + (renderedItems / itemsPerRow) * (itemSize + itemPadding);
 
-                for (GuideGearItemStack stack : allGearItems) {
-                    if (stack.getGearInfo().name().equals(item.getName())) {
-                        WynnventoryButton button = new WynnventoryButton(x, y, itemSize, itemSize, stack, this);
-                        elementButtons.add(button);
-                        this.addRenderableWidget(button);
+                String itemName = item.getName();
+                List<GuideItemStack> matchingStacks = stacksByName.get(itemName);
 
-                        renderedItems++;
-                    }
-                }
-
-                for (GuideTomeItemStack stack : allTomeItems) {
-                    if (stack.getTomeInfo().name().equals(item.getName())) {
+                if (matchingStacks != null && !matchingStacks.isEmpty()) {
+                    for (GuideItemStack stack : matchingStacks) {
                         WynnventoryButton button = new WynnventoryButton(x, y, itemSize, itemSize, stack, this);
                         elementButtons.add(button);
                         this.addRenderableWidget(button);
@@ -110,22 +105,18 @@ public class CustomScreen extends Screen {
         }
     }
 
-    private List<GuideGearItemStack> getAllGearItems() {
-        if (allGearItems.isEmpty()) {
-            allGearItems = Models.Gear.getAllGearInfos().map(GuideGearItemStack::new).toList();
+    private void loadAllItems() {
+        List<GuideGearItemStack> gear = Models.Gear.getAllGearInfos().map(GuideGearItemStack::new).toList();
+        List<GuideTomeItemStack> tomes = Models.Rewards.getAllTomeInfos().map(GuideTomeItemStack::new).toList();
+
+        for (GuideGearItemStack stack : gear) {
+            String name = stack.getGearInfo().name();
+            stacksByName.computeIfAbsent(name, k -> new ArrayList<>()).add(stack);
         }
 
-        return allGearItems;
-    }
-
-    private List<GuideTomeItemStack> getAllTomeItems() {
-        if (allTomeItems.isEmpty()) {
-            // Populate list
-            allTomeItems = Models.Rewards.getAllTomeInfos()
-                    .map(GuideTomeItemStack::new)
-                    .toList();
+        for (GuideTomeItemStack stack : tomes) {
+            String name = stack.getTomeInfo().name();
+            stacksByName.computeIfAbsent(name, k -> new ArrayList<>()).add(stack);
         }
-
-        return allTomeItems;
     }
 }
