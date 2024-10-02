@@ -5,7 +5,9 @@ import com.wynntils.core.components.Managers;
 import com.wynntils.core.components.Services;
 import com.wynntils.core.net.UrlId;
 import com.wynntils.core.text.StyledText;
+import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
+import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.mc.KeyboardUtils;
 import com.wynntils.utils.render.RenderUtils;
@@ -21,15 +23,15 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.Map;
 
-public class WynnventoryButton extends AbstractButton {
-    private final GuideGearItemStack itemStack;
+public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton {
+    private final E itemStack;
 
-    public WynnventoryButton(int x, int y, int width, int height, GuideGearItemStack itemStack, Screen screen) {
+    public WynnventoryButton(int x, int y, int width, int height, E itemStack, Screen screen) {
         super(x, y, width, height, Component.literal("Guide GearItemStack Button"));
         this.itemStack = itemStack;
         // Things like our current class, or other requirement fulfillments can have changed,
         // so we need to redo this even if it's already done
-        itemStack.buildTooltip();
+        buildTooltip();
     }
 
     @Override
@@ -41,7 +43,7 @@ public class WynnventoryButton extends AbstractButton {
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         PoseStack poseStack = guiGraphics.pose();
 
-        CustomColor color = CustomColor.fromChatFormatting(itemStack.getGearInfo().tier().getChatFormatting());
+        CustomColor color = getCustomColor();
 
         RenderUtils.drawTexturedRectWithColor(
                 poseStack,
@@ -81,7 +83,7 @@ public class WynnventoryButton extends AbstractButton {
         return super.isHovered();
     }
 
-    public GuideGearItemStack getItemStack() {
+    public E getItemStack() {
         return itemStack;
     }
 
@@ -131,5 +133,27 @@ public class WynnventoryButton extends AbstractButton {
         }
 
         return true;
+    }
+
+    public void buildTooltip() {
+        if(itemStack instanceof GuideGearItemStack guideGearItemStack) {
+            guideGearItemStack.buildTooltip();
+        }
+
+        else if(itemStack instanceof GuideTomeItemStack guideTomeItemStack) {
+            guideTomeItemStack.buildTooltip();
+        }
+    }
+
+    public CustomColor getCustomColor() {
+        if(itemStack instanceof GuideGearItemStack guideGearItemStack) {
+            return CustomColor.fromChatFormatting(guideGearItemStack.getGearInfo().tier().getChatFormatting());
+        }
+
+        else if(itemStack instanceof GuideTomeItemStack guideTomeItemStack) {
+            return CustomColor.fromChatFormatting(guideTomeItemStack.getTomeInfo().tier().getChatFormatting());
+        }
+
+        return CustomColor.NONE;
     }
 }

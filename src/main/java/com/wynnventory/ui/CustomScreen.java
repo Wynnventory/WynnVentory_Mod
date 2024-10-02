@@ -2,6 +2,7 @@ package com.wynnventory.ui;
 
 import com.wynntils.core.components.Models;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
+import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.model.item.Lootpool;
@@ -20,6 +21,7 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 public class CustomScreen extends Screen {
     protected List<GuideGearItemStack> allGearItems = List.of();
+    protected List<GuideTomeItemStack> allTomeItems = List.of();
     private final List<WynnventoryButton> elementButtons = new ArrayList<>();
 
     private List<Lootpool> raidpools = new ArrayList<>();
@@ -39,6 +41,7 @@ public class CustomScreen extends Screen {
         lootrunpools = api.getLootpools("lootrun");
 
         getAllGearItems();
+        getAllTomeItems();
     }
 
     @Override
@@ -59,6 +62,16 @@ public class CustomScreen extends Screen {
 
                 for (GuideGearItemStack stack : allGearItems) {
                     if (stack.getGearInfo().name().equals(item.getName())) {
+                        WynnventoryButton button = new WynnventoryButton(x, y, itemSize, itemSize, stack, this);
+                        elementButtons.add(button);
+                        this.addRenderableWidget(button);
+
+                        renderedItems++;
+                    }
+                }
+
+                for (GuideTomeItemStack stack : allTomeItems) {
+                    if (stack.getTomeInfo().name().equals(item.getName())) {
                         WynnventoryButton button = new WynnventoryButton(x, y, itemSize, itemSize, stack, this);
                         elementButtons.add(button);
                         this.addRenderableWidget(button);
@@ -95,5 +108,16 @@ public class CustomScreen extends Screen {
         }
 
         return allGearItems;
+    }
+
+    private List<GuideTomeItemStack> getAllTomeItems() {
+        if (allTomeItems.isEmpty()) {
+            // Populate list
+            allTomeItems = Models.Rewards.getAllTomeInfos()
+                    .map(GuideTomeItemStack::new)
+                    .toList();
+        }
+
+        return allTomeItems;
     }
 }
