@@ -12,6 +12,7 @@ import com.wynnventory.model.item.LootpoolItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -25,6 +26,8 @@ public class CustomScreen extends Screen {
     Map<String, List<GuideItemStack>> stacksByName = new HashMap<>();
 
     private final List<WynnventoryButton> elementButtons = new ArrayList<>();
+    private Button lootrunButton;
+    private Button raidButton;
 
     private List<Lootpool> raidpools = new ArrayList<>();
     private List<Lootpool> lootrunpools = new ArrayList<>();
@@ -35,11 +38,18 @@ public class CustomScreen extends Screen {
     private int itemPadding = 8; // Padding between items
     private int colWidth = (itemSize * itemsPerRow) + (itemPadding * itemsPerRow);
 
+    private enum PoolType {
+        LOOTRUN,
+        RAID
+    }
+
+    private PoolType currentPool = PoolType.LOOTRUN;
+
     public CustomScreen(Component title) {
         super(title);
 
         WynnventoryAPI api = new WynnventoryAPI();
-        raidpools = api.getLootpools("raid");
+        raidpools = api.getLootpools("raidpool");
         lootrunpools = api.getLootpools("lootrun");
 
         loadAllItems();
@@ -49,19 +59,60 @@ public class CustomScreen extends Screen {
     protected void init() {
         super.init();
 
+        // Create tab buttons
+        int tabButtonWidth = 80;
+        int tabButtonHeight = 20;
+        int tabButtonY = 10;
+        int tabButtonSpacing = 10;
+
+        int totalTabWidth = 2 * tabButtonWidth + tabButtonSpacing;
+        int tabStartX = (this.width - totalTabWidth) / 2;
+
+        // Create the Lootrun button
+        lootrunButton = Button.builder(Component.literal("Lootruns"), button -> {
+            currentPool = PoolType.LOOTRUN;
+            updateScreen();
+        }).bounds(tabStartX, tabButtonY, tabButtonWidth, tabButtonHeight).build();
+
+        // Create the Raid button
+        raidButton = Button.builder(Component.literal("Raids"), button -> {
+            currentPool = PoolType.RAID;
+            updateScreen();
+        }).bounds(tabStartX + tabButtonWidth + tabButtonSpacing, tabButtonY, tabButtonWidth, tabButtonHeight).build();
+
+        this.addRenderableWidget(lootrunButton);
+        this.addRenderableWidget(raidButton);
+
+        // Build the initial screen based on the current pool
+        updateScreen();
+    }
+
+    private void updateScreen() {
+        // Clear existing buttons and elements except for the tab buttons
+        this.clearWidgets();
+        this.addRenderableWidget(lootrunButton);
+        this.addRenderableWidget(raidButton);
+        elementButtons.clear();
+
+        // Update tab button styles
+        updateTabButtonStyles();
+
+        // Get the pools based on the current pool type
+        List<Lootpool> pools = currentPool == PoolType.LOOTRUN ? lootrunpools : raidpools;
+
         // Calculate total width to center the columns
-        int totalColumns = lootrunpools.size();
+        int totalColumns = pools.size();
         int totalWidth = totalColumns * colWidth + (totalColumns - 1) * padding;
         int startX = (this.width - totalWidth) / 2;
 
         // CREATE COLS
-        for (int i = 0; i < lootrunpools.size(); i++) {
+        for (int i = 0; i < pools.size(); i++) {
             int gridX = startX + i * (colWidth + padding); // Starting X position
             int gridY = 80; // Starting Y position
 
             int renderedItems = 0;
 
-            List<LootpoolItem> items = new ArrayList<>(lootrunpools.get(i).getItems());
+            List<LootpoolItem> items = new ArrayList<>(pools.get(i).getItems());
             for (LootpoolItem item : items) {
                 int x = gridX + (renderedItems % itemsPerRow) * (itemSize + itemPadding);
                 int y = gridY + (renderedItems / itemsPerRow) * (itemSize + itemPadding);
@@ -82,23 +133,41 @@ public class CustomScreen extends Screen {
         }
     }
 
+    private void updateTabButtonStyles() {
+        if (currentPool == PoolType.LOOTRUN) {
+            lootrunButton.active = false;
+            raidButton.active = true;
+        } else {
+            lootrunButton.active = true;
+            raidButton.active = false;
+        }
+    }
+
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        // Render the custom background
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+
+        // Render tab buttons and other widgets
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
+        // Get the pools based on the current pool type
+        List<Lootpool> pools = currentPool == PoolType.LOOTRUN ? lootrunpools : raidpools;
+
         // Calculate total width to center the columns
-        int totalColumns = lootrunpools.size();
+        int totalColumns = pools.size();
         int totalWidth = totalColumns * colWidth + (totalColumns - 1) * padding;
         int startX = (this.width - totalWidth) / 2;
 
         int gridY = 80; // Starting Y position
-        for (int i = 0; i < lootrunpools.size(); i++) {
+        for (int i = 0; i < pools.size(); i++) {
             int gridX = startX + i * (colWidth + padding); // Starting X position
 
-            String title = lootrunpools.get(i).getRegion();
+            String title = pools.get(i).getRegion();
             guiGraphics.drawCenteredString(this.font, title, gridX + ((colWidth - itemPadding) / 2), gridY - this.font.lineHeight - 10, 0xFFFFFFFF);
         }
 
+        // Render tooltips if necessary
         for (WynnventoryButton button : elementButtons) {
             if (button.isHovered()) {
                 guiGraphics.renderTooltip(FontRenderer.getInstance().getFont(), button.getItemStack(), mouseX, mouseY);
