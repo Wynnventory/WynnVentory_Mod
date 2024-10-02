@@ -10,11 +10,9 @@ import com.wynnventory.model.item.LootpoolItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,15 +46,20 @@ public class CustomScreen extends Screen {
     protected void init() {
         super.init();
 
+        // Calculate total width to center the columns
+        int totalColumns = lootrunpools.size();
+        int totalWidth = totalColumns * colWidth + (totalColumns - 1) * padding;
+        int startX = (this.width - totalWidth) / 2;
+
         // CREATE COLS
-        for(int i = 0; i < lootrunpools.size(); i++) {
-            int gridX = i * (colWidth + padding); // Starting X position
+        for (int i = 0; i < lootrunpools.size(); i++) {
+            int gridX = startX + i * (colWidth + padding); // Starting X position
             int gridY = 80; // Starting Y position
 
             int renderedItems = 0;
 
             List<LootpoolItem> items = new ArrayList<>(lootrunpools.get(i).getItems());
-            for(LootpoolItem item : items) {
+            for (LootpoolItem item : items) {
                 int x = gridX + (renderedItems % itemsPerRow) * (itemSize + itemPadding);
                 int y = gridY + (renderedItems / itemsPerRow) * (itemSize + itemPadding);
 
@@ -87,16 +90,21 @@ public class CustomScreen extends Screen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
+        // Calculate total width to center the columns
+        int totalColumns = lootrunpools.size();
+        int totalWidth = totalColumns * colWidth + (totalColumns - 1) * padding;
+        int startX = (this.width - totalWidth) / 2;
+
         int gridY = 80; // Starting Y position
-        for(int i = 0; i < lootrunpools.size(); i++) {
-            int gridX = i * (colWidth + padding); // Starting X position
+        for (int i = 0; i < lootrunpools.size(); i++) {
+            int gridX = startX + i * (colWidth + padding); // Starting X position
 
             String title = lootrunpools.get(i).getRegion();
-            guiGraphics.drawCenteredString(this.font, title, gridX + ((colWidth - itemPadding) / 2),  gridY - this.font.lineHeight - 10, 0xFFFFFFFF);
+            guiGraphics.drawCenteredString(this.font, title, gridX + ((colWidth - itemPadding) / 2), gridY - this.font.lineHeight - 10, 0xFFFFFFFF);
         }
 
-        for(WynnventoryButton button : elementButtons) {
-            if(button.isHovered()) {
+        for (WynnventoryButton button : elementButtons) {
+            if (button.isHovered()) {
                 guiGraphics.renderTooltip(FontRenderer.getInstance().getFont(), button.getItemStack(), mouseX, mouseY);
             }
         }
