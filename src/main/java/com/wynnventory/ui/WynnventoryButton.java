@@ -1,20 +1,27 @@
 package com.wynnventory.ui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.wynntils.core.components.Managers;
 import com.wynntils.core.components.Services;
-import com.wynntils.screens.base.widgets.WynntilsButton;
+import com.wynntils.core.net.UrlId;
+import com.wynntils.core.text.StyledText;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.utils.colors.CustomColor;
+import com.wynntils.utils.mc.KeyboardUtils;
 import com.wynntils.utils.render.RenderUtils;
 import com.wynntils.utils.render.Texture;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
-public class WynnventoryButton extends WynntilsButton {
+import java.util.Map;
+
+public class WynnventoryButton extends AbstractButton {
     private final GuideGearItemStack itemStack;
 
     public WynnventoryButton(int x, int y, int width, int height, GuideGearItemStack itemStack, Screen screen) {
@@ -107,5 +114,22 @@ public class WynnventoryButton extends WynntilsButton {
     @Override
     public void setPosition(int x, int y) {
         super.setPosition(x, y);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (!KeyboardUtils.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT) && !KeyboardUtils.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT)) {
+            return false;
+        }
+
+        String unformattedName = StyledText.fromComponent(itemStack.getHoverName()).getStringWithoutFormatting();
+        if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+            Managers.Net.openLink(UrlId.LINK_WYNNDATA_ITEM_LOOKUP, Map.of("itemname", unformattedName));
+            return true;
+        } else if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+            Services.Favorites.toggleFavorite(unformattedName);
+        }
+
+        return true;
     }
 }

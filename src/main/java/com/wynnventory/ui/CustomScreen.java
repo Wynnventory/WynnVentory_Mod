@@ -9,6 +9,7 @@ import com.wynnventory.model.item.LootpoolItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -24,6 +25,12 @@ public class CustomScreen extends Screen {
     private List<Lootpool> raidpools = new ArrayList<>();
     private List<Lootpool> lootrunpools = new ArrayList<>();
 
+    private int padding = 50;
+    private int itemSize = 16; // Item size (standard 16x16 pixels)
+    private int itemsPerRow = 5; // Number of items per row
+    private int itemPadding = 8; // Padding between items
+    private int colWidth = (itemSize * itemsPerRow) + (itemPadding * itemsPerRow);
+
     public CustomScreen(Component title) {
         super(title);
 
@@ -38,26 +45,26 @@ public class CustomScreen extends Screen {
     protected void init() {
         super.init();
 
-        // Render items in a grid
-        int gridX = 50; // Starting X position
-        int gridY = 80; // Starting Y position
-        int itemSize = 16; // Item size (standard 16x16 pixels)
-        int itemsPerRow = 5; // Number of items per row
-        int padding = 8; // Padding between items
+        // CREATE COLS
+        for(int i = 0; i < lootrunpools.size(); i++) {
+            int gridX = i * (colWidth + padding); // Starting X position
+            int gridY = 80; // Starting Y position
 
-        List<LootpoolItem> items = new ArrayList<>(lootrunpools.get(0).getItems());
-        int renderedItems = 0;
-        for (int i = 0; i < items.size(); i++) {
-            int x = gridX + (renderedItems % itemsPerRow) * (itemSize + padding);
-            int y = gridY + (renderedItems / itemsPerRow) * (itemSize + padding);
+            int renderedItems = 0;
 
-            for (GuideGearItemStack stack : allGearItems) {
-                if (stack.getGearInfo().name().equals(items.get(i).getName())) {
-                    WynnventoryButton button = new WynnventoryButton(x, y, 10, 10, stack, this);
-                    elementButtons.add(button);
-                    this.addRenderableWidget(button);
+            List<LootpoolItem> items = new ArrayList<>(lootrunpools.get(i).getItems());
+            for(LootpoolItem item : items) {
+                int x = gridX + (renderedItems % itemsPerRow) * (itemSize + itemPadding);
+                int y = gridY + (renderedItems / itemsPerRow) * (itemSize + itemPadding);
 
-                    renderedItems++;
+                for (GuideGearItemStack stack : allGearItems) {
+                    if (stack.getGearInfo().name().equals(item.getName())) {
+                        WynnventoryButton button = new WynnventoryButton(x, y, itemSize, itemSize, stack, this);
+                        elementButtons.add(button);
+                        this.addRenderableWidget(button);
+
+                        renderedItems++;
+                    }
                 }
             }
         }
@@ -67,10 +74,17 @@ public class CustomScreen extends Screen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
+        int gridY = 80; // Starting Y position
+        for(int i = 0; i < lootrunpools.size(); i++) {
+            int gridX = i * (colWidth + padding); // Starting X position
+
+            String title = lootrunpools.get(i).getRegion();
+            guiGraphics.drawCenteredString(this.font, title, gridX + ((colWidth - itemPadding) / 2),  gridY - this.font.lineHeight - 10, 0xFFFFFFFF);
+        }
+
         for(WynnventoryButton button : elementButtons) {
             if(button.isHovered()) {
-                guiGraphics.renderTooltip(
-                        FontRenderer.getInstance().getFont(), button.getItemStack(), mouseX, mouseY);
+                guiGraphics.renderTooltip(FontRenderer.getInstance().getFont(), button.getItemStack(), mouseX, mouseY);
             }
         }
     }
