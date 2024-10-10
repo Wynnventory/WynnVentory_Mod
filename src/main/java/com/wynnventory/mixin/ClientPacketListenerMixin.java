@@ -40,6 +40,8 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     private static final String LOOTPOOL_TITLE = "󏿲";
     private static final String RAIDPOOL_TITLE = "󏿪";
 
+    private static final int CONTAINER_SLOTS = 54;
+
     private static boolean IS_FIRST_WORLD_JOIN = true;
 
     @Unique
@@ -86,12 +88,16 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
         if (currentScreen instanceof AbstractContainerScreen<?> containerScreen) {
             String title = containerScreen.getTitle().getString();
-            List<ItemStack> items = packet.getItems().stream()
-                    .filter(item ->
-                            item.getItem() != Items.AIR &&
-                                    item.getItem() != Items.COMPASS &&
-//                                            item.getItem() != Items.POTION &&
-                                    !McUtils.player().getInventory().items.contains(item)).toList();
+            if (!title.equals(LOOTPOOL_TITLE) && !title.equals(RAIDPOOL_TITLE)) return;
+
+            List<ItemStack> items = new ArrayList<>();
+            List<ItemStack> packetItems = packet.getItems();
+            for (int i = 0; i < CONTAINER_SLOTS; i++) {
+                ItemStack item = packetItems.get(i);
+                if (!item.isEmpty() && item.getItem() != Items.COMPASS) {
+                    items.add(item);
+                }
+            }
 
             if (title.equals(LOOTPOOL_TITLE)) {
                 String region = RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ());
