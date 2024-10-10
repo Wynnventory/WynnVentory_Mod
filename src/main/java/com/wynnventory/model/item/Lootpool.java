@@ -1,10 +1,11 @@
 package com.wynnventory.model.item;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Lootpool {
-    private List<LootpoolItem> lootpoolItems = new ArrayList<>();
+    private Set<LootpoolItem> lootpoolItems = new HashSet<>();
     private String region;
     private String playerName;
     private String modVersion;
@@ -31,7 +32,7 @@ public class Lootpool {
         items.forEach(lootpoolItems::remove);
     }
 
-    public List<LootpoolItem> getItems() {
+    public Set<LootpoolItem> getItems() {
         return lootpoolItems;
     }
 
