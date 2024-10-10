@@ -2,6 +2,7 @@ package com.wynnventory.model.item;
 
 import com.wynntils.core.components.Models;
 import com.wynntils.models.gear.type.GearInfo;
+import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
@@ -135,7 +136,7 @@ public class LootpoolItem {
 
             String name, rarity, type;
             for(GearInfo gearInfo : possibleGear) {
-                if(gearInfo.requirements().quest().isPresent()) {
+                if(gearInfo.requirements().quest().isPresent() || gearInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE || gearInfo.metaInfo().restrictions() == GearRestrictions.QUEST_ITEM) {
                     continue;
                 }
 
@@ -147,6 +148,11 @@ public class LootpoolItem {
             }
 
             return lootpoolItems;
+        } else if (wynnItem instanceof GearItem gearItem) {
+            GearInfo itemInfo = gearItem.getItemInfo();
+            if(itemInfo.requirements().quest().isPresent() || itemInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE || itemInfo.metaInfo().restrictions() == GearRestrictions.QUEST_ITEM) {
+                return lootpoolItems;
+            }
         }
 
         if (LootpoolItem.LOOT_CLASSES.contains(wynnItem.getClass())) {
