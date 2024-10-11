@@ -10,6 +10,7 @@ import com.wynnventory.WynnventoryMod;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
+import com.wynnventory.model.item.info.AspectInfo;
 import com.wynnventory.util.HttpUtil;
 import net.minecraft.world.item.ItemStack;
 
@@ -134,6 +135,8 @@ public class WynnventoryAPI {
             return null;
         }
     }
+
+
 
     private String serializeData(Object data) {
         try {
