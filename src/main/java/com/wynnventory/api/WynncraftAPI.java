@@ -26,7 +26,7 @@ public class WynncraftAPI {
             types.remove(ClassType.NONE);
 
             for (ClassType type : types) {
-                URI endpointUri = getEndpointURI("/aspects/" + type.getName().toLowerCase());
+                URI endpointUri = new URI("https://api.wynncraft.com/v3/aspects/" + type.getName().toLowerCase());
 
                 System.out.println(endpointUri);
 
