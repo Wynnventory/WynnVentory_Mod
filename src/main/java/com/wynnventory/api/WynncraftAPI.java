@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class WynncraftAPI {
-    private static final String BASE_URL = "https://api.wynncraft.com/v3";
+    private static final String BASE_URL = "https://api.wynncraft.com/v3/";
 
     public Map<String, AspectInfo> fetchAllAspects() {
         try {
@@ -26,7 +26,7 @@ public class WynncraftAPI {
             types.remove(ClassType.NONE);
 
             for (ClassType type : types) {
-                URI endpointUri = new URI("https://api.wynncraft.com/v3/aspects/" + type.getName().toLowerCase());
+                URI endpointUri = getEndpointURI("aspects/" + type.getName().toLowerCase());
 
                 System.out.println(endpointUri);
 
