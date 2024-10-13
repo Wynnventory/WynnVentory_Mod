@@ -12,6 +12,7 @@ import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.mc.KeyboardUtils;
 import com.wynntils.utils.render.RenderUtils;
 import com.wynntils.utils.render.Texture;
+import com.wynnventory.model.screen.GuideAspectItemStack;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -152,6 +153,10 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
 
         else if(itemStack instanceof GuideTomeItemStack guideTomeItemStack) {
             return CustomColor.fromChatFormatting(guideTomeItemStack.getTomeInfo().tier().getChatFormatting());
+        }
+
+        else if (itemStack instanceof GuideAspectItemStack guideAspectItemStack) {
+            return CustomColor.fromChatFormatting(guideAspectItemStack.getAspectInfo().gearTier().getChatFormatting());
         }
 
         return CustomColor.NONE;
