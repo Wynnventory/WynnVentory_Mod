@@ -1,21 +1,23 @@
 package com.wynnventory.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.wynntils.models.character.type.ClassType;
+import com.wynntils.models.gear.type.GearTier;
+import com.wynntils.models.wynnitem.type.ItemMaterial;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.model.item.info.AspectInfo;
 import com.wynnventory.model.item.info.AspectTierInfo;
 import com.wynnventory.util.HttpUtil;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.objectweb.asm.TypeReference;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class WynncraftAPI {
     private static final String BASE_URL = "https://api.wynncraft.com/v3/";
@@ -48,38 +50,131 @@ public class WynncraftAPI {
 
     private Map<String, AspectInfo> parseAspectResults(String response) {
         try {
+            // Initialize ObjectMapper
             ObjectMapper mapper = new ObjectMapper();
 
-            // Map the root JSON to a Map<String, AspectInfo>
-            Map<String, AspectInfo> aspectInfoMap = mapper.readValue(response, new com.fasterxml.jackson.core.type.TypeReference<>() {});
+            // Parse the JSON into a JsonNode tree
+            JsonNode rootNode = mapper.readTree(response);
 
-            // Access a specific AspectInfo
-            AspectInfo aspect = aspectInfoMap.get("Aspect of Empowering Fantasy");
+            // Create a map to hold the AspectInfo objects
+            Map<String, AspectInfo> aspectInfoMap = new HashMap<>();
 
-            // Example: Print the name
-            System.out.println("Aspect Name: " + aspect.name());
+            // Iterate over each aspect in the root JSON object
+            Iterator<Map.Entry<String, JsonNode>> aspects = rootNode.fields();
+            while (aspects.hasNext()) {
+                Map.Entry<String, JsonNode> aspectEntry = aspects.next();
+                String aspectKey = aspectEntry.getKey();
+                JsonNode aspectNode = aspectEntry.getValue();
 
-            // Example: Iterate over tiers
-            for (Map.Entry<Integer, AspectTierInfo> entry : aspect.tiers().entrySet()) {
-                System.out.println("Tier: " + entry.getKey());
-                System.out.println("Threshold: " + entry.getValue().threshHold());
-                System.out.println("Description: " + entry.getValue().description());
+                // Extract the "name" field
+                String name = aspectNode.get("name").asText();
+
+                // Extract and map "requiredClass" to ClassType
+                String requiredClassStr = aspectNode.get("requiredClass").asText();
+                ClassType classType = ClassType.fromName(requiredClassStr);
+
+                // Extract and map "rarity" to GearTier
+                String rarityStr = aspectNode.get("rarity").asText();
+                GearTier gearTier = GearTier.fromString(rarityStr);
+
+                // Extract "tiers" and parse AspectTierInfo objects
+                JsonNode tiersNode = aspectNode.get("tiers");
+                Map<Integer, AspectTierInfo> tiersMap = parseTiers(tiersNode);
+
+                // Extract "icon" and parse ItemMaterial
+                JsonNode iconNode = aspectNode.get("icon");
+                ItemMaterial material = parseItemMaterial(iconNode);
+
+                // Create AspectInfo object
+                AspectInfo aspectInfo = new AspectInfo(
+                        name,
+                        classType,
+                        gearTier,
+                        tiersMap,
+                        material
+                );
+
+                // Add the AspectInfo to the map
+                aspectInfoMap.put(aspectKey, aspectInfo);
             }
 
-            // Access enums
-            System.out.println("Class Type: " + aspect.classType());
-            System.out.println("Gear Tier: " + aspect.gearTier());
 
-            // Access material
-            System.out.println("Material: " + aspect.material());
+            // Example usage: print the parsed aspects
+            for (Map.Entry<String, AspectInfo> entry : aspectInfoMap.entrySet()) {
+                System.out.println("Aspect Key: " + entry.getKey());
+                AspectInfo aspectInfo = entry.getValue();
+                System.out.println("Name: " + aspectInfo.name());
+                System.out.println("Class Type: " + aspectInfo.classType());
+                System.out.println("Gear Tier: " + aspectInfo.gearTier());
+                System.out.println("Tiers:");
+                for (Map.Entry<Integer, AspectTierInfo> tierEntry : aspectInfo.tiers().entrySet()) {
+                    System.out.println("  Tier: " + tierEntry.getKey());
+                    System.out.println("    Threshold: " + tierEntry.getValue().threshHold());
+                    System.out.println("    Description: " + tierEntry.getValue().description());
+                }
+                System.out.println("Material: " + aspectInfo.material());
+                System.out.println("-----------------------------------");
+            }
 
             return aspectInfoMap;
-
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return new HashMap<>();
+    }
+
+    private static Map<Integer, AspectTierInfo> parseTiers(JsonNode tiersNode) {
+        Map<Integer, AspectTierInfo> tiersMap = new HashMap<>();
+
+        Iterator<Map.Entry<String, JsonNode>> tiers = tiersNode.fields();
+        while (tiers.hasNext()) {
+            Map.Entry<String, JsonNode> tierEntry = tiers.next();
+            int tierNumber = Integer.parseInt(tierEntry.getKey());
+            JsonNode tierNode = tierEntry.getValue();
+
+            // Extract "threshold"
+            int threshold = tierNode.get("threshold").asInt();
+
+            // Extract "description" (list of strings)
+            StringBuilder description = new StringBuilder();
+            JsonNode descriptionNode = tierNode.get("description");
+            if (descriptionNode.isArray()) {
+                for (JsonNode desc : descriptionNode) {
+                    description.append(desc.asText());
+                }
+            }
+
+            // Create AspectTierInfo object
+            AspectTierInfo tierInfo = new AspectTierInfo(threshold, description.toString());
+
+            // Add to the tiers map
+            tiersMap.put(tierNumber, tierInfo);
+        }
+
+        return tiersMap;
+    }
+
+    private static ItemMaterial parseItemMaterial(JsonNode iconNode) {
+        if (iconNode == null || iconNode.isNull()) {
+            return null;
+        }
+
+        // Extract "value" and "format"
+        JsonNode valueNode = iconNode.get("value");
+        String format = iconNode.get("format").asText();
+
+        // Extract fields from "value"
+        String id = valueNode.get("id").asText();
+        String name = valueNode.get("name").asText();
+        String customModelData = valueNode.get("customModelData").asText();
+
+        // Construct the necessary objects
+        // Assuming ItemMaterial has a constructor or method to handle this
+        // Since you can't modify ItemMaterial, adjust this part based on its available methods
+
+        // Placeholder code (replace with actual implementation)
+        return ItemMaterial.fromItemId(Items.POTION.getDescriptionId(), 1);
     }
 
     private static URI getEndpointURI(String endpoint) {
