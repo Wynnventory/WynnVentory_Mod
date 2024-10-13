@@ -33,7 +33,8 @@ public class GuideAspectItemStack extends GuideItemStack {
     @Override
     public List<Component> getTooltipLines(Item.TooltipContext context, Player player, TooltipFlag isAdvanced) {
         List<Component> tooltip = new ArrayList<>();
-        tooltip.add(getHoverName().copy().withStyle(ChatFormatting.GOLD));
+        tooltip.add(getHoverName().copy().withStyle(aspectInfo.gearTier().getChatFormatting()));
+        tooltip.add(Component.literal(aspectInfo.tiers().get(1).description()));
 
         return tooltip;
     }

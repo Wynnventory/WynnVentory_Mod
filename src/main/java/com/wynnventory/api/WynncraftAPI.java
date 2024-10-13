@@ -10,8 +10,12 @@ import com.wynnventory.WynnventoryMod;
 import com.wynnventory.model.item.info.AspectInfo;
 import com.wynnventory.model.item.info.AspectTierInfo;
 import com.wynnventory.util.HttpUtil;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomModelData;
+import net.minecraft.world.item.component.Unbreakable;
 import org.objectweb.asm.TypeReference;
 
 import java.net.URI;
@@ -23,6 +27,8 @@ public class WynncraftAPI {
     private static final String BASE_URL = "https://api.wynncraft.com/v3/";
 
     public Map<String, AspectInfo> fetchAllAspects() {
+        Map<String, AspectInfo> aspects = new HashMap<>();
+
         try {
             List<ClassType> types = new ArrayList<>(List.of(ClassType.values()));
             types.remove(ClassType.NONE);
@@ -35,17 +41,16 @@ public class WynncraftAPI {
                 HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointUri);
 
                 if (response.statusCode() == 200) {
-                    return parseAspectResults(response.body());
+                    aspects.putAll(parseAspectResults(response.body()));
                 } else {
                     WynnventoryMod.error(response.statusCode() + " - Failed to fetch " + type + " lootpools: " + response.body());
-                    return null;
                 }
             }
         } catch (Exception e) {
             WynnventoryMod.error("Failed to initiate aspect fetch {}", e);
         }
 
-        return new HashMap<>();
+        return aspects;
     }
 
     private Map<String, AspectInfo> parseAspectResults(String response) {
@@ -98,23 +103,10 @@ public class WynncraftAPI {
                 aspectInfoMap.put(aspectKey, aspectInfo);
             }
 
-
-            // Example usage: print the parsed aspects
+            /*// Example usage: print the parsed aspects
             for (Map.Entry<String, AspectInfo> entry : aspectInfoMap.entrySet()) {
-                System.out.println("Aspect Key: " + entry.getKey());
-                AspectInfo aspectInfo = entry.getValue();
-                System.out.println("Name: " + aspectInfo.name());
-                System.out.println("Class Type: " + aspectInfo.classType());
-                System.out.println("Gear Tier: " + aspectInfo.gearTier());
-                System.out.println("Tiers:");
-                for (Map.Entry<Integer, AspectTierInfo> tierEntry : aspectInfo.tiers().entrySet()) {
-                    System.out.println("  Tier: " + tierEntry.getKey());
-                    System.out.println("    Threshold: " + tierEntry.getValue().threshHold());
-                    System.out.println("    Description: " + tierEntry.getValue().description());
-                }
-                System.out.println("Material: " + aspectInfo.material());
-                System.out.println("-----------------------------------");
-            }
+                printAspectInfo(entry.getValue());
+            }*/
 
             return aspectInfoMap;
         } catch (Exception e) {
@@ -167,14 +159,10 @@ public class WynncraftAPI {
         // Extract fields from "value"
         String id = valueNode.get("id").asText();
         String name = valueNode.get("name").asText();
-        String customModelData = valueNode.get("customModelData").asText();
-
-        // Construct the necessary objects
-        // Assuming ItemMaterial has a constructor or method to handle this
-        // Since you can't modify ItemMaterial, adjust this part based on its available methods
+        int customModelData = valueNode.get("customModelData").asInt();
 
         // Placeholder code (replace with actual implementation)
-        return ItemMaterial.fromItemId(Items.POTION.getDescriptionId(), 1);
+        return new ItemMaterial(createItemStack(Items.POTION, customModelData));
     }
 
     private static URI getEndpointURI(String endpoint) {
@@ -193,5 +181,27 @@ public class WynncraftAPI {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new Jdk8Module());
         return mapper;
+    }
+
+    private void printAspectInfo(AspectInfo aspectInfo) {
+        System.out.println("Name: " + aspectInfo.name());
+        System.out.println("Class Type: " + aspectInfo.classType());
+        System.out.println("Gear Tier: " + aspectInfo.gearTier());
+        System.out.println("Tiers:");
+        for (Map.Entry<Integer, AspectTierInfo> tierEntry : aspectInfo.tiers().entrySet()) {
+            System.out.println("  Tier: " + tierEntry.getKey());
+            System.out.println("    Threshold: " + tierEntry.getValue().threshHold());
+            System.out.println("    Description: " + tierEntry.getValue().description());
+        }
+        System.out.println("Material: " + aspectInfo.material());
+        System.out.println("-----------------------------------");
+    }
+
+    private static ItemStack createItemStack(Item item, int modelValue) {
+        ItemStack itemStack = new ItemStack(item);
+
+        itemStack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(modelValue));
+        itemStack.set(DataComponents.UNBREAKABLE, new Unbreakable(false));
+        return itemStack;
     }
 }
