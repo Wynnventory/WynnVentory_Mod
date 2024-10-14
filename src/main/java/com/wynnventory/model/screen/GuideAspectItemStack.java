@@ -6,6 +6,7 @@ import com.wynnventory.model.item.info.AspectInfo;
 import com.wynnventory.util.parsing.ComponentConverter;
 import com.wynnventory.util.parsing.HtmlParser;
 import com.wynnventory.util.parsing.TagNode;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -38,7 +39,9 @@ public class GuideAspectItemStack extends GuideItemStack {
         List<Component> tooltip = new ArrayList<>();
         tooltip.add(getHoverName().copy().withStyle(aspectInfo.gearTier().getChatFormatting()));
         tooltip.add(Component.empty());
-        tooltip.add(Component.literal("Tier I >>>>>>>>> ").append(Component.literal("Tier II").withStyle(aspectInfo.gearTier().getChatFormatting())).append(Component.literal(" [0/" + (aspectInfo.tiers().get(2).threshold() - 1) + "]").withStyle(Style.EMPTY)));
+        tooltip.add(Component.literal("   " + ChatFormatting.GRAY + "Tier I " + ChatFormatting.DARK_GRAY + ">>>>>>>>>> "
+                + aspectInfo.gearTier().getChatFormatting() + "Tier II " + ChatFormatting.GRAY + "[0/"
+                + (aspectInfo.tiers().get(2).threshold() - 1) + "]"));
         tooltip.add(Component.empty());
         tooltip.add(parseHtmlToComponent(aspectInfo.tiers().get(1).description()));
         return tooltip;
