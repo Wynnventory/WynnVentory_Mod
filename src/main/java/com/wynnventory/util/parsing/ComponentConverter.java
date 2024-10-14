@@ -11,7 +11,7 @@ public class ComponentConverter {
     public static Component convertTagNodeToComponent(TagNode node) {
         if (node.tagName == null) {
             // Text node
-            return Component.literal(node.textContent);
+            return Component.literal(node.textContent.replaceAll("[^\\x20-\\x7E]", ""));
         } else {
             // Tag node
             Component component = Component.empty();
