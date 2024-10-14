@@ -36,7 +36,9 @@ public class GuideAspectItemStack extends GuideItemStack {
     public List<Component> getTooltipLines(Item.TooltipContext context, Player player, TooltipFlag isAdvanced) {
         List<Component> tooltip = new ArrayList<>();
         tooltip.add(getHoverName().copy().withStyle(aspectInfo.gearTier().getChatFormatting()));
-
+        tooltip.add(Component.empty());
+        tooltip.add(Component.literal("Tier I >>>>>>>>> Tier II [0/" + (aspectInfo.tiers().get(2).threshold() - 1) + "]"));
+        tooltip.add(Component.empty());
         tooltip.add(parseHtmlToComponent(aspectInfo.tiers().get(1).description()));
         return tooltip;
     }
