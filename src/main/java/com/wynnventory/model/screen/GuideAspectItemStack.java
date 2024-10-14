@@ -43,7 +43,13 @@ public class GuideAspectItemStack extends GuideItemStack {
                 + aspectInfo.gearTier().getChatFormatting() + "Tier II " + ChatFormatting.GRAY + "[0/"
                 + (aspectInfo.tiers().get(2).threshold() - 1) + "]"));
         tooltip.add(Component.empty());
-        tooltip.add(parseHtmlToComponent(aspectInfo.tiers().get(1).description()));
+
+        for (String htmlLine : aspectInfo.tiers().get(1).description()) {
+            String cleanedHtmlLine = htmlLine.replace("\n", "").replace("\r", "");
+            Component lineComponent = parseHtmlToComponent(cleanedHtmlLine);
+            tooltip.add(lineComponent);
+        }
+
         return tooltip;
     }
 
@@ -51,10 +57,11 @@ public class GuideAspectItemStack extends GuideItemStack {
         HtmlParser parser = new HtmlParser(html);
         TagNode rootNode = parser.parse();
 
-        // Assuming the root node has a single child (the outermost span)
+        Style defaultStyle = Style.EMPTY;
         Component component = Component.empty();
         for (TagNode child : rootNode.children) {
-            component = component.copy().append(ComponentConverter.convertTagNodeToComponent(child));
+            Component childComponent = ComponentConverter.convertTagNodeToComponent(child, defaultStyle);
+            component = component.copy().append(childComponent);
         }
         return component;
     }

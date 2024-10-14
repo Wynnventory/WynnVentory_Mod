@@ -1,7 +1,18 @@
 package com.wynnventory.model.item.info;
 
+import java.util.List;
+
 public record AspectTierInfo (
     int threshold,
-    String description
+    List<String> description
     ) {
+
+    public String getDescriptionText() {
+        StringBuilder sb = new StringBuilder();
+        for(String s : description) {
+            sb.append(s);
+        }
+
+        return sb.toString();
+    }
 }

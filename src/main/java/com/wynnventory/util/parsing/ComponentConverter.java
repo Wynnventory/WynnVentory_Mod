@@ -5,35 +5,55 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 
-public class ComponentConverter {
-    private ComponentConverter() {}
+import java.util.ArrayList;
+import java.util.List;
 
-    public static Component convertTagNodeToComponent(TagNode node) {
+public class ComponentConverter {
+    public static Component convertTagNodeToComponent(TagNode node, Style parentStyle) {
+        Style currentStyle = parentStyle;
+
+        if (node.attributes != null) {
+            // Handle 'style' attribute
+            if (node.attributes.containsKey("style")) {
+                String styleAttr = node.attributes.get("style");
+                // Parse style attributes
+                String[] styles = styleAttr.split(";");
+                for (String s : styles) {
+                    s = s.trim();
+                    if (s.startsWith("color:")) {
+                        String colorCode = s.substring("color:".length()).trim();
+                        int colorInt = Integer.parseInt(colorCode.replace("#", ""), 16);
+                        currentStyle = currentStyle.withColor(TextColor.fromRgb(colorInt));
+                    } else if (s.startsWith("text-decoration:")) {
+                        String decoration = s.substring("text-decoration:".length()).trim();
+                        if (decoration.equals("underline")) {
+                            currentStyle = currentStyle.withUnderlined(true);
+                        }
+                        // Handle other decorations if needed
+                    } else if (s.startsWith("margin-left:")) {
+                        // Handle indentation by adding spaces
+                        String marginValue = s.substring("margin-left:".length()).trim();
+                        int pixels = Integer.parseInt(marginValue.replace("px", "").trim());
+                        int spaces = pixels / 4; // Assuming 4 pixels per space
+                        node.textContent = " ".repeat(spaces) + node.textContent;
+                    }
+                    // Add more style properties as needed
+                }
+            }
+        }
+
         if (node.tagName == null) {
             // Text node
-            return Component.literal(node.textContent.replaceAll("[^\\x20-\\x7E]", ""));
+            return Component.literal(node.textContent).setStyle(currentStyle);
         } else {
             // Tag node
             Component component = Component.empty();
             for (TagNode child : node.children) {
-                component = component.copy().append(convertTagNodeToComponent(child));
+                Component childComponent = convertTagNodeToComponent(child, currentStyle);
+                component = component.copy().append(childComponent);
             }
-
-            // Apply styles based on attributes
-            Style style = Style.EMPTY;
-
-            // Handle 'style' attribute
-            if (node.attributes.containsKey("style")) {
-                String styleAttr = node.attributes.get("style");
-                // Simple parsing of 'color:#XXXXXX'
-                if (styleAttr.contains("color:")) {
-                    String colorCode = styleAttr.substring(styleAttr.indexOf("color:") + 6).split(";")[0].trim();
-                    int colorInt = Integer.parseInt(colorCode.replace("#", ""), 16);
-                    style = style.withColor(TextColor.fromRgb(colorInt));
-                }
-            }
-
-            return component.copy().withStyle(style);
+            return component;
         }
     }
 }
+
