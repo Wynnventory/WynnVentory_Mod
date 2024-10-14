@@ -6,6 +6,8 @@ import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 
 public class ComponentConverter {
+    private ComponentConverter() {}
+
     public static Component convertTagNodeToComponent(TagNode node) {
         if (node.tagName == null) {
             // Text node

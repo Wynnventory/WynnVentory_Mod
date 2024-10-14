@@ -1,14 +1,11 @@
 package com.wynnventory.model.screen;
 
-import com.wynntils.core.text.StyledText;
 import com.wynntils.models.items.items.game.AspectItem;
-import com.wynntils.models.stats.type.DamageType;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynnventory.model.item.info.AspectInfo;
 import com.wynnventory.util.parsing.ComponentConverter;
 import com.wynnventory.util.parsing.HtmlParser;
 import com.wynnventory.util.parsing.TagNode;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;

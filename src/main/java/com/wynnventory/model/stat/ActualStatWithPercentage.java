@@ -3,7 +3,6 @@ package com.wynnventory.model.stat;
 import com.wynntils.models.stats.StatCalculator;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
-import com.wynntils.utils.type.RangedValue;
 
 public class ActualStatWithPercentage {
     private StatActualValue statActualValue;

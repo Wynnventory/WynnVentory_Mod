@@ -162,7 +162,6 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
             Managers.Net.openLink(UrlId.LINK_WYNNDATA_ITEM_LOOKUP, Map.of("itemname", unformattedName));
             return true;
         } else if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-            System.out.println(unformattedName);
             Services.Favorites.toggleFavorite(unformattedName);
         }
 

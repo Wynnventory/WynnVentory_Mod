@@ -17,11 +17,11 @@ public class WynnventoryScheduler {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static final int SEND_DELAY_MINS = 5;
 
+    private WynnventoryScheduler() {}
+
     public static void startScheduledTask() {
         scheduler.scheduleAtFixedRate(WynnventoryScheduler::processMarketAndLootItems, 1, SEND_DELAY_MINS, TimeUnit.MINUTES);
-        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
-            WynnventoryScheduler.stopScheduledTask();
-        });
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> WynnventoryScheduler.stopScheduledTask());
     }
 
     public static void stopScheduledTask() {

@@ -16,7 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.Unbreakable;
-import org.objectweb.asm.TypeReference;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,8 +34,6 @@ public class WynncraftAPI {
 
             for (ClassType type : types) {
                 URI endpointUri = getEndpointURI("aspects/" + type.getName().toLowerCase());
-
-                System.out.println(endpointUri);
 
                 HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointUri);
 
@@ -190,7 +187,7 @@ public class WynncraftAPI {
         System.out.println("Tiers:");
         for (Map.Entry<Integer, AspectTierInfo> tierEntry : aspectInfo.tiers().entrySet()) {
             System.out.println("  Tier: " + tierEntry.getKey());
-            System.out.println("    Threshold: " + tierEntry.getValue().threshHold());
+            System.out.println("    Threshold: " + tierEntry.getValue().threshold());
             System.out.println("    Description: " + tierEntry.getValue().description());
         }
         System.out.println("Material: " + aspectInfo.material());
