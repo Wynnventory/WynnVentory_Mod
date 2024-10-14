@@ -1,9 +1,12 @@
 package com.wynnventory.ui;
 
 import com.wynntils.core.components.Models;
+import com.wynntils.models.elements.type.PowderTierInfo;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
+import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
+import com.wynntils.utils.MathUtils;
 import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.api.WynncraftAPI;
@@ -198,6 +201,7 @@ public class CustomScreen extends Screen {
 
         List<GuideGearItemStack> gear = Models.Gear.getAllGearInfos().map(GuideGearItemStack::new).toList();
         List<GuideTomeItemStack> tomes = Models.Rewards.getAllTomeInfos().map(GuideTomeItemStack::new).toList();
+        List<GuidePowderItemStack> powders = Models.Element.getAllPowderTierInfo().stream().map(GuidePowderItemStack::new).toList();
         Map<String, AspectInfo> aspectInfos = api.fetchAllAspects();
 
         // Example: Iterate over tiers
@@ -212,6 +216,13 @@ public class CustomScreen extends Screen {
 
         for (GuideTomeItemStack stack : tomes) {
             String name = stack.getTomeInfo().name();
+            stacksByName.computeIfAbsent(name, k -> new ArrayList<>()).add(stack);
+        }
+
+        for (GuidePowderItemStack stack : powders) {
+            String element = stack.getElement().getName();
+            String tier = MathUtils.toRoman(stack.getTier());
+            String name = element + " Powder " + tier;
             stacksByName.computeIfAbsent(name, k -> new ArrayList<>()).add(stack);
         }
     }

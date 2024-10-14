@@ -7,13 +7,20 @@ import com.wynntils.core.net.UrlId;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
+import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
+import com.wynntils.utils.MathUtils;
 import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.mc.KeyboardUtils;
+import com.wynntils.utils.mc.McUtils;
+import com.wynntils.utils.render.FontRenderer;
 import com.wynntils.utils.render.RenderUtils;
 import com.wynntils.utils.render.Texture;
+import com.wynntils.utils.render.type.HorizontalAlignment;
+import com.wynntils.utils.render.type.TextShadow;
 import com.wynnventory.model.screen.GuideAspectItemStack;
 import net.minecraft.client.gui.ComponentPath;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -60,6 +67,14 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
 
         RenderUtils.renderItem(guiGraphics, itemStack, getX(), getY());
 
+        if(itemStack instanceof GuidePowderItemStack powderItemStack) {
+            renderText(MathUtils.toRoman(powderItemStack.getTier()), poseStack, color);
+        }
+
+        if(itemStack instanceof GuideAspectItemStack aspectItemStack) {
+            renderText(aspectItemStack.getAspectInfo().classType().getName().substring(0,2), poseStack, color);
+        }
+
         if (Services.Favorites.isFavorite(itemStack)) {
             RenderUtils.drawScalingTexturedRect(
                     poseStack,
@@ -72,6 +87,23 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
                     Texture.FAVORITE_ICON.width(),
                     Texture.FAVORITE_ICON.height());
         }
+    }
+
+    private void renderText(String text, PoseStack poseStack, CustomColor color) {
+        poseStack.pushPose();
+        poseStack.translate(0, 0, 200);
+        FontRenderer.getInstance()
+                .renderAlignedTextInBox(
+                        poseStack,
+                        StyledText.fromString(text),
+                        getX(),
+                        getX(),
+                        getY() - (getHeight() / 2f) + 4,
+                        0,
+                        color,
+                        HorizontalAlignment.CENTER,
+                        TextShadow.OUTLINE);
+        poseStack.popPose();
     }
 
     @Override
@@ -130,6 +162,7 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
             Managers.Net.openLink(UrlId.LINK_WYNNDATA_ITEM_LOOKUP, Map.of("itemname", unformattedName));
             return true;
         } else if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+            System.out.println(unformattedName);
             Services.Favorites.toggleFavorite(unformattedName);
         }
 
