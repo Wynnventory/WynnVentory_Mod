@@ -126,16 +126,16 @@ public class WynncraftAPI {
             int threshold = tierNode.get("threshold").asInt();
 
             // Extract "description" (list of strings)
-            StringBuilder description = new StringBuilder();
+            List<String> description = new ArrayList<>();
             JsonNode descriptionNode = tierNode.get("description");
             if (descriptionNode.isArray()) {
                 for (JsonNode desc : descriptionNode) {
-                    description.append(desc.asText());
+                    description.add(desc.asText());
                 }
             }
 
             // Create AspectTierInfo object
-            AspectTierInfo tierInfo = new AspectTierInfo(threshold, description.toString());
+            AspectTierInfo tierInfo = new AspectTierInfo(threshold, description);
 
             // Add to the tiers map
             tiersMap.put(tierNumber, tierInfo);

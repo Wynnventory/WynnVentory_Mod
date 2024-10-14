@@ -21,7 +21,10 @@ public class HtmlParser {
         TagNode root = new TagNode("root");
         while (pos < input.length() && !startsWith("</")) {
             if (input.charAt(pos) == '<') {
-                root.children.add(parseElement());
+                TagNode element = parseElement();
+                if (element != null) {
+                    root.children.add(element);
+                }
             } else {
                 root.children.add(parseText());
             }
@@ -39,6 +42,18 @@ public class HtmlParser {
         }
         String tagName = parseTagName();
         TagNode node = new TagNode(tagName);
+
+        // Self-closing tag (e.g., <br/>)
+        if (tagName.equals("br")) {
+            // Consume any attributes and the closing '/>' or '>'
+            while (pos < input.length() && input.charAt(pos) != '>') {
+                pos++;
+            }
+            expect('>');
+
+            // Create a text node with a newline character
+            return new TagNode("\n", true);
+        }
 
         // Parse attributes
         while (true) {
@@ -84,14 +99,15 @@ public class HtmlParser {
         while (pos < input.length() && input.charAt(pos) != '<') {
             pos++;
         }
-        String text = input.substring(start, pos);
+        String text = input.substring(start, pos).replaceAll("[^\\x20-\\x7E]", "");
+        // Trim leading and trailing whitespace
         return new TagNode(text, true);
     }
 
     // Parse tag name
     private String parseTagName() {
         int start = pos;
-        while (pos < input.length() && Character.isLetterOrDigit(input.charAt(pos))) {
+        while (pos < input.length() && (Character.isLetterOrDigit(input.charAt(pos)) || input.charAt(pos) == '-')) {
             pos++;
         }
         return input.substring(start, pos);
