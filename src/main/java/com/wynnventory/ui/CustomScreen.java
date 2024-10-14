@@ -1,7 +1,6 @@
 package com.wynnventory.ui;
 
 import com.wynntils.core.components.Models;
-import com.wynntils.models.elements.type.PowderTierInfo;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
@@ -14,12 +13,12 @@ import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
 import com.wynnventory.model.item.info.AspectInfo;
-import com.wynnventory.model.item.info.AspectTierInfo;
 import com.wynnventory.model.screen.GuideAspectItemStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -35,15 +34,20 @@ public class CustomScreen extends Screen {
     private final List<WynnventoryButton> elementButtons = new ArrayList<>();
     private Button lootrunButton;
     private Button raidButton;
+    private EditBox searchBar;
 
     private List<Lootpool> raidpools = new ArrayList<>();
     private List<Lootpool> lootrunpools = new ArrayList<>();
 
-    private int padding = 50;
-    private int itemSize = 16; // Item size (standard 16x16 pixels)
-    private int itemsPerRow = 5; // Number of items per row
-    private int itemPadding = 8; // Padding between items
-    private int colWidth = (itemSize * itemsPerRow) + (itemPadding * itemsPerRow);
+    // Constants for layout spacing
+    private static final int PADDING = 50;
+    private static final int ITEM_SIZE = 16; // Standard item size (16x16 pixels)
+    private static final int ITEMS_PER_ROW = 5; // Number of items per row
+    private static final int ITEM_PADDING = 8; // Padding between items
+    private static final int COL_WIDTH = (ITEM_SIZE * ITEMS_PER_ROW) + (ITEM_PADDING * ITEMS_PER_ROW);
+    private static final int GAP_BETWEEN_BUTTONS_AND_SEARCH = 10;
+    private static final int GAP_BETWEEN_SEARCH_AND_TITLES = 30; 
+    private static final int GAP_BELOW_TITLES = 10;
 
     private enum PoolType {
         LOOTRUN,
@@ -90,15 +94,25 @@ public class CustomScreen extends Screen {
         this.addRenderableWidget(lootrunButton);
         this.addRenderableWidget(raidButton);
 
+        // Create the search bar with initial position and size
+        searchBar = new EditBox(this.font, 0, 0, 100, 20, Component.literal(""));
+        searchBar.setMaxLength(50);
+        searchBar.setValue("");
+//        searchBar.setMessage(Component.literal("Search"));
+//        searchBar.setFocused(false);
+        searchBar.setResponder(text -> updateScreen()); // Update screen when text changes
+        this.addRenderableWidget(searchBar);
+
         // Build the initial screen based on the current pool
         updateScreen();
     }
 
     private void updateScreen() {
-        // Clear existing buttons and elements except for the tab buttons
+        // Clear existing buttons and elements except for the tab buttons and search bar
         this.clearWidgets();
         this.addRenderableWidget(lootrunButton);
         this.addRenderableWidget(raidButton);
+        this.addRenderableWidget(searchBar);
         elementButtons.clear();
 
         // Update tab button styles
@@ -107,47 +121,64 @@ public class CustomScreen extends Screen {
         // Get the pools based on the current pool type
         List<Lootpool> pools = currentPool == PoolType.LOOTRUN ? lootrunpools : raidpools;
 
+        // Get the search query
+        String query = searchBar.getValue().trim().toLowerCase();
+
         // Calculate total width to center the columns
         int totalColumns = pools.size();
-        int totalWidth = totalColumns * colWidth + (totalColumns - 1) * padding;
+        int totalWidth = totalColumns * COL_WIDTH + (totalColumns - 1) * PADDING;
         int startX = (this.width - totalWidth) / 2;
+
+        // Update the search bar position and size
+        int searchBarY = lootrunButton.getY() + lootrunButton.getHeight() + GAP_BETWEEN_BUTTONS_AND_SEARCH; // Position below the tab buttons with spacing
+
+        searchBar.setX(startX);
+        searchBar.setY(searchBarY);
+        searchBar.setWidth(totalWidth);
+
+        // Calculate starting Y position for the columns, ensuring spacing
+        int titlesY = searchBar.getY() + searchBar.getHeight() + GAP_BETWEEN_SEARCH_AND_TITLES; // Increased spacing for clear gap
+        int startY = titlesY + this.font.lineHeight + GAP_BELOW_TITLES; // Position items below titles
 
         // CREATE COLS
         for (int i = 0; i < pools.size(); i++) {
-            int gridX = startX + i * (colWidth + padding); // Starting X position
-            int gridY = 80; // Starting Y position
+            int gridX = startX + i * (COL_WIDTH + PADDING); // Starting X position
+            buildColumn(pools.get(i), gridX, startY, query);
+        }
+    }
 
-            int renderedItems = 0;
+    private void buildColumn(Lootpool pool, int startX, int startY, String query) {
+        int renderedItems = 0;
 
-            List<LootpoolItem> items = new ArrayList<>(pools.get(i).getItems());
-            for (LootpoolItem item : items) {
-                int x = gridX + (renderedItems % itemsPerRow) * (itemSize + itemPadding);
-                int y = gridY + (renderedItems / itemsPerRow) * (itemSize + itemPadding);
+        List<LootpoolItem> items = new ArrayList<>(pool.getItems());
+        for (LootpoolItem item : items) {
+            String itemName = item.getName();
 
-                String itemName = item.getName();
-                List<GuideItemStack> matchingStacks = stacksByName.get(itemName);
+            // Filter items based on the search query
+            if (!itemName.toLowerCase().contains(query)) {
+                continue; // Skip items that don't match the query
+            }
 
-                if (matchingStacks != null && !matchingStacks.isEmpty()) {
-                    for (GuideItemStack stack : matchingStacks) {
-                        WynnventoryButton button = new WynnventoryButton(x, y, itemSize, itemSize, stack, this);
-                        elementButtons.add(button);
-                        this.addRenderableWidget(button);
+            int x = startX + (renderedItems % ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING);
+            int y = startY + (renderedItems / ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING);
 
-                        renderedItems++;
-                    }
+            List<GuideItemStack> matchingStacks = stacksByName.get(itemName);
+
+            if (matchingStacks != null && !matchingStacks.isEmpty()) {
+                for (GuideItemStack stack : matchingStacks) {
+                    WynnventoryButton button = new WynnventoryButton(x, y, ITEM_SIZE, ITEM_SIZE, stack, this);
+                    elementButtons.add(button);
+                    this.addRenderableWidget(button);
+
+                    renderedItems++;
                 }
             }
         }
     }
 
     private void updateTabButtonStyles() {
-        if (currentPool == PoolType.LOOTRUN) {
-            lootrunButton.active = false;
-            raidButton.active = true;
-        } else {
-            lootrunButton.active = true;
-            raidButton.active = false;
-        }
+        lootrunButton.active = currentPool != PoolType.LOOTRUN;
+        raidButton.active = currentPool != PoolType.RAID;
     }
 
     @Override
@@ -163,15 +194,19 @@ public class CustomScreen extends Screen {
 
         // Calculate total width to center the columns
         int totalColumns = pools.size();
-        int totalWidth = totalColumns * colWidth + (totalColumns - 1) * padding;
+        int totalWidth = totalColumns * COL_WIDTH + (totalColumns - 1) * PADDING;
         int startX = (this.width - totalWidth) / 2;
 
-        int gridY = 80; // Starting Y position
+        // Calculate positions for titles and items
+        int titlesY = searchBar.getY() + searchBar.getHeight() + GAP_BETWEEN_SEARCH_AND_TITLES; // Ensure consistent positioning
+        int startY = titlesY + this.font.lineHeight + GAP_BELOW_TITLES; // Position items below titles
+
+        // Render titles above each column
         for (int i = 0; i < pools.size(); i++) {
-            int gridX = startX + i * (colWidth + padding); // Starting X position
+            int gridX = startX + i * (COL_WIDTH + PADDING); // Starting X position
 
             String title = pools.get(i).getRegion();
-            guiGraphics.drawCenteredString(this.font, title, gridX + ((colWidth - itemPadding) / 2), gridY - this.font.lineHeight - 10, 0xFFFFFFFF);
+            guiGraphics.drawCenteredString(this.font, title, gridX + ((COL_WIDTH - ITEM_PADDING) / 2), titlesY, 0xFFFFFFFF);
         }
 
         // Render tooltips if necessary
@@ -189,11 +224,26 @@ public class CustomScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (WynnventoryMod.KEY_OPEN_CONFIG.matches(keyCode, scanCode)) {
+        // Allow the search bar to receive keyboard input
+        if (searchBar.keyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        }
+
+        // Close the screen when the keybind is pressed, but not if the search bar is focused
+        if (WynnventoryMod.KEY_OPEN_CONFIG.matches(keyCode, scanCode) && !searchBar.isFocused()) {
             this.onClose();
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char chr, int modifiers) {
+        // Allow the search bar to receive character input
+        if (searchBar.charTyped(chr, modifiers)) {
+            return true;
+        }
+        return super.charTyped(chr, modifiers);
     }
 
     private void loadAllItems() {
