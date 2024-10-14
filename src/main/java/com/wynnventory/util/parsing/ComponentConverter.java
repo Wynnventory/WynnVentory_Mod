@@ -24,12 +24,6 @@ public class ComponentConverter {
                         String colorCode = s.substring("color:".length()).trim();
                         int colorInt = Integer.parseInt(colorCode.replace("#", ""), 16);
                         currentStyle = currentStyle.withColor(TextColor.fromRgb(colorInt));
-                    } else if (s.startsWith("text-decoration:")) {
-                        String decoration = s.substring("text-decoration:".length()).trim();
-                        if (decoration.equals("underline")) {
-                            currentStyle = currentStyle.withUnderlined(true);
-                        }
-                        // Handle other decorations if needed
                     } else if (s.startsWith("margin-left:")) {
                         // Handle indentation by adding spaces
                         String marginValue = s.substring("margin-left:".length()).trim();
