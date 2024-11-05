@@ -4,7 +4,7 @@ plugins {
 	id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
-version = "0.8.8"
+version = "0.8.9-dev.0"
 group = project.maven_group
 
 base {
@@ -28,7 +28,7 @@ dependencies {
 		parchment("org.parchmentmc.data:parchment-${parchment_version}@zip")
 	}
 
-	modImplementation files("libs/wynntils-2.2.3-fabric+MC-1.21.1.jar")
+	modImplementation files("libs/wynntils-2.3.23-fabric+MC-1.21.1.jar")
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
@@ -40,6 +40,7 @@ dependencies {
 
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.2'
 	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.17.2'
+	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.17.2'
 }
 
 configurations {

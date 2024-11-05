@@ -8,10 +8,8 @@ import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
 import com.wynntils.models.items.properties.GearTierItemProperty;
 import com.wynntils.models.rewards.type.TomeInfo;
-import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.util.ItemStackUtils;
-import com.wynnventory.util.RegionDetector;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
