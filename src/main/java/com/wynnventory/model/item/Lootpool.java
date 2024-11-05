@@ -1,5 +1,8 @@
 package com.wynnventory.model.item;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -9,11 +12,13 @@ public class Lootpool {
     private String region;
     private String playerName;
     private String modVersion;
+    private LocalDateTime collectionTime;
 
     public Lootpool(String region, String playerName, String modVersion) {
         this.region = region;
         this.playerName = playerName;
         this.modVersion = modVersion;
+        this.collectionTime = LocalDateTime.now(ZoneOffset.UTC);
     }
 
     public void addItem(LootpoolItem item) {
@@ -59,4 +64,8 @@ public class Lootpool {
     public void setModVersion(String modVersion) {
         this.modVersion = modVersion;
     }
+
+    public String getCollectionTime() { return collectionTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); }
+
+    public void setCollectionTime(LocalDateTime collectionTime) { this.collectionTime = collectionTime; }
 }
