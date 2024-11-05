@@ -5,7 +5,9 @@ public enum Region {
     CORKUS("Corkus", "Corkus","󏿲󏽯", RegionType.LOOTRUN),
     MOLTEN_HEIGHTS("Molten Heights", "Molten Heights","󏿲󏽯", RegionType.LOOTRUN),
     SKY_ISLANDS("Sky Islands", "Sky Islands","󏿲󏽯", RegionType.LOOTRUN),
-    SILENT_EXPANSE("Silent Expanse", "Silent Expanse","󏿲󏽯", RegionType.LOOTRUN);
+    SILENT_EXPANSE("Silent Expanse", "Silent Expanse","󏿲󏽯", RegionType.LOOTRUN),
+
+    RAID("Nameless Anomaly", "Nameless Anomaly","󏿪󏽯", RegionType.RAID);
 
     private String shortName;
     private String name;

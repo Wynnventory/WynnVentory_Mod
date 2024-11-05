@@ -4,6 +4,7 @@ import com.wynntils.core.text.StyledText;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynnventory.WynnventoryMod;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.item.ItemStack;
 
 import java.lang.reflect.Field;

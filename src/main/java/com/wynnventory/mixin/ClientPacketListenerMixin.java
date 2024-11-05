@@ -1,5 +1,9 @@
 package com.wynnventory.mixin;
 
+import com.wynntils.core.components.Models;
+import com.wynntils.core.text.StyledText;
+import com.wynntils.models.items.WynnItem;
+import com.wynntils.utils.mc.LoreUtils;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.accessor.ItemQueueAccessor;
@@ -87,10 +91,19 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
             String title = containerScreen.getTitle().getString();
             Region region = Region.getRegionByInventoryTitle(title);
 
-            if (region == null && !title.equals(RAIDPOOL_TITLE)) return;
+            if (region == null) return;
 
             List<ItemStack> items = new ArrayList<>();
             List<ItemStack> packetItems = packet.getItems();
+
+            if(packet.getItems() != null && packet.getItems().size() >= 5) {
+                ItemStack regionSelector = packet.getItems().get(4);
+
+                List<StyledText> loreTag = LoreUtils.getLore(regionSelector);
+
+                System.out.println("Test");
+            }
+
             for (int i = 0; i < CONTAINER_SLOTS; i++) {
                 ItemStack item = packetItems.get(i);
                 if (!item.isEmpty() && item.getItem() != Items.COMPASS) {
