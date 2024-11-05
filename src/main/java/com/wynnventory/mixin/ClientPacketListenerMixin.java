@@ -36,9 +36,6 @@ import java.util.Map;
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl implements ItemQueueAccessor {
     private static final String MARKET_TITLE = "󏿨";
-    private static final String LOOTPOOL_TITLE = "󏿲";
-    private static final String RAIDPOOL_TITLE = "󏿪";
-
     private static final int CONTAINER_SLOTS = 54;
 
     private static boolean IS_FIRST_WORLD_JOIN = true;
