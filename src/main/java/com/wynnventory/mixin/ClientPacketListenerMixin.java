@@ -1,9 +1,5 @@
 package com.wynnventory.mixin;
 
-import com.wynntils.core.components.Models;
-import com.wynntils.core.text.StyledText;
-import com.wynntils.models.items.WynnItem;
-import com.wynntils.utils.mc.LoreUtils;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.accessor.ItemQueueAccessor;
@@ -13,7 +9,6 @@ import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.util.ModUpdater;
-import com.wynnventory.util.RegionDetector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -33,7 +28,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl implements ItemQueueAccessor {
@@ -95,14 +93,6 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
             List<ItemStack> items = new ArrayList<>();
             List<ItemStack> packetItems = packet.getItems();
-
-            if(packet.getItems() != null && packet.getItems().size() >= 5) {
-                ItemStack regionSelector = packet.getItems().get(4);
-
-                List<StyledText> loreTag = LoreUtils.getLore(regionSelector);
-
-                System.out.println("Test");
-            }
 
             for (int i = 0; i < CONTAINER_SLOTS; i++) {
                 ItemStack item = packetItems.get(i);

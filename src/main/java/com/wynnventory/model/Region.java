@@ -7,7 +7,10 @@ public enum Region {
     SKY_ISLANDS("Sky Islands", "Sky Islands","󏿲󏽯", RegionType.LOOTRUN),
     SILENT_EXPANSE("Silent Expanse", "Silent Expanse","󏿲󏽯", RegionType.LOOTRUN),
 
-    RAID("Raid", "Raid","󏿪󏽯", RegionType.RAID);
+    NEST_OF_GROOTSLANGS("NOTG", "Nest of the Grootslangs","󏿪󏽯", RegionType.RAID),
+    NEXUS_OF_LIGHT("NOL", "Orphion's Nexus of Light","󏿪󏽯", RegionType.RAID),
+    CANYON_COLOSSUS("TCC", "The Canyon Colossus","󏿪󏽯", RegionType.RAID),
+    NAMELESS_ANOMALY("TNA", "The Nameless Anomaly","󏿪󏽯", RegionType.RAID);
 
     private String shortName;
     private String name;
