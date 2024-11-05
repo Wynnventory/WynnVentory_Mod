@@ -7,7 +7,7 @@ public enum Region {
     SKY_ISLANDS("Sky Islands", "Sky Islands","󏿲󏽯", RegionType.LOOTRUN),
     SILENT_EXPANSE("Silent Expanse", "Silent Expanse","󏿲󏽯", RegionType.LOOTRUN),
 
-    RAID("Nameless Anomaly", "Nameless Anomaly","󏿪󏽯", RegionType.RAID);
+    RAID("Raid", "Raid","󏿪󏽯", RegionType.RAID);
 
     private String shortName;
     private String name;
