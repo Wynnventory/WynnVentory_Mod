@@ -28,7 +28,7 @@ dependencies {
 		parchment("org.parchmentmc.data:parchment-${parchment_version}@zip")
 	}
 
-	modImplementation files("libs/wynntils-2.3.23-fabric+MC-1.21.1.jar")
+	modImplementation files("libs/wynntils-2.4.13-fabric+MC-1.21.1.jar")
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")

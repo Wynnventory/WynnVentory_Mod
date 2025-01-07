@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl implements ItemQueueAccessor {
@@ -43,9 +44,9 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     @Unique
     private final List<TradeMarketItem> marketItemsBuffer = new ArrayList<>();
     @Unique
-    private final Map<String, Lootpool> lootpoolBuffer = new HashMap<>();
+    private final Map<String, Lootpool> lootpoolBuffer = new ConcurrentHashMap<>();
     @Unique
-    private final Map<String, Lootpool> raidpoolBuffer = new HashMap<>();
+    private final Map<String, Lootpool> raidpoolBuffer = new ConcurrentHashMap<>();
 
     protected ClientPacketListenerMixin(Minecraft minecraft, Connection connection, CommonListenerCookie commonListenerCookie) {
         super(minecraft, connection, commonListenerCookie);

@@ -1,7 +1,7 @@
 package com.wynnventory.model;
 
 public enum Region {
-    CANYON_OF_THE_LOST("COTL", "Canyon of the Lost","󏿲", RegionType.LOOTRUN),
+    CANYON_OF_THE_LOST("COTL", "Canyon of the Lost","󏿲󏽯", RegionType.LOOTRUN),
     CORKUS("Corkus", "Corkus","󏿲󏽯", RegionType.LOOTRUN),
     MOLTEN_HEIGHTS("Molten Heights", "Molten Heights","󏿲󏽯", RegionType.LOOTRUN),
     SKY_ISLANDS("Sky Islands", "Sky Islands","󏿲󏽯", RegionType.LOOTRUN),
