@@ -116,7 +116,7 @@ public class WynnventoryAPI {
                 WynnventoryMod.info("Fetching " + type + " lootpools from DEV endpoint.");
                 endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/lootpool/" + type + "/");
             } else {
-                endpointURI = getEndpointURI("api/lootpool/" + type + "/");
+                endpointURI = getEndpointURI("lootpool/" + type + "/");
             }
 
             WynnventoryMod.error("URL: " + endpointURI);
@@ -126,14 +126,14 @@ public class WynnventoryAPI {
             if (response.statusCode() == 200) {
                 return parseLootpoolResponse(response.body());
             } else if (response.statusCode() == 404) {
-                return null;
+                return new ArrayList<>();
             } else {
                 WynnventoryMod.error("Failed to fetch " + type + " lootpools: " + response.body());
-                return null;
+                return new ArrayList<>();
             }
         } catch (Exception e) {
             WynnventoryMod.error("Failed to initiate lootpool fetch {}", e);
-            return null;
+            return new ArrayList<>();
         }
     }
 

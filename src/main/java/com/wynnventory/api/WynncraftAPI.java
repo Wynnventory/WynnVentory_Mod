@@ -197,7 +197,8 @@ public class WynncraftAPI {
     private static ItemStack createItemStack(Item item, int modelValue) {
         ItemStack itemStack = new ItemStack(item);
 
-        itemStack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(modelValue));
+        // TODO: Pass model value to dummy item
+        itemStack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(new ArrayList<>(),new ArrayList<>(),new ArrayList<>(),new ArrayList<>()));
         itemStack.set(DataComponents.UNBREAKABLE, new Unbreakable(false));
         return itemStack;
     }

@@ -159,7 +159,7 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
 
         String unformattedName = StyledText.fromComponent(itemStack.getHoverName()).getStringWithoutFormatting();
         if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
-            Managers.Net.openLink(UrlId.LINK_WYNNDATA_ITEM_LOOKUP, Map.of("itemname", unformattedName));
+            Managers.Net.openLink(UrlId.LINK_WYNNCRAFT_ITEM_LOOKUP, Map.of("itemname", unformattedName));
             return true;
         } else if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
             Services.Favorites.toggleFavorite(unformattedName);

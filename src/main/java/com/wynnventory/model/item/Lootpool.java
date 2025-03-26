@@ -1,5 +1,6 @@
 package com.wynnventory.model.item;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -16,6 +17,8 @@ public class Lootpool {
     private String region;
     private String playerName;
     private String modVersion;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime collectionTime;
 
     public Lootpool() { }
@@ -78,6 +81,7 @@ public class Lootpool {
     public void setLootpoolItems(Set<LootpoolItem> lootpoolItems) {
         this.lootpoolItems = lootpoolItems;
     }
+
     public String getCollectionTime() { return collectionTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); }
 
     public void setCollectionTime(LocalDateTime collectionTime) { this.collectionTime = collectionTime; }
