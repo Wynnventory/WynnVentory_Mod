@@ -15,7 +15,7 @@
   "option.wynnventory.tooltip.showMinPrice": "Show min price for items",
   "option.wynnventory.tooltip.showAvgPrice": "Show average price for items",
   "option.wynnventory.tooltip.showAvg80Price": "Show average price of the middle 80% (exclude outliers)",
-  "option.wynnventory.tooltip.showUnidAvgPrice": "Show average price for unidentified itemss",
+  "option.wynnventory.tooltip.showUnidAvgPrice": "Show average price for unidentified items",
   "option.wynnventory.tooltip.showUnidAvg80Price": "Show unidentified average price of the middle 80% (exclude outliers)",
 
   "key.wynnventory.open_config": "Open WynnVentory Config"

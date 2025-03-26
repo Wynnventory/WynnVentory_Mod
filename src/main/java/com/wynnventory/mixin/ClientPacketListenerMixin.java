@@ -1,22 +1,20 @@
 package com.wynnventory.mixin;
 
-import com.wynntils.core.components.Models;
-import com.wynntils.models.items.WynnItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.accessor.ItemQueueAccessor;
+import com.wynnventory.model.Region;
+import com.wynnventory.model.RegionType;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.util.ModUpdater;
-import com.wynnventory.util.RegionDetector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.CommonListenerCookie;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
@@ -24,30 +22,31 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl implements ItemQueueAccessor {
     private static final String MARKET_TITLE = "󏿨";
-    private static final String LOOTPOOL_TITLE = "󏿲";
-    private static final String RAIDPOOL_TITLE = "󏿪";
+    private static final int CONTAINER_SLOTS = 54;
 
     private static boolean IS_FIRST_WORLD_JOIN = true;
 
     @Unique
     private final List<TradeMarketItem> marketItemsBuffer = new ArrayList<>();
     @Unique
-    private final Map<String, Lootpool> lootpoolBuffer = new HashMap<>();
+    private final Map<String, Lootpool> lootpoolBuffer = new ConcurrentHashMap<>();
     @Unique
-    private final Map<String, Lootpool> raidpoolBuffer = new HashMap<>();
+    private final Map<String, Lootpool> raidpoolBuffer = new ConcurrentHashMap<>();
 
     protected ClientPacketListenerMixin(Minecraft minecraft, Connection connection, CommonListenerCookie commonListenerCookie) {
         super(minecraft, connection, commonListenerCookie);
@@ -62,7 +61,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         }
     }
 
-    @Inject(method = "handleContainerSetSlot", at = @At("RETURN"))
+/*    @Inject(method = "handleContainerSetSlot", at = @At("RETURN"))
     private void handleContainerSetSlot(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
         Screen currentScreen = Minecraft.getInstance().screen;
         ItemStack item = packet.getItem();
@@ -77,7 +76,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                 marketItemsBuffer.add(marketItem);
             }
         }
-    }
+    }*/
 
     @Inject(method = "handleContainerContent", at = @At("RETURN"))
     private void handleContainerContent(ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
@@ -86,37 +85,28 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
         if (currentScreen instanceof AbstractContainerScreen<?> containerScreen) {
             String title = containerScreen.getTitle().getString();
-            List<ItemStack> items = packet.getItems().stream()
-                    .filter(item ->
-                            item.getItem() != Items.AIR &&
-                                    item.getItem() != Items.COMPASS &&
-//                                            item.getItem() != Items.POTION &&
-                                    !McUtils.player().getInventory().items.contains(item)).toList();
+            Region region = Region.getRegionByInventoryTitle(title);
 
-            if (title.equals(LOOTPOOL_TITLE)) {
-                String region = RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ());
+            if (region == null) return;
 
-                if(WynnventoryMod.isDev()) {
-                    McUtils.sendMessageToClient(Component.literal("LOOTPOOL DETECTED. Region is " + region));
+            List<ItemStack> items = new ArrayList<>();
+            List<ItemStack> packetItems = packet.getItems();
+
+            for (int i = 0; i < CONTAINER_SLOTS; i++) {
+                ItemStack item = packetItems.get(i);
+                if (!item.isEmpty() && item.getItem() != Items.COMPASS) {
+                    items.add(item);
                 }
+            }
 
-                if(region.equals(RegionDetector.UNDEFINED_REGION)) {
-                    return;
-                }
+            if(WynnventoryMod.isDev()) {
+                McUtils.sendMessageToClient(Component.literal(region.getRegionType() + " DETECTED. Region is " + region.getShortName()));
+            }
 
-                addItemsToQueue(lootpoolBuffer, region, items);
-            } else if (title.equals(RAIDPOOL_TITLE)) {
-                String region = RegionDetector.getRegion(McUtils.player().getBlockX(), McUtils.player().getBlockZ());
-
-                if(WynnventoryMod.isDev()) {
-                    McUtils.sendMessageToClient(Component.literal("RAIDPOOL DETECTED. Region is " + region));
-                }
-
-                if(region.equals(RegionDetector.UNDEFINED_REGION)) {
-                    return;
-                }
-
-                addItemsToQueue(raidpoolBuffer, region, items);
+            if (region.getRegionType() == RegionType.LOOTRUN) {
+                addItemsToQueue(lootpoolBuffer, region.getShortName(), items);
+            } else if (region.getRegionType() == RegionType.RAID) {
+                addItemsToQueue(raidpoolBuffer, region.getShortName(), items);
             }
         }
     }

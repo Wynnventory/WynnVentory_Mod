@@ -2,15 +2,14 @@ package com.wynnventory.model.item;
 
 import com.wynntils.core.components.Models;
 import com.wynntils.models.gear.type.GearInfo;
+import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
 import com.wynntils.models.items.properties.GearTierItemProperty;
 import com.wynntils.models.rewards.type.TomeInfo;
-import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.util.ItemStackUtils;
-import com.wynnventory.util.RegionDetector;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
@@ -33,7 +32,8 @@ public class LootpoolItem {
             AspectItem.class,
             AmplifierItem.class,
             PowderItem.class,
-            GearBoxItem.class
+            GearBoxItem.class,
+            TomeItem.class
     );
 
     public LootpoolItem() { }
@@ -66,11 +66,13 @@ public class LootpoolItem {
             rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
         }
 
-/*        else if(wynnItem instanceof TomeItem tomeItem) {
+        else if(wynnItem instanceof TomeItem tomeItem) {
             name = tomeItem.getName();
+            WynnventoryMod.error("Found Tome item " + name);
+
             rarity = tomeItem.getGearTier().getName();
             type = tomeItem.getItemInfo().type().name();
-        }*/
+        }
 
         else if(wynnItem instanceof AspectItem aspectItem) {
             rarity = aspectItem.getGearTier().getName();
@@ -102,14 +104,6 @@ public class LootpoolItem {
                 type = nameParts[0] + nameParts[1];
             }
         }
-
-        else if(wynnItem instanceof MiscItem && name.contains("Tome")) {
-            TomeInfo info = Models.Rewards.getTomeInfoFromDisplayName(name);
-            if(info != null) {
-                type = info.type().name();
-                rarity = info.tier().getName();
-            }
-        }
     }
 
     public static List<LootpoolItem> createLootpoolItemsFromWynnItem(List<WynnItem> wynnItems) {
@@ -137,7 +131,7 @@ public class LootpoolItem {
 
             String name, rarity, type;
             for(GearInfo gearInfo : possibleGear) {
-                if(gearInfo.requirements().quest().isPresent()) {
+                if(gearInfo.requirements().quest().isPresent() || gearInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE || gearInfo.metaInfo().restrictions() == GearRestrictions.QUEST_ITEM) {
                     continue;
                 }
 
@@ -149,6 +143,11 @@ public class LootpoolItem {
             }
 
             return lootpoolItems;
+        } else if (wynnItem instanceof GearItem gearItem) {
+            GearInfo itemInfo = gearItem.getItemInfo();
+            if(itemInfo.requirements().quest().isPresent() || itemInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE || itemInfo.metaInfo().restrictions() == GearRestrictions.QUEST_ITEM) {
+                return lootpoolItems;
+            }
         }
 
         if (LootpoolItem.LOOT_CLASSES.contains(wynnItem.getClass())) {
