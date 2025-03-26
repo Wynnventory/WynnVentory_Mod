@@ -32,7 +32,8 @@ public class LootpoolItem {
             AspectItem.class,
             AmplifierItem.class,
             PowderItem.class,
-            GearBoxItem.class
+            GearBoxItem.class,
+            TomeItem.class
     );
 
     public LootpoolItem(String itemType, int amount, String name, String rarity, boolean shiny, String type) {
@@ -63,11 +64,13 @@ public class LootpoolItem {
             rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
         }
 
-/*        else if(wynnItem instanceof TomeItem tomeItem) {
+        else if(wynnItem instanceof TomeItem tomeItem) {
             name = tomeItem.getName();
+            WynnventoryMod.error("Found Tome item " + name);
+
             rarity = tomeItem.getGearTier().getName();
             type = tomeItem.getItemInfo().type().name();
-        }*/
+        }
 
         else if(wynnItem instanceof AspectItem aspectItem) {
             rarity = aspectItem.getGearTier().getName();
@@ -97,14 +100,6 @@ public class LootpoolItem {
 
             if(nameParts.length > 1) {
                 type = nameParts[0] + nameParts[1];
-            }
-        }
-
-        else if(wynnItem instanceof MiscItem && name.contains("Tome")) {
-            TomeInfo info = Models.Rewards.getTomeInfoFromDisplayName(name);
-            if(info != null) {
-                type = info.type().name();
-                rarity = info.tier().getName();
             }
         }
     }
