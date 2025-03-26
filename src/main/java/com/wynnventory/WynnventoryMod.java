@@ -66,7 +66,7 @@ public class WynnventoryMod implements ClientModInitializer {
 				"key.wynnventory.toggle_tooltips",
 				GLFW.GLFW_KEY_PERIOD,
 				"category.wynnventory.keybinding",
-				() -> truee
+				() -> true
 		));
 
 		StickyKeyMapping boxedPriceTooltipKey = (StickyKeyMapping) KeyBindingHelper.registerKeyBinding(new StickyKeyMapping(
