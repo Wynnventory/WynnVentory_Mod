@@ -11,8 +11,10 @@ import com.wynntils.models.items.items.game.GearBoxItem;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
+import com.wynnventory.accessor.ItemQueueAccessor;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.config.ConfigManager;
+import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceHolder;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.EmeraldPrice;
@@ -28,6 +30,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -47,7 +50,7 @@ import java.util.concurrent.Executors;
 public abstract class TooltipMixin {
 
     @Shadow protected abstract void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type);
-
+    private static final String MARKET_TITLE = "󏿨";
     private static final String TITLE_TEXT = "Trade Market Price Info";
     private static final long EXPIRE_MINS = 2;
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.US);
@@ -60,6 +63,8 @@ public abstract class TooltipMixin {
 
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private ConfigManager config = ConfigManager.getInstance();
+    private ItemQueueAccessor accessor = (ItemQueueAccessor) McUtils.mc().getConnection();
+
 
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
     private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
@@ -69,17 +74,18 @@ public abstract class TooltipMixin {
             return;
         }
 
-        if(!config.isShowTooltips()) {
-            return;
-        }
-
         Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
         if (hoveredSlot == null || !hoveredSlot.hasItem()) return;
 
         ItemStack item = hoveredSlot.getItem();
         Optional<WynnItem> wynnItemOptional = Models.Item.getWynnItem(item);
 
-        if(wynnItemOptional.isPresent()) {
+        String screenTitle = currentScreen.getTitle().getString();
+        if (screenTitle.equals(MARKET_TITLE)) {
+            submitTrademarketItem(item);
+        }
+
+        if(config.isShowTooltips() && wynnItemOptional.isPresent()) {
             WynnItem wynnItem = wynnItemOptional.get();
 
             List<Component> tooltips = new ArrayList<>();
@@ -92,8 +98,7 @@ public abstract class TooltipMixin {
 
                 // remove price if expired
                 if (fetchedPrices.get(gearItem.getName()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gearItem.getName());
-//            } else if(wynnItem instanceof GearBoxItem gearBoxItem && config.isShowBoxedItemTooltips()) {
-            } else if(wynnItem instanceof GearBoxItem gearBoxItem) {
+            } else if(wynnItem instanceof GearBoxItem gearBoxItem && config.isShowBoxedItemTooltips()) {
                 tooltips.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
 
                 List<GearInfo> possibleGear = Models.Gear.getPossibleGears(gearBoxItem);
@@ -109,6 +114,17 @@ public abstract class TooltipMixin {
             }
 
             renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, tooltips);
+        }
+    }
+
+    private void submitTrademarketItem(ItemStack item) {
+        if (item.getItem() == Items.AIR || item.getItem() == Items.COMPASS || item.getItem() == Items.POTION) return;
+
+        TradeMarketItem marketItem = TradeMarketItem.createTradeMarketItem(item);
+
+        if(marketItem != null) {
+            accessor.getQueuedMarketItems().add(marketItem);
+            WynnventoryMod.info("Submitted item: " + marketItem.getItem().getName());
         }
     }
 
@@ -146,27 +162,26 @@ public abstract class TooltipMixin {
 
         float posX = 0;
         float posY = 0;
-//        if(config.isAnchorTooltips()) {
-        if(spaceToRight > spaceToLeft * 1.3f) {
-            posX = guiScaledWidth - (float) priceTooltipDimension.width - (gap / scaleFactor);
-        }
+        if(config.isAnchorTooltips()) {
+            if(spaceToRight > spaceToLeft * 1.3f) {
+                posX = guiScaledWidth - (float) priceTooltipDimension.width - (gap / scaleFactor);
+            }
 
-        posY = Math.clamp(scaledTooltipY, minY, maxY);
-
+            posY = Math.clamp(scaledTooltipY, minY, maxY);
             //WynnventoryMod.debug("Scaled Screenbounds: MinY: " + minY + " | MaxY: " + maxY + " | TTPosY: " + posY + " | TTHeight: " + priceTooltipDimension.height + " | ScaleFactor: " + scaleFactor);
-//        } else {
-//            if (priceTooltipDimension.width > spaceToRight) {
-//                posX = mouseX - gap - (float) priceTooltipDimension.width; // Position tooltip on the left
-//            } else {
-//                posX = mouseX + gap + (float) primaryTooltipDimension.width; // Position tooltip on the right
-//            }
-//
-//            if(mouseY + priceTooltipDimension.height > guiScaledHeight) {
-//                posY = Math.clamp(scaledTooltipY, minY, maxY);
-//            } else {
-//                posY = mouseY;
-//            }
-//        }
+        } else {
+            if (priceTooltipDimension.width > spaceToRight) {
+                posX = mouseX - gap - (float) priceTooltipDimension.width; // Position tooltip on the left
+            } else {
+                posX = mouseX + gap + (float) primaryTooltipDimension.width; // Position tooltip on the right
+            }
+
+            if(mouseY + priceTooltipDimension.height > guiScaledHeight) {
+                posY = Math.clamp(scaledTooltipY, minY, maxY);
+            } else {
+                posY = mouseY;
+            }
+        }
 
         // Apply scaling to the PoseStack
         PoseStack poseStack = guiGraphics.pose();
@@ -219,27 +234,27 @@ public abstract class TooltipMixin {
         if (priceInfo == null) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
         } else {
-//            if (config.isShowMaxPrice() && priceInfo.getHighestPrice() > 0) {
+            if (config.isShowMaxPrice() && priceInfo.getHighestPrice() > 0) {
                 tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
-//            }
-//            if (config.isShowMinPrice() && priceInfo.getLowestPrice() > 0) {
+            }
+            if (config.isShowMinPrice() && priceInfo.getLowestPrice() > 0) {
                 tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice()));
-//            }
-//            if (config.isShowAveragePrice() && priceInfo.getAveragePrice() != null) {
+            }
+            if (config.isShowAveragePrice() && priceInfo.getAveragePrice() != null) {
                 tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice().intValue()));
-//            }
+            }
 
-//            if (config.isShowAverage80Price() && priceInfo.getAverage80Price() != null) {
+            if (config.isShowAverage80Price() && priceInfo.getAverage80Price() != null) {
                 tooltipLines.add(formatPrice("Avg 80%: ", priceInfo.getAverage80Price().intValue()));
-//            }
+            }
 
-//            if (config.isShowUnidAveragePrice() && priceInfo.getUnidentifiedAveragePrice() != null) {
+            if (config.isShowUnidAveragePrice() && priceInfo.getUnidentifiedAveragePrice() != null) {
                 tooltipLines.add(formatPrice("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice().intValue()));
-//            }
+            }
 
-//            if (config.isShowUnidAverage80Price() && priceInfo.getUnidentifiedAverage80Price() != null) {
+            if (config.isShowUnidAverage80Price() && priceInfo.getUnidentifiedAverage80Price() != null) {
                 tooltipLines.add(formatPrice("Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price().intValue()));
-//            }
+            }
         }
         return tooltipLines;
     }

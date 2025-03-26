@@ -61,7 +61,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         }
     }
 
-    @Inject(method = "handleContainerSetSlot", at = @At("RETURN"))
+/*    @Inject(method = "handleContainerSetSlot", at = @At("RETURN"))
     private void handleContainerSetSlot(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
         Screen currentScreen = Minecraft.getInstance().screen;
         ItemStack item = packet.getItem();
@@ -76,7 +76,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                 marketItemsBuffer.add(marketItem);
             }
         }
-    }
+    }*/
 
     @Inject(method = "handleContainerContent", at = @At("RETURN"))
     private void handleContainerContent(ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
