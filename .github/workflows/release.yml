@@ -172,7 +172,7 @@ jobs:
         changelog: ${{ needs.changelog.outputs.changelog }}
 
         game-versions: |
-          [1.21,1.21.1]
+          [1.21.4]
         loaders: fabric
         java: 21
 
