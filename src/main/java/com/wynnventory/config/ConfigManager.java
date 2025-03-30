@@ -46,7 +46,6 @@ public class ConfigManager {
                 ObjectMapper objectMapper = new ObjectMapper();
                 ConfigManager config = objectMapper.readValue(reader, ConfigManager.class);
                 this.showTooltips = validateValue(config.isShowTooltips());
-                this.showTooltips = false;
                 this.showBoxedItemTooltips = validateValue(config.isShowBoxedItemTooltips());
                 this.anchorTooltips = validateValue(config.isAnchorTooltips());
                 this.showMaxPrice = validateValue(config.isShowMaxPrice());
