@@ -10,6 +10,7 @@
 
   "option.wynnventory.general.toggle_tooltips": "Show tooltips",
   "option.wynnventory.general.toggle_boxed_item_tooltips": "Show boxed item tooltips",
+  "option.wynnventory.general.toggle_price_fluctuation": "Show price fluctuation numbers",
   "option.wynnventory.general.anchor_tooltips": "Anchor tooltips to the sides of the screen",
   "option.wynnventory.tooltip.showMaxPrice": "Show max price for items",
   "option.wynnventory.tooltip.showMinPrice": "Show min price for items",

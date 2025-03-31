@@ -232,47 +232,62 @@ public abstract class TooltipMixin {
 
         TradeMarketItemPriceInfo latestHistoricPrice = fetchedHistoricPrices.get(info.name()).getPriceInfo();
 
-        float highestPriceDiff = 0f;
-        float lowestPriceDiff = 0f;
-        float averagePriceDiff = 0f;
-        float average80PriceDiff = 0f;
-        float unidentifiedAveragePriceDiff = 0f;
-        float unidentifiedAverage80PriceDiff = 0f;
-
-        if(latestHistoricPrice != FETCHING) {
-            highestPriceDiff = calcPriceDiff(priceInfo.getHighestPrice(), latestHistoricPrice.getHighestPrice());
-            lowestPriceDiff  = calcPriceDiff(priceInfo.getLowestPrice(), latestHistoricPrice.getLowestPrice());
-            averagePriceDiff = calcPriceDiff(priceInfo.getAveragePrice().floatValue(), latestHistoricPrice.getAveragePrice().floatValue());
-            average80PriceDiff = calcPriceDiff(priceInfo.getAverage80Price().floatValue(), latestHistoricPrice.getAverage80Price().floatValue());
-            unidentifiedAveragePriceDiff = calcPriceDiff(priceInfo.getUnidentifiedAveragePrice().floatValue(), latestHistoricPrice.getUnidentifiedAveragePrice().floatValue());
-            unidentifiedAverage80PriceDiff = calcPriceDiff(priceInfo.getUnidentifiedAverage80Price().floatValue(), latestHistoricPrice.getUnidentifiedAverage80Price().floatValue());
-        }
-
         tooltipLines.add(formatText(info.name(), info.tier().getChatFormatting()));
 
         if (priceInfo == null) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
         } else {
+            float fluctuation;
             if (config.isShowMaxPrice() && priceInfo.getHighestPrice() > 0) {
-                tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice(), highestPriceDiff));
+                if(config.isShowPriceFluctuation() && latestHistoricPrice != null) {
+                    fluctuation = calcPriceDiff(priceInfo.getHighestPrice(), latestHistoricPrice.getHighestPrice());
+                    tooltipLines.add(formatPriceWithFluctuation("Max: ", priceInfo.getHighestPrice(),fluctuation));
+                } else {
+                    tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
+                }
             }
             if (config.isShowMinPrice() && priceInfo.getLowestPrice() > 0) {
-                tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice(),lowestPriceDiff));
+                if(config.isShowPriceFluctuation() && latestHistoricPrice != null) {
+                    fluctuation = calcPriceDiff(priceInfo.getLowestPrice(), latestHistoricPrice.getLowestPrice());
+                    tooltipLines.add(formatPriceWithFluctuation("Min: ", priceInfo.getLowestPrice(), fluctuation));
+                } else {
+                    tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice()));
+                }
             }
-            if (config.isShowAveragePrice() && priceInfo.getAveragePrice() != null) {
-                tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice().intValue(), averagePriceDiff));
+            if (config.isShowAveragePrice() && priceInfo.getAveragePrice() > 0) {
+                if(config.isShowPriceFluctuation() && latestHistoricPrice != null) {
+                    fluctuation = calcPriceDiff(priceInfo.getAveragePrice(), latestHistoricPrice.getAveragePrice());
+                    tooltipLines.add(formatPriceWithFluctuation("Avg: ", priceInfo.getAveragePrice(), fluctuation));
+                } else {
+                    tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice()));
+                }
             }
 
-            if (config.isShowAverage80Price() && priceInfo.getAverage80Price() != null) {
-                tooltipLines.add(formatPrice("Avg 80%: ", priceInfo.getAverage80Price().intValue(), average80PriceDiff));
+            if (config.isShowAverage80Price() && priceInfo.getAverage80Price() > 0) {
+                if(config.isShowPriceFluctuation() && latestHistoricPrice != null) {
+                    fluctuation = calcPriceDiff(priceInfo.getAverage80Price(), latestHistoricPrice.getAverage80Price());
+                    tooltipLines.add(formatPriceWithFluctuation("Avg 80%: ", priceInfo.getAverage80Price(), fluctuation));
+                } else  {
+                    tooltipLines.add(formatPrice("Avg 80%: ", priceInfo.getAverage80Price()));
+                }
             }
 
-            if (config.isShowUnidAveragePrice() && priceInfo.getUnidentifiedAveragePrice() != null) {
-                tooltipLines.add(formatPrice("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice().intValue(), unidentifiedAveragePriceDiff));
+            if (config.isShowUnidAveragePrice() && priceInfo.getUnidentifiedAveragePrice() > 0) {
+                if(config.isShowPriceFluctuation() && latestHistoricPrice != null) {
+                    fluctuation = calcPriceDiff(priceInfo.getUnidentifiedAveragePrice(), latestHistoricPrice.getUnidentifiedAveragePrice());
+                    tooltipLines.add(formatPriceWithFluctuation("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice(), fluctuation));
+                } else {
+                    tooltipLines.add(formatPrice("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice()));
+                }
             }
 
-            if (config.isShowUnidAverage80Price() && priceInfo.getUnidentifiedAverage80Price() != null) {
-                tooltipLines.add(formatPrice("Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price().intValue(), unidentifiedAverage80PriceDiff));
+            if (config.isShowUnidAverage80Price() && priceInfo.getUnidentifiedAverage80Price() > 0) {
+                if(config.isShowPriceFluctuation() && latestHistoricPrice != null) {
+                    fluctuation = calcPriceDiff(priceInfo.getUnidentifiedAverage80Price(), latestHistoricPrice.getUnidentifiedAverage80Price());
+                    tooltipLines.add(formatPriceWithFluctuation("Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price(), fluctuation));
+                } else {
+                    tooltipLines.add(formatPrice("Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price()));
+                }
             }
         }
         return tooltipLines;
@@ -321,17 +336,25 @@ public abstract class TooltipMixin {
     }
 
     @Unique
-    private static MutableComponent formatPrice(String label, int price, float priceFluctuation) {
+    private static MutableComponent formatPrice(String label, int price) {
         if (price > 0) {
             String formattedPrice = NUMBER_FORMAT.format(price) + EmeraldUnits.EMERALD.getSymbol();
             String formattedEmeralds = EMERALD_PRICE.getFormattedString(price, false);
             return Component.literal(label + formattedPrice)
                     .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE))
                     .append(Component.literal(" (" + formattedEmeralds + ")")
-                            .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)))
-                    .append(Component.literal(" "))
-                    .append(formatPriceFluctuation(priceFluctuation));
+                            .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
         }
+
+        return null;
+    }
+
+    @Unique
+    private static MutableComponent formatPriceWithFluctuation(String label, int price, float priceFluctuation) {
+        if (price > 0) {
+            return formatPrice(label, price).append(Component.literal(" ")).append(formatPriceFluctuation(priceFluctuation));
+        }
+
         return null;
     }
 
@@ -342,13 +365,26 @@ public abstract class TooltipMixin {
     }
 
     private static MutableComponent formatPriceFluctuation(float fluctuation) {
-        Style style = fluctuation < 0 ? Style.EMPTY.withColor(ChatFormatting.RED) : Style.EMPTY.withColor(ChatFormatting.GREEN);
+        Style style;
+
+        if(fluctuation < 0) {
+            style = Style.EMPTY.withColor(ChatFormatting.RED);
+        } else if (fluctuation > 0) {
+            style = Style.EMPTY.withColor(ChatFormatting.GREEN);
+        } else {
+            style = Style.EMPTY.withColor(ChatFormatting.GRAY);
+        }
+
         String formattedValue = fluctuation < 0 ? String.format("%.1f", fluctuation) + "%" : "+" + String.format("%.1f", fluctuation) + "%";
 
         return Component.literal(formattedValue).withStyle(style);
     }
 
     private float calcPriceDiff(float newPrice, float oldPrice) {
+        if(oldPrice == 0) {
+            return 0;
+        }
+
         return ((newPrice - oldPrice) / oldPrice) * 100;
     }
 }
