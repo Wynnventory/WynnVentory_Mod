@@ -29,6 +29,11 @@ public class ConfigScreen {
                 .setSaveConsumer(configManager::setShowBoxedItemTooltips)
                 .build());
 
+        generalCategory.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.wynnventory.general.toggle_price_fluctuation"), configManager.isShowPriceFluctuation())
+                .setDefaultValue(true)
+                .setSaveConsumer(configManager::setShowPriceFluctuation)
+                .build());
+
         generalCategory.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.wynnventory.general.anchor_tooltips"), configManager.isAnchorTooltips())
                 .setDefaultValue(true)
                 .setSaveConsumer(configManager::setAnchorTooltips)
