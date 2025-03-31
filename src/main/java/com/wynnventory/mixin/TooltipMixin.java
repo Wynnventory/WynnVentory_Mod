@@ -230,13 +230,13 @@ public abstract class TooltipMixin {
         final ConfigManager config = ConfigManager.getInstance();
         final List<Component> tooltipLines = new ArrayList<>();
 
-        TradeMarketItemPriceInfo latestHistoricPrice = fetchedHistoricPrices.get(info.name()).getPriceInfo();
-
         tooltipLines.add(formatText(info.name(), info.tier().getChatFormatting()));
 
         if (priceInfo == null) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
         } else {
+            TradeMarketItemPriceInfo latestHistoricPrice = fetchedHistoricPrices.get(info.name()).getPriceInfo();
+
             float fluctuation;
             if (config.isShowMaxPrice() && priceInfo.getHighestPrice() > 0) {
                 if(config.isShowPriceFluctuation() && latestHistoricPrice != null) {
