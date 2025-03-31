@@ -294,7 +294,7 @@ public abstract class TooltipMixin {
                 }
             }
         }
-        
+
         return tooltipLines;
     }
 

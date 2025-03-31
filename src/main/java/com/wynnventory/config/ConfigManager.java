@@ -19,7 +19,7 @@ public class ConfigManager {
     private static ConfigManager instance;
 
     // General
-    private boolean showTooltips = false;
+    private boolean showTooltips = true;
     private boolean showBoxedItemTooltips = true;
     private boolean showPriceFluctuation = true;
     private boolean anchorTooltips = true;
