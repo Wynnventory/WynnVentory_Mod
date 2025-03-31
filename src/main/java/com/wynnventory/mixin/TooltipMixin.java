@@ -237,17 +237,19 @@ public abstract class TooltipMixin {
         } else {
             TradeMarketItemPriceInfo latestHistoricPrice = fetchedHistoricPrices.get(info.name()).getPriceInfo();
 
+            boolean showFluctuation = config.isShowPriceFluctuation() && latestHistoricPrice != null;
+
             float fluctuation;
             if (config.isShowMaxPrice() && priceInfo.getHighestPrice() > 0) {
-                if(config.isShowPriceFluctuation() && latestHistoricPrice != null) {
+                if(showFluctuation) {
                     fluctuation = calcPriceDiff(priceInfo.getHighestPrice(), latestHistoricPrice.getHighestPrice());
-                    tooltipLines.add(formatPriceWithFluctuation("Max: ", priceInfo.getHighestPrice(),fluctuation));
+                    tooltipLines.add(formatPriceWithFluctuation("Max: ", priceInfo.getHighestPrice(), fluctuation));
                 } else {
                     tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
                 }
             }
             if (config.isShowMinPrice() && priceInfo.getLowestPrice() > 0) {
-                if(config.isShowPriceFluctuation() && latestHistoricPrice != null) {
+                if(showFluctuation) {
                     fluctuation = calcPriceDiff(priceInfo.getLowestPrice(), latestHistoricPrice.getLowestPrice());
                     tooltipLines.add(formatPriceWithFluctuation("Min: ", priceInfo.getLowestPrice(), fluctuation));
                 } else {
@@ -255,7 +257,7 @@ public abstract class TooltipMixin {
                 }
             }
             if (config.isShowAveragePrice() && priceInfo.getAveragePrice() > 0) {
-                if(config.isShowPriceFluctuation() && latestHistoricPrice != null) {
+                if(showFluctuation) {
                     fluctuation = calcPriceDiff(priceInfo.getAveragePrice(), latestHistoricPrice.getAveragePrice());
                     tooltipLines.add(formatPriceWithFluctuation("Avg: ", priceInfo.getAveragePrice(), fluctuation));
                 } else {
@@ -264,7 +266,7 @@ public abstract class TooltipMixin {
             }
 
             if (config.isShowAverage80Price() && priceInfo.getAverage80Price() > 0) {
-                if(config.isShowPriceFluctuation() && latestHistoricPrice != null) {
+                if(showFluctuation) {
                     fluctuation = calcPriceDiff(priceInfo.getAverage80Price(), latestHistoricPrice.getAverage80Price());
                     tooltipLines.add(formatPriceWithFluctuation("Avg 80%: ", priceInfo.getAverage80Price(), fluctuation));
                 } else  {
@@ -273,7 +275,7 @@ public abstract class TooltipMixin {
             }
 
             if (config.isShowUnidAveragePrice() && priceInfo.getUnidentifiedAveragePrice() > 0) {
-                if(config.isShowPriceFluctuation() && latestHistoricPrice != null) {
+                if(showFluctuation) {
                     fluctuation = calcPriceDiff(priceInfo.getUnidentifiedAveragePrice(), latestHistoricPrice.getUnidentifiedAveragePrice());
                     tooltipLines.add(formatPriceWithFluctuation("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice(), fluctuation));
                 } else {
@@ -282,7 +284,7 @@ public abstract class TooltipMixin {
             }
 
             if (config.isShowUnidAverage80Price() && priceInfo.getUnidentifiedAverage80Price() > 0) {
-                if(config.isShowPriceFluctuation() && latestHistoricPrice != null) {
+                if(showFluctuation) {
                     fluctuation = calcPriceDiff(priceInfo.getUnidentifiedAverage80Price(), latestHistoricPrice.getUnidentifiedAverage80Price());
                     tooltipLines.add(formatPriceWithFluctuation("Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price(), fluctuation));
                 } else {
