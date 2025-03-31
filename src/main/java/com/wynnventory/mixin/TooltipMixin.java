@@ -248,6 +248,7 @@ public abstract class TooltipMixin {
                     tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
                 }
             }
+
             if (config.isShowMinPrice() && priceInfo.getLowestPrice() > 0) {
                 if(showFluctuation) {
                     fluctuation = calcPriceDiff(priceInfo.getLowestPrice(), latestHistoricPrice.getLowestPrice());
@@ -256,6 +257,7 @@ public abstract class TooltipMixin {
                     tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice()));
                 }
             }
+
             if (config.isShowAveragePrice() && priceInfo.getAveragePrice() > 0) {
                 if(showFluctuation) {
                     fluctuation = calcPriceDiff(priceInfo.getAveragePrice(), latestHistoricPrice.getAveragePrice());
@@ -292,6 +294,7 @@ public abstract class TooltipMixin {
                 }
             }
         }
+        
         return tooltipLines;
     }
 
