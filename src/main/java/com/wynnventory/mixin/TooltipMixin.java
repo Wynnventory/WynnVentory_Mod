@@ -60,6 +60,7 @@ public abstract class TooltipMixin {
     private static final TradeMarketItemPriceInfo FETCHING = new TradeMarketItemPriceInfo();
     private static final TradeMarketItemPriceInfo UNTRADABLE = new TradeMarketItemPriceInfo();
     private static HashMap<String, TradeMarketItemPriceHolder> fetchedPrices = new HashMap<>();
+    private static HashMap<String, TradeMarketItemPriceHolder> fetchedHistoricPrices = new HashMap<>();
 
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private ConfigManager config = ConfigManager.getInstance();
@@ -229,31 +230,49 @@ public abstract class TooltipMixin {
         final ConfigManager config = ConfigManager.getInstance();
         final List<Component> tooltipLines = new ArrayList<>();
 
+        TradeMarketItemPriceInfo latestHistoricPrice = fetchedHistoricPrices.get(info.name()).getPriceInfo();
+
+        float highestPriceDiff = 0f;
+        float lowestPriceDiff = 0f;
+        float averagePriceDiff = 0f;
+        float average80PriceDiff = 0f;
+        float unidentifiedAveragePriceDiff = 0f;
+        float unidentifiedAverage80PriceDiff = 0f;
+
+        if(latestHistoricPrice != FETCHING) {
+            highestPriceDiff = calcPriceDiff(priceInfo.getHighestPrice(), latestHistoricPrice.getHighestPrice());
+            lowestPriceDiff  = calcPriceDiff(priceInfo.getLowestPrice(), latestHistoricPrice.getLowestPrice());
+            averagePriceDiff = calcPriceDiff(priceInfo.getAveragePrice().floatValue(), latestHistoricPrice.getAveragePrice().floatValue());
+            average80PriceDiff = calcPriceDiff(priceInfo.getAverage80Price().floatValue(), latestHistoricPrice.getAverage80Price().floatValue());
+            unidentifiedAveragePriceDiff = calcPriceDiff(priceInfo.getUnidentifiedAveragePrice().floatValue(), latestHistoricPrice.getUnidentifiedAveragePrice().floatValue());
+            unidentifiedAverage80PriceDiff = calcPriceDiff(priceInfo.getUnidentifiedAverage80Price().floatValue(), latestHistoricPrice.getUnidentifiedAverage80Price().floatValue());
+        }
+
         tooltipLines.add(formatText(info.name(), info.tier().getChatFormatting()));
 
         if (priceInfo == null) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
         } else {
             if (config.isShowMaxPrice() && priceInfo.getHighestPrice() > 0) {
-                tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
+                tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice(), highestPriceDiff));
             }
             if (config.isShowMinPrice() && priceInfo.getLowestPrice() > 0) {
-                tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice()));
+                tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice(),lowestPriceDiff));
             }
             if (config.isShowAveragePrice() && priceInfo.getAveragePrice() != null) {
-                tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice().intValue()));
+                tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice().intValue(), averagePriceDiff));
             }
 
             if (config.isShowAverage80Price() && priceInfo.getAverage80Price() != null) {
-                tooltipLines.add(formatPrice("Avg 80%: ", priceInfo.getAverage80Price().intValue()));
+                tooltipLines.add(formatPrice("Avg 80%: ", priceInfo.getAverage80Price().intValue(), average80PriceDiff));
             }
 
             if (config.isShowUnidAveragePrice() && priceInfo.getUnidentifiedAveragePrice() != null) {
-                tooltipLines.add(formatPrice("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice().intValue()));
+                tooltipLines.add(formatPrice("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice().intValue(), unidentifiedAveragePriceDiff));
             }
 
             if (config.isShowUnidAverage80Price() && priceInfo.getUnidentifiedAverage80Price() != null) {
-                tooltipLines.add(formatPrice("Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price().intValue()));
+                tooltipLines.add(formatPrice("Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price().intValue(), unidentifiedAverage80PriceDiff));
             }
         }
         return tooltipLines;
@@ -265,12 +284,23 @@ public abstract class TooltipMixin {
             fetchedPrices.put(info.name(), requestedPrice);
 
             if (info.metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
-                // ignore untradable
                 requestedPrice.setPriceInfo(UNTRADABLE);
             } else {
                 // fetch price async
                 CompletableFuture.supplyAsync(() -> API.fetchItemPrices(info.name()), executorService)
                         .thenAccept(requestedPrice::setPriceInfo);
+            }
+        }
+
+        if (!fetchedHistoricPrices.containsKey(info.name())) {
+            TradeMarketItemPriceHolder requestedHistoricPrice = new TradeMarketItemPriceHolder(FETCHING, info);
+            fetchedHistoricPrices.put(info.name(), requestedHistoricPrice);
+
+            if (info.metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
+                requestedHistoricPrice.setPriceInfo(UNTRADABLE);
+            } else {
+                CompletableFuture.supplyAsync(() -> API.fetchLatestHistoricItemPrice(info.name()), executorService)
+                        .thenAccept(requestedHistoricPrice::setPriceInfo);
             }
         }
     }
@@ -291,14 +321,16 @@ public abstract class TooltipMixin {
     }
 
     @Unique
-    private static MutableComponent formatPrice(String label, int price) {
+    private static MutableComponent formatPrice(String label, int price, float priceFluctuation) {
         if (price > 0) {
             String formattedPrice = NUMBER_FORMAT.format(price) + EmeraldUnits.EMERALD.getSymbol();
             String formattedEmeralds = EMERALD_PRICE.getFormattedString(price, false);
             return Component.literal(label + formattedPrice)
                     .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE))
                     .append(Component.literal(" (" + formattedEmeralds + ")")
-                            .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+                            .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)))
+                    .append(Component.literal(" "))
+                    .append(formatPriceFluctuation(priceFluctuation));
         }
         return null;
     }
@@ -307,5 +339,16 @@ public abstract class TooltipMixin {
     private static MutableComponent formatText(String text, ChatFormatting color) {
             return Component.literal(text)
                     .withStyle(Style.EMPTY.withColor(color));
+    }
+
+    private static MutableComponent formatPriceFluctuation(float fluctuation) {
+        Style style = fluctuation < 0 ? Style.EMPTY.withColor(ChatFormatting.RED) : Style.EMPTY.withColor(ChatFormatting.GREEN);
+        String formattedValue = fluctuation < 0 ? String.format("%.1f", fluctuation) + "%" : "+" + String.format("%.1f", fluctuation) + "%";
+
+        return Component.literal(formattedValue).withStyle(style);
+    }
+
+    private float calcPriceDiff(float newPrice, float oldPrice) {
+        return ((newPrice - oldPrice) / oldPrice) * 100;
     }
 }

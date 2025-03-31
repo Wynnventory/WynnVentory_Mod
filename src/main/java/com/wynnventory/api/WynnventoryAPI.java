@@ -107,6 +107,34 @@ public class WynnventoryAPI {
         }
     }
 
+    public TradeMarketItemPriceInfo fetchLatestHistoricItemPrice(String itemName) {
+        try {
+            final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
+
+            URI endpointURI;
+            if (WynnventoryMod.isDev()) {
+                WynnventoryMod.info("Fetching market data from DEV endpoint.");
+                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/history/" + encodedItemName + "/latest?env=dev2");
+            } else {
+                endpointURI = getEndpointURI("trademarket/history/" + encodedItemName + "/latest");
+            }
+
+            HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointURI);
+
+            if (response.statusCode() == 200) {
+                return parseHistoricPriceInfo(response.body());
+            } else if (response.statusCode() == 404) {
+                return null;
+            } else {
+                WynnventoryMod.error("Failed to fetch item price from API: " + response.body());
+                return null;
+            }
+        } catch (Exception e) {
+            WynnventoryMod.error("Failed to initiate item price fetch {}", e);
+            return null;
+        }
+    }
+
     private String serializeData(Object data) {
         try {
             return objectMapper.writeValueAsString(data);
@@ -122,6 +150,15 @@ public class WynnventoryAPI {
             return priceInfoList.isEmpty() ? null : priceInfoList.getFirst();
         } catch (JsonProcessingException e) {
             WynnventoryMod.error("Failed to parse item price response {}", e);
+            return null;
+        }
+    }
+
+    private TradeMarketItemPriceInfo parseHistoricPriceInfo(String responseBody) {
+        try {
+            return objectMapper.readValue(responseBody, TradeMarketItemPriceInfo.class);
+        } catch (JsonProcessingException e) {
+            WynnventoryMod.error("Failed to parse historic item price response {}", e);
             return null;
         }
     }
