@@ -25,11 +25,11 @@ public class ConfigManager {
     private boolean anchorTooltips = true;
 
     // Tooltip config
-    private boolean showMaxPrice = true;
-    private boolean showMinPrice = true;
-    private boolean showAveragePrice = true;
+    private boolean showMaxPrice = false;
+    private boolean showMinPrice = false;
+    private boolean showAveragePrice = false;
     private boolean showAverage80Price = true;
-    private boolean showUnidAveragePrice = true;
+    private boolean showUnidAveragePrice = false;
     private boolean showUnidAverage80Price = true;
 
     private ConfigManager() { }

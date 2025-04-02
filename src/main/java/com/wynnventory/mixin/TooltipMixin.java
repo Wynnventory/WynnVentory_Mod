@@ -99,18 +99,57 @@ public abstract class TooltipMixin {
 
                 // remove price if expired
                 if (fetchedPrices.get(gearItem.getName()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gearItem.getName());
+                if (fetchedHistoricPrices.get(gearItem.getName()).isPriceExpired(EXPIRE_MINS)) fetchedHistoricPrices.remove(gearItem.getName());
             } else if(wynnItem instanceof GearBoxItem gearBoxItem && config.isShowBoxedItemTooltips()) {
                 tooltips.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
 
                 List<GearInfo> possibleGear = Models.Gear.getPossibleGears(gearBoxItem);
+                List<TradeMarketItemPriceHolder> possiblePrices = new ArrayList<>();
                 for(GearInfo gear : possibleGear) {
                     fetchPricesForGear(gear);
 
-                    tooltips.addAll(getTooltipsForGear(gear));
+                    possiblePrices.add(fetchedPrices.get(gear.name()));
+                }
+
+                possiblePrices.sort((o1, o2) -> {
+                    TradeMarketItemPriceInfo p1 = o1.getPriceInfo();
+                    TradeMarketItemPriceInfo p2 = o2.getPriceInfo();
+
+                    // Determine sort groups:
+                    // Group 0: p != null && p.getAverage() != null
+                    // Group 1: p != null && p.getAverage() == null
+                    // Group 2: p == null
+                    int group1 = (p1 == null) ? 2 : (p1.getUnidentifiedAverage80Price() != 0 ? 0 : 1);
+                    int group2 = (p2 == null) ? 2 : (p2.getUnidentifiedAverage80Price() != 0 ? 0 : 1);
+
+                    // First, compare by group
+                    int groupComparison = Integer.compare(group1, group2);
+                    if (groupComparison != 0) {
+                        return groupComparison;
+                    }
+
+                    // Same group: now sort by the appropriate price value.
+                    if (group1 == 0) {
+                        // Both have a non-null average, so sort by price.average.
+                        return Double.compare(p2.getUnidentifiedAverage80Price(), p1.getUnidentifiedAverage80Price());
+                    } else if (group1 == 1) {
+                        // Both have a price object, but average is null. Sort by price.actual.
+                        return Double.compare(p2.getAverage80Price(), p1.getAverage80Price());
+                    } else {
+                        // Both price objects are null. They are considered equal.
+                        return 0;
+                    }
+                });
+
+                GearInfo gearInfo;
+                for(TradeMarketItemPriceHolder priceHolder : possiblePrices) {
+                    gearInfo = priceHolder.getInfo();
+                    tooltips.addAll(getTooltipsForGear(gearInfo));
                     tooltips.add(Component.literal(""));
 
                     // remove price if expired
-                    if (fetchedPrices.get(gear.name()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gear.name());
+                    if (fetchedPrices.get(gearInfo.name()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gearInfo.name());
+                    if (fetchedHistoricPrices.get(gearInfo.name()).isPriceExpired(EXPIRE_MINS)) fetchedHistoricPrices.remove(gearInfo.name());
                 }
             }
 
@@ -327,8 +366,8 @@ public abstract class TooltipMixin {
 
     private List<Component> getTooltipsForGear(GearInfo info) {
         TradeMarketItemPriceInfo price = fetchedPrices.get(info.name()).getPriceInfo();
-        List<Component> tooltips = new ArrayList<>();
 
+        List<Component> tooltips = new ArrayList<>();
         if (price == FETCHING) { // Display retrieving info
             tooltips.add(formatText("Retrieving price information...", ChatFormatting.WHITE));
         } else if (price == UNTRADABLE) { // Display untradable
