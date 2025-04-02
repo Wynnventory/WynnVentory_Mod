@@ -19,16 +19,17 @@ public class ConfigManager {
     private static ConfigManager instance;
 
     // General
-    private boolean showTooltips = false;
+    private boolean showTooltips = true;
     private boolean showBoxedItemTooltips = true;
+    private boolean showPriceFluctuation = true;
     private boolean anchorTooltips = true;
 
     // Tooltip config
-    private boolean showMaxPrice = true;
-    private boolean showMinPrice = true;
-    private boolean showAveragePrice = true;
+    private boolean showMaxPrice = false;
+    private boolean showMinPrice = false;
+    private boolean showAveragePrice = false;
     private boolean showAverage80Price = true;
-    private boolean showUnidAveragePrice = true;
+    private boolean showUnidAveragePrice = false;
     private boolean showUnidAverage80Price = true;
 
     private ConfigManager() { }
@@ -47,6 +48,7 @@ public class ConfigManager {
                 ConfigManager config = objectMapper.readValue(reader, ConfigManager.class);
                 this.showTooltips = validateValue(config.isShowTooltips());
                 this.showBoxedItemTooltips = validateValue(config.isShowBoxedItemTooltips());
+                this.showPriceFluctuation = validateValue(config.isShowPriceFluctuation());
                 this.anchorTooltips = validateValue(config.isAnchorTooltips());
                 this.showMaxPrice = validateValue(config.isShowMaxPrice());
                 this.showMinPrice = validateValue(config.isShowMinPrice());
@@ -150,5 +152,13 @@ public class ConfigManager {
 
     public void setShowUnidAverage80Price(boolean showUnidAverage80Price) {
         this.showUnidAverage80Price = showUnidAverage80Price;
+    }
+
+    public boolean isShowPriceFluctuation() {
+        return showPriceFluctuation;
+    }
+
+    public void setShowPriceFluctuation(boolean showPriceFluctuation) {
+        this.showPriceFluctuation = showPriceFluctuation;
     }
 }

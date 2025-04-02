@@ -28,16 +28,24 @@ public class TradeMarketItemPriceInfo {
 
     // Getters and Setters
 
-    public Double getAveragePrice() {
-        return averagePrice;
+    public int getAveragePrice() {
+        if (averagePrice == null) {
+            return 0;
+        }
+
+        return averagePrice.intValue();
     }
 
     public void setAveragePrice(double averagePrice) {
         this.averagePrice = averagePrice;
     }
 
-    public Double getAverage80Price() {
-        return average80Price;
+    public int getAverage80Price() {
+        if (average80Price == null) {
+            return 0;
+        }
+
+        return average80Price.intValue();
     }
 
     public void setAverage80Price(Double average80Price) {
@@ -60,16 +68,24 @@ public class TradeMarketItemPriceInfo {
         this.lowestPrice = lowestPrice;
     }
 
-    public Double getUnidentifiedAveragePrice() {
-        return unidentifiedAveragePrice;
+    public int getUnidentifiedAveragePrice() {
+        if(unidentifiedAveragePrice == null){
+            return 0;
+        }
+
+        return unidentifiedAveragePrice.intValue();
     }
 
     public void setUnidentifiedAveragePrice(Double unidentifiedAveragePrice) {
         this.unidentifiedAveragePrice = unidentifiedAveragePrice;
     }
 
-    public Double getUnidentifiedAverage80Price() {
-        return unidentifiedAverage80Price;
+    public int getUnidentifiedAverage80Price() {
+        if(unidentifiedAverage80Price == null) {
+            return 0;
+        }
+
+        return unidentifiedAverage80Price.intValue();
     }
 
     public void setUnidentifiedAverage80Price(Double unidentifiedAverage80Price) {
