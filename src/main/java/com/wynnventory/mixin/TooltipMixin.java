@@ -162,7 +162,7 @@ public abstract class TooltipMixin {
 
         TradeMarketItem marketItem = TradeMarketItem.createTradeMarketItem(item);
 
-        if(marketItem != null) {
+        if(marketItem != null && !accessor.getQueuedMarketItems().contains(marketItem)) {
             accessor.getQueuedMarketItems().add(marketItem);
             WynnventoryMod.info("Submitted item: " + marketItem.getItem().getName());
         }
