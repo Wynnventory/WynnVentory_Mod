@@ -37,8 +37,6 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
     public WynnventoryButton(int x, int y, int width, int height, E itemStack, Screen screen) {
         super(x, y, width, height, Component.literal("Guide GearItemStack Button"));
         this.itemStack = itemStack;
-        // Things like our current class, or other requirement fulfillments can have changed,
-        // so we need to redo this even if it's already done
         buildTooltip();
     }
 
@@ -60,8 +58,8 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
                 getX() - 1,
                 getY() - 1,
                 0,
-                18,
-                18,
+                this.width + 2,
+                this.height + 2,
                 Texture.HIGHLIGHT.width(),
                 Texture.HIGHLIGHT.height());
 
@@ -82,8 +80,8 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
                     getX() + 12,
                     getY() - 4,
                     200,
-                    9,
-                    9,
+                    (float) this.width / 2,
+                    (float) this.height / 2,
                     Texture.FAVORITE_ICON.width(),
                     Texture.FAVORITE_ICON.height());
         }

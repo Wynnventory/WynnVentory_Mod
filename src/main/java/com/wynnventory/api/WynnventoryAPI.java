@@ -180,8 +180,9 @@ public class WynnventoryAPI {
             return priceInfoList.isEmpty() ? null : priceInfoList.getFirst();
         } catch (JsonProcessingException e) {
             WynnventoryMod.error("Failed to parse item price response {}", e);
-            return null;
         }
+
+        return null;
     }
 
     private List<Lootpool> parseLootpoolResponse(String responseBody) {
@@ -190,6 +191,10 @@ public class WynnventoryAPI {
             return lootpools.isEmpty() ? new ArrayList<>() : lootpools;
         } catch (JsonProcessingException e) {
             WynnventoryMod.error("Failed to parse item price response {}", e);
+        }
+
+        return null;
+    }
             
     private TradeMarketItemPriceInfo parseHistoricPriceInfo(String responseBody) {
         try {
