@@ -40,34 +40,34 @@ public class ConfigScreen {
                 .build());
 
         // Tooltip config
-        tooltipsCategory.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.wynnventory.tooltip.showMaxPrice"), configManager.isShowMaxPrice())
-                .setDefaultValue(true)
-                .setSaveConsumer(configManager::setShowMaxPrice)
-                .build());
-
-        tooltipsCategory.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.wynnventory.tooltip.showMinPrice"), configManager.isShowMinPrice())
-                .setDefaultValue(true)
-                .setSaveConsumer(configManager::setShowMinPrice)
-                .build());
-
-        tooltipsCategory.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.wynnventory.tooltip.showAvgPrice"), configManager.isShowAveragePrice())
-                .setDefaultValue(true)
-                .setSaveConsumer(configManager::setShowAveragePrice)
-                .build());
-
         tooltipsCategory.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.wynnventory.tooltip.showAvg80Price"), configManager.isShowAverage80Price())
                 .setDefaultValue(true)
                 .setSaveConsumer(configManager::setShowAverage80Price)
                 .build());
 
-        tooltipsCategory.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.wynnventory.tooltip.showUnidAvgPrice"), configManager.isShowUnidAveragePrice())
-                .setDefaultValue(true)
-                .setSaveConsumer(configManager::setShowUnidAveragePrice)
-                .build());
-
         tooltipsCategory.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.wynnventory.tooltip.showUnidAvg80Price"), configManager.isShowUnidAverage80Price())
                 .setDefaultValue(true)
                 .setSaveConsumer(configManager::setShowUnidAverage80Price)
+                .build());
+
+        tooltipsCategory.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.wynnventory.tooltip.showMaxPrice"), configManager.isShowMaxPrice())
+                .setDefaultValue(false)
+                .setSaveConsumer(configManager::setShowMaxPrice)
+                .build());
+
+        tooltipsCategory.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.wynnventory.tooltip.showMinPrice"), configManager.isShowMinPrice())
+                .setDefaultValue(false)
+                .setSaveConsumer(configManager::setShowMinPrice)
+                .build());
+
+        tooltipsCategory.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.wynnventory.tooltip.showAvgPrice"), configManager.isShowAveragePrice())
+                .setDefaultValue(false)
+                .setSaveConsumer(configManager::setShowAveragePrice)
+                .build());
+
+        tooltipsCategory.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.wynnventory.tooltip.showUnidAvgPrice"), configManager.isShowUnidAveragePrice())
+                .setDefaultValue(false)
+                .setSaveConsumer(configManager::setShowUnidAveragePrice)
                 .build());
 
         builder.setSavingRunnable(ConfigManager.getInstance()::saveConfig);
