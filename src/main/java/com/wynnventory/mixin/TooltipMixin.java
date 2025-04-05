@@ -363,10 +363,10 @@ public abstract class TooltipMixin {
             String formattedPrice = NUMBER_FORMAT.format(price) + EmeraldUnits.EMERALD.getSymbol();
             String formattedEmeralds = EMERALD_PRICE.getFormattedString(price, false);
 
-            if (priceFormat == EmeraldDisplayOption.OPTION_EMERALDS) {
+            if (priceFormat == EmeraldDisplayOption.EMERALDS) {
                 priceComponent.append(Component.literal(formattedPrice)
                         .withStyle(Style.EMPTY.withColor(color)));
-            } else if (priceFormat == EmeraldDisplayOption.OPTION_FORMATTED) {
+            } else if (priceFormat == EmeraldDisplayOption.FORMATTED) {
                 priceComponent.append(Component.literal(formattedEmeralds)
                         .withStyle(Style.EMPTY.withColor(color)));
             } else {

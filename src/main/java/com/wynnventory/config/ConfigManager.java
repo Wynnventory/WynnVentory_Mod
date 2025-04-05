@@ -26,7 +26,7 @@ public class ConfigManager implements ConfigData {
 
     @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    private EmeraldDisplayOption displayDropdown = EmeraldDisplayOption.OPTION_BOTH;
+    private EmeraldDisplayOption displayDropdown = EmeraldDisplayOption.BOTH;
 
     @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     private boolean showMaxPrice = false;
@@ -136,7 +136,7 @@ public class ConfigManager implements ConfigData {
         private int colorMinPrice = 4096;
 
         @ConfigEntry.ColorPicker
-        private int highlightColor = 16711884;
+        private int highlightColor = 65484;
 
         public boolean isShowColors() {
             return showColors;
