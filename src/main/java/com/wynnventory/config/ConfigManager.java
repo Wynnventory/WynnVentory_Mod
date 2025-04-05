@@ -25,6 +25,10 @@ public class ConfigManager implements ConfigData {
     private ColorSettings colorSettings = new ColorSettings();
 
     @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    private EmeraldDisplayOption displayDropdown = EmeraldDisplayOption.OPTION_BOTH;
+
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     private boolean showMaxPrice = false;
 
     @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
@@ -74,6 +78,14 @@ public class ConfigManager implements ConfigData {
     }
 
     // Getters and setters for tooltip config
+    public EmeraldDisplayOption getMyDropdownOption() {
+        return displayDropdown;
+    }
+
+    public void setMyDropdownOption(EmeraldDisplayOption myDropdownOption) {
+        this.displayDropdown = myDropdownOption;
+    }
+
     public boolean isShowMaxPrice() {
         return showMaxPrice;
     }
