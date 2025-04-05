@@ -7,42 +7,39 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
 @Config(name = "wynnventory")
 public class ConfigManager implements ConfigData {
-
-    // General settings (Category: general)
-    @ConfigEntry.Category("general")
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
     private boolean showTooltips = true;
 
-    @ConfigEntry.Category("general")
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
     private boolean showBoxedItemTooltips = true;
 
-    @ConfigEntry.Category("general")
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
     private boolean showPriceFluctuation = true;
 
-    @ConfigEntry.Category("general")
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
     private boolean anchorTooltips = true;
 
-    // Color settings grouped in a collapsible object (Category: general)
-    @ConfigEntry.Category("general")
+    // Color settings grouped in a collapsible object
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
     @ConfigEntry.Gui.CollapsibleObject
     private ColorSettings colorSettings = new ColorSettings();
 
-    // Tooltip config (Category: tooltip)
-    @ConfigEntry.Category("tooltip")
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     private boolean showMaxPrice = false;
 
-    @ConfigEntry.Category("tooltip")
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     private boolean showMinPrice = false;
 
-    @ConfigEntry.Category("tooltip")
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     private boolean showAveragePrice = false;
 
-    @ConfigEntry.Category("tooltip")
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     private boolean showAverage80Price = true;
 
-    @ConfigEntry.Category("tooltip")
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     private boolean showUnidAveragePrice = false;
 
-    @ConfigEntry.Category("tooltip")
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     private boolean showUnidAverage80Price = true;
 
     // Static getter to retrieve the instance managed by AutoConfig
