@@ -78,7 +78,7 @@ public class ConfigManager implements ConfigData {
     }
 
     // Getters and setters for tooltip config
-    public EmeraldDisplayOption getMyDropdownOption() {
+    public EmeraldDisplayOption getPriceFormat() {
         return displayDropdown;
     }
 
