@@ -365,7 +365,7 @@ public abstract class TooltipMixin {
 
             if (priceFormat == EmeraldDisplayOption.OPTION_EMERALDS) {
                 priceComponent.append(Component.literal(formattedPrice)
-                        .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)));
+                        .withStyle(Style.EMPTY.withColor(color)));
             } else if (priceFormat == EmeraldDisplayOption.OPTION_FORMATTED) {
                 priceComponent.append(Component.literal(formattedEmeralds)
                         .withStyle(Style.EMPTY.withColor(color)));
