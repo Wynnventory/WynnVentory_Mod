@@ -353,13 +353,16 @@ public abstract class TooltipMixin {
 
     @Unique
     private static MutableComponent formatPrice(String label, int price) {
+        final ConfigManager config = ConfigManager.getInstance();
+
+        int color = (config.getColorSettings().isShowColors() && price >= config.getColorSettings().getColorMinPrice()) ? config.getColorSettings().getHighlightColor() : ChatFormatting.GRAY.getColor();
         if (price > 0) {
             String formattedPrice = NUMBER_FORMAT.format(price) + EmeraldUnits.EMERALD.getSymbol();
             String formattedEmeralds = EMERALD_PRICE.getFormattedString(price, false);
             return Component.literal(label + formattedPrice)
                     .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE))
                     .append(Component.literal(" (" + formattedEmeralds + ")")
-                            .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+                            .withStyle(Style.EMPTY.withColor(color)));
         }
 
         return null;

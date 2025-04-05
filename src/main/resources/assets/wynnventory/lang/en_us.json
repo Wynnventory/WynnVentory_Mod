@@ -1,23 +1,23 @@
 {
-  "title.wynnventory.config": "Wynnventory Config",
+  "text.autoconfig.wynnventory.title": "Wynnventory Config",
 
-  "category.wynnventory.general": "General",
-  "category.wynnventory.tooltips": "Tooltip Stats",
-  "category.wynnventory.keybinding": "Wynnventory",
+  "text.autoconfig.wynnventory.category.general": "General",
+  "text.autoconfig.wynnventory.category.tooltip": "Tooltip Stats",
 
-  "key.wynnventory.toggle_tooltips": "Toggle price tooltips",
-  "key.wynnventory.toggle_boxed_item_tooltips": "Toggle boxed item price tooltips",
+  "text.autoconfig.wynnventory.option.showTooltips": "Show tooltips",
+  "text.autoconfig.wynnventory.option.showBoxedItemTooltips": "Show boxed item tooltips",
+  "text.autoconfig.wynnventory.option.showPriceFluctuation": "Show price percentage changes (compared to last four weeks)",
+  "text.autoconfig.wynnventory.option.anchorTooltips": "Anchor tooltips to the sides of the screen",
 
-  "option.wynnventory.general.toggle_tooltips": "Show tooltips",
-  "option.wynnventory.general.toggle_boxed_item_tooltips": "Show boxed item tooltips",
-  "option.wynnventory.general.toggle_price_fluctuation": "Show price percentage changes (compared to last four weeks)",
-  "option.wynnventory.general.anchor_tooltips": "Anchor tooltips to the sides of the screen",
-  "option.wynnventory.tooltip.showMaxPrice": "Show max price for items",
-  "option.wynnventory.tooltip.showMinPrice": "Show min price for items",
-  "option.wynnventory.tooltip.showAvgPrice": "Show average price for items (not recommended)",
-  "option.wynnventory.tooltip.showAvg80Price": "Show average price of the middle 80% (excluding top and bottom 10% outliers)",
-  "option.wynnventory.tooltip.showUnidAvgPrice": "Show average price for unidentified items (not recommended)",
-  "option.wynnventory.tooltip.showUnidAvg80Price": "Show unidentified average price of the middle 80% (excluding top and bottom 10% outliers)",
+  "text.autoconfig.wynnventory.option.colorSettings": "Color Settings",
+  "text.autoconfig.wynnventory.option.colorSettings.showColors": "Highlight prices above a certain price",
+  "text.autoconfig.wynnventory.option.colorSettings.colorMinPrice": "Highlight prices above this price (in emeralds)",
+  "text.autoconfig.wynnventory.option.colorSettings.highlightColor": "Highlight color",
 
-  "key.wynnventory.open_config": "Open WynnVentory Config"
+  "text.autoconfig.wynnventory.option.showMaxPrice": "Show max price for items",
+  "text.autoconfig.wynnventory.option.showMinPrice": "Show min price for items",
+  "text.autoconfig.wynnventory.option.showAveragePrice": "Show average price for items (not recommended)",
+  "text.autoconfig.wynnventory.option.showAverage80Price": "Show average price of the middle 80% (excluding top and bottom 10% outliers)",
+  "text.autoconfig.wynnventory.option.showUnidAveragePrice": "Show average price for unidentified items (not recommended)",
+  "text.autoconfig.wynnventory.option.showUnidAverage80Price": "Show unidentified average price of the middle 80% (excluding top and bottom 10% outliers)"
 }

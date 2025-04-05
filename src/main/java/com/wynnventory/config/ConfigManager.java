@@ -1,164 +1,156 @@
 package com.wynnventory.config;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.wynnventory.WynnventoryMod;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.ConfigData;
+import me.shedaniel.autoconfig.annotation.Config;
+import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+@Config(name = "wynnventory")
+public class ConfigManager implements ConfigData {
 
-public class ConfigManager {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File CONFIG_FILE = new File("config/wynnventory.json");
-
-    // Singleton instance
-    private static ConfigManager instance;
-
-    // General
+    // General settings (Category: general)
+    @ConfigEntry.Category("general")
     private boolean showTooltips = true;
+
+    @ConfigEntry.Category("general")
     private boolean showBoxedItemTooltips = true;
+
+    @ConfigEntry.Category("general")
     private boolean showPriceFluctuation = true;
+
+    @ConfigEntry.Category("general")
     private boolean anchorTooltips = true;
 
-    // Tooltip config
+    // Color settings grouped in a collapsible object (Category: general)
+    @ConfigEntry.Category("general")
+    @ConfigEntry.Gui.CollapsibleObject
+    private ColorSettings colorSettings = new ColorSettings();
+
+    // Tooltip config (Category: tooltip)
+    @ConfigEntry.Category("tooltip")
     private boolean showMaxPrice = false;
+
+    @ConfigEntry.Category("tooltip")
     private boolean showMinPrice = false;
+
+    @ConfigEntry.Category("tooltip")
     private boolean showAveragePrice = false;
+
+    @ConfigEntry.Category("tooltip")
     private boolean showAverage80Price = true;
+
+    @ConfigEntry.Category("tooltip")
     private boolean showUnidAveragePrice = false;
+
+    @ConfigEntry.Category("tooltip")
     private boolean showUnidAverage80Price = true;
 
-    private ConfigManager() { }
-
+    // Static getter to retrieve the instance managed by AutoConfig
     public static ConfigManager getInstance() {
-        if (instance == null) {
-            instance = new ConfigManager();
-        }
-        return instance;
+        return AutoConfig.getConfigHolder(ConfigManager.class).getConfig();
     }
 
-    public void loadConfig() {
-        if (CONFIG_FILE.exists()) {
-            try (FileReader reader = new FileReader(CONFIG_FILE)) {
-                ObjectMapper objectMapper = new ObjectMapper();
-                ConfigManager config = objectMapper.readValue(reader, ConfigManager.class);
-                this.showTooltips = validateValue(config.isShowTooltips());
-                this.showBoxedItemTooltips = validateValue(config.isShowBoxedItemTooltips());
-                this.showPriceFluctuation = validateValue(config.isShowPriceFluctuation());
-                this.anchorTooltips = validateValue(config.isAnchorTooltips());
-                this.showMaxPrice = validateValue(config.isShowMaxPrice());
-                this.showMinPrice = validateValue(config.isShowMinPrice());
-                this.showAveragePrice = validateValue(config.isShowAveragePrice());
-                this.showAverage80Price = validateValue(config.isShowAverage80Price());
-                this.showUnidAveragePrice = validateValue(config.isShowUnidAveragePrice());
-                this.showUnidAverage80Price = validateValue(config.isShowUnidAverage80Price());
-            } catch (Exception e) {
-                WynnventoryMod.error("Could not load config from: " + CONFIG_FILE, e);
-                saveConfig();
-            }
-        } else {
-            saveConfig(); // Save default config if not found
-        }
-    }
-
-    public void saveConfig() {
-        try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
-            GSON.toJson(this, writer);
-        } catch (IOException e) {
-            WynnventoryMod.error("Could not save config to: " + CONFIG_FILE);
-        }
-    }
-
-    private boolean validateValue(Object value) {
-        if (value instanceof Boolean bool) {
-            WynnventoryMod.warn("Config value: " + value);
-            return bool;
-        }
-
-        return true;
-    }
-
+    // Getters and setters for general settings
     public boolean isShowTooltips() {
         return showTooltips;
     }
-
     public void setShowTooltips(boolean showTooltips) {
         this.showTooltips = showTooltips;
     }
-
     public boolean isShowBoxedItemTooltips() {
         return showBoxedItemTooltips;
     }
-
     public void setShowBoxedItemTooltips(boolean showBoxedItemTooltips) {
         this.showBoxedItemTooltips = showBoxedItemTooltips;
     }
-
+    public boolean isShowPriceFluctuation() {
+        return showPriceFluctuation;
+    }
+    public void setShowPriceFluctuation(boolean showPriceFluctuation) {
+        this.showPriceFluctuation = showPriceFluctuation;
+    }
     public boolean isAnchorTooltips() {
         return anchorTooltips;
     }
-
     public void setAnchorTooltips(boolean anchorTooltips) {
         this.anchorTooltips = anchorTooltips;
     }
 
+    // Getters and setters for tooltip config
     public boolean isShowMaxPrice() {
         return showMaxPrice;
     }
-
     public void setShowMaxPrice(boolean showMaxPrice) {
         this.showMaxPrice = showMaxPrice;
     }
-
     public boolean isShowMinPrice() {
         return showMinPrice;
     }
-
     public void setShowMinPrice(boolean showMinPrice) {
         this.showMinPrice = showMinPrice;
     }
-
     public boolean isShowAveragePrice() {
         return showAveragePrice;
     }
-
     public void setShowAveragePrice(boolean showAveragePrice) {
         this.showAveragePrice = showAveragePrice;
     }
-
     public boolean isShowAverage80Price() {
         return showAverage80Price;
     }
-
     public void setShowAverage80Price(boolean showAverage80Price) {
         this.showAverage80Price = showAverage80Price;
     }
-
     public boolean isShowUnidAveragePrice() {
         return showUnidAveragePrice;
     }
-
     public void setShowUnidAveragePrice(boolean showUnidAveragePrice) {
         this.showUnidAveragePrice = showUnidAveragePrice;
     }
-
     public boolean isShowUnidAverage80Price() {
         return showUnidAverage80Price;
     }
-
     public void setShowUnidAverage80Price(boolean showUnidAverage80Price) {
         this.showUnidAverage80Price = showUnidAverage80Price;
     }
 
-    public boolean isShowPriceFluctuation() {
-        return showPriceFluctuation;
+    // Getter and setter for ColorSettings
+    public ColorSettings getColorSettings() {
+        return colorSettings;
+    }
+    public void setColorSettings(ColorSettings colorSettings) {
+        this.colorSettings = colorSettings;
     }
 
-    public void setShowPriceFluctuation(boolean showPriceFluctuation) {
-        this.showPriceFluctuation = showPriceFluctuation;
+    public static class ColorSettings {
+        private boolean showColors = false;
+        private int colorMinPrice = 0;
+
+        @ConfigEntry.ColorPicker
+        private int highlightColor = 0xFF0000;
+
+        public boolean isShowColors() {
+            return showColors;
+        }
+
+        public void setShowColors(boolean showColors) {
+            this.showColors = showColors;
+        }
+
+        public int getColorMinPrice() {
+            return colorMinPrice;
+        }
+
+        public void setColorMinPrice(int colorMinPrice) {
+            this.colorMinPrice = colorMinPrice;
+        }
+
+        public int getHighlightColor() {
+            return highlightColor;
+        }
+
+        public void setHighlightColor(int highlightColor) {
+            this.highlightColor = highlightColor;
+        }
     }
 }
