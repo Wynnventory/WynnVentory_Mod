@@ -121,7 +121,7 @@ public class ConfigManager implements ConfigData {
 
     public static class ColorSettings {
         private boolean showColors = false;
-        private int colorMinPrice = 65536;
+        private int colorMinPrice = 4096;
 
         @ConfigEntry.ColorPicker
         private int highlightColor = 0xFF0000;
