@@ -6,7 +6,7 @@
 
   "text.autoconfig.wynnventory.option.showTooltips": "Show tooltips",
   "text.autoconfig.wynnventory.option.showBoxedItemTooltips": "Show boxed item tooltips",
-  "text.autoconfig.wynnventory.option.showPriceFluctuation": "Show price percentage changes (compared to last four weeks)",
+  "text.autoconfig.wynnventory.option.showPriceFluctuation": "Show price percentage changes (compared to last weeks avg)",
   "text.autoconfig.wynnventory.option.anchorTooltips": "Anchor tooltips to the sides of the screen",
 
   "text.autoconfig.wynnventory.option.colorSettings": "Color Settings",
