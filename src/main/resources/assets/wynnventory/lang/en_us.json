@@ -15,9 +15,6 @@
   "text.autoconfig.wynnventory.option.colorSettings.highlightColor": "Highlight color",
 
   "text.autoconfig.wynnventory.option.displayDropdown": "Choose how prices are formatted",
-  "text.autoconfig.wynnventory.option.displayDropdown.OPTION_BOTH": "Both",
-  "text.autoconfig.wynnventory.option.displayDropdown.OPTION_EMERALDS": "Unformatted",
-  "text.autoconfig.wynnventory.option.displayDropdown.OPTION_FORMATTED": "Formatted",
   "text.autoconfig.wynnventory.option.showMaxPrice": "Show max price for items",
   "text.autoconfig.wynnventory.option.showMinPrice": "Show min price for items",
   "text.autoconfig.wynnventory.option.showAveragePrice": "Show average price for items (not recommended)",
