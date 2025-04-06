@@ -14,6 +14,7 @@ import com.wynnventory.WynnventoryMod;
 import com.wynnventory.accessor.ItemQueueAccessor;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.config.ConfigManager;
+import com.wynnventory.config.EmeraldDisplayOption;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceHolder;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
@@ -353,16 +354,30 @@ public abstract class TooltipMixin {
 
     @Unique
     private static MutableComponent formatPrice(String label, int price) {
+        final ConfigManager config = ConfigManager.getInstance();
+        EmeraldDisplayOption priceFormat = config.getPriceFormat();
+        MutableComponent priceComponent = Component.literal(label).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
+
+        int color = (config.getColorSettings().isShowColors() && price >= config.getColorSettings().getColorMinPrice()) ? config.getColorSettings().getHighlightColor() : ChatFormatting.GRAY.getColor();
         if (price > 0) {
             String formattedPrice = NUMBER_FORMAT.format(price) + EmeraldUnits.EMERALD.getSymbol();
             String formattedEmeralds = EMERALD_PRICE.getFormattedString(price, false);
-            return Component.literal(label + formattedPrice)
-                    .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE))
+
+            if (priceFormat == EmeraldDisplayOption.EMERALDS) {
+                priceComponent.append(Component.literal(formattedPrice)
+                        .withStyle(Style.EMPTY.withColor(color)));
+            } else if (priceFormat == EmeraldDisplayOption.FORMATTED) {
+                priceComponent.append(Component.literal(formattedEmeralds)
+                        .withStyle(Style.EMPTY.withColor(color)));
+            } else {
+                priceComponent.append(Component.literal(formattedPrice)
+                        .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)))
                     .append(Component.literal(" (" + formattedEmeralds + ")")
-                            .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+                        .withStyle(Style.EMPTY.withColor(color)));
+            }
         }
 
-        return null;
+        return priceComponent;
     }
 
     @Unique
