@@ -25,6 +25,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -132,6 +133,7 @@ public abstract class TooltipMixin {
 
     private void submitTrademarketItem(ItemStack item) {
         if (item.getItem() == Items.AIR || item.getItem() == Items.COMPASS || item.getItem() == Items.POTION) return;
+        if(McUtils.inventory().items.contains(item)) return;
 
         TradeMarketItem marketItem = TradeMarketItem.createTradeMarketItem(item);
 
