@@ -1,10 +1,10 @@
 plugins {
-	id 'fabric-loom' version '1.7-SNAPSHOT'
+	id 'fabric-loom' version '1.10-SNAPSHOT'
 	id 'maven-publish'
 	id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
-version = "0.10.2"
+version = "0.10.3-dev.1"
 group = project.maven_group
 
 base {
@@ -28,7 +28,7 @@ dependencies {
 		parchment("org.parchmentmc.data:parchment-${parchment_version}@zip")
 	}
 
-	modImplementation files("libs/wynntils-3.0.10-fabric+MC-1.21.4.jar")
+	modImplementation "maven.modrinth:wynntils:${project.wynntils_version}-fabric"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
@@ -36,7 +36,7 @@ dependencies {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
 
-  modRuntimeOnly "me.djtheredstoner:DevAuth-fabric:1.2.1"
+  	modRuntimeOnly "me.djtheredstoner:DevAuth-fabric:1.2.1"
 
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.2'
 	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.17.2'
