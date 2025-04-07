@@ -3,4 +3,4 @@
 [![Discord](https://img.shields.io/discord/1272858777577586769?logo=Discord&logoColor=%235865F2&color=%235865F2&link=https%3A%2F%2Fdiscord.gg%2Fb6ATfrePuR)](https://discord.gg/b6ATfrePuR)
 
 # Wynnventory
-WynnVentory is a Minecraft mod for the Wynncraft server. It allows users to display trade market prices on items ingame. Data will also be available on the [WynnVentory website](https://www.wynnventory.com/).
+WynnVentory is a Minecraft mod for the Wynncraft server. It allows users to display trade market prices on items ingame. Data is also be available on the [WynnVentory website](https://www.wynnventory.com/).
