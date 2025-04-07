@@ -1,4 +1,9 @@
 {
+  "category.wynnventory.keybinding": "WynnVentory",
+  "key.wynnventory.open_config": "Open config",
+  "key.wynnventory.toggle_tooltips": "Toggle tooltips",
+  "key.wynnventory.toggle_boxed_item_tooltips": "Toggle tooltips for boxed items",
+
   "text.autoconfig.wynnventory.title": "Wynnventory Config",
 
   "text.autoconfig.wynnventory.category.general": "General",
