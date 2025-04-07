@@ -40,6 +40,8 @@ public class WynnventoryAPI {
             endpointURI = getEndpointURI("trademarket/items");
         }
         HttpUtil.sendHttpPostRequest(endpointURI, serializeData(marketItems));
+
+        WynnventoryMod.debug("Submitted " + marketItems.size() + " market items to API: " + endpointURI);
     }
 
     public void sendLootpoolData(List<Lootpool> lootpools) {

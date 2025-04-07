@@ -3,7 +3,6 @@ package com.wynnventory.mixin;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Models;
-import com.wynntils.models.emeralds.type.EmeraldUnits;
 import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.items.WynnItem;
@@ -14,21 +13,17 @@ import com.wynnventory.WynnventoryMod;
 import com.wynnventory.accessor.ItemQueueAccessor;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.config.ConfigManager;
-import com.wynnventory.config.EmeraldDisplayOption;
+import com.wynnventory.util.PriceTooltipHelper;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceHolder;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
-import com.wynnventory.util.EmeraldPrice;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -41,7 +36,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -51,95 +45,141 @@ import java.util.concurrent.Executors;
 @Mixin(AbstractContainerScreen.class)
 public abstract class TooltipMixin {
 
-    @Shadow protected abstract void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type);
+    @Shadow
+    protected abstract void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type);
+
     private static final String MARKET_TITLE = "󏿨";
     private static final String TITLE_TEXT = "Trade Market Price Info";
     private static final long EXPIRE_MINS = 2;
-    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.US);
-    private static final EmeraldPrice EMERALD_PRICE = new EmeraldPrice();
-    private static final WynnventoryAPI API = new WynnventoryAPI();
-
     private static final TradeMarketItemPriceInfo FETCHING = new TradeMarketItemPriceInfo();
     private static final TradeMarketItemPriceInfo UNTRADABLE = new TradeMarketItemPriceInfo();
-    private static HashMap<String, TradeMarketItemPriceHolder> fetchedPrices = new HashMap<>();
-    private static HashMap<String, TradeMarketItemPriceHolder> fetchedHistoricPrices = new HashMap<>();
+
+    private static final Map<String, TradeMarketItemPriceHolder> fetchedPrices = new HashMap<>();
+    private static final Map<String, TradeMarketItemPriceHolder> fetchedHistoricPrices = new HashMap<>();
 
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
-    private ConfigManager config = ConfigManager.getInstance();
-    private ItemQueueAccessor accessor = (ItemQueueAccessor) McUtils.mc().getConnection();
 
+    private final ConfigManager config = ConfigManager.getInstance();
+    private final ItemQueueAccessor accessor = (ItemQueueAccessor) McUtils.mc().getConnection();
+    private static final WynnventoryAPI API = new WynnventoryAPI();
 
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
     private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
         Screen currentScreen = Minecraft.getInstance().screen;
+        if (currentScreen == null) return;
 
-        if(currentScreen == null) {
-            return;
-        }
-
+        // Get the hovered slot using an accessor (assumed available)
         Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
         if (hoveredSlot == null || !hoveredSlot.hasItem()) return;
 
-        ItemStack item = hoveredSlot.getItem();
-        Optional<WynnItem> wynnItemOptional = Models.Item.getWynnItem(item);
+        ItemStack itemStack = hoveredSlot.getItem();
+        Optional<WynnItem> maybeWynnItem = Models.Item.getWynnItem(itemStack);
 
-        String screenTitle = currentScreen.getTitle().getString();
-        if (screenTitle.equals(MARKET_TITLE)) {
-            submitTrademarketItem(item);
+        // If in the market screen, submit the item for market processing
+        if (MARKET_TITLE.equals(currentScreen.getTitle().getString())) {
+            submitTrademarketItem(itemStack);
         }
 
-        if(config.isShowTooltips() && wynnItemOptional.isPresent()) {
-            WynnItem wynnItem = wynnItemOptional.get();
+        if (config.isShowTooltips() && maybeWynnItem.isPresent()) {
+            List<Component> tooltipComponents = new ArrayList<>();
+            tooltipComponents.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
 
-            List<Component> tooltips = new ArrayList<>();
-            if(wynnItem instanceof GearItem gearItem) {
-                tooltips.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
-
-                fetchPricesForGear(gearItem.getItemInfo());
-
-                tooltips.addAll(getTooltipsForGear(gearItem.getItemInfo()));
-
-                // remove price if expired
-                if (fetchedPrices.get(gearItem.getName()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gearItem.getName());
-                if (fetchedHistoricPrices.get(gearItem.getName()).isPriceExpired(EXPIRE_MINS)) fetchedHistoricPrices.remove(gearItem.getName());
-            } else if(wynnItem instanceof GearBoxItem gearBoxItem && config.isShowBoxedItemTooltips()) {
-                tooltips.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
-
-                List<GearInfo> possibleGear = Models.Gear.getPossibleGears(gearBoxItem);
-                List<TradeMarketItemPriceHolder> possiblePrices = new ArrayList<>();
-                for(GearInfo gear : possibleGear) {
-                    fetchPricesForGear(gear);
-
-                    possiblePrices.add(fetchedPrices.get(gear.name()));
-                }
-
-                sortTradeMarketPriceHolders(possiblePrices);
-
-                GearInfo gearInfo;
-                for(TradeMarketItemPriceHolder priceHolder : possiblePrices) {
-                    gearInfo = priceHolder.getInfo();
-                    tooltips.addAll(getTooltipsForGear(gearInfo));
-                    tooltips.add(Component.literal(""));
-
-                    // remove price if expired
-                    if (fetchedPrices.get(gearInfo.name()).isPriceExpired(EXPIRE_MINS)) fetchedPrices.remove(gearInfo.name());
-                    if (fetchedHistoricPrices.get(gearInfo.name()).isPriceExpired(EXPIRE_MINS)) fetchedHistoricPrices.remove(gearInfo.name());
-                }
+            WynnItem wynnItem = maybeWynnItem.get();
+            if (wynnItem instanceof GearItem gearItem) {
+                processGearTooltip(gearItem.getItemInfo(), tooltipComponents);
+            } else if (wynnItem instanceof GearBoxItem gearBoxItem && config.isShowBoxedItemTooltips()) {
+                processGearBoxTooltip(gearBoxItem, tooltipComponents);
             }
 
-            renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, item, tooltips);
+            renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, itemStack, tooltipComponents);
+        }
+    }
+
+    private void processGearTooltip(GearInfo gearInfo, List<Component> tooltipComponents) {
+        fetchPricesForGear(gearInfo);
+        tooltipComponents.addAll(getTooltipsForGear(gearInfo));
+        cleanExpiredPrices(gearInfo.name());
+    }
+
+    private void processGearBoxTooltip(GearBoxItem gearBoxItem, List<Component> tooltipComponents) {
+        List<GearInfo> possibleGears = Models.Gear.getPossibleGears(gearBoxItem);
+        List<TradeMarketItemPriceHolder> priceHolders = new ArrayList<>();
+        for (GearInfo gear : possibleGears) {
+            fetchPricesForGear(gear);
+            priceHolders.add(fetchedPrices.get(gear.name()));
+        }
+
+        PriceTooltipHelper.sortTradeMarketPriceHolders(priceHolders);
+        for (TradeMarketItemPriceHolder holder : priceHolders) {
+            GearInfo gearInfo = holder.getInfo();
+            tooltipComponents.addAll(getTooltipsForGear(gearInfo));
+            tooltipComponents.add(Component.literal("")); // Spacer
+            cleanExpiredPrices(gearInfo.name());
+        }
+    }
+
+    private void cleanExpiredPrices(String gearName) {
+        TradeMarketItemPriceHolder priceHolder = fetchedPrices.get(gearName);
+        if (priceHolder != null && priceHolder.isPriceExpired(EXPIRE_MINS)) {
+            fetchedPrices.remove(gearName);
+        }
+        TradeMarketItemPriceHolder historicHolder = fetchedHistoricPrices.get(gearName);
+        if (historicHolder != null && historicHolder.isPriceExpired(EXPIRE_MINS)) {
+            fetchedHistoricPrices.remove(gearName);
+        }
+    }
+
+    private void fetchPricesForGear(GearInfo gearInfo) {
+        String gearName = gearInfo.name();
+        if (!fetchedPrices.containsKey(gearName)) {
+            TradeMarketItemPriceHolder priceHolder = new TradeMarketItemPriceHolder(FETCHING, gearInfo);
+            fetchedPrices.put(gearName, priceHolder);
+
+            if (gearInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
+                priceHolder.setPriceInfo(UNTRADABLE);
+            } else {
+                CompletableFuture.supplyAsync(() -> API.fetchItemPrices(gearName), executorService)
+                        .thenAccept(priceHolder::setPriceInfo);
+            }
+        }
+
+        if (!fetchedHistoricPrices.containsKey(gearName)) {
+            TradeMarketItemPriceHolder historicHolder = new TradeMarketItemPriceHolder(FETCHING, gearInfo);
+            fetchedHistoricPrices.put(gearName, historicHolder);
+
+            if (gearInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
+                historicHolder.setPriceInfo(UNTRADABLE);
+            } else {
+                CompletableFuture.supplyAsync(() -> API.fetchLatestHistoricItemPrice(gearName), executorService)
+                        .thenAccept(historicHolder::setPriceInfo);
+            }
+        }
+    }
+
+    private List<Component> getTooltipsForGear(GearInfo gearInfo) {
+        TradeMarketItemPriceInfo priceInfo = fetchedPrices.get(gearInfo.name()).getPriceInfo();
+        if (priceInfo == FETCHING) {
+            return Collections.singletonList(Component.literal("Retrieving price information...").withStyle(ChatFormatting.WHITE));
+        } else if (priceInfo == UNTRADABLE) {
+            return Collections.singletonList(Component.literal("Item is untradable.").withStyle(ChatFormatting.RED));
+        } else {
+            TradeMarketItemPriceInfo historicInfo = fetchedHistoricPrices.get(gearInfo.name()).getPriceInfo();
+            return PriceTooltipHelper.createPriceTooltip(gearInfo, priceInfo, historicInfo);
         }
     }
 
     private void submitTrademarketItem(ItemStack item) {
-        if (item.getItem() == Items.AIR || item.getItem() == Items.COMPASS || item.getItem() == Items.POTION) return;
-        if(McUtils.inventory().items.contains(item)) return;
+        if (item.getItem() == Items.AIR || item.getItem() == Items.COMPASS || item.getItem() == Items.POTION) {
+            return;
+        }
+        if (McUtils.inventory().items.contains(item)) {
+            return;
+        }
 
         TradeMarketItem marketItem = TradeMarketItem.createTradeMarketItem(item);
-
-        if(marketItem != null && !accessor.getQueuedMarketItems().contains(marketItem)) {
+        if (marketItem != null && !accessor.getQueuedMarketItems().contains(marketItem)) {
             accessor.getQueuedMarketItems().add(marketItem);
-            WynnventoryMod.info("Submitted item: " + marketItem.getItem().getName());
+            WynnventoryMod.debug("Queued item for submit: " + marketItem.getItem().getName());
         }
     }
 
@@ -148,308 +188,60 @@ public abstract class TooltipMixin {
         Font font = McUtils.mc().font;
         Window window = McUtils.window();
 
-        // Adjust mouseX and mouseY within the screen bounds
+        // Ensure the mouse coordinates are within screen bounds
         mouseX = Math.min(mouseX, guiGraphics.guiWidth() - 10);
         mouseY = Math.max(mouseY, 10);
 
         int guiScaledWidth = window.getGuiScaledWidth();
         int guiScaledHeight = window.getGuiScaledHeight();
-        int guiHeight = window.getHeight();
-        int screenHeight = window.getScreenHeight();
         int guiScale = (int) window.getGuiScale();
         int gap = 5 * guiScale;
 
-        // Dimension and bounds for tooltip
-        Dimension priceTooltipDimension = calculateTooltipDimension(tooltipLines);
-        int priceTooltipMaxWidth = mouseX - gap;
-        int priceTooltipMaxHeight = Math.round(window.getGuiScaledHeight() * 0.8f);
-        float scaleFactor = calculateScaleFactor(tooltipLines, priceTooltipMaxHeight, priceTooltipMaxWidth, 0.4f, 1.0f);
-        priceTooltipDimension = new Dimension(Math.round(priceTooltipDimension.width * scaleFactor), Math.round(priceTooltipDimension.height * scaleFactor));
+        // Calculate tooltip dimensions and scale using the helper
+        Dimension tooltipDim = PriceTooltipHelper.calculateTooltipDimension(tooltipLines, font);
+        int tooltipMaxWidth = mouseX - gap;
+        int tooltipMaxHeight = Math.round(guiScaledHeight * 0.8f);
+        float scaleFactor = PriceTooltipHelper.calculateScaleFactor(tooltipLines, tooltipMaxHeight, tooltipMaxWidth, 0.4f, 1.0f, font);
+        Dimension scaledTooltipDim = new Dimension(Math.round(tooltipDim.width * scaleFactor), Math.round(tooltipDim.height * scaleFactor));
 
-        Dimension primaryTooltipDimension = calculateTooltipDimension(Screen.getTooltipFromItem(McUtils.mc(), item));
+        // Get primary tooltip dimensions (e.g., Minecraft’s default item tooltip)
+        Dimension primaryTooltipDim = PriceTooltipHelper.calculateTooltipDimension(Screen.getTooltipFromItem(McUtils.mc(), item), font);
 
-        int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipDimension.width + gap);
+        int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipDim.width + gap);
         int spaceToLeft = mouseX - gap;
 
-        float minY = (priceTooltipDimension.height / 4f) / scaleFactor;
+        float minY = (scaledTooltipDim.height / 4f) / scaleFactor;
         float maxY = (guiScaledHeight / 2f) / scaleFactor;
-        float scaledTooltipY = ((guiScaledHeight / 2f) - (priceTooltipDimension.height / 2f)) / scaleFactor;
+        float scaledTooltipY = ((guiScaledHeight / 2f) - (scaledTooltipDim.height / 2f)) / scaleFactor;
 
-        float posX = 0;
-        float posY = 0;
-        if(config.isAnchorTooltips()) {
-            if(spaceToRight > spaceToLeft * 1.3f) {
-                posX = guiScaledWidth - (float) priceTooltipDimension.width - (gap / scaleFactor);
-            }
-
-            posY = Math.clamp(scaledTooltipY, minY, maxY);
-            //WynnventoryMod.debug("Scaled Screenbounds: MinY: " + minY + " | MaxY: " + maxY + " | TTPosY: " + posY + " | TTHeight: " + priceTooltipDimension.height + " | ScaleFactor: " + scaleFactor);
-        } else {
-            if (priceTooltipDimension.width > spaceToRight) {
-                posX = mouseX - gap - (float) priceTooltipDimension.width; // Position tooltip on the left
+        float posX;
+        float posY;
+        if (config.isAnchorTooltips()) {
+            if (spaceToRight > spaceToLeft * 1.3f) {
+                posX = guiScaledWidth - scaledTooltipDim.width - (gap / scaleFactor);
             } else {
-                posX = mouseX + gap + (float) primaryTooltipDimension.width; // Position tooltip on the right
+                posX = 0;
             }
-
-            if(mouseY + priceTooltipDimension.height > guiScaledHeight) {
+            posY = Math.clamp(scaledTooltipY, minY, maxY);
+        } else {
+            if (scaledTooltipDim.width > spaceToRight) {
+                posX = mouseX - gap - scaledTooltipDim.width;
+            } else {
+                posX = mouseX + gap + primaryTooltipDim.width;
+            }
+            if (mouseY + scaledTooltipDim.height > guiScaledHeight) {
                 posY = Math.clamp(scaledTooltipY, minY, maxY);
             } else {
                 posY = mouseY;
             }
         }
 
-        // Apply scaling to the PoseStack
+        // Render the tooltip with applied scaling and positioning
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
         poseStack.translate(posX, posY, 0);
         poseStack.scale(scaleFactor, scaleFactor, 1.0f);
-
         guiGraphics.renderComponentTooltip(font, tooltipLines, 0, 0);
         poseStack.popPose();
-    }
-
-    private Dimension calculateTooltipDimension(List<Component> tooltipLines) {
-        Font font = McUtils.mc().font;
-
-        int tooltipHeight = tooltipLines.size() * font.lineHeight;
-
-        int priceTooltipWidth = tooltipLines.stream()
-                .map(font::width)
-                .max(Integer::compareTo)
-                .orElse(0);
-
-        return new Dimension(priceTooltipWidth, tooltipHeight);
-    }
-
-    private float calculateScaleFactor(List<Component> tooltipLines, int maxHeight, int maxWidth, float minScaleFactor, float maxScaleFactor) {
-        Dimension tooltipDimension = calculateTooltipDimension(tooltipLines);
-
-        float heightScaleFactor = maxHeight / (float) tooltipDimension.height;
-        float scaleFactor = Math.clamp(heightScaleFactor, minScaleFactor, maxScaleFactor);
-
-        tooltipDimension.width = Math.round(tooltipDimension.width * scaleFactor);
-        if(tooltipDimension.width > maxWidth) {
-            float widthScaleFactor = (float) maxWidth / tooltipDimension.width;
-
-            if(widthScaleFactor < scaleFactor) {
-                scaleFactor = Math.clamp(widthScaleFactor, minScaleFactor, maxScaleFactor);
-            }
-        }
-
-        return scaleFactor;
-    }
-
-    @Unique
-    private List<Component> createPriceTooltip(GearInfo info, TradeMarketItemPriceInfo priceInfo) {
-        final ConfigManager config = ConfigManager.getInstance();
-        final List<Component> tooltipLines = new ArrayList<>();
-
-        tooltipLines.add(formatText(info.name(), info.tier().getChatFormatting()));
-
-        if (priceInfo == null) {
-            tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
-        } else {
-            TradeMarketItemPriceInfo latestHistoricPrice = fetchedHistoricPrices.get(info.name()).getPriceInfo();
-
-            boolean showFluctuation = config.isShowPriceFluctuation() && latestHistoricPrice != null;
-
-            float fluctuation;
-            if (config.isShowMaxPrice() && priceInfo.getHighestPrice() > 0) {
-                if(showFluctuation) {
-                    fluctuation = calcPriceDiff(priceInfo.getHighestPrice(), latestHistoricPrice.getHighestPrice());
-                    tooltipLines.add(formatPriceWithFluctuation("Max: ", priceInfo.getHighestPrice(), fluctuation));
-                } else {
-                    tooltipLines.add(formatPrice("Max: ", priceInfo.getHighestPrice()));
-                }
-            }
-
-            if (config.isShowMinPrice() && priceInfo.getLowestPrice() > 0) {
-                if(showFluctuation) {
-                    fluctuation = calcPriceDiff(priceInfo.getLowestPrice(), latestHistoricPrice.getLowestPrice());
-                    tooltipLines.add(formatPriceWithFluctuation("Min: ", priceInfo.getLowestPrice(), fluctuation));
-                } else {
-                    tooltipLines.add(formatPrice("Min: ", priceInfo.getLowestPrice()));
-                }
-            }
-
-            if (config.isShowAveragePrice() && priceInfo.getAveragePrice() > 0) {
-                if(showFluctuation) {
-                    fluctuation = calcPriceDiff(priceInfo.getAveragePrice(), latestHistoricPrice.getAveragePrice());
-                    tooltipLines.add(formatPriceWithFluctuation("Avg: ", priceInfo.getAveragePrice(), fluctuation));
-                } else {
-                    tooltipLines.add(formatPrice("Avg: ", priceInfo.getAveragePrice()));
-                }
-            }
-
-            if (config.isShowAverage80Price() && priceInfo.getAverage80Price() > 0) {
-                if(showFluctuation) {
-                    fluctuation = calcPriceDiff(priceInfo.getAverage80Price(), latestHistoricPrice.getAverage80Price());
-                    tooltipLines.add(formatPriceWithFluctuation("Avg 80%: ", priceInfo.getAverage80Price(), fluctuation));
-                } else  {
-                    tooltipLines.add(formatPrice("Avg 80%: ", priceInfo.getAverage80Price()));
-                }
-            }
-
-            if (config.isShowUnidAveragePrice() && priceInfo.getUnidentifiedAveragePrice() > 0) {
-                if(showFluctuation) {
-                    fluctuation = calcPriceDiff(priceInfo.getUnidentifiedAveragePrice(), latestHistoricPrice.getUnidentifiedAveragePrice());
-                    tooltipLines.add(formatPriceWithFluctuation("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice(), fluctuation));
-                } else {
-                    tooltipLines.add(formatPrice("Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice()));
-                }
-            }
-
-            if (config.isShowUnidAverage80Price() && priceInfo.getUnidentifiedAverage80Price() > 0) {
-                if(showFluctuation) {
-                    fluctuation = calcPriceDiff(priceInfo.getUnidentifiedAverage80Price(), latestHistoricPrice.getUnidentifiedAverage80Price());
-                    tooltipLines.add(formatPriceWithFluctuation("Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price(), fluctuation));
-                } else {
-                    tooltipLines.add(formatPrice("Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price()));
-                }
-            }
-        }
-
-        return tooltipLines;
-    }
-
-    private void fetchPricesForGear(GearInfo info) {
-        if (!fetchedPrices.containsKey(info.name())) {
-            TradeMarketItemPriceHolder requestedPrice = new TradeMarketItemPriceHolder(FETCHING, info);
-            fetchedPrices.put(info.name(), requestedPrice);
-
-            if (info.metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
-                requestedPrice.setPriceInfo(UNTRADABLE);
-            } else {
-                // fetch price async
-                CompletableFuture.supplyAsync(() -> API.fetchItemPrices(info.name()), executorService)
-                        .thenAccept(requestedPrice::setPriceInfo);
-            }
-        }
-
-        if (!fetchedHistoricPrices.containsKey(info.name())) {
-            TradeMarketItemPriceHolder requestedHistoricPrice = new TradeMarketItemPriceHolder(FETCHING, info);
-            fetchedHistoricPrices.put(info.name(), requestedHistoricPrice);
-
-            if (info.metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
-                requestedHistoricPrice.setPriceInfo(UNTRADABLE);
-            } else {
-                CompletableFuture.supplyAsync(() -> API.fetchLatestHistoricItemPrice(info.name()), executorService)
-                        .thenAccept(requestedHistoricPrice::setPriceInfo);
-            }
-        }
-    }
-
-    private List<Component> getTooltipsForGear(GearInfo info) {
-        TradeMarketItemPriceInfo price = fetchedPrices.get(info.name()).getPriceInfo();
-
-        List<Component> tooltips = new ArrayList<>();
-        if (price == FETCHING) { // Display retrieving info
-            tooltips.add(formatText("Retrieving price information...", ChatFormatting.WHITE));
-        } else if (price == UNTRADABLE) { // Display untradable
-            tooltips.add(formatText("Item is untradable.", ChatFormatting.RED));
-        } else { // Display fetched price
-            tooltips = createPriceTooltip(info, price);
-        }
-
-        return tooltips;
-    }
-
-    @Unique
-    private static MutableComponent formatPrice(String label, int price) {
-        final ConfigManager config = ConfigManager.getInstance();
-        EmeraldDisplayOption priceFormat = config.getPriceFormat();
-        MutableComponent priceComponent = Component.literal(label).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
-
-        int color = (config.getColorSettings().isShowColors() && price >= config.getColorSettings().getColorMinPrice()) ? config.getColorSettings().getHighlightColor() : ChatFormatting.GRAY.getColor();
-        if (price > 0) {
-            String formattedPrice = NUMBER_FORMAT.format(price) + EmeraldUnits.EMERALD.getSymbol();
-            String formattedEmeralds = EMERALD_PRICE.getFormattedString(price, false);
-
-            if (priceFormat == EmeraldDisplayOption.EMERALDS) {
-                priceComponent.append(Component.literal(formattedPrice)
-                        .withStyle(Style.EMPTY.withColor(color)));
-            } else if (priceFormat == EmeraldDisplayOption.FORMATTED) {
-                priceComponent.append(Component.literal(formattedEmeralds)
-                        .withStyle(Style.EMPTY.withColor(color)));
-            } else {
-                priceComponent.append(Component.literal(formattedPrice)
-                        .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)))
-                    .append(Component.literal(" (" + formattedEmeralds + ")")
-                        .withStyle(Style.EMPTY.withColor(color)));
-            }
-        }
-
-        return priceComponent;
-    }
-
-    @Unique
-    private static MutableComponent formatPriceWithFluctuation(String label, int price, float priceFluctuation) {
-        if (price > 0) {
-            return formatPrice(label, price).append(Component.literal(" ")).append(formatPriceFluctuation(priceFluctuation));
-        }
-
-        return null;
-    }
-
-    @Unique
-    private static MutableComponent formatText(String text, ChatFormatting color) {
-            return Component.literal(text)
-                    .withStyle(Style.EMPTY.withColor(color));
-    }
-
-    private static MutableComponent formatPriceFluctuation(float fluctuation) {
-        Style style;
-
-        if(fluctuation < 0) {
-            style = Style.EMPTY.withColor(ChatFormatting.RED);
-        } else if (fluctuation > 0) {
-            style = Style.EMPTY.withColor(ChatFormatting.GREEN);
-        } else {
-            style = Style.EMPTY.withColor(ChatFormatting.GRAY);
-        }
-
-        String formattedValue = fluctuation < 0 ? String.format("%.1f", fluctuation) + "%" : "+" + String.format("%.1f", fluctuation) + "%";
-
-        return Component.literal(formattedValue).withStyle(style);
-    }
-
-    private float calcPriceDiff(float newPrice, float oldPrice) {
-        if(oldPrice == 0) {
-            return 0;
-        }
-
-        return ((newPrice - oldPrice) / oldPrice) * 100;
-    }
-
-    private void sortTradeMarketPriceHolders(List<TradeMarketItemPriceHolder> list) {
-        list.sort((o1, o2) -> {
-            TradeMarketItemPriceInfo p1 = o1.getPriceInfo();
-            TradeMarketItemPriceInfo p2 = o2.getPriceInfo();
-
-            // Determine sort groups:
-            // Group 0: p != null && p.getAverage() != null
-            // Group 1: p != null && p.getAverage() == null
-            // Group 2: p == null
-            int group1 = (p1 == null) ? 2 : (p1.getUnidentifiedAverage80Price() != 0 ? 0 : 1);
-            int group2 = (p2 == null) ? 2 : (p2.getUnidentifiedAverage80Price() != 0 ? 0 : 1);
-
-            // First, compare by group
-            int groupComparison = Integer.compare(group1, group2);
-            if (groupComparison != 0) {
-                return groupComparison;
-            }
-
-            // Same group: now sort by the appropriate price value.
-            if (group1 == 0) {
-                // Both have a non-null average, so sort by price.average.
-                return Double.compare(p2.getUnidentifiedAverage80Price(), p1.getUnidentifiedAverage80Price());
-            } else if (group1 == 1) {
-                // Both have a price object, but average is null. Sort by price.actual.
-                return Double.compare(p2.getAverage80Price(), p1.getAverage80Price());
-            } else {
-                // Both price objects are null. They are considered equal.
-                return 0;
-            }
-        });
     }
 }
