@@ -82,12 +82,12 @@ public abstract class TooltipMixin {
 
         if (config.isShowTooltips() && maybeWynnItem.isPresent()) {
             List<Component> tooltipComponents = new ArrayList<>();
-            tooltipComponents.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
-
             WynnItem wynnItem = maybeWynnItem.get();
             if (wynnItem instanceof GearItem gearItem) {
+                tooltipComponents.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
                 processGearTooltip(gearItem.getItemInfo(), tooltipComponents);
             } else if (wynnItem instanceof GearBoxItem gearBoxItem && config.isShowBoxedItemTooltips()) {
+                tooltipComponents.add(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
                 processGearBoxTooltip(gearBoxItem, tooltipComponents);
             }
 
