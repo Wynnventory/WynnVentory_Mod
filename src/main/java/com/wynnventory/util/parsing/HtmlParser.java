@@ -3,7 +3,7 @@ package com.wynnventory.util.parsing;
 import java.util.ArrayList;
 
 public class HtmlParser {
-    private String input;
+    private final String input;
     private int pos;
 
     public HtmlParser(String input) {
