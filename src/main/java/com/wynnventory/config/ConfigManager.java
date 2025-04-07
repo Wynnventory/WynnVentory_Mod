@@ -46,6 +46,9 @@ public class ConfigManager implements ConfigData {
     @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     private boolean showUnidAverage80Price = true;
 
+    private final boolean[] filterStates = new boolean[5];
+
+
     // Static getter to retrieve the instance managed by AutoConfig
     public static ConfigManager getInstance() {
         return AutoConfig.getConfigHolder(ConfigManager.class).getConfig();
@@ -161,5 +164,13 @@ public class ConfigManager implements ConfigData {
         public void setHighlightColor(int highlightColor) {
             this.highlightColor = highlightColor;
         }
+    }
+
+    public boolean getFilterState(int index) {
+        return filterStates[index];
+    }
+
+    public void setFilterState(int index, boolean value) {
+        filterStates[index] = value;
     }
 }
