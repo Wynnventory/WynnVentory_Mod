@@ -69,7 +69,7 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
         RenderUtils.renderItem(guiGraphics, itemStack, getX(), getY());
 
         if (shiny) {
-            renderTextAt("⬡", poseStack, CustomColor.fromChatFormatting(ChatFormatting.WHITE), getX() + (getWidth() / 2f) + 8, getY());
+            renderText("⬡", poseStack, CustomColor.fromChatFormatting(ChatFormatting.WHITE));
         }
 
         if(itemStack instanceof GuidePowderItemStack powderItemStack) {
