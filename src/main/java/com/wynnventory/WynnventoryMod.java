@@ -5,6 +5,8 @@ import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.api.WynnventoryScheduler;
 import com.wynnventory.config.ConfigManager;
 import com.wynnventory.model.keymapping.StickyKeyMapping;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import com.wynnventory.ui.CustomScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -43,7 +45,7 @@ public class WynnventoryMod implements ClientModInitializer {
 		// Start WynnventoryScheduler
 		WynnventoryScheduler.startScheduledTask();
 
-		ConfigManager.getInstance().loadConfig();
+		AutoConfig.register(ConfigManager.class, GsonConfigSerializer::new);
 		registerKeyBinds();
 
 		try {
@@ -78,37 +80,42 @@ public class WynnventoryMod implements ClientModInitializer {
 		));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+//			if (KEY_OPEN_CONFIG.consumeClick()) {
+//				Minecraft.getInstance().setScreen(
+//						AutoConfig.getConfigScreen(ConfigManager.class, Minecraft.getInstance().screen).get()
+//				);
 			if (KEY_OPEN_CONFIG.consumeClick()) {
 				client.setScreen(new CustomScreen(Component.literal("Lootruns")));
 			}
 		});
 
+
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if(priceTooltipKey.hasStateChanged()) {
+			if (priceTooltipKey.hasStateChanged()) {
 				ConfigManager config = ConfigManager.getInstance();
 				config.setShowTooltips(!config.isShowTooltips());
-				config.saveConfig();
+				// Instruct AutoConfig to save the changes
+				AutoConfig.getConfigHolder(ConfigManager.class).save();
 
 				Component message;
-				if(config.isShowTooltips()) {
+				if (config.isShowTooltips()) {
 					message = Component.literal("[Wynnventory] Trade Market item tooltips enabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
 				} else {
 					message = Component.literal("[Wynnventory] Trade Market item tooltips disabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
 				}
-
-
 				McUtils.sendMessageToClient(message);
 			}
 		});
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if(boxedPriceTooltipKey.hasStateChanged()) {
+			if (boxedPriceTooltipKey.hasStateChanged()) {
 				ConfigManager config = ConfigManager.getInstance();
 				config.setShowBoxedItemTooltips(!config.isShowBoxedItemTooltips());
-				config.saveConfig();
+				// Save the changes using AutoConfig's save method
+				AutoConfig.getConfigHolder(ConfigManager.class).save();
 
 				Component message;
-				if(config.isShowBoxedItemTooltips()) {
+				if (config.isShowBoxedItemTooltips()) {
 					message = Component.literal("[Wynnventory] Trade Market boxed item tooltips enabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
 				} else {
 					message = Component.literal("[Wynnventory] Trade Market boxed item tooltips disabled").withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));

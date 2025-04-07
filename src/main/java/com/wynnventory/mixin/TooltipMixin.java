@@ -14,6 +14,7 @@ import com.wynnventory.WynnventoryMod;
 import com.wynnventory.accessor.ItemQueueAccessor;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.config.ConfigManager;
+import com.wynnventory.config.EmeraldDisplayOption;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceHolder;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
@@ -24,6 +25,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -111,35 +113,7 @@ public abstract class TooltipMixin {
                     possiblePrices.add(fetchedPrices.get(gear.name()));
                 }
 
-                possiblePrices.sort((o1, o2) -> {
-                    TradeMarketItemPriceInfo p1 = o1.getPriceInfo();
-                    TradeMarketItemPriceInfo p2 = o2.getPriceInfo();
-
-                    // Determine sort groups:
-                    // Group 0: p != null && p.getAverage() != null
-                    // Group 1: p != null && p.getAverage() == null
-                    // Group 2: p == null
-                    int group1 = (p1 == null) ? 2 : (p1.getUnidentifiedAverage80Price() != 0 ? 0 : 1);
-                    int group2 = (p2 == null) ? 2 : (p2.getUnidentifiedAverage80Price() != 0 ? 0 : 1);
-
-                    // First, compare by group
-                    int groupComparison = Integer.compare(group1, group2);
-                    if (groupComparison != 0) {
-                        return groupComparison;
-                    }
-
-                    // Same group: now sort by the appropriate price value.
-                    if (group1 == 0) {
-                        // Both have a non-null average, so sort by price.average.
-                        return Double.compare(p2.getUnidentifiedAverage80Price(), p1.getUnidentifiedAverage80Price());
-                    } else if (group1 == 1) {
-                        // Both have a price object, but average is null. Sort by price.actual.
-                        return Double.compare(p2.getAverage80Price(), p1.getAverage80Price());
-                    } else {
-                        // Both price objects are null. They are considered equal.
-                        return 0;
-                    }
-                });
+                sortTradeMarketPriceHolders(possiblePrices);
 
                 GearInfo gearInfo;
                 for(TradeMarketItemPriceHolder priceHolder : possiblePrices) {
@@ -159,10 +133,11 @@ public abstract class TooltipMixin {
 
     private void submitTrademarketItem(ItemStack item) {
         if (item.getItem() == Items.AIR || item.getItem() == Items.COMPASS || item.getItem() == Items.POTION) return;
+        if(McUtils.inventory().items.contains(item)) return;
 
         TradeMarketItem marketItem = TradeMarketItem.createTradeMarketItem(item);
 
-        if(marketItem != null) {
+        if(marketItem != null && !accessor.getQueuedMarketItems().contains(marketItem)) {
             accessor.getQueuedMarketItems().add(marketItem);
             WynnventoryMod.info("Submitted item: " + marketItem.getItem().getName());
         }
@@ -381,16 +356,30 @@ public abstract class TooltipMixin {
 
     @Unique
     private static MutableComponent formatPrice(String label, int price) {
+        final ConfigManager config = ConfigManager.getInstance();
+        EmeraldDisplayOption priceFormat = config.getPriceFormat();
+        MutableComponent priceComponent = Component.literal(label).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
+
+        int color = (config.getColorSettings().isShowColors() && price >= config.getColorSettings().getColorMinPrice()) ? config.getColorSettings().getHighlightColor() : ChatFormatting.GRAY.getColor();
         if (price > 0) {
             String formattedPrice = NUMBER_FORMAT.format(price) + EmeraldUnits.EMERALD.getSymbol();
             String formattedEmeralds = EMERALD_PRICE.getFormattedString(price, false);
-            return Component.literal(label + formattedPrice)
-                    .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE))
+
+            if (priceFormat == EmeraldDisplayOption.EMERALDS) {
+                priceComponent.append(Component.literal(formattedPrice)
+                        .withStyle(Style.EMPTY.withColor(color)));
+            } else if (priceFormat == EmeraldDisplayOption.FORMATTED) {
+                priceComponent.append(Component.literal(formattedEmeralds)
+                        .withStyle(Style.EMPTY.withColor(color)));
+            } else {
+                priceComponent.append(Component.literal(formattedPrice)
+                        .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)))
                     .append(Component.literal(" (" + formattedEmeralds + ")")
-                            .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+                        .withStyle(Style.EMPTY.withColor(color)));
+            }
         }
 
-        return null;
+        return priceComponent;
     }
 
     @Unique
@@ -430,5 +419,37 @@ public abstract class TooltipMixin {
         }
 
         return ((newPrice - oldPrice) / oldPrice) * 100;
+    }
+
+    private void sortTradeMarketPriceHolders(List<TradeMarketItemPriceHolder> list) {
+        list.sort((o1, o2) -> {
+            TradeMarketItemPriceInfo p1 = o1.getPriceInfo();
+            TradeMarketItemPriceInfo p2 = o2.getPriceInfo();
+
+            // Determine sort groups:
+            // Group 0: p != null && p.getAverage() != null
+            // Group 1: p != null && p.getAverage() == null
+            // Group 2: p == null
+            int group1 = (p1 == null) ? 2 : (p1.getUnidentifiedAverage80Price() != 0 ? 0 : 1);
+            int group2 = (p2 == null) ? 2 : (p2.getUnidentifiedAverage80Price() != 0 ? 0 : 1);
+
+            // First, compare by group
+            int groupComparison = Integer.compare(group1, group2);
+            if (groupComparison != 0) {
+                return groupComparison;
+            }
+
+            // Same group: now sort by the appropriate price value.
+            if (group1 == 0) {
+                // Both have a non-null average, so sort by price.average.
+                return Double.compare(p2.getUnidentifiedAverage80Price(), p1.getUnidentifiedAverage80Price());
+            } else if (group1 == 1) {
+                // Both have a price object, but average is null. Sort by price.actual.
+                return Double.compare(p2.getAverage80Price(), p1.getAverage80Price());
+            } else {
+                // Both price objects are null. They are considered equal.
+                return 0;
+            }
+        });
     }
 }

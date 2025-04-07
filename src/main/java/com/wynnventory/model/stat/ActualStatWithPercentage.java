@@ -4,6 +4,8 @@ import com.wynntils.models.stats.StatCalculator;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
 
+import java.util.Objects;
+
 public class ActualStatWithPercentage {
     private StatActualValue statActualValue;
     private StatPossibleValues possibleValues;
@@ -29,6 +31,23 @@ public class ActualStatWithPercentage {
         }
         return StatCalculator.getPercentage(statActualValue, possibleValues)+"%";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o instanceof ActualStatWithPercentage other) {
+            return Objects.equals(getStatName(), other.getStatName()) &&
+                    Objects.equals(getActualRollPercentage(), other.getActualRollPercentage());
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getStatName(), getActualRollPercentage());
+    }
+
 
     @Override
     public String toString() {
