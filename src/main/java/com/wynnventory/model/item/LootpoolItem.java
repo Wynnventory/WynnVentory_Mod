@@ -77,7 +77,7 @@ public class LootpoolItem {
         else if(wynnItem instanceof AspectItem aspectItem) {
             rarity = aspectItem.getGearTier().getName();
 
-            String classReq = aspectItem.getClassType().getName();
+            String classReq = aspectItem.getRequiredClass().getName();
             if(classReq != null && !classReq.isEmpty()) {
                 type = classReq + type;
             }

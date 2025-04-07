@@ -13,15 +13,15 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class SimplifiedGearItem {
-    private String name;
-    private int level;
-    private String rarity;
-    private int powderSlots;
-    private int rerollCount;
-    private float overallPercentage;
-    private boolean unidentified;
-    private Optional<ShinyStat> shinyStat;
-    private List<ActualStatWithPercentage> actualStatsWithPercentage = new ArrayList<>();
+    private final String name;
+    private final int level;
+    private final String rarity;
+    private final int powderSlots;
+    private final int rerollCount;
+    private final float overallPercentage;
+    private final boolean unidentified;
+    private final Optional<ShinyStat> shinyStat;
+    private final List<ActualStatWithPercentage> actualStatsWithPercentage = new ArrayList<>();
 
     public SimplifiedGearItem(GearItem item) {
         this.name = item.getName();

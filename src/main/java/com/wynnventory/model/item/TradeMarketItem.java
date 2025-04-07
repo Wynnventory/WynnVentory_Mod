@@ -12,11 +12,11 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class TradeMarketItem {
-    private SimplifiedGearItem item;
-    private int listingPrice;
-    private int amount;
-    private String playerName;
-    private String modVersion;
+    private final SimplifiedGearItem item;
+    private final int listingPrice;
+    private final int amount;
+    private final String playerName;
+    private final String modVersion;
 
     public TradeMarketItem(GearItem item, int listingPrice, int amount) {
         this.item = new SimplifiedGearItem(item);

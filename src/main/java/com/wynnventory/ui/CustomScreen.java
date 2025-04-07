@@ -2,19 +2,16 @@ package com.wynnventory.ui;
 
 import com.wynntils.core.components.Models;
 import com.wynntils.screens.guides.GuideItemStack;
+import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
-import com.wynntils.utils.mc.McUtils;
 import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.WynnventoryMod;
-import com.wynnventory.api.WynncraftAPI;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
-import com.wynnventory.model.item.info.AspectInfo;
-import com.wynnventory.model.screen.GuideAspectItemStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
@@ -248,16 +245,15 @@ public class CustomScreen extends Screen {
     }
 
     private void loadAllItems() {
-        WynncraftAPI api = new WynncraftAPI();
-
         List<GuideGearItemStack> gear = Models.Gear.getAllGearInfos().map(GuideGearItemStack::new).toList();
         List<GuideTomeItemStack> tomes = Models.Rewards.getAllTomeInfos().map(GuideTomeItemStack::new).toList();
         List<GuidePowderItemStack> powders = Models.Element.getAllPowderTierInfo().stream().map(GuidePowderItemStack::new).toList();
-        Map<String, AspectInfo> aspectInfos = api.fetchAllAspects();
+        List<GuideAspectItemStack> aspects = Models.Aspect.getAllAspectInfos().map(info -> new GuideAspectItemStack(info, 1)).toList();
 
         // Example: Iterate over tiers
-        for (Map.Entry<String, AspectInfo> entry : aspectInfos.entrySet()) {
-            stacksByName.computeIfAbsent(entry.getKey(), k -> new ArrayList<>()).add(new GuideAspectItemStack(entry.getValue()));
+        for (GuideAspectItemStack stack : aspects) {
+            String name = stack.getAspectInfo().name();
+            stacksByName.computeIfAbsent(name, k -> new ArrayList<>()).add(stack);
         }
 
         for (GuideGearItemStack stack : gear) {

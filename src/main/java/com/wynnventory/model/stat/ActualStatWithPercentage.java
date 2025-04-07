@@ -7,8 +7,8 @@ import com.wynntils.models.stats.type.StatPossibleValues;
 import java.util.Objects;
 
 public class ActualStatWithPercentage {
-    private StatActualValue statActualValue;
-    private StatPossibleValues possibleValues;
+    private final StatActualValue statActualValue;
+    private final StatPossibleValues possibleValues;
 
     public ActualStatWithPercentage(StatActualValue statActualValue, StatPossibleValues possibleValues) {
         this.statActualValue = statActualValue;

@@ -61,12 +61,12 @@ public abstract class TooltipMixin {
 
     private static final TradeMarketItemPriceInfo FETCHING = new TradeMarketItemPriceInfo();
     private static final TradeMarketItemPriceInfo UNTRADABLE = new TradeMarketItemPriceInfo();
-    private static HashMap<String, TradeMarketItemPriceHolder> fetchedPrices = new HashMap<>();
-    private static HashMap<String, TradeMarketItemPriceHolder> fetchedHistoricPrices = new HashMap<>();
+    private static final HashMap<String, TradeMarketItemPriceHolder> fetchedPrices = new HashMap<>();
+    private static final HashMap<String, TradeMarketItemPriceHolder> fetchedHistoricPrices = new HashMap<>();
 
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
-    private ConfigManager config = ConfigManager.getInstance();
-    private ItemQueueAccessor accessor = (ItemQueueAccessor) McUtils.mc().getConnection();
+    private final ConfigManager config = ConfigManager.getInstance();
+    private final ItemQueueAccessor accessor = (ItemQueueAccessor) McUtils.mc().getConnection();
 
 
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
