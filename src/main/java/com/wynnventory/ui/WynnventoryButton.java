@@ -19,6 +19,7 @@ import com.wynntils.utils.render.Texture;
 import com.wynntils.utils.render.type.HorizontalAlignment;
 import com.wynntils.utils.render.type.TextShadow;
 import com.wynnventory.model.screen.GuideAspectItemStack;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -33,10 +34,12 @@ import java.util.Map;
 
 public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton {
     private final E itemStack;
+    private boolean shiny;
 
-    public WynnventoryButton(int x, int y, int width, int height, E itemStack, Screen screen) {
+    public WynnventoryButton(int x, int y, int width, int height, E itemStack, Screen screen, boolean shiny) {
         super(x, y, width, height, Component.literal("Guide GearItemStack Button"));
         this.itemStack = itemStack;
+        this.shiny = shiny;
         buildTooltip();
     }
 
@@ -65,6 +68,10 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
 
         RenderUtils.renderItem(guiGraphics, itemStack, getX(), getY());
 
+        if (shiny) {
+            renderTextAt("⬡", poseStack, CustomColor.fromChatFormatting(ChatFormatting.WHITE), getX() + (getWidth() / 2f) + 8, getY());
+        }
+
         if(itemStack instanceof GuidePowderItemStack powderItemStack) {
             renderText(MathUtils.toRoman(powderItemStack.getTier()), poseStack, color);
         }
@@ -88,15 +95,19 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
     }
 
     private void renderText(String text, PoseStack poseStack, CustomColor color) {
+        renderTextAt(text, poseStack, color, getX(), getY() - (getHeight() / 2f) + 4);
+    }
+
+    private void renderTextAt(String text, PoseStack poseStack, CustomColor color, float xPos, float yPos) {
         poseStack.pushPose();
         poseStack.translate(0, 0, 200);
         FontRenderer.getInstance()
                 .renderAlignedTextInBox(
                         poseStack,
                         StyledText.fromString(text),
-                        getX(),
-                        getX(),
-                        getY() - (getHeight() / 2f) + 4,
+                        xPos,
+                        xPos,
+                        yPos,
                         0,
                         color,
                         HorizontalAlignment.CENTER,

@@ -203,7 +203,7 @@ public class LootpoolScreen extends Screen {
                 if (stacks == null || stacks.isEmpty()) continue;
 
                 for (GuideItemStack stack : stacks) {
-                    WynnventoryButton button = new WynnventoryButton(x, y, ITEM_SIZE, ITEM_SIZE, stack, this);
+                    WynnventoryButton button = new WynnventoryButton(x, y, ITEM_SIZE, ITEM_SIZE, stack, this, item.isShiny());
                     elementButtons.add(button);
                     addRenderableWidget(button);
                     rendered++;
