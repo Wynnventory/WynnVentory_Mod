@@ -5,6 +5,7 @@ import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
+import com.wynnventory.core.ModInfo;
 import com.wynnventory.util.TradeMarketPriceParser;
 import net.minecraft.world.item.ItemStack;
 
@@ -23,7 +24,7 @@ public class TradeMarketItem {
         this.listingPrice = listingPrice;
         this.amount = amount;
         this.playerName = McUtils.playerName();
-        this.modVersion = WynnventoryMod.WYNNVENTORY_VERSION;
+        this.modVersion = ModInfo.VERSION;
     }
 
     public static TradeMarketItem createTradeMarketItem(ItemStack item) {

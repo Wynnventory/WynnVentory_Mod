@@ -13,6 +13,7 @@ import com.wynnventory.WynnventoryMod;
 import com.wynnventory.accessor.ItemQueueAccessor;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.config.ConfigManager;
+import com.wynnventory.core.ModInfo;
 import com.wynnventory.util.PriceTooltipHelper;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceHolder;
@@ -185,7 +186,7 @@ public abstract class TooltipMixin {
         TradeMarketItem marketItem = TradeMarketItem.createTradeMarketItem(item);
         if (marketItem != null && !accessor.getQueuedMarketItems().contains(marketItem)) {
             accessor.getQueuedMarketItems().add(marketItem);
-            WynnventoryMod.debug("Queued item for submit: " + marketItem.getItem().getName());
+            ModInfo.logDebug("Queued item for submit: " + marketItem.getItem().getName());
         }
     }
 

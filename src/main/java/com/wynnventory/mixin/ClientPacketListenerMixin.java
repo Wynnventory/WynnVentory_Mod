@@ -3,6 +3,7 @@ package com.wynnventory.mixin;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.accessor.ItemQueueAccessor;
+import com.wynnventory.core.ModInfo;
 import com.wynnventory.model.Region;
 import com.wynnventory.model.RegionType;
 import com.wynnventory.model.item.Lootpool;
@@ -99,7 +100,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                 }
             }
 
-            if(WynnventoryMod.isDev()) {
+            if(ModInfo.isDev()) {
                 McUtils.sendMessageToClient(Component.literal(region.getRegionType() + " DETECTED. Region is " + region.getShortName()));
             }
 
@@ -113,7 +114,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
     private void addItemsToQueue(Map<String, Lootpool> queue, String region, List<ItemStack> items) {
         if(!queue.containsKey(region)) {
-            queue.put(region, new Lootpool(region, McUtils.playerName(), WynnventoryMod.WYNNVENTORY_VERSION));
+            queue.put(region, new Lootpool(region, McUtils.playerName(), ModInfo.VERSION));
         }
 
         queue.get(region).addItems(LootpoolItem.createLootpoolItemsFromItemStack(items));

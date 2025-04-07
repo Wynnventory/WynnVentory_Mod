@@ -1,6 +1,7 @@
 package com.wynnventory.api;
 
 import com.wynnventory.accessor.ItemQueueAccessor;
+import com.wynnventory.core.ModInfo;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.Minecraft;
 
@@ -22,6 +23,7 @@ public class WynnventoryScheduler {
     }
 
     public static void stopScheduledTask() {
+        ModInfo.logInfo("Shutdown detected...");
         processMarketAndLootItems();
         scheduler.shutdown();
 

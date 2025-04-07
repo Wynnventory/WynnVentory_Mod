@@ -9,6 +9,7 @@ import com.wynntils.models.items.items.game.*;
 import com.wynntils.models.items.properties.GearTierItemProperty;
 import com.wynntils.models.rewards.type.TomeInfo;
 import com.wynnventory.WynnventoryMod;
+import com.wynnventory.core.ModInfo;
 import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.world.item.ItemStack;
 
@@ -68,7 +69,7 @@ public class LootpoolItem {
 
         else if(wynnItem instanceof TomeItem tomeItem) {
             name = tomeItem.getName();
-            WynnventoryMod.error("Found Tome item " + name);
+            ModInfo.logError("Found Tome item " + name);
 
             rarity = tomeItem.getGearTier().getName();
             type = tomeItem.getItemInfo().type().name();
@@ -153,7 +154,7 @@ public class LootpoolItem {
         if (LootpoolItem.LOOT_CLASSES.contains(wynnItem.getClass())) {
             lootpoolItems.add(new LootpoolItem(wynnItem));
         } else {
-            WynnventoryMod.error("Unknown class: " + wynnItem.getClass());
+            ModInfo.logError("Unknown class: " + wynnItem.getClass());
         }
 
 

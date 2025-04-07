@@ -4,6 +4,7 @@ import com.wynntils.core.text.StyledText;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynnventory.WynnventoryMod;
+import com.wynnventory.core.ModInfo;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.item.ItemStack;
 
@@ -18,7 +19,7 @@ public class ItemStackUtils {
 
             return (WynnItem) wynntilsAnnotation.get(itemStack);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            WynnventoryMod.error("Error trying to get wynntilsAnnotation.", e);
+            ModInfo.logError("Error trying to get wynntilsAnnotation.", e);
             return null;
         }
     }
@@ -30,7 +31,7 @@ public class ItemStackUtils {
 
             return (StyledText) wynntilsOriginalName.get(itemStack);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            WynnventoryMod.error("Error trying to get wynntilsOriginalName.", e);
+            ModInfo.logError("Error trying to get wynntilsOriginalName.", e);
             return null;
         }
     }

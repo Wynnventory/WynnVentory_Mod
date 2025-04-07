@@ -1,6 +1,7 @@
 package com.wynnventory.util;
 
 import com.wynnventory.WynnventoryMod;
+import com.wynnventory.core.ModInfo;
 
 import java.io.IOException;
 import java.net.URI;
@@ -23,7 +24,7 @@ public class HttpUtil {
 
         responseFuture.thenApply(HttpResponse::body)
                 .exceptionally(e -> {
-                    WynnventoryMod.error("Failed to send data: {}", e);
+                    ModInfo.logError("Failed to send data: {}", e);
                     return null;
                 });
     }

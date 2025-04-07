@@ -8,6 +8,7 @@ import com.wynntils.core.components.Models;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
+import com.wynnventory.core.ModInfo;
 import com.wynnventory.enums.PoolType;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.TradeMarketItem;
@@ -33,23 +34,23 @@ public class WynnventoryAPI {
         if (marketItems.isEmpty()) return;
 
         URI endpointURI;
-        if (WynnventoryMod.isDev()) {
-            WynnventoryMod.info("Sending market data to DEV endpoint.");
+        if (ModInfo.isDev()) {
+            ModInfo.logInfo("Sending market data to DEV endpoint.");
             endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/items?env=dev2");
         } else {
             endpointURI = getEndpointURI("trademarket/items");
         }
         HttpUtil.sendHttpPostRequest(endpointURI, serializeData(marketItems));
 
-        WynnventoryMod.debug("Submitted " + marketItems.size() + " market items to API: " + endpointURI);
+        ModInfo.logInfo("Submitted " + marketItems.size() + " market items to API: " + endpointURI);
     }
 
     public void sendLootpoolData(List<Lootpool> lootpools) {
         if (lootpools.isEmpty()) return;
 
         URI endpointURI;
-        if (WynnventoryMod.isDev()) {
-            WynnventoryMod.info("Sending lootpool data to DEV endpoint.");
+        if (ModInfo.isDev()) {
+            ModInfo.logInfo("Sending lootpool data to DEV endpoint.");
             endpointURI = URI.create("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/lootpool/items?env=dev2");
         } else {
             endpointURI = getEndpointURI("lootpool/items");
@@ -57,6 +58,7 @@ public class WynnventoryAPI {
 
         for(Lootpool lootpool : lootpools) {
             HttpUtil.sendHttpPostRequest(endpointURI, serializeData(lootpool));
+            ModInfo.logInfo("Submitted " + lootpool.getItems().size() + " lootpool items to API: " + endpointURI);
         }
     }
 
@@ -64,8 +66,8 @@ public class WynnventoryAPI {
         if (lootpools.isEmpty()) return;
 
         URI endpointURI;
-        if (WynnventoryMod.isDev()) {
-            WynnventoryMod.info("Sending raidpool data to DEV endpoint.");
+        if (ModInfo.isDev()) {
+            ModInfo.logInfo("Sending raidpool data to DEV endpoint.");
             endpointURI = URI.create("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/raidpool/items?env=dev2");
         } else {
             endpointURI = getEndpointURI("raidpool/items");
@@ -73,6 +75,7 @@ public class WynnventoryAPI {
 
         for(Lootpool lootpool : lootpools) {
             HttpUtil.sendHttpPostRequest(endpointURI, serializeData(lootpool));
+            ModInfo.logInfo("Submitted " + lootpool.getItems().size() + " raidpool items to API: " + endpointURI);
         }
     }
 
@@ -88,8 +91,8 @@ public class WynnventoryAPI {
             final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
 
             URI endpointURI;
-            if (WynnventoryMod.isDev()) {
-                WynnventoryMod.info("Fetching market data from DEV endpoint.");
+            if (ModInfo.isDev()) {
+                ModInfo.logInfo("Fetching market data from DEV endpoint.");
                 endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/item/" + encodedItemName + "/price?env=dev2&playername=" + playerName);
             } else {
                 endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price?playername=" + playerName);
@@ -102,11 +105,11 @@ public class WynnventoryAPI {
             } else if (response.statusCode() == 404) {
                 return null;
             } else {
-                WynnventoryMod.error("Failed to fetch item price from API: " + response.body());
+                ModInfo.logError("Failed to fetch item price from API: " + response.body());
                 return null;
             }
         } catch (Exception e) {
-            WynnventoryMod.error("Failed to initiate item price fetch {}", e);
+            ModInfo.logError("Failed to initiate item price fetch {}", e);
             return null;
         }
     }
@@ -116,14 +119,14 @@ public class WynnventoryAPI {
             String path = "lootpool/" + type.getName() + "/";
             URI endpointURI;
 
-            if (WynnventoryMod.isDev()) {
-                WynnventoryMod.info("Fetching " + type.name() + " lootpools from DEV endpoint.");
+            if (ModInfo.isDev()) {
+                ModInfo.logInfo("Fetching " + type.name() + " lootpools from DEV endpoint.");
                 endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/" + path);
             } else {
                 endpointURI = getEndpointURI(path);
             }
 
-            WynnventoryMod.error("URL: " + endpointURI);
+            ModInfo.logError("URL: " + endpointURI);
 
             HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointURI);
 
@@ -132,11 +135,11 @@ public class WynnventoryAPI {
             } else if (response.statusCode() == 404) {
                 return new ArrayList<>();
             } else {
-                WynnventoryMod.error("Failed to fetch " + type + " lootpools: " + response.body());
+                ModInfo.logError("Failed to fetch " + type + " lootpools: " + response.body());
                 return new ArrayList<>();
             }
         } catch (Exception e) {
-            WynnventoryMod.error("Failed to initiate lootpool fetch", e);
+            ModInfo.logError("Failed to initiate lootpool fetch", e);
             return new ArrayList<>();
         }
     }
@@ -147,8 +150,8 @@ public class WynnventoryAPI {
             final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
 
             URI endpointURI;
-            if (WynnventoryMod.isDev()) {
-                WynnventoryMod.info("Fetching market data from DEV endpoint.");
+            if (ModInfo.isDev()) {
+                ModInfo.logInfo("Fetching market data from DEV endpoint.");
                 endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/history/" + encodedItemName + "/latest?env=dev2");
             } else {
                 endpointURI = getEndpointURI("trademarket/history/" + encodedItemName + "/latest");
@@ -161,11 +164,11 @@ public class WynnventoryAPI {
             } else if (response.statusCode() == 404) {
                 return null;
             } else {
-                WynnventoryMod.error("Failed to fetch item price from API: " + response.body());
+                ModInfo.logError("Failed to fetch item price from API: " + response.body());
                 return null;
             }
         } catch (Exception e) {
-            WynnventoryMod.error("Failed to initiate item price fetch {}", e);
+            ModInfo.logError("Failed to initiate item price fetch {}", e);
             return null;
         }
     }
@@ -174,7 +177,7 @@ public class WynnventoryAPI {
         try {
             return objectMapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
-            WynnventoryMod.LOGGER.error("Failed to serialize data", e);
+            ModInfo.logError("Failed to serialize data", e);
             return "[]";
         }
     }
@@ -184,7 +187,7 @@ public class WynnventoryAPI {
             List<TradeMarketItemPriceInfo> priceInfoList = objectMapper.readValue(responseBody, new com.fasterxml.jackson.core.type.TypeReference<>() {});
             return priceInfoList.isEmpty() ? null : priceInfoList.getFirst();
         } catch (JsonProcessingException e) {
-            WynnventoryMod.error("Failed to parse item price response {}", e);
+            ModInfo.logError("Failed to parse item price response {}", e);
         }
 
         return null;
@@ -195,7 +198,7 @@ public class WynnventoryAPI {
             List<Lootpool> lootpools = objectMapper.readValue(responseBody, new com.fasterxml.jackson.core.type.TypeReference<>() {});
             return lootpools.isEmpty() ? new ArrayList<>() : lootpools;
         } catch (JsonProcessingException e) {
-            WynnventoryMod.error("Failed to parse item price response {}", e);
+            ModInfo.logError("Failed to parse item price response {}", e);
         }
 
         return null;
@@ -205,7 +208,7 @@ public class WynnventoryAPI {
         try {
             return objectMapper.readValue(responseBody, TradeMarketItemPriceInfo.class);
         } catch (JsonProcessingException e) {
-            WynnventoryMod.error("Failed to parse historic item price response {}", e);
+            ModInfo.logError("Failed to parse historic item price response {}", e);
             return null;
         }
     }
