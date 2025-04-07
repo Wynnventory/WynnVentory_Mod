@@ -10,7 +10,9 @@ import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.config.ConfigManager;
 import com.wynnventory.enums.PoolType;
+import com.wynnventory.model.item.GroupedLootpool;
 import com.wynnventory.model.item.Lootpool;
+import com.wynnventory.model.item.LootpoolGroup;
 import com.wynnventory.model.item.LootpoolItem;
 import com.wynnventory.util.LootpoolManager;
 import net.fabricmc.api.EnvType;
@@ -157,7 +159,7 @@ public class LootpoolScreen extends Screen {
 
         updateTabButtonStyles();
 
-        List<Lootpool> pools = getCurrentPools();
+        List<GroupedLootpool> pools = getCurrentPools();
         String query = searchBar.getValue().trim().toLowerCase();
 
         // Center layout calculations
@@ -177,7 +179,7 @@ public class LootpoolScreen extends Screen {
         }
     }
 
-    private List<Lootpool> getCurrentPools() {
+    private List<GroupedLootpool> getCurrentPools() {
         return currentPool == PoolType.LOOTRUN ? LootpoolManager.getLootrunPools() : LootpoolManager.getRaidPools();
     }
 
@@ -186,33 +188,29 @@ public class LootpoolScreen extends Screen {
         raidButton.active = currentPool != PoolType.RAID;
     }
 
-    private void buildColumn(Lootpool pool, int startX, int startY, String query) {
+    private void reloadPools() {
+        LootpoolManager.reloadAllPools();
+    }
+
+    private void buildColumn(GroupedLootpool pool, int startX, int startY, String query) {
         int rendered = 0;
-        for (LootpoolItem item : pool.getItems()) {
-            String name = item.getName().toLowerCase();
-            if (!name.contains(query)) continue;
 
-            // 🔍 Apply filters (dummy logic: skip items with matching FilterX OFF)
-            boolean visible = true;
-            for (int i = 0; i < FILTER_COUNT; i++) {
-                if (!ConfigManager.getInstance().getFilterState(i)) {
-                    // dummy condition: hide all if any filter is off
-                    visible = true;
+        for(LootpoolGroup group : pool.getGroupItems()) {
+            for (LootpoolItem item : group.getLootItems()) {
+                if (!item.getName().toLowerCase().contains(query)) continue;
+
+                int x = startX + (rendered % ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING);
+                int y = startY + (rendered / ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING);
+
+                List<GuideItemStack> stacks = stacksByName.get(item.getName());
+                if (stacks == null || stacks.isEmpty()) continue;
+
+                for (GuideItemStack stack : stacks) {
+                    WynnventoryButton button = new WynnventoryButton(x, y, ITEM_SIZE, ITEM_SIZE, stack, this);
+                    elementButtons.add(button);
+                    addRenderableWidget(button);
+                    rendered++;
                 }
-            }
-            if (!visible) continue;
-
-            List<GuideItemStack> stacks = stacksByName.get(item.getName());
-            if (stacks == null || stacks.isEmpty()) continue;
-
-            int x = startX + (rendered % ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING);
-            int y = startY + (rendered / ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING);
-
-            for (GuideItemStack stack : stacks) {
-                WynnventoryButton button = new WynnventoryButton(x, y, ITEM_SIZE, ITEM_SIZE, stack, this);
-                elementButtons.add(button);
-                addRenderableWidget(button);
-                rendered++;
             }
         }
     }
@@ -223,7 +221,7 @@ public class LootpoolScreen extends Screen {
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
-        List<Lootpool> pools = getCurrentPools();
+        List<GroupedLootpool> pools = getCurrentPools();
         int totalWidth = pools.size() * COL_WIDTH + (pools.size() - 1) * PADDING;
         int startX = (this.width - totalWidth) / 2;
 

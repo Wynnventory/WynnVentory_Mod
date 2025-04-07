@@ -2,6 +2,7 @@ package com.wynnventory.util;
 
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.enums.PoolType;
+import com.wynnventory.model.item.GroupedLootpool;
 import com.wynnventory.model.item.Lootpool;
 
 import java.util.List;
@@ -10,12 +11,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class LootpoolManager {
-
     private static final WynnventoryAPI API = new WynnventoryAPI();
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 
-    private static List<Lootpool> lootrunPools = List.of();
-    private static List<Lootpool> raidPools = List.of();
+    private static List<GroupedLootpool> lootrunPools = List.of();
+    private static List<GroupedLootpool> raidPools = List.of();
+
+    private LootpoolManager() {}
 
     public static void reloadAllPools() {
         CompletableFuture.supplyAsync(() -> API.getLootpools(PoolType.LOOTRUN), EXECUTOR)
@@ -24,11 +26,11 @@ public class LootpoolManager {
                 .thenAccept(result -> raidPools = result);
     }
 
-    public static List<Lootpool> getLootrunPools() {
+    public static List<GroupedLootpool> getLootrunPools() {
         return lootrunPools;
     }
 
-    public static List<Lootpool> getRaidPools() {
+    public static List<GroupedLootpool> getRaidPools() {
         return raidPools;
     }
 }

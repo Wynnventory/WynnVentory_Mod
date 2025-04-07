@@ -1,6 +1,10 @@
 package com.wynnventory.api;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -9,6 +13,7 @@ import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.enums.PoolType;
+import com.wynnventory.model.item.GroupedLootpool;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
@@ -111,9 +116,9 @@ public class WynnventoryAPI {
         }
     }
 
-    public List<Lootpool> getLootpools(PoolType type) {
+    public List<GroupedLootpool> getLootpools(PoolType type) {
         try {
-            String path = "lootpool/" + type.getName() + "/";
+            String path = "lootpool/" + type.getName() + "/items";
             URI endpointURI;
 
             if (WynnventoryMod.isDev()) {
@@ -123,8 +128,6 @@ public class WynnventoryAPI {
                 endpointURI = getEndpointURI(path);
             }
 
-            WynnventoryMod.error("URL: " + endpointURI);
-
             HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointURI);
 
             if (response.statusCode() == 200) {
@@ -132,7 +135,7 @@ public class WynnventoryAPI {
             } else if (response.statusCode() == 404) {
                 return new ArrayList<>();
             } else {
-                WynnventoryMod.error("Failed to fetch " + type + " lootpools: " + response.body());
+                WynnventoryMod.error("Failed to fetch " + type + " lootpools: " + response.statusCode() + " - " + response.body());
                 return new ArrayList<>();
             }
         } catch (Exception e) {
@@ -181,7 +184,7 @@ public class WynnventoryAPI {
 
     private TradeMarketItemPriceInfo parsePriceInfoResponse(String responseBody) {
         try {
-            List<TradeMarketItemPriceInfo> priceInfoList = objectMapper.readValue(responseBody, new com.fasterxml.jackson.core.type.TypeReference<>() {});
+            List<TradeMarketItemPriceInfo> priceInfoList = objectMapper.readValue(responseBody, new TypeReference<>() {});
             return priceInfoList.isEmpty() ? null : priceInfoList.getFirst();
         } catch (JsonProcessingException e) {
             WynnventoryMod.error("Failed to parse item price response {}", e);
@@ -190,15 +193,14 @@ public class WynnventoryAPI {
         return null;
     }
 
-    private List<Lootpool> parseLootpoolResponse(String responseBody) {
+    private List<GroupedLootpool> parseLootpoolResponse(String responseBody) {
         try {
-            List<Lootpool> lootpools = objectMapper.readValue(responseBody, new com.fasterxml.jackson.core.type.TypeReference<>() {});
-            return lootpools.isEmpty() ? new ArrayList<>() : lootpools;
+            return objectMapper.readValue(responseBody, new TypeReference<>() {});
         } catch (JsonProcessingException e) {
             WynnventoryMod.error("Failed to parse item price response {}", e);
         }
 
-        return null;
+        return new ArrayList<>();
     }
             
     private TradeMarketItemPriceInfo parseHistoricPriceInfo(String responseBody) {
@@ -222,6 +224,8 @@ public class WynnventoryAPI {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.registerModule(new Jdk8Module());
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+
         return mapper;
     }
 
