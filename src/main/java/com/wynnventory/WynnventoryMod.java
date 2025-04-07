@@ -2,12 +2,14 @@ package com.wynnventory;
 
 import com.sun.tools.javac.Main;
 import com.wynntils.utils.mc.McUtils;
+import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.api.WynnventoryScheduler;
 import com.wynnventory.config.ConfigManager;
+import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.keymapping.StickyKeyMapping;
+import com.wynnventory.ui.LootpoolScreen;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
-import com.wynnventory.ui.CustomScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -21,7 +23,11 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class WynnventoryMod implements ClientModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("wynnventory");
@@ -29,9 +35,14 @@ public class WynnventoryMod implements ClientModInitializer {
 	public static String WYNNVENTORY_VERSION;
 	public static String WYNNVENTORY_MOD_NAME;
 
+	private static final WynnventoryAPI API = new WynnventoryAPI();
+	private static final ExecutorService executorService = Executors.newCachedThreadPool();
+	private static List<Lootpool> RAID_POOLS;
+	private static List<Lootpool> LOOT_POOLS;
+
 	private static boolean IS_DEV = false;
 
-	public static KeyMapping KEY_OPEN_CONFIG;
+	public static KeyMapping KEY_OPEN_POOLS;
 
 	@Override
 	public void onInitializeClient() {
@@ -48,6 +59,8 @@ public class WynnventoryMod implements ClientModInitializer {
 		AutoConfig.register(ConfigManager.class, GsonConfigSerializer::new);
 		registerKeyBinds();
 
+		loadPools(); // Load all lootpools on load
+
 		try {
 			IS_DEV = Main.class.getClassLoader().loadClass("com.intellij.rt.execution.application.AppMainV2") != null;
 		} catch (NoClassDefFoundError | Exception ignored) {
@@ -59,7 +72,7 @@ public class WynnventoryMod implements ClientModInitializer {
 	}
 
 	private static void registerKeyBinds() {
-		KEY_OPEN_CONFIG = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+		KEY_OPEN_POOLS = KeyBindingHelper.registerKeyBinding(new KeyMapping(
 				"key.wynnventory.open_config",
 				GLFW.GLFW_KEY_N,
 				"category.wynnventory.keybinding"
@@ -84,8 +97,8 @@ public class WynnventoryMod implements ClientModInitializer {
 //				Minecraft.getInstance().setScreen(
 //						AutoConfig.getConfigScreen(ConfigManager.class, Minecraft.getInstance().screen).get()
 //				);
-			if (KEY_OPEN_CONFIG.consumeClick()) {
-				client.setScreen(new CustomScreen(Component.literal("Lootruns")));
+			if (KEY_OPEN_POOLS.consumeClick()) {
+				client.setScreen(new LootpoolScreen(Component.literal("Lootruns"), LOOT_POOLS, RAID_POOLS));
 			}
 		});
 
@@ -124,6 +137,13 @@ public class WynnventoryMod implements ClientModInitializer {
 				McUtils.sendMessageToClient(message);
 			}
 		});
+	}
+
+	private static void loadPools() {
+		CompletableFuture.supplyAsync(() -> API.getLootpools("lootrun"), executorService)
+				.thenAccept(result -> LOOT_POOLS = result);
+		CompletableFuture.supplyAsync(() -> API.getLootpools("raidpool"), executorService)
+				.thenAccept(result -> RAID_POOLS = result);
 	}
 
 	public static void debug(String msg) {

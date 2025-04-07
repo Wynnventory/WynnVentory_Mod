@@ -6,15 +6,11 @@ import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
-import com.wynntils.utils.mc.McUtils;
 import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.WynnventoryMod;
-import com.wynnventory.api.WynncraftAPI;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
-import com.wynnventory.model.item.info.AspectInfo;
-import com.wynnventory.model.screen.GuideAspectItemStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
@@ -27,9 +23,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Environment(EnvType.CLIENT)
-public class CustomScreen extends Screen {
+public class LootpoolScreen extends Screen {
     Map<String, List<GuideItemStack>> stacksByName = new HashMap<>();
 
     private final List<WynnventoryButton> elementButtons = new ArrayList<>();
@@ -37,8 +36,10 @@ public class CustomScreen extends Screen {
     private Button raidButton;
     private EditBox searchBar;
 
-    private List<Lootpool> raidpools = new ArrayList<>();
-    private List<Lootpool> lootrunpools = new ArrayList<>();
+    private static final WynnventoryAPI API = new WynnventoryAPI();
+    private static final ExecutorService executorService = Executors.newCachedThreadPool();
+    private static List<Lootpool> RAID_POOLS;
+    private static List<Lootpool> LOOT_POOLS;
 
     // Constants for layout spacing
     private static final int PADDING = 50;
@@ -47,7 +48,7 @@ public class CustomScreen extends Screen {
     private static final int ITEM_PADDING = 8; // Padding between items
     private static final int COL_WIDTH = (ITEM_SIZE * ITEMS_PER_ROW) + (ITEM_PADDING * ITEMS_PER_ROW);
     private static final int GAP_BETWEEN_BUTTONS_AND_SEARCH = 10;
-    private static final int GAP_BETWEEN_SEARCH_AND_TITLES = 30; 
+    private static final int GAP_BETWEEN_SEARCH_AND_TITLES = 30;
     private static final int GAP_BELOW_TITLES = 10;
 
     private enum PoolType {
@@ -57,12 +58,11 @@ public class CustomScreen extends Screen {
 
     private PoolType currentPool = PoolType.LOOTRUN;
 
-    public CustomScreen(Component title) {
+    public LootpoolScreen(Component title, List<Lootpool> lootPools, List<Lootpool> raidPools) {
         super(title);
 
-        WynnventoryAPI api = new WynnventoryAPI();
-        raidpools = api.getLootpools("raidpool");
-        lootrunpools = api.getLootpools("lootrun");
+        LOOT_POOLS = lootPools;
+        RAID_POOLS = raidPools;
 
         loadAllItems();
     }
@@ -108,6 +108,13 @@ public class CustomScreen extends Screen {
         updateScreen();
     }
 
+    private void reloadPools() {
+        CompletableFuture.supplyAsync(() -> API.getLootpools("lootrun"), executorService)
+                .thenAccept(result -> LOOT_POOLS = result);
+        CompletableFuture.supplyAsync(() -> API.getLootpools("raidpool"), executorService)
+                .thenAccept(result -> RAID_POOLS = result);
+    }
+
     private void updateScreen() {
         // Clear existing buttons and elements except for the tab buttons and search bar
         this.clearWidgets();
@@ -120,7 +127,7 @@ public class CustomScreen extends Screen {
         updateTabButtonStyles();
 
         // Get the pools based on the current pool type
-        List<Lootpool> pools = currentPool == PoolType.LOOTRUN ? lootrunpools : raidpools;
+        List<Lootpool> pools = currentPool == PoolType.LOOTRUN ? LOOT_POOLS : RAID_POOLS;
 
         // Get the search query
         String query = searchBar.getValue().trim().toLowerCase();
@@ -191,7 +198,7 @@ public class CustomScreen extends Screen {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         // Get the pools based on the current pool type
-        List<Lootpool> pools = currentPool == PoolType.LOOTRUN ? lootrunpools : raidpools;
+        List<Lootpool> pools = currentPool == PoolType.LOOTRUN ? LOOT_POOLS : RAID_POOLS;
 
         // Calculate total width to center the columns
         int totalColumns = pools.size();
@@ -231,7 +238,7 @@ public class CustomScreen extends Screen {
         }
 
         // Close the screen when the keybind is pressed, but not if the search bar is focused
-        if (WynnventoryMod.KEY_OPEN_CONFIG.matches(keyCode, scanCode) && !searchBar.isFocused()) {
+        if (WynnventoryMod.KEY_OPEN_POOLS.matches(keyCode, scanCode) && !searchBar.isFocused()) {
             this.onClose();
             return true;
         }
@@ -248,17 +255,17 @@ public class CustomScreen extends Screen {
     }
 
     private void loadAllItems() {
-        WynncraftAPI api = new WynncraftAPI();
+//        WynncraftAPI api = new WynncraftAPI();
 
         List<GuideGearItemStack> gear = Models.Gear.getAllGearInfos().map(GuideGearItemStack::new).toList();
         List<GuideTomeItemStack> tomes = Models.Rewards.getAllTomeInfos().map(GuideTomeItemStack::new).toList();
         List<GuidePowderItemStack> powders = Models.Element.getAllPowderTierInfo().stream().map(GuidePowderItemStack::new).toList();
-        Map<String, AspectInfo> aspectInfos = api.fetchAllAspects();
+//        Map<String, AspectInfo> aspectInfos = api.fetchAllAspects();
 
         // Example: Iterate over tiers
-        for (Map.Entry<String, AspectInfo> entry : aspectInfos.entrySet()) {
-            stacksByName.computeIfAbsent(entry.getKey(), k -> new ArrayList<>()).add(new GuideAspectItemStack(entry.getValue()));
-        }
+//        for (Map.Entry<String, AspectInfo> entry : aspectInfos.entrySet()) {
+//            stacksByName.computeIfAbsent(entry.getKey(), k -> new ArrayList<>()).add(new GuideAspectItemStack(entry.getValue()));
+//        }
 
         for (GuideGearItemStack stack : gear) {
             String name = stack.getGearInfo().name();
