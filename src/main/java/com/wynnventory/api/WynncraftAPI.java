@@ -7,6 +7,7 @@ import com.wynntils.models.character.type.ClassType;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.wynnitem.type.ItemMaterial;
 import com.wynnventory.WynnventoryMod;
+import com.wynnventory.core.ModInfo;
 import com.wynnventory.model.item.info.AspectInfo;
 import com.wynnventory.model.item.info.AspectTierInfo;
 import com.wynnventory.util.HttpUtil;
@@ -40,11 +41,11 @@ public class WynncraftAPI {
                 if (response.statusCode() == 200) {
                     aspects.putAll(parseAspectResults(response.body()));
                 } else {
-                    WynnventoryMod.error(response.statusCode() + " - Failed to fetch " + type + " lootpools: " + response.body());
+                    ModInfo.logError(response.statusCode() + " - Failed to fetch " + type + " lootpools: " + response.body());
                 }
             }
         } catch (Exception e) {
-            WynnventoryMod.error("Failed to initiate aspect fetch {}", e);
+            ModInfo.logError("Failed to initiate aspect fetch {}", e);
         }
 
         return aspects;

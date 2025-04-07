@@ -10,6 +10,7 @@ import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.WynnventoryMod;
 import com.wynnventory.config.ConfigManager;
 import com.wynnventory.enums.PoolType;
+import com.wynnventory.input.KeyBindingManager;
 import com.wynnventory.model.item.GroupedLootpool;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolGroup;
@@ -188,10 +189,6 @@ public class LootpoolScreen extends Screen {
         raidButton.active = currentPool != PoolType.RAID;
     }
 
-    private void reloadPools() {
-        LootpoolManager.reloadAllPools();
-    }
-
     private void buildColumn(GroupedLootpool pool, int startX, int startY, String query) {
         int rendered = 0;
 
@@ -251,7 +248,7 @@ public class LootpoolScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (searchBar.keyPressed(keyCode, scanCode, modifiers)) return true;
-        if (WynnventoryMod.KEY_OPEN_POOLS.matches(keyCode, scanCode) && !searchBar.isFocused()) {
+        if (KeyBindingManager.OPEN_POOLS.matches(keyCode, scanCode) && !searchBar.isFocused()) {
             this.onClose();
             return true;
         }

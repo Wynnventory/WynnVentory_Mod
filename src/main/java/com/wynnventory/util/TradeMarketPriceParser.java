@@ -4,6 +4,7 @@ import com.wynntils.core.text.StyledText;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynntils.utils.mc.LoreUtils;
 import com.wynnventory.WynnventoryMod;
+import com.wynnventory.core.ModInfo;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class TradeMarketPriceParser {
             StyledText priceValueLine = loreLines.get(2);
             Matcher matcher = priceValueLine.getMatcher(PRICE_PATTERN);
             if (!matcher.matches()) {
-                WynnventoryMod.warn("Trade Market item had an unexpected price value line: " + priceValueLine);
+                ModInfo.logWarn("Trade Market item had an unexpected price value line: " + priceValueLine);
                 return TradeMarketPriceInfo.EMPTY;
             } else {
                 int price = Integer.parseInt(matcher.group("price").replace(",", ""));
@@ -34,7 +35,7 @@ public class TradeMarketPriceParser {
                 return new TradeMarketPriceInfo(price, silverbullPrice, amount);
             }
         } else {
-            WynnventoryMod.warn("Trade Market item had an unexpected price line: " + priceLine);
+            ModInfo.logWarn("Trade Market item had an unexpected price line: " + priceLine);
             return TradeMarketPriceInfo.EMPTY;
         }
     }

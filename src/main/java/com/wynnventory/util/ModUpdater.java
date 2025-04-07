@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wynntils.utils.FileUtils;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
+import com.wynnventory.core.ModInfo;
 import com.wynnventory.model.github.Asset;
 import com.wynnventory.model.github.Release;
 import net.minecraft.ChatFormatting;
@@ -32,15 +33,15 @@ public class ModUpdater {
 
         alreadyChecked = true;
 
-        if (WynnventoryMod.WYNNVENTORY_INSTANCE.isEmpty()) {
-            WynnventoryMod.error("Could not find Wynnventory in Fabric Loader!");
+        if (ModInfo.INSTANCE.isEmpty()) {
+            ModInfo.logError("Could not find Wynnventory in Fabric Loader!");
             return;
         }
 
-        if (WynnventoryMod.isDev()) {
-            WynnventoryMod.info("This is a dev build. Skipping auto update...");
+        if (ModInfo.isDev()) {
+            ModInfo.logInfo("This is a dev build. Skipping auto update...");
         } else {
-            String currentVersion = WynnventoryMod.WYNNVENTORY_VERSION;
+            String currentVersion = ModInfo.VERSION;
             initiateUpdateCheck(currentVersion);
         }
     }
@@ -55,7 +56,7 @@ public class ModUpdater {
                     handleNewVersionFound(latestRelease, latestVersion);
                 }
             } catch (Exception e) {
-                WynnventoryMod.error("Failed to check for updates.", e);
+                ModInfo.logError("Failed to check for updates.", e);
             }
         }).start();
     }
@@ -77,7 +78,7 @@ public class ModUpdater {
     private static void handleNewVersionFound(Release latestRelease, String latestVersion) {
         notifyUserOfUpdate(latestVersion);
 
-        String modName = WynnventoryMod.WYNNVENTORY_MOD_NAME;
+        String modName = ModInfo.NAME;
         latestRelease.getAssets().stream()
                 .filter(asset -> asset.getName().startsWith(modName) && asset.getName().endsWith(".jar"))
                 .forEach(ModUpdater::downloadAndApplyUpdate);
@@ -98,7 +99,7 @@ public class ModUpdater {
                 File oldFile = getExistingModFile();
                 scheduleFileReplacementOnShutdown(oldFile, newFilePath.toFile());
             } catch (Exception e) {
-                WynnventoryMod.error("Failed to download Wynnventory update", e);
+                ModInfo.logError("Failed to download Wynnventory update", e);
             }
         }).start();
     }
@@ -121,7 +122,7 @@ public class ModUpdater {
     }
 
     private static File getExistingModFile() {
-        return new File(WynnventoryMod.WYNNVENTORY_INSTANCE.get().getOrigin().getPaths().getFirst().toUri());
+        return new File(ModInfo.INSTANCE.get().getOrigin().getPaths().getFirst().toUri());
     }
 
     private static void scheduleFileReplacementOnShutdown(File oldJar, File newJar) {
@@ -129,22 +130,22 @@ public class ModUpdater {
             try {
                 replaceOldFileWithNew(oldJar, newJar);
             } catch (IOException e) {
-                WynnventoryMod.error("Cannot apply update!", e);
+                ModInfo.logError("Cannot apply update!", e);
             }
         }));
     }
 
     private static void replaceOldFileWithNew(File oldJar, File newJar) throws IOException {
         if (!isValidJarFile(oldJar)) {
-            WynnventoryMod.warn("Mod jar file not found or incorrect.");
+            ModInfo.logWarn("Mod jar file not found or incorrect.");
             return;
         }
 
         FileUtils.copyFile(newJar, oldJar);
         if (newJar.delete()) {
-            WynnventoryMod.info("Successfully applied update!");
+            ModInfo.logInfo("Successfully applied update!");
         } else {
-            WynnventoryMod.warn("Failed to delete the new JAR file after copying.");
+            ModInfo.logWarn("Failed to delete the new JAR file after copying.");
         }
     }
 
