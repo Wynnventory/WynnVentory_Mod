@@ -2,12 +2,11 @@ package com.wynnventory;
 
 import com.sun.tools.javac.Main;
 import com.wynntils.utils.mc.McUtils;
-import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.api.WynnventoryScheduler;
 import com.wynnventory.config.ConfigManager;
-import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.keymapping.StickyKeyMapping;
 import com.wynnventory.ui.LootpoolScreen;
+import com.wynnventory.util.LootpoolManager;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
@@ -23,22 +22,13 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class WynnventoryMod implements ClientModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("wynnventory");
 	public static final Optional<ModContainer> WYNNVENTORY_INSTANCE = FabricLoader.getInstance().getModContainer("wynnventory");
 	public static String WYNNVENTORY_VERSION;
 	public static String WYNNVENTORY_MOD_NAME;
-
-	private static final WynnventoryAPI API = new WynnventoryAPI();
-	private static final ExecutorService executorService = Executors.newCachedThreadPool();
-	private static List<Lootpool> RAID_POOLS;
-	private static List<Lootpool> LOOT_POOLS;
 
 	private static boolean IS_DEV = false;
 
@@ -98,7 +88,9 @@ public class WynnventoryMod implements ClientModInitializer {
 //						AutoConfig.getConfigScreen(ConfigManager.class, Minecraft.getInstance().screen).get()
 //				);
 			if (KEY_OPEN_POOLS.consumeClick()) {
-				client.setScreen(new LootpoolScreen(Component.literal("Lootruns"), LOOT_POOLS, RAID_POOLS));
+				client.setScreen(new LootpoolScreen(
+						Component.literal("Lootruns"))
+				);
 			}
 		});
 
@@ -140,10 +132,7 @@ public class WynnventoryMod implements ClientModInitializer {
 	}
 
 	private static void loadPools() {
-		CompletableFuture.supplyAsync(() -> API.getLootpools("lootrun"), executorService)
-				.thenAccept(result -> LOOT_POOLS = result);
-		CompletableFuture.supplyAsync(() -> API.getLootpools("raidpool"), executorService)
-				.thenAccept(result -> RAID_POOLS = result);
+		LootpoolManager.reloadAllPools();
 	}
 
 	public static void debug(String msg) {

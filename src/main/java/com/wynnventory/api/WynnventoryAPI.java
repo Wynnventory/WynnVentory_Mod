@@ -8,10 +8,10 @@ import com.wynntils.core.components.Models;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.WynnventoryMod;
+import com.wynnventory.enums.PoolType;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
-import com.wynnventory.model.item.info.AspectInfo;
 import com.wynnventory.util.HttpUtil;
 import net.minecraft.world.item.ItemStack;
 
@@ -111,14 +111,16 @@ public class WynnventoryAPI {
         }
     }
 
-    public List<Lootpool> getLootpools(String type) {
+    public List<Lootpool> getLootpools(PoolType type) {
         try {
+            String path = "lootpool/" + type.getName() + "/";
             URI endpointURI;
+
             if (WynnventoryMod.isDev()) {
-                WynnventoryMod.info("Fetching " + type + " lootpools from DEV endpoint.");
-                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/lootpool/" + type + "/");
+                WynnventoryMod.info("Fetching " + type.name() + " lootpools from DEV endpoint.");
+                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/" + path);
             } else {
-                endpointURI = getEndpointURI("lootpool/" + type + "/");
+                endpointURI = getEndpointURI(path);
             }
 
             WynnventoryMod.error("URL: " + endpointURI);
@@ -134,10 +136,11 @@ public class WynnventoryAPI {
                 return new ArrayList<>();
             }
         } catch (Exception e) {
-            WynnventoryMod.error("Failed to initiate lootpool fetch {}", e);
+            WynnventoryMod.error("Failed to initiate lootpool fetch", e);
             return new ArrayList<>();
         }
     }
+
 
     public TradeMarketItemPriceInfo fetchLatestHistoricItemPrice(String itemName) {
         try {
