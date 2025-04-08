@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.models.emeralds.type.EmeraldUnits;
 import com.wynntils.models.gear.type.GearInfo;
+import com.wynntils.models.gear.type.GearType;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.config.ConfigManager;
 import com.wynnventory.config.EmeraldDisplayOption;
@@ -246,70 +247,106 @@ public class PriceTooltipHelper {
         int guiScale = (int) window.getGuiScale();
         int gap = 5 * guiScale;
 
-        // Retrieve the primary tooltip dimensions (which have priority).
-        Dimension primaryTooltipDim = PriceTooltipHelper.calculateTooltipDimension(
-                Screen.getTooltipFromItem(McUtils.mc(), item), font);
+        // Retrieve the primary tooltip (it has priority and must not be overlapped).
+        List<Component> primaryTooltips = Screen.getTooltipFromItem(McUtils.mc(), item);
+        Dimension primaryTooltipDim = PriceTooltipHelper.calculateTooltipDimension(primaryTooltips, font);
 
-        // Determine the available horizontal space on each side.
-        int availableLeft = mouseX - gap;
-        int availableRight = guiScaledWidth - (mouseX + primaryTooltipDim.width + gap);
-
-        // Decide whether to render the custom tooltip to the right or left.
-        // For anchored tooltips, use a biased threshold.
-        boolean placeRight;
-        if (anchored) {
-            placeRight = availableRight > availableLeft * 1.3f;
-        } else {
-            placeRight = availableRight >= availableLeft;
+        // Use the new logic to detect an unidentified tooltip.
+        String primaryTitle = primaryTooltips.getFirst().getString();
+        boolean gearBoxItem = false;
+        final String prefix = "Unidentified ";
+        if (primaryTitle.startsWith(prefix)) {
+            String suffix = primaryTitle.substring(prefix.length()).trim();
+            // Iterate over GearType enum values and see if the suffix matches one of the enum keys (ignoring case).
+            for (GearType gear : GearType.values()) {
+                if (gear.name().equalsIgnoreCase(suffix)) {
+                    gearBoxItem = true;
+                    break;
+                }
+            }
         }
 
-        // Define the maximum allowed width based on chosen side.
-        int tooltipMaxWidth = placeRight ? availableRight : availableLeft;
+        if (gearBoxItem) {
+            primaryTooltipDim.width += 35 * guiScale;
+            primaryTooltipDim.height += 35 * guiScale;
+        }
+
+        // Compute available horizontal space from the mouse position.
+        // spaceToRight: what remains if the primary tooltip is rendered to the right.
+        int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipDim.width + gap);
+        int spaceToLeft = mouseX - gap; // space to the left of the mouse.
+
+        // Use a minimum threshold so that if only a few pixels are available, it’s deemed insufficient.
+        final int MIN_SPACE_FOR_PRIMARY = 20;
+        boolean primaryRenderedRight = spaceToRight >= MIN_SPACE_FOR_PRIMARY;
+
+        // Determine available width (for scaling the price tooltip) and base position depending on anchored mode.
+        int availableWidth;
+        float posX, posY;
         int tooltipMaxHeight = Math.round(guiScaledHeight * 0.8f);
 
-        // Calculate the scale factor using the custom tooltip dimensions and the available space.
-        float scaleFactor = PriceTooltipHelper.calculateScaleFactor(tooltipLines, tooltipMaxHeight, tooltipMaxWidth, 0.4f, 1.0f, font);
+        if (!anchored) {
+            // Non-anchored behavior: position price tooltip near the mouse.
+            if (primaryRenderedRight) {
+                // Primary tooltip will be rendered to the right.
+                // => Render price tooltip on the opposite side (left of the mouse).
+                availableWidth = spaceToLeft; // equals mouseX - gap.
+            } else {
+                // Not enough space on the right for the primary tooltip.
+                // => Primary is rendered left, so price tooltip will be to its right.
+                availableWidth = guiScaledWidth - (mouseX + gap);
+            }
+        } else {
+            // Anchored behavior: price tooltip is snapped to the screen edge.
+            if (primaryRenderedRight) {
+                // Primary tooltip is rendered to the right (has sufficient room on right).
+                // => Price tooltip is anchored at the left edge.
+                availableWidth = spaceToLeft; // space from left edge to mouse.
+            } else {
+                // Not enough room on the right for the primary tooltip.
+                // => Primary tooltip is rendered to the left.
+                // => Price tooltip is anchored to the right edge.
+                availableWidth = guiScaledWidth - (mouseX + gap);
+            }
+        }
+
+        // Calculate the scale factor so that the price tooltip fits in the available width and height.
+        float scaleFactor = PriceTooltipHelper.calculateScaleFactor(tooltipLines, tooltipMaxHeight, availableWidth, 0.4f, 1.0f, font);
         Dimension tooltipDim = PriceTooltipHelper.calculateTooltipDimension(tooltipLines, font);
         Dimension scaledTooltipDim = new Dimension(
                 Math.round(tooltipDim.width * scaleFactor),
                 Math.round(tooltipDim.height * scaleFactor)
         );
 
-        // Calculate horizontal position (posX) based on the chosen side.
-        float posX;
-        if (anchored) {
-            // Anchored tooltips attach to the screen edge.
-            if (placeRight) {
-                posX = guiScaledWidth - scaledTooltipDim.width - (gap / scaleFactor);
-            } else {
-                posX = 0;
-            }
-        } else {
-            // In non-anchored mode, position relative to the mouse and the primary tooltip.
-            if (placeRight) {
-                posX = mouseX + gap + primaryTooltipDim.width;
-            } else {
+        // Now compute final positions.
+        if (!anchored) {
+            // Non-anchored: position relative to the mouse.
+            if (primaryRenderedRight) {
+                // Render price tooltip to the left of the mouse.
                 posX = mouseX - gap - scaledTooltipDim.width;
+            } else {
+                // Render price tooltip to the right of the mouse.
+                posX = mouseX + gap;
             }
-        }
-
-        // Calculate vertical position (posY).
-        float posY;
-        if (anchored) {
-            // Center vertically on the screen.
-            posY = ((guiScaledHeight / 2f) - (scaledTooltipDim.height / 2f)) / scaleFactor;
-            // Clamp within the screen's vertical bounds (using a margin based on the gap).
-            posY = Math.clamp(posY, gap / (float) scaleFactor, (guiScaledHeight - scaledTooltipDim.height - gap) / (float) scaleFactor);
-        } else {
-            // In non-anchored mode, use the mouseY position unless it makes the tooltip go off-screen.
+            // Vertical position: if rendering at mouseY would cause it to go off the bottom, adjust.
             if (mouseY + scaledTooltipDim.height > guiScaledHeight) {
                 posY = guiScaledHeight - scaledTooltipDim.height - gap;
             } else {
                 posY = mouseY;
             }
+        } else {
+            // Anchored: pin to screen edge and center vertically.
+            posY = (guiScaledHeight - scaledTooltipDim.height) / 2f;
+            if (primaryRenderedRight) {
+                // Primary is rendered on the right → price tooltip anchored on left.
+                posX = 0;
+            } else {
+                // Primary is rendered on left → price tooltip anchored on right.
+                posX = guiScaledWidth - scaledTooltipDim.width;
+            }
         }
 
-        // Render the custom tooltip with the calculated scale and positions.
+        // Render the price tooltip with applied translation and scale.
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
         poseStack.translate(posX, posY, 0);
