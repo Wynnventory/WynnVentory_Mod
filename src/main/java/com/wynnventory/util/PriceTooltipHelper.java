@@ -237,7 +237,7 @@ public class PriceTooltipHelper {
         Font font = McUtils.mc().font;
         Window window = McUtils.window();
 
-        // Ensure the mouse coordinates are within screen bounds
+        // Clamp the mouse coordinates to avoid going off-screen.
         mouseX = Math.min(mouseX, guiGraphics.guiWidth() - 10);
         mouseY = Math.max(mouseY, 10);
 
@@ -246,46 +246,70 @@ public class PriceTooltipHelper {
         int guiScale = (int) window.getGuiScale();
         int gap = 5 * guiScale;
 
-        // Calculate tooltip dimensions and scale using the helper
-        Dimension tooltipDim = PriceTooltipHelper.calculateTooltipDimension(tooltipLines, font);
-        int tooltipMaxWidth = mouseX - gap;
-        int tooltipMaxHeight = Math.round(guiScaledHeight * 0.8f);
-        float scaleFactor = PriceTooltipHelper.calculateScaleFactor(tooltipLines, tooltipMaxHeight, tooltipMaxWidth, 0.4f, 1.0f, font);
-        Dimension scaledTooltipDim = new Dimension(Math.round(tooltipDim.width * scaleFactor), Math.round(tooltipDim.height * scaleFactor));
+        // Retrieve the primary tooltip dimensions (which have priority).
+        Dimension primaryTooltipDim = PriceTooltipHelper.calculateTooltipDimension(
+                Screen.getTooltipFromItem(McUtils.mc(), item), font);
 
-        // Get primary tooltip dimensions (e.g., Minecraft’s default item tooltip)
-        Dimension primaryTooltipDim = PriceTooltipHelper.calculateTooltipDimension(Screen.getTooltipFromItem(McUtils.mc(), item), font);
+        // Determine the available horizontal space on each side.
+        int availableLeft = mouseX - gap;
+        int availableRight = guiScaledWidth - (mouseX + primaryTooltipDim.width + gap);
 
-        int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipDim.width + gap);
-        int spaceToLeft = mouseX - gap;
-
-        float minY = (scaledTooltipDim.height / 4f) / scaleFactor;
-        float maxY = (guiScaledHeight / 2f) / scaleFactor;
-        float scaledTooltipY = ((guiScaledHeight / 2f) - (scaledTooltipDim.height / 2f)) / scaleFactor;
-
-        float posX;
-        float posY;
+        // Decide whether to render the custom tooltip to the right or left.
+        // For anchored tooltips, use a biased threshold.
+        boolean placeRight;
         if (anchored) {
-            if (spaceToRight > spaceToLeft * 1.3f) {
+            placeRight = availableRight > availableLeft * 1.3f;
+        } else {
+            placeRight = availableRight >= availableLeft;
+        }
+
+        // Define the maximum allowed width based on chosen side.
+        int tooltipMaxWidth = placeRight ? availableRight : availableLeft;
+        int tooltipMaxHeight = Math.round(guiScaledHeight * 0.8f);
+
+        // Calculate the scale factor using the custom tooltip dimensions and the available space.
+        float scaleFactor = PriceTooltipHelper.calculateScaleFactor(tooltipLines, tooltipMaxHeight, tooltipMaxWidth, 0.4f, 1.0f, font);
+        Dimension tooltipDim = PriceTooltipHelper.calculateTooltipDimension(tooltipLines, font);
+        Dimension scaledTooltipDim = new Dimension(
+                Math.round(tooltipDim.width * scaleFactor),
+                Math.round(tooltipDim.height * scaleFactor)
+        );
+
+        // Calculate horizontal position (posX) based on the chosen side.
+        float posX;
+        if (anchored) {
+            // Anchored tooltips attach to the screen edge.
+            if (placeRight) {
                 posX = guiScaledWidth - scaledTooltipDim.width - (gap / scaleFactor);
             } else {
                 posX = 0;
             }
-            posY = Math.clamp(scaledTooltipY, minY, maxY);
         } else {
-            if (scaledTooltipDim.width > spaceToRight) {
-                posX = mouseX - gap - scaledTooltipDim.width;
-            } else {
+            // In non-anchored mode, position relative to the mouse and the primary tooltip.
+            if (placeRight) {
                 posX = mouseX + gap + primaryTooltipDim.width;
+            } else {
+                posX = mouseX - gap - scaledTooltipDim.width;
             }
+        }
+
+        // Calculate vertical position (posY).
+        float posY;
+        if (anchored) {
+            // Center vertically on the screen.
+            posY = ((guiScaledHeight / 2f) - (scaledTooltipDim.height / 2f)) / scaleFactor;
+            // Clamp within the screen's vertical bounds (using a margin based on the gap).
+            posY = Math.clamp(posY, gap / (float) scaleFactor, (guiScaledHeight - scaledTooltipDim.height - gap) / (float) scaleFactor);
+        } else {
+            // In non-anchored mode, use the mouseY position unless it makes the tooltip go off-screen.
             if (mouseY + scaledTooltipDim.height > guiScaledHeight) {
-                posY = Math.clamp(scaledTooltipY, minY, maxY);
+                posY = guiScaledHeight - scaledTooltipDim.height - gap;
             } else {
                 posY = mouseY;
             }
         }
 
-        // Render the tooltip with applied scaling and positioning
+        // Render the custom tooltip with the calculated scale and positions.
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
         poseStack.translate(posX, posY, 0);
