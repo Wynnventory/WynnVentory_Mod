@@ -19,13 +19,15 @@ public class ConfigManager implements ConfigData {
     @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
     private boolean anchorTooltips = true;
 
-    @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
-    private int maxFavouriteNotifierToasts = 5;
-
     // Color settings grouped in a collapsible object
     @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
     @ConfigEntry.Gui.CollapsibleObject
     private ColorSettings colorSettings = new ColorSettings();
+
+    // Favourite Notifier settings
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
+    @ConfigEntry.Gui.CollapsibleObject
+    private FavouriteNotifierSettings favouriteNotifierSettings = new FavouriteNotifierSettings();
 
     @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
@@ -83,8 +85,6 @@ public class ConfigManager implements ConfigData {
     public void setAnchorTooltips(boolean anchorTooltips) {
         this.anchorTooltips = anchorTooltips;
     }
-    public int getMaxFavouriteNotifierToasts() { return maxFavouriteNotifierToasts; }
-    public void setMaxFavouriteNotifierToasts(int maxFavouriteNotifierToasts) { this.maxFavouriteNotifierToasts = maxFavouriteNotifierToasts; }
 
     // Getters and setters for tooltip config
     public EmeraldDisplayOption getPriceFormat() {
@@ -132,7 +132,6 @@ public class ConfigManager implements ConfigData {
         this.showUnidAverage80Price = showUnidAverage80Price;
     }
 
-    // Getter and setter for ColorSettings
     public ColorSettings getColorSettings() {
         return colorSettings;
     }
@@ -140,10 +139,16 @@ public class ConfigManager implements ConfigData {
         this.colorSettings = colorSettings;
     }
 
+    public FavouriteNotifierSettings getFavouriteNotifierSettings() {
+        return favouriteNotifierSettings;
+    }
+    public void setFavouriteNotifierSettings(FavouriteNotifierSettings favouriteNotifierSettings) {
+        this.favouriteNotifierSettings = favouriteNotifierSettings;
+    }
+
     public RarityConfig getRarityConfig() {
         return rarityConfig;
     }
-
     public void setRarityConfig(RarityConfig rarityConfig) {
         this.rarityConfig = rarityConfig;
     }
@@ -180,7 +185,7 @@ public class ConfigManager implements ConfigData {
         }
     }
 
-    public class RarityConfig implements ConfigData {
+    public static class RarityConfig implements ConfigData {
 
         // Controls whether Mythic items are shown
         private boolean showMythic = true;
@@ -259,6 +264,31 @@ public class ConfigManager implements ConfigData {
 
         public void setShowSet(boolean showSet) {
             this.showSet = showSet;
+        }
+    }
+
+    public static class FavouriteNotifierSettings {
+        private boolean enableNotifier = true;
+        private int maxToasts = 5;
+        private boolean mythicsOnly = false;
+
+        public void setEnableNotifier(boolean enableNotifier) {
+            this.enableNotifier = enableNotifier;
+        }
+        public boolean isEnableNotifier() {
+            return enableNotifier;
+        }
+        public int getMaxToasts() {
+            return maxToasts;
+        }
+        public void setMaxToasts(int maxToasts) {
+            this.maxToasts = maxToasts;
+        }
+        public boolean isMythicsOnly() {
+            return mythicsOnly;
+        }
+        public void setMythicsOnly(boolean mythicsOnly) {
+            this.mythicsOnly = mythicsOnly;
         }
     }
 }

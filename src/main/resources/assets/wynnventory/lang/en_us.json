@@ -19,6 +19,11 @@
   "text.autoconfig.wynnventory.option.colorSettings.colorMinPrice": "Highlight prices above this price (in emeralds)",
   "text.autoconfig.wynnventory.option.colorSettings.highlightColor": "Highlight color",
 
+  "text.autoconfig.wynnventory.option.favouriteNotifierSettings": "Favourite Notifier Settings",
+  "text.autoconfig.wynnventory.option.favouriteNotifierSettings.enableNotifier": "Receive notifications about favourited items",
+  "text.autoconfig.wynnventory.option.favouriteNotifierSettings.maxToasts": "Maximum notifications to be displayed",
+  "text.autoconfig.wynnventory.option.favouriteNotifierSettings.mythicsOnly": "Only display notifications for Mythic items",
+
   "text.autoconfig.wynnventory.option.displayDropdown": "Choose how prices are formatted",
   "text.autoconfig.wynnventory.option.showMaxPrice": "Show max price for items",
   "text.autoconfig.wynnventory.option.showMinPrice": "Show min price for items",

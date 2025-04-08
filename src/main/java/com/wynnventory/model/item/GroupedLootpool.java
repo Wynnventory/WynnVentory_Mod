@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GroupedLootpool {
@@ -59,5 +60,15 @@ public class GroupedLootpool {
 
     public void setYear(int year) {
         this.year = year;
+    }
+
+    public List<LootpoolItem> getMythics() {
+        return getAllItems().stream().filter(item -> item.getRarity().equalsIgnoreCase("Mythic")).toList();
+    }
+
+    public List<LootpoolItem> getAllItems() {
+        return getGroupItems().stream()
+                .flatMap(group -> group.getLootItems().stream())
+                .toList();
     }
 }
