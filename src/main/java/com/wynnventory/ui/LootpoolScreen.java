@@ -184,31 +184,66 @@ public class LootpoolScreen extends Screen {
         List<GroupedLootpool> pools = getCurrentPools();
         String query = searchBar.getValue().trim().toLowerCase();
 
-        // Define boundaries for the columns.
-        // Left boundary is fixed; right boundary is now based on the filter buttons.
+        // --- Horizontal scaling ---
+        // Left boundary is fixed; right boundary is based on the filter buttons (if available) or fallback to search bar.
         int leftBoundary = 20;
-        int rightBoundary = filterToggles.isEmpty()
-                ? searchBar.getX() - 10
-                : filterToggles.get(0).getX() - 10;
+        int rightBoundary = filterToggles.isEmpty() ? searchBar.getX() - 10 : filterToggles.get(0).getX() - 10;
         int availableColumnsWidth = rightBoundary - leftBoundary;
-
         // Calculate the desired total width of the columns.
         int totalWidth = pools.size() * COL_WIDTH + (pools.size() - 1) * PANEL_PADDING;
-        // Compute an overall scaling factor if the desired columns' width exceeds the available area.
-        float overallScale = 1.0f;
+        float horizontalScale = 1.0f;
         if (totalWidth > availableColumnsWidth) {
-            overallScale = availableColumnsWidth / (float) totalWidth;
+            horizontalScale = availableColumnsWidth / (float) totalWidth;
         }
+
+        // --- Vertical scaling ---
+        // Determine where the columns start.
+        lastTitlesY = searchBar.getY() + searchBar.getHeight() + 10;
+        // We'll assume a fixed bottom margin.
+        int bottomMargin = 10;
+        int availableVertical = this.height - lastTitlesY - bottomMargin;
+
+        // For each column, count the items that match the query and filtering, then compute the required (unscaled) height.
+        int maxColumnHeightUnscaled = 0;
+        for (GroupedLootpool pool : pools) {
+            int rendered = 0;
+            for (LootpoolGroup group : pool.getGroupItems()) {
+                for (LootpoolItem item : group.getLootItems()) {
+                    String name = item.getName();
+                    if (!name.toLowerCase().contains(query)) continue;
+                    if (!matchesRarityFilters(item, ConfigManager.getInstance())) continue;
+                    // For each matching item, assume it contributes one button.
+                    // (If there are multiple stacks per item, buildColumn() will add them one by one.)
+                    rendered++;
+                }
+            }
+            if (rendered > 0) {
+                // Compute number of rows for this column.
+                int rows = (rendered + ITEMS_PER_ROW - 1) / ITEMS_PER_ROW;
+                // Unscaled column height: for rows, each row is ITEM_SIZE, plus (rows-1) gaps of ITEM_PADDING.
+                int colHeight = rows * ITEM_SIZE + (rows - 1) * ITEM_PADDING;
+                maxColumnHeightUnscaled = Math.max(maxColumnHeightUnscaled, colHeight);
+            }
+        }
+        float verticalScale = 1.0f;
+        if (maxColumnHeightUnscaled > availableVertical && availableVertical > 0) {
+            verticalScale = availableVertical / (float) maxColumnHeightUnscaled;
+        }
+
+        // Use the smaller of the two scales.
+        float overallScale = Math.min(horizontalScale, verticalScale);
+
         int scaledTotalWidth = Math.round(totalWidth * overallScale);
-        // Center the columns within the available area.
+        // Center the columns within the horizontal available space.
         int startX = leftBoundary + (availableColumnsWidth - scaledTotalWidth) / 2;
 
-        lastTitlesY = searchBar.getY() + searchBar.getHeight() + 10;
+        // Determine starting Y for the columns.
         int lastStartY = lastTitlesY + this.font.lineHeight + GAP_TITLE_TO_ITEMS;
 
-        // Build each column using the computed overallScale.
+        // Build each column with positions scaled by overallScale.
         for (int i = 0; i < pools.size(); i++) {
             int colX = startX + Math.round(i * (COL_WIDTH + PANEL_PADDING) * overallScale);
+            // Pass overallScale to buildColumn so that button positions and sizes are scaled.
             buildColumn(pools.get(i), colX, lastStartY, query, overallScale);
         }
     }
@@ -228,7 +263,7 @@ public class LootpoolScreen extends Screen {
                 if (!name.toLowerCase().contains(query)) continue;
                 if (!matchesRarityFilters(item, config)) continue;
 
-                // Apply overall scale to button positions and sizes.
+                // Scale positions using the overall scale factor.
                 int x = startX + Math.round((rendered % ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING) * scale);
                 int y = startY + Math.round((rendered / ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING) * scale);
                 List<GuideItemStack> stacks = stacksByName.get(name);
@@ -273,26 +308,55 @@ public class LootpoolScreen extends Screen {
         super.render(g, mouseX, mouseY, partialTick);
 
         List<GroupedLootpool> pools = getCurrentPools();
-        // Define the same boundaries as in updateScreen().
+        // Use the same boundaries as in updateScreen().
         int leftBoundary = 20;
         int rightBoundary = filterToggles.isEmpty()
                 ? searchBar.getX() - 10
                 : filterToggles.get(0).getX() - 10;
         int availableColumnsWidth = rightBoundary - leftBoundary;
         int totalWidth = pools.size() * COL_WIDTH + (pools.size() - 1) * PANEL_PADDING;
-        float overallScale = 1.0f;
+        float horizontalScale = 1.0f;
         if (totalWidth > availableColumnsWidth) {
-            overallScale = availableColumnsWidth / (float) totalWidth;
+            horizontalScale = availableColumnsWidth / (float) totalWidth;
         }
+
+        int bottomMargin = 20;
+        int lastTitlesYLocal = searchBar.getY() + searchBar.getHeight() + 10;
+        int availableVertical = this.height - lastTitlesYLocal - bottomMargin;
+
+        int maxColumnHeightUnscaled = 0;
+        String query = searchBar.getValue().trim().toLowerCase();
+        for (GroupedLootpool pool : pools) {
+            int rendered = 0;
+            for (LootpoolGroup group : pool.getGroupItems()) {
+                for (LootpoolItem item : group.getLootItems()) {
+                    String name = item.getName();
+                    if (!name.toLowerCase().contains(query)) continue;
+                    if (!matchesRarityFilters(item, ConfigManager.getInstance())) continue;
+                    rendered++;
+                }
+            }
+            if (rendered > 0) {
+                int rows = (rendered + ITEMS_PER_ROW - 1) / ITEMS_PER_ROW;
+                int colHeight = rows * ITEM_SIZE + (rows - 1) * ITEM_PADDING;
+                maxColumnHeightUnscaled = Math.max(maxColumnHeightUnscaled, colHeight);
+            }
+        }
+        float verticalScale = 1.0f;
+        if (maxColumnHeightUnscaled > availableVertical && availableVertical > 0) {
+            verticalScale = availableVertical / (float) maxColumnHeightUnscaled;
+        }
+
+        float overallScale = Math.min(horizontalScale, verticalScale);
         int scaledTotalWidth = Math.round(totalWidth * overallScale);
         int startX = leftBoundary + (availableColumnsWidth - scaledTotalWidth) / 2;
 
-        // Draw region (panel) titles using the same scaling logic.
+        // Draw region (panel) titles using the same overallScale.
         for (int i = 0; i < pools.size(); i++) {
             int columnX = startX + Math.round(i * (COL_WIDTH + PANEL_PADDING) * overallScale);
             String regionName = pools.get(i).getRegion();
             int textX = columnX + Math.round(((COL_WIDTH - ITEM_PADDING) / 2f) * overallScale);
-            g.drawCenteredString(this.font, regionName, textX, lastTitlesY, 0xFFFFFFFF);
+            g.drawCenteredString(this.font, regionName, textX, lastTitlesYLocal, 0xFFFFFFFF);
         }
 
         // Render tooltips for hovered element buttons.

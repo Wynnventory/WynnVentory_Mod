@@ -64,7 +64,7 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
         // Apply the same scale as for the item.
         poseStack.scale(scaleFactor, scaleFactor, scaleFactor);
         // The highlight should cover (this.width + 2) x (this.height + 2) pixels,
-        // but since we're scaling up by 'scaleFactor', we divide by it to get the source size.
+        // so we compute the source dimensions by dividing by the scale factor.
         int highlightWidth = Math.round((this.width + 2) / scaleFactor);
         int highlightHeight = Math.round((this.height + 2) / scaleFactor);
         RenderUtils.drawTexturedRectWithColor(
@@ -84,15 +84,15 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
         guiGraphics.renderItem(itemStack, 0, 0);
         poseStack.popPose();
 
-        // Render additional text overlays if applicable.
+        // Render additional text overlays scaled by the same factor.
         if (shiny) {
-            renderText("⬡", poseStack, CustomColor.fromChatFormatting(ChatFormatting.WHITE));
+            renderText("⬡", poseStack, CustomColor.fromChatFormatting(ChatFormatting.WHITE), scaleFactor);
         }
-        if(itemStack instanceof GuidePowderItemStack powderItemStack) {
-            renderText(MathUtils.toRoman(powderItemStack.getTier()), poseStack, color);
+        if (itemStack instanceof GuidePowderItemStack powderItemStack) {
+            renderText(MathUtils.toRoman(powderItemStack.getTier()), poseStack, color, scaleFactor);
         }
-        if(itemStack instanceof GuideAspectItemStack aspectItemStack) {
-            renderText(aspectItemStack.getAspectInfo().classType().getName().substring(0, 2), poseStack, color);
+        if (itemStack instanceof GuideAspectItemStack aspectItemStack) {
+            renderText(aspectItemStack.getAspectInfo().classType().getName().substring(0, 2), poseStack, color, scaleFactor);
         }
         // Render the favorite icon if the item is marked as favorite.
         if (Services.Favorites.isFavorite(itemStack)) {
@@ -102,31 +102,49 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
                     getX() + 12,
                     getY() - 4,
                     200,
-                    (float)this.width / 2,
-                    (float)this.height / 2,
+                    (float) this.width / 2,
+                    (float) this.height / 2,
                     Texture.FAVORITE_ICON.width(),
                     Texture.FAVORITE_ICON.height());
         }
     }
 
-    private void renderText(String text, PoseStack poseStack, CustomColor color) {
-        renderTextAt(text, poseStack, color, getX(), getY() - (getHeight() / 2f) + 4);
+    private void renderText(String text, PoseStack poseStack, CustomColor color, float scale) {
+        renderTextAt(text, poseStack, color, getX(), getY() - (getHeight() / 2f) + 4, scale);
     }
 
-    private void renderTextAt(String text, PoseStack poseStack, CustomColor color, float xPos, float yPos) {
+    /**
+     * Renders text in a box centered in the button.
+     * The method pushes a new transform, translates to the desired position, scales by the provided factor,
+     * and then renders the text using the FontRenderer.
+     *
+     * @param text   the text to render
+     * @param poseStack the current PoseStack
+     * @param color  the color to render the text in
+     * @param xPos   the X-coordinate to position the text (unscaled)
+     * @param yPos   the Y-coordinate to position the text (unscaled)
+     * @param scale  the scale factor to apply (same as the button's item scaling)
+     */
+    private void renderTextAt(String text, PoseStack poseStack, CustomColor color, float xPos, float yPos, float scale) {
         poseStack.pushPose();
-        poseStack.translate(0, 0, 200);
-        FontRenderer.getInstance()
-                .renderAlignedTextInBox(
-                        poseStack,
-                        StyledText.fromString(text),
-                        xPos,
-                        xPos,
-                        yPos,
-                        0,
-                        color,
-                        HorizontalAlignment.CENTER,
-                        TextShadow.OUTLINE);
+        // Translate to the desired unscaled position.
+        poseStack.translate(xPos, yPos, 200);
+        // Apply scaling: note that subsequent coordinates are now in scaled space.
+        poseStack.scale(scale, scale, scale);
+        // Determine a box width in scaled space.
+        // Since our button width is getWidth() (unscaled), after scaling the box width becomes getWidth()/scale.
+        int boxWidth = Math.round(getWidth() / scale);
+        // Render the text centered in the box.
+        FontRenderer.getInstance().renderAlignedTextInBox(
+                poseStack,
+                StyledText.fromString(text),
+                0, // left coordinate of the box in scaled space
+                boxWidth, // right coordinate of the box
+                0, // y coordinate in scaled space
+                0, // z offset (if needed)
+                color,
+                HorizontalAlignment.LEFT,
+                TextShadow.OUTLINE);
         poseStack.popPose();
     }
 
@@ -208,7 +226,6 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
         } else if (itemStack instanceof GuideAspectItemStack guideAspectItemStack) {
             return CustomColor.fromChatFormatting(guideAspectItemStack.getAspectInfo().gearTier().getChatFormatting());
         }
-
         return CustomColor.NONE;
     }
 }
