@@ -1,5 +1,6 @@
 package com.wynnventory;
 
+import com.wynntils.core.components.Services;
 import com.wynnventory.core.InitHandler;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.input.KeyBindingManager;

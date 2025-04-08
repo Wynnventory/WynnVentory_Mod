@@ -9,6 +9,7 @@ import com.wynnventory.model.RegionType;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
 import com.wynnventory.model.item.TradeMarketItem;
+import com.wynnventory.util.FavouriteNotifier;
 import com.wynnventory.util.ModUpdater;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -59,6 +60,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
            IS_FIRST_WORLD_JOIN = false;
         } else {
             ModUpdater.checkForUpdates();
+            FavouriteNotifier.checkFavourites();
         }
     }
 
