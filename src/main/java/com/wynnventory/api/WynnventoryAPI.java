@@ -93,7 +93,7 @@ public class WynnventoryAPI {
     public TradeMarketItemPriceInfo fetchItemPrices(String itemName) {
         String playerName = McUtils.playerName();
         try {
-            final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
+            final String encodedItemName = HttpUtil.encodeName(itemName);
 
             URI endpointURI;
             if (ModInfo.isDev()) {
@@ -149,7 +149,7 @@ public class WynnventoryAPI {
 
     public TradeMarketItemPriceInfo fetchLatestHistoricItemPrice(String itemName) {
         try {
-            final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
+            final String encodedItemName = HttpUtil.encodeName(itemName);
 
             URI endpointURI;
             if (ModInfo.isDev()) {

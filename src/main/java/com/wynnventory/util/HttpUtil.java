@@ -5,9 +5,11 @@ import com.wynnventory.core.ModInfo;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
 public class HttpUtil {
@@ -37,5 +39,9 @@ public class HttpUtil {
                 .build();
 
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    public static String encodeName(String name) {
+        return URLEncoder.encode(name, StandardCharsets.UTF_8).replace("+", "%20");
     }
 }
