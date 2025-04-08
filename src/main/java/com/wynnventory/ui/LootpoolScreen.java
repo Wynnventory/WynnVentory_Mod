@@ -2,6 +2,7 @@ package com.wynnventory.ui;
 
 import com.wynntils.core.components.Models;
 import com.wynntils.screens.guides.GuideItemStack;
+import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
@@ -298,6 +299,7 @@ public class LootpoolScreen extends Screen {
         addStacks(Models.Rewards.getAllTomeInfos().map(GuideTomeItemStack::new).toList(), s -> s.getTomeInfo().name());
         addStacks(Models.Element.getAllPowderTierInfo().stream().map(GuidePowderItemStack::new).toList(),
                 s -> s.getElement().getName() + " Powder " + MathUtils.toRoman(s.getTier()));
+        addStacks(Models.Aspect.getAllAspectInfos().map(info -> new GuideAspectItemStack(info, 1)).toList(), s -> s.getAspectInfo().name());
     }
 
     private <T extends GuideItemStack> void addStacks(List<T> items, Function<T, String> nameMapper) {

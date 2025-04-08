@@ -1,9 +1,7 @@
 package com.wynnventory.ui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.wynntils.core.components.Managers;
 import com.wynntils.core.components.Services;
-import com.wynntils.core.net.UrlId;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
@@ -18,8 +16,6 @@ import com.wynntils.utils.render.RenderUtils;
 import com.wynntils.utils.render.Texture;
 import com.wynntils.utils.render.type.HorizontalAlignment;
 import com.wynntils.utils.render.type.TextShadow;
-import com.wynnventory.api.WynnventoryAPI;
-import com.wynnventory.model.screen.GuideAspectItemStack;
 import com.wynnventory.util.HttpUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -29,16 +25,12 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.TooltipFlag;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.List;
-import java.util.Map;
-
 public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton {
     private final E itemStack;
-    private boolean shiny;
+    private final boolean shiny;
 
     public WynnventoryButton(int x, int y, int width, int height, E itemStack, Screen screen, boolean shiny) {
         super(x, y, width, height, Component.literal("Guide GearItemStack Button"));
