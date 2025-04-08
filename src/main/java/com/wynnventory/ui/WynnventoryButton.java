@@ -16,6 +16,7 @@ import com.wynntils.utils.render.RenderUtils;
 import com.wynntils.utils.render.Texture;
 import com.wynntils.utils.render.type.HorizontalAlignment;
 import com.wynntils.utils.render.type.TextShadow;
+import com.wynnventory.config.ConfigManager;
 import com.wynnventory.util.HttpUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -31,6 +32,8 @@ import org.lwjgl.glfw.GLFW;
 public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton {
     private final E itemStack;
     private final boolean shiny;
+    // Assume that the original (unscaled) size of the item rendering is 16 pixels.
+    private static final int ORIGINAL_ITEM_SIZE = 16;
 
     public WynnventoryButton(int x, int y, int width, int height, E itemStack, Screen screen, boolean shiny) {
         super(x, y, width, height, Component.literal("Guide GearItemStack Button"));
@@ -41,7 +44,7 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
 
     @Override
     public void onPress() {
-
+        // No action by default.
     }
 
     @Override
@@ -50,32 +53,48 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
 
         CustomColor color = getCustomColor();
 
+        // Calculate a scaling factor for both item rendering and the highlight.
+        // ORIGINAL_ITEM_SIZE is assumed to be the native unscaled size (16 pixels).
+        float scaleFactor = (float) getWidth() / (float) ORIGINAL_ITEM_SIZE;
+
+        // Render the highlight texture with proper scaling.
+        poseStack.pushPose();
+        // Translate to the button's top-left, offset by (-1,-1) for the highlight.
+        poseStack.translate(getX() - 1, getY() - 1, 0);
+        // Apply the same scale as for the item.
+        poseStack.scale(scaleFactor, scaleFactor, scaleFactor);
+        // The highlight should cover (this.width + 2) x (this.height + 2) pixels,
+        // but since we're scaling up by 'scaleFactor', we divide by it to get the source size.
+        int highlightWidth = Math.round((this.width + 2) / scaleFactor);
+        int highlightHeight = Math.round((this.height + 2) / scaleFactor);
         RenderUtils.drawTexturedRectWithColor(
                 poseStack,
                 Texture.HIGHLIGHT.resource(),
                 color.withAlpha(1f),
-                getX() - 1,
-                getY() - 1,
-                0,
-                this.width + 2,
-                this.height + 2,
+                0, 0, 0,
+                highlightWidth, highlightHeight,
                 Texture.HIGHLIGHT.width(),
                 Texture.HIGHLIGHT.height());
+        poseStack.popPose();
 
-        RenderUtils.renderItem(guiGraphics, itemStack, getX(), getY());
+        // Render the item with scaling.
+        poseStack.pushPose();
+        poseStack.translate(getX(), getY(), 0);
+        poseStack.scale(scaleFactor, scaleFactor, scaleFactor);
+        guiGraphics.renderItem(itemStack, 0, 0);
+        poseStack.popPose();
 
+        // Render additional text overlays if applicable.
         if (shiny) {
             renderText("⬡", poseStack, CustomColor.fromChatFormatting(ChatFormatting.WHITE));
         }
-
         if(itemStack instanceof GuidePowderItemStack powderItemStack) {
             renderText(MathUtils.toRoman(powderItemStack.getTier()), poseStack, color);
         }
-
         if(itemStack instanceof GuideAspectItemStack aspectItemStack) {
-            renderText(aspectItemStack.getAspectInfo().classType().getName().substring(0,2), poseStack, color);
+            renderText(aspectItemStack.getAspectInfo().classType().getName().substring(0, 2), poseStack, color);
         }
-
+        // Render the favorite icon if the item is marked as favorite.
         if (Services.Favorites.isFavorite(itemStack)) {
             RenderUtils.drawScalingTexturedRect(
                     poseStack,
@@ -83,8 +102,8 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
                     getX() + 12,
                     getY() - 4,
                     200,
-                    (float) this.width / 2,
-                    (float) this.height / 2,
+                    (float)this.width / 2,
+                    (float)this.height / 2,
                     Texture.FAVORITE_ICON.width(),
                     Texture.FAVORITE_ICON.height());
         }
@@ -113,7 +132,7 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
 
     @Override
     protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-
+        // Narration not implemented.
     }
 
     @Override
@@ -174,25 +193,19 @@ public class WynnventoryButton<E extends GuideItemStack> extends AbstractButton 
     }
 
     public void buildTooltip() {
-        if(itemStack instanceof GuideGearItemStack guideGearItemStack) {
+        if (itemStack instanceof GuideGearItemStack guideGearItemStack) {
             guideGearItemStack.buildTooltip();
-        }
-
-        else if(itemStack instanceof GuideTomeItemStack guideTomeItemStack) {
+        } else if (itemStack instanceof GuideTomeItemStack guideTomeItemStack) {
             guideTomeItemStack.buildTooltip();
         }
     }
 
     public CustomColor getCustomColor() {
-        if(itemStack instanceof GuideGearItemStack guideGearItemStack) {
+        if (itemStack instanceof GuideGearItemStack guideGearItemStack) {
             return CustomColor.fromChatFormatting(guideGearItemStack.getGearInfo().tier().getChatFormatting());
-        }
-
-        else if(itemStack instanceof GuideTomeItemStack guideTomeItemStack) {
+        } else if (itemStack instanceof GuideTomeItemStack guideTomeItemStack) {
             return CustomColor.fromChatFormatting(guideTomeItemStack.getTomeInfo().tier().getChatFormatting());
-        }
-
-        else if (itemStack instanceof GuideAspectItemStack guideAspectItemStack) {
+        } else if (itemStack instanceof GuideAspectItemStack guideAspectItemStack) {
             return CustomColor.fromChatFormatting(guideAspectItemStack.getAspectInfo().gearTier().getChatFormatting());
         }
 

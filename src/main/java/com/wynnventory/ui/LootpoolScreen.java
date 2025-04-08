@@ -183,15 +183,30 @@ public class LootpoolScreen extends Screen {
         List<GroupedLootpool> pools = getCurrentPools();
         String query = searchBar.getValue().trim().toLowerCase();
 
+        // Calculate the desired total width of the columns.
         int totalWidth = pools.size() * COL_WIDTH + (pools.size() - 1) * PANEL_PADDING;
-        int startX = (this.width - totalWidth) / 2;
+        // Define a margin (in pixels) on both sides.
+        int margin = 20;
+        int availableWidth = this.width - (2 * margin);
+        // Compute an overall scaling factor if the total width exceeds the available space.
+        float overallScale = 1.0f;
+        if (totalWidth > availableWidth) {
+            overallScale = availableWidth / (float) totalWidth;
+        }
+        int scaledTotalWidth = Math.round(totalWidth * overallScale);
+        // Center the columns using the scaled total width.
+        int startX = (this.width - scaledTotalWidth) / 2;
 
         lastTitlesY = searchBar.getY() + searchBar.getHeight() + 10;
         int lastStartY = lastTitlesY + this.font.lineHeight + GAP_TITLE_TO_ITEMS;
 
+        // Remove any previously added element buttons.
+        elementButtons.clear();
+        // Build each column with positions scaled by overallScale.
         for (int i = 0; i < pools.size(); i++) {
-            int x = startX + i * (COL_WIDTH + PANEL_PADDING);
-            buildColumn(pools.get(i), x, lastStartY, query);
+            // Compute each column’s X position using the scaling factor.
+            int colX = startX + Math.round(i * (COL_WIDTH + PANEL_PADDING) * overallScale);
+            buildColumn(pools.get(i), colX, lastStartY, query, overallScale);
         }
     }
 
@@ -200,7 +215,7 @@ public class LootpoolScreen extends Screen {
         raidButton.active = currentPool != PoolType.RAID;
     }
 
-    private void buildColumn(GroupedLootpool pool, int startX, int startY, String query) {
+    private void buildColumn(GroupedLootpool pool, int startX, int startY, String query, float scale) {
         var config = ConfigManager.getInstance();
         int rendered = 0;
 
@@ -210,14 +225,16 @@ public class LootpoolScreen extends Screen {
                 if (!name.toLowerCase().contains(query)) continue;
                 if (!matchesRarityFilters(item, config)) continue;
 
-                int x = startX + (rendered % ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING);
-                int y = startY + (rendered / ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING);
-
+                // Scale the positions and size using the overallScale factor.
+                int x = startX + Math.round((rendered % ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING) * scale);
+                int y = startY + Math.round((rendered / ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING) * scale);
                 List<GuideItemStack> stacks = stacksByName.get(name);
                 if (stacks == null || stacks.isEmpty()) continue;
 
                 for (GuideItemStack stack : stacks) {
-                    WynnventoryButton<GuideItemStack> button = new WynnventoryButton<>(x, y, ITEM_SIZE, ITEM_SIZE, stack, this, item.isShiny());
+                    // Scale the button size.
+                    int buttonSize = Math.round(ITEM_SIZE * scale);
+                    WynnventoryButton<GuideItemStack> button = new WynnventoryButton<>(x, y, buttonSize, buttonSize, stack, this, item.isShiny());
                     elementButtons.add(button);
                     addRenderableWidget(button);
                     rendered++;
@@ -255,26 +272,31 @@ public class LootpoolScreen extends Screen {
 
         List<GroupedLootpool> pools = getCurrentPools();
         int totalWidth = pools.size() * COL_WIDTH + (pools.size() - 1) * PANEL_PADDING;
-        int startX = (this.width - totalWidth) / 2;
+        int margin = 20;
+        int availableWidth = this.width - (2 * margin);
+        float overallScale = 1.0f;
+        if (totalWidth > availableWidth) {
+            overallScale = availableWidth / (float) totalWidth;
+        }
+        int scaledTotalWidth = Math.round(totalWidth * overallScale);
+        int startX = (this.width - scaledTotalWidth) / 2;
 
+        // Draw region (panel) titles using the same scaling logic.
         for (int i = 0; i < pools.size(); i++) {
-            int columnX = startX + i * (COL_WIDTH + PANEL_PADDING);
+            // Compute the X position for this column.
+            int columnX = startX + Math.round(i * (COL_WIDTH + PANEL_PADDING) * overallScale);
             String regionName = pools.get(i).getRegion();
-            int textX = columnX + ((COL_WIDTH - ITEM_PADDING) / 2);
-
+            // Center the title horizontally relative to the scaled column.
+            int textX = columnX + Math.round(((COL_WIDTH - ITEM_PADDING) / 2f) * overallScale);
             g.drawCenteredString(this.font, regionName, textX, lastTitlesY, 0xFFFFFFFF);
-
-            int regionWidth = this.font.width(regionName);
-            if (mouseX >= textX - regionWidth / 2 && mouseX <= textX + regionWidth / 2 &&
-                    mouseY >= lastTitlesY && mouseY <= lastTitlesY + this.font.lineHeight) {
-//                g.renderTooltip(this.font, Component.literal("LONG DESCRIPTION"), mouseX, mouseY);
-            }
         }
 
+        // Render tooltips for hovered element buttons.
         for (WynnventoryButton<GuideItemStack> button : elementButtons) {
             if (button.isHovered()) {
                 g.renderTooltip(FontRenderer.getInstance().getFont(), button.getItemStack(), mouseX, mouseY);
-                PriceTooltipHelper.renderPriceInfoTooltip(g, mouseX, mouseY, button.getItemStack(), ItemStackUtils.getTooltips(button.getItemStack()), ConfigManager.getInstance().isAnchorTooltips());
+                PriceTooltipHelper.renderPriceInfoTooltip(g, mouseX, mouseY, button.getItemStack(),
+                        ItemStackUtils.getTooltips(button.getItemStack()), ConfigManager.getInstance().isAnchorTooltips());
             }
         }
     }
