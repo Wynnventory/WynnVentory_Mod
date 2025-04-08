@@ -15,7 +15,9 @@ import com.wynnventory.model.item.GroupedLootpool;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolGroup;
 import com.wynnventory.model.item.LootpoolItem;
+import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.LootpoolManager;
+import com.wynnventory.util.PriceTooltipHelper;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,6 +26,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
 import java.util.function.Function;
@@ -296,6 +299,9 @@ public class LootpoolScreen extends Screen {
         for (WynnventoryButton button : elementButtons) {
             if (button.isHovered()) {
                 guiGraphics.renderTooltip(FontRenderer.getInstance().getFont(), button.getItemStack(), mouseX, mouseY);
+
+                List<Component> tooltips = ItemStackUtils.getTooltips(button.getItemStack());
+                PriceTooltipHelper.renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, button.getItemStack(), tooltips, ConfigManager.getInstance().isAnchorTooltips());
             }
         }
     }

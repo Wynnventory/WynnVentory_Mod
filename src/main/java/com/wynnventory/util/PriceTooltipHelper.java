@@ -1,16 +1,23 @@
 package com.wynnventory.util;
 
+import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.models.emeralds.type.EmeraldUnits;
 import com.wynntils.models.gear.type.GearInfo;
+import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.config.ConfigManager;
 import com.wynnventory.config.EmeraldDisplayOption;
 import com.wynnventory.model.item.TradeMarketItemPriceHolder;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.world.item.ItemStack;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.awt.*;
 import java.text.NumberFormat;
@@ -223,5 +230,67 @@ public class PriceTooltipHelper {
             return 2;
         }
         return priceInfo.getUnidentifiedAverage80Price() != 0 ? 0 : 1;
+    }
+
+    @Unique
+    public static void renderPriceInfoTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, ItemStack item, List<Component> tooltipLines, boolean anchored) {
+        Font font = McUtils.mc().font;
+        Window window = McUtils.window();
+
+        // Ensure the mouse coordinates are within screen bounds
+        mouseX = Math.min(mouseX, guiGraphics.guiWidth() - 10);
+        mouseY = Math.max(mouseY, 10);
+
+        int guiScaledWidth = window.getGuiScaledWidth();
+        int guiScaledHeight = window.getGuiScaledHeight();
+        int guiScale = (int) window.getGuiScale();
+        int gap = 5 * guiScale;
+
+        // Calculate tooltip dimensions and scale using the helper
+        Dimension tooltipDim = PriceTooltipHelper.calculateTooltipDimension(tooltipLines, font);
+        int tooltipMaxWidth = mouseX - gap;
+        int tooltipMaxHeight = Math.round(guiScaledHeight * 0.8f);
+        float scaleFactor = PriceTooltipHelper.calculateScaleFactor(tooltipLines, tooltipMaxHeight, tooltipMaxWidth, 0.4f, 1.0f, font);
+        Dimension scaledTooltipDim = new Dimension(Math.round(tooltipDim.width * scaleFactor), Math.round(tooltipDim.height * scaleFactor));
+
+        // Get primary tooltip dimensions (e.g., Minecraft’s default item tooltip)
+        Dimension primaryTooltipDim = PriceTooltipHelper.calculateTooltipDimension(Screen.getTooltipFromItem(McUtils.mc(), item), font);
+
+        int spaceToRight = guiScaledWidth - (mouseX + primaryTooltipDim.width + gap);
+        int spaceToLeft = mouseX - gap;
+
+        float minY = (scaledTooltipDim.height / 4f) / scaleFactor;
+        float maxY = (guiScaledHeight / 2f) / scaleFactor;
+        float scaledTooltipY = ((guiScaledHeight / 2f) - (scaledTooltipDim.height / 2f)) / scaleFactor;
+
+        float posX;
+        float posY;
+        if (anchored) {
+            if (spaceToRight > spaceToLeft * 1.3f) {
+                posX = guiScaledWidth - scaledTooltipDim.width - (gap / scaleFactor);
+            } else {
+                posX = 0;
+            }
+            posY = Math.clamp(scaledTooltipY, minY, maxY);
+        } else {
+            if (scaledTooltipDim.width > spaceToRight) {
+                posX = mouseX - gap - scaledTooltipDim.width;
+            } else {
+                posX = mouseX + gap + primaryTooltipDim.width;
+            }
+            if (mouseY + scaledTooltipDim.height > guiScaledHeight) {
+                posY = Math.clamp(scaledTooltipY, minY, maxY);
+            } else {
+                posY = mouseY;
+            }
+        }
+
+        // Render the tooltip with applied scaling and positioning
+        PoseStack poseStack = guiGraphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(posX, posY, 0);
+        poseStack.scale(scaleFactor, scaleFactor, 1.0f);
+        guiGraphics.renderComponentTooltip(font, tooltipLines, 0, 0);
+        poseStack.popPose();
     }
 }

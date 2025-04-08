@@ -112,6 +112,22 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         }
     }
 
+    @Override
+    public void queueItemForSubmit(ItemStack item) {
+        if (item.getItem() == Items.AIR || item.getItem() == Items.COMPASS || item.getItem() == Items.POTION) {
+            return;
+        }
+        if (McUtils.inventory().items.contains(item)) {
+            return;
+        }
+
+        TradeMarketItem marketItem = TradeMarketItem.createTradeMarketItem(item);
+        if (marketItem != null && !marketItemsBuffer.contains(marketItem)) {
+            marketItemsBuffer.add(marketItem);
+            ModInfo.logDebug("Queued item for submit: " + marketItem.getItem().getName());
+        }
+    }
+
     private void addItemsToQueue(Map<String, Lootpool> queue, String region, List<ItemStack> items) {
         if(!queue.containsKey(region)) {
             queue.put(region, new Lootpool(region, McUtils.playerName(), ModInfo.VERSION));
