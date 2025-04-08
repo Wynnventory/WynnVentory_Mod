@@ -19,6 +19,9 @@ public class ConfigManager implements ConfigData {
     @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
     private boolean anchorTooltips = true;
 
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
+    private int maxFavouriteNotifierToasts = 5;
+
     // Color settings grouped in a collapsible object
     @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
     @ConfigEntry.Gui.CollapsibleObject
@@ -80,6 +83,8 @@ public class ConfigManager implements ConfigData {
     public void setAnchorTooltips(boolean anchorTooltips) {
         this.anchorTooltips = anchorTooltips;
     }
+    public int getMaxFavouriteNotifierToasts() { return maxFavouriteNotifierToasts; }
+    public void setMaxFavouriteNotifierToasts(int maxFavouriteNotifierToasts) { this.maxFavouriteNotifierToasts = maxFavouriteNotifierToasts; }
 
     // Getters and setters for tooltip config
     public EmeraldDisplayOption getPriceFormat() {

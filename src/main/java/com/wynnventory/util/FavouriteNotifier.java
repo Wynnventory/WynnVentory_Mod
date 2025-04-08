@@ -17,8 +17,7 @@ import java.util.stream.Stream;
 
 public class FavouriteNotifier {
 
-//    private static final int MAX_TOASTS = ConfigManager.getInstance().getMaxFavouriteNotifierToasts();
-    private static final int MAX_TOASTS = 5;
+    private static final int MAX_TOASTS = ConfigManager.getInstance().getMaxFavouriteNotifierToasts();
 
     private FavouriteNotifier() {}
 
