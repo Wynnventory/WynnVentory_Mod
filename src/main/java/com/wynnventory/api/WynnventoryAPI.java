@@ -126,7 +126,7 @@ public class WynnventoryAPI {
 
             if (ModInfo.isDev()) {
                 ModInfo.logInfo("Fetching " + type.name() + " lootpools from DEV endpoint.");
-                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/" + path);
+                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/" + path + "?env=dev2");
             } else {
                 endpointURI = getEndpointURI(path);
             }

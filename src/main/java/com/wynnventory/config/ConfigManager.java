@@ -46,8 +46,9 @@ public class ConfigManager implements ConfigData {
     @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     private boolean showUnidAverage80Price = true;
 
-    private final boolean[] filterStates = new boolean[5];
-
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
+    @ConfigEntry.Gui.Excluded
+    private RarityConfig rarityConfig = new RarityConfig();
 
     // Static getter to retrieve the instance managed by AutoConfig
     public static ConfigManager getInstance() {
@@ -134,6 +135,14 @@ public class ConfigManager implements ConfigData {
         this.colorSettings = colorSettings;
     }
 
+    public RarityConfig getRarityConfig() {
+        return rarityConfig;
+    }
+
+    public void setRarityConfig(RarityConfig rarityConfig) {
+        this.rarityConfig = rarityConfig;
+    }
+
     public static class ColorSettings {
         private boolean showColors = false;
         private int colorMinPrice = 4096;
@@ -166,11 +175,85 @@ public class ConfigManager implements ConfigData {
         }
     }
 
-    public boolean getFilterState(int index) {
-        return filterStates[index];
-    }
+    public class RarityConfig implements ConfigData {
 
-    public void setFilterState(int index, boolean value) {
-        filterStates[index] = value;
+        // Controls whether Mythic items are shown
+        private boolean showMythic = true;
+
+        // Controls whether Fabled items are shown
+        private boolean showFabled = true;
+
+        // Controls whether Legendary items are shown
+        private boolean showLegendary = true;
+
+        // Controls whether Rare items are shown
+        private boolean showRare = true;
+
+        // Controls whether Unique items are shown
+        private boolean showUnique = true;
+
+        // Controls whether Unique items are shown
+        private boolean showCommon = true;
+
+        // Controls whether Unique items are shown
+        private boolean showSet = true;
+
+        // Getters and setters
+
+        public boolean getShowMythic() {
+            return showMythic;
+        }
+
+        public void setShowMythic(boolean showMythic) {
+            this.showMythic = showMythic;
+        }
+
+        public boolean getShowFabled() {
+            return showFabled;
+        }
+
+        public void setShowFabled(boolean showFabled) {
+            this.showFabled = showFabled;
+        }
+
+        public boolean getShowLegendary() {
+            return showLegendary;
+        }
+
+        public void setShowLegendary(boolean showLegendary) {
+            this.showLegendary = showLegendary;
+        }
+
+        public boolean getShowRare() {
+            return showRare;
+        }
+
+        public void setShowRare(boolean showRare) {
+            this.showRare = showRare;
+        }
+
+        public boolean getShowUnique() {
+            return showUnique;
+        }
+
+        public void setShowUnique(boolean showUnique) {
+            this.showUnique = showUnique;
+        }
+
+        public boolean getShowCommon() {
+            return showCommon;
+        }
+
+        public void setShowCommon(boolean showCommon) {
+            this.showCommon = showCommon;
+        }
+
+        public boolean getShowSet() {
+            return showSet;
+        }
+
+        public void setShowSet(boolean showSet) {
+            this.showSet = showSet;
+        }
     }
 }
