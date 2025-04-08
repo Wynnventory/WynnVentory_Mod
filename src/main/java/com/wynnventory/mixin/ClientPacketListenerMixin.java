@@ -41,7 +41,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     private static final String MARKET_TITLE = "󏿨";
     private static final int CONTAINER_SLOTS = 54;
 
-    private static boolean IS_FIRST_WORLD_JOIN = true;
+    private static int JOIN_COUNTER = 0;
 
     @Unique
     private final List<TradeMarketItem> marketItemsBuffer = new ArrayList<>();
@@ -56,9 +56,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
     @Inject(method = "handleLogin", at = @At("RETURN"))
     private void onPlayerJoin(ClientboundLoginPacket packet, CallbackInfo ci) {
-        if(IS_FIRST_WORLD_JOIN) {
-           IS_FIRST_WORLD_JOIN = false;
-        } else {
+        if (++JOIN_COUNTER == 2) {
             ModUpdater.checkForUpdates();
             FavouriteNotifier.checkFavourites();
         }
