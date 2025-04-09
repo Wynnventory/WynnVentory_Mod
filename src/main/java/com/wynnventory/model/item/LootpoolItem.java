@@ -228,14 +228,6 @@ public class LootpoolItem {
     }
 
     public ChatFormatting getRarityColor() {
-        return switch (GearTier.fromString(rarity)) {
-            case GearTier.MYTHIC -> ChatFormatting.DARK_PURPLE;
-            case GearTier.FABLED -> ChatFormatting.RED;
-            case GearTier.LEGENDARY -> ChatFormatting.AQUA;
-            case GearTier.RARE -> ChatFormatting.LIGHT_PURPLE;
-            case GearTier.UNIQUE -> ChatFormatting.YELLOW;
-            case GearTier.SET -> ChatFormatting.GREEN;
-            default -> ChatFormatting.WHITE; // including Common
-        };
+        return ItemStackUtils.getRarityColor(rarity);
     }
 }

@@ -4,6 +4,7 @@ import com.wynntils.core.components.Models;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.gear.type.GearRestrictions;
+import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.GearBoxItem;
@@ -163,5 +164,17 @@ public class ItemStackUtils {
             TradeMarketItemPriceInfo historicInfo = fetchedHistoricPrices.get(gearInfo.name()).getPriceInfo();
             return PriceTooltipHelper.createPriceTooltip(gearInfo, priceInfo, historicInfo);
         }
+    }
+
+    public static ChatFormatting getRarityColor(String rarity) {
+        return switch (GearTier.fromString(rarity)) {
+            case GearTier.MYTHIC -> ChatFormatting.DARK_PURPLE;
+            case GearTier.FABLED -> ChatFormatting.RED;
+            case GearTier.LEGENDARY -> ChatFormatting.AQUA;
+            case GearTier.RARE -> ChatFormatting.LIGHT_PURPLE;
+            case GearTier.UNIQUE -> ChatFormatting.YELLOW;
+            case GearTier.SET -> ChatFormatting.GREEN;
+            default -> ChatFormatting.WHITE; // including Common
+        };
     }
 }

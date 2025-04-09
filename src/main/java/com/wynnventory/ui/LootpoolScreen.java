@@ -46,12 +46,12 @@ public class LootpoolScreen extends Screen {
     private static final int GAP_TITLE_TO_ITEMS = 12;
 
     private final Map<String, List<GuideItemStack>> stacksByName = new HashMap<>();
-    private final List<WynnventoryButton<GuideItemStack>> elementButtons = new ArrayList<>();
+    private final List<WynnventoryItemButton<GuideItemStack>> elementButtons = new ArrayList<>();
     private final List<Button> filterToggles = new ArrayList<>();
 
     private Button lootrunButton;
     private Button raidButton;
-    private Button reloadButton;
+    private ReloadButton reloadButton;
     private EditBox searchBar;
 
     private int lastTitlesY;
@@ -109,10 +109,10 @@ public class LootpoolScreen extends Screen {
         int x = searchBar.getX() + searchBar.getWidth() + gap;
         int y = searchBar.getY();
 
-        reloadButton = Button.builder(Component.literal("↻"), b -> {
+        reloadButton = new ReloadButton(x, y, () -> {
             LootpoolManager.reloadAllPools();
             updateScreen();
-        }).bounds(x, y, 20, 20).build();
+        });
 
         addRenderableWidget(reloadButton);
     }
@@ -271,7 +271,7 @@ public class LootpoolScreen extends Screen {
 
                 for (GuideItemStack stack : stacks) {
                     int buttonSize = Math.round(ITEM_SIZE * scale);
-                    WynnventoryButton<GuideItemStack> button = new WynnventoryButton<>(x, y, buttonSize, buttonSize, stack, this, item.isShiny());
+                    WynnventoryItemButton<GuideItemStack> button = new WynnventoryItemButton<>(x, y, buttonSize, buttonSize, stack, item.isShiny());
                     elementButtons.add(button);
                     addRenderableWidget(button);
                     rendered++;
@@ -360,7 +360,7 @@ public class LootpoolScreen extends Screen {
         }
 
         // Render tooltips for hovered element buttons.
-        for (WynnventoryButton<GuideItemStack> button : elementButtons) {
+        for (WynnventoryItemButton<GuideItemStack> button : elementButtons) {
             if (button.isHovered()) {
                 g.renderTooltip(FontRenderer.getInstance().getFont(), button.getItemStack(), mouseX, mouseY);
                 PriceTooltipHelper.renderPriceInfoTooltip(g, mouseX, mouseY, button.getItemStack(),
