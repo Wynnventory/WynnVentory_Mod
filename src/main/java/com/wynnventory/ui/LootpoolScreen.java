@@ -95,7 +95,7 @@ public class LootpoolScreen extends Screen {
     private void initSearchBar() {
         int width = 175;
         int height = 20;
-        int x = this.width - width - 25;
+        int x = this.width - width - 50;
         int y = 40;
 
         searchBar = new EditBox(this.font, x, y, width, height, Component.literal(""));
