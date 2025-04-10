@@ -7,7 +7,7 @@ import com.wynnventory.enums.Sprite;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
-public class WynnventoryImageButton extends AbstractWynnventoryButton {
+public class WynnventoryImageButton extends WynnventoryButton {
     private final Sprite sprite;
     private final Runnable onClick;
     private String description;
@@ -29,13 +29,14 @@ public class WynnventoryImageButton extends AbstractWynnventoryButton {
         pose.pushPose();
         pose.translate(getX(), getY(), 0);
 
-        int u = isHoveredOrFocused() ? sprite.width() / 2 : 0;
+        int spriteStart = isHovered() ? sprite.width() / 2 : 0;
+
         RenderUtils.drawTexturedRect(
                 pose,
                 sprite.resource(),
                 0, 0, 0,
                 getWidth(), getHeight(),
-                u, 0,
+                spriteStart, 0,
                 sprite.width() / 2, sprite.height(),
                 sprite.width(), sprite.height()
         );
@@ -43,7 +44,7 @@ public class WynnventoryImageButton extends AbstractWynnventoryButton {
 
         if (isHovered() && description != null) {
             graphics.renderTooltip(
-                   McUtils.mc().font,
+                    McUtils.mc().font,
                     Component.literal(description),
                     mouseX,
                     mouseY

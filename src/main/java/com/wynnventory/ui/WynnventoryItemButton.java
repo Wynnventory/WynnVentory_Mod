@@ -23,7 +23,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
-public class WynnventoryItemButton<T extends GuideItemStack> extends AbstractWynnventoryButton {
+public class WynnventoryItemButton<T extends GuideItemStack> extends WynnventoryButton {
 
     private static final int BASE_SIZE = 16;
     private final T itemStack;
