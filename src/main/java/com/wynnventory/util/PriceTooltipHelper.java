@@ -252,24 +252,26 @@ public class PriceTooltipHelper {
         Dimension primaryTooltipDim = PriceTooltipHelper.calculateTooltipDimension(primaryTooltips, font);
 
         // Use the new logic to detect an unidentified tooltip.
-        String primaryTitle = primaryTooltips.getFirst().getString();
-        boolean gearBoxItem = false;
-        final String prefix = "Unidentified ";
-        if (primaryTitle.startsWith(prefix)) {
-            String suffix = primaryTitle.substring(prefix.length()).trim();
-            // Iterate over GearType enum values and see if the suffix matches one of the enum keys (ignoring case).
-            for (GearType gear : GearType.values()) {
-                if (gear.name().equalsIgnoreCase(suffix)) {
-                    gearBoxItem = true;
-                    break;
+        if (!primaryTooltips.isEmpty()) {
+            boolean gearBoxItem = false;
+            String primaryTitle = primaryTooltips.getFirst().getString();
+            final String prefix = "Unidentified ";
+            if (primaryTitle.startsWith(prefix)) {
+                String suffix = primaryTitle.substring(prefix.length()).trim();
+                // Iterate over GearType enum values and see if the suffix matches one of the enum keys (ignoring case).
+                for (GearType gear : GearType.values()) {
+                    if (gear.name().equalsIgnoreCase(suffix)) {
+                        gearBoxItem = true;
+                        break;
+                    }
                 }
+            }
+            if (gearBoxItem) {
+                primaryTooltipDim.width += 35 * guiScale;
+                primaryTooltipDim.height += 35 * guiScale;
             }
         }
 
-        if (gearBoxItem) {
-            primaryTooltipDim.width += 35 * guiScale;
-            primaryTooltipDim.height += 35 * guiScale;
-        }
 
         // Compute available horizontal space from the mouse position.
         // spaceToRight: what remains if the primary tooltip is rendered to the right.
