@@ -1,4 +1,4 @@
-package com.wynnventory.model;
+package com.wynnventory.enums;
 
 public enum Region {
     CANYON_OF_THE_LOST("COTL", "Canyon of the Lost","󏿲󏽯", RegionType.LOOTRUN),

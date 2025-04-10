@@ -1,11 +1,16 @@
 package com.wynnventory.mixin;
 
 import com.wynntils.core.components.Models;
+import com.wynntils.core.text.StyledText;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.accessor.ItemQueueAccessor;
 import com.wynnventory.config.ConfigManager;
+import com.wynnventory.enums.Region;
+import com.wynnventory.enums.RegionType;
+import com.wynnventory.util.AspectTooltipHelper;
 import com.wynnventory.util.ItemStackUtils;
+import com.wynnventory.util.LootpoolManager;
 import com.wynnventory.util.PriceTooltipHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -20,6 +25,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Mixin(AbstractContainerScreen.class)
@@ -49,6 +55,17 @@ public abstract class TooltipMixin {
         if (config.isShowTooltips() && maybeWynnItem.isPresent()) {
             List<Component> tooltipComponents = ItemStackUtils.getTooltips(itemStack);
             PriceTooltipHelper.renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, itemStack, tooltipComponents, config.isAnchorTooltips());
+        }
+
+        Component rawName = Objects.requireNonNull(ItemStackUtils.getWynntilsOriginalName(itemStack)).getComponent();
+        String displayName = StyledText.fromComponent(rawName).getStringWithoutFormatting();
+        Region region = Region.getRegionByName(displayName);
+
+        if (region != null && region.getRegionType() == RegionType.RAID) {
+            LootpoolManager.getRaidPools().stream()
+                    .filter(p -> p.getRegion().equalsIgnoreCase(region.getShortName()))
+                    .findFirst()
+                    .ifPresent(pool -> AspectTooltipHelper.renderAspectTooltip(guiGraphics, mouseX, mouseY, pool));
         }
     }
 }

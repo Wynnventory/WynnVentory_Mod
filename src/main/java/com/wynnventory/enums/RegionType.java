@@ -1,4 +1,4 @@
-package com.wynnventory.model;
+package com.wynnventory.enums;
 
 public enum RegionType {
     RAID,
