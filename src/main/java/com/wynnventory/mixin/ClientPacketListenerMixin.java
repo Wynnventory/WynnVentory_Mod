@@ -7,7 +7,8 @@ import com.wynnventory.enums.Region;
 import com.wynnventory.enums.RegionType;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
-import com.wynnventory.model.item.TradeMarketItem;
+import com.wynnventory.model.item.TradeMarketGearItem;
+import com.wynnventory.model.item.TradeMarketIngredientItem;
 import com.wynnventory.util.FavouriteNotifier;
 import com.wynnventory.util.ModUpdater;
 import net.minecraft.client.Minecraft;
@@ -41,7 +42,9 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     private static int JOIN_COUNTER = 0;
 
     @Unique
-    private final List<TradeMarketItem> marketItemsBuffer = new ArrayList<>();
+    private final List<TradeMarketGearItem> marketGearItemsBuffer = new ArrayList<>();
+    @Unique
+    private final List<TradeMarketIngredientItem> marketIngredientItemsBuffer = new ArrayList<>();
     @Unique
     private final Map<String, Lootpool> lootpoolBuffer = new ConcurrentHashMap<>();
     @Unique
@@ -68,7 +71,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         String screenTitle = currentScreen.getTitle().getString();
 
         if (screenTitle.equals(MARKET_TITLE)) {
-            TradeMarketItem marketItem = TradeMarketItem.createTradeMarketItem(item);
+            TradeMarketGearItem marketItem = TradeMarketGearItem.createTradeMarketItem(item);
 
             if(marketItem != null) {
                 marketItemsBuffer.add(marketItem);
@@ -111,19 +114,27 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
     @Override
     public void queueItemForSubmit(ItemStack item) {
-        if (item.getItem() == Items.AIR || item.getItem() == Items.COMPASS || item.getItem() == Items.POTION) {
-            return;
-        }
-        if (McUtils.inventory().items.contains(item)) {
+        if (item.getItem() == Items.AIR || item.getItem() == Items.COMPASS || item.getItem() == Items.POTION) return;
+        if (McUtils.inventory().items.contains(item)) return;
+
+        TradeMarketGearItem gearItem = TradeMarketGearItem.createTradeMarketItem(item);
+        if (gearItem != null) {
+            if (!marketGearItemsBuffer.contains(gearItem)) {
+                marketGearItemsBuffer.add(gearItem);
+                ModInfo.logDebug("Queued Gear item for submit: " + gearItem.getItem().getName());
+            }
             return;
         }
 
-        TradeMarketItem marketItem = TradeMarketItem.createTradeMarketItem(item);
-        if (marketItem != null && !marketItemsBuffer.contains(marketItem)) {
-            marketItemsBuffer.add(marketItem);
-            ModInfo.logDebug("Queued item for submit: " + marketItem.getItem().getName());
+        TradeMarketIngredientItem ingredientItem = TradeMarketIngredientItem.from(item);
+        if (ingredientItem != null) {
+            if (!marketIngredientItemsBuffer.contains(ingredientItem)) {
+                marketIngredientItemsBuffer.add(ingredientItem);
+                ModInfo.logDebug("Queued Ingredient item for submit: " + ingredientItem.getItem().getName());
+            }
         }
     }
+
 
     private void addItemsToQueue(Map<String, Lootpool> queue, String region, List<ItemStack> items) {
         if(!queue.containsKey(region)) {
@@ -134,8 +145,8 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     }
 
     @Override
-    public List<TradeMarketItem> getQueuedMarketItems() {
-        return marketItemsBuffer;
+    public List<TradeMarketGearItem> getQueuedMarketItems() {
+        return marketGearItemsBuffer;
     }
 
     @Override

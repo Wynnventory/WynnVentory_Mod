@@ -1,31 +1,25 @@
 package com.wynnventory.api;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
-import com.wynnventory.WynnventoryMod;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.enums.PoolType;
 import com.wynnventory.model.item.GroupedLootpool;
 import com.wynnventory.model.item.Lootpool;
-import com.wynnventory.model.item.TradeMarketItem;
+import com.wynnventory.model.item.TradeMarketGearItem;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.HttpUtil;
 import net.minecraft.world.item.ItemStack;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +29,7 @@ public class WynnventoryAPI {
     private static final URI API_BASE_URL = createApiBaseUrl();
     private static final ObjectMapper objectMapper = createObjectMapper();
 
-    public void sendTradeMarketResults(List<TradeMarketItem> marketItems) {
+    public void sendTradeMarketResults(List<TradeMarketGearItem> marketItems) {
         if (marketItems.isEmpty()) return;
 
         URI endpointURI;

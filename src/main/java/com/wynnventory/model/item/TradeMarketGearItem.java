@@ -1,0 +1,78 @@
+package com.wynnventory.model.item;
+
+import com.wynntils.core.components.Models;
+import com.wynntils.models.items.items.game.GearItem;
+import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
+import com.wynntils.utils.mc.McUtils;
+import com.wynnventory.core.ModInfo;
+import com.wynnventory.util.TradeMarketPriceParser;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.Objects;
+import java.util.Optional;
+
+public class TradeMarketGearItem {
+    private final SimplifiedGearItem item;
+    private final int listingPrice;
+    private final int amount;
+    private final String playerName;
+    private final String modVersion;
+
+    public TradeMarketGearItem(GearItem item, int listingPrice, int amount) {
+        this.item = new SimplifiedGearItem(item);
+        this.listingPrice = listingPrice;
+        this.amount = amount;
+        this.playerName = McUtils.playerName();
+        this.modVersion = ModInfo.VERSION;
+    }
+
+    public static TradeMarketGearItem createTradeMarketItem(ItemStack item) {
+        Optional<GearItem> gearItemOptional = Models.Item.asWynnItem(item, GearItem.class);
+        if(gearItemOptional.isPresent()) {
+            GearItem gearItem = gearItemOptional.get();
+            TradeMarketPriceInfo priceInfo = TradeMarketPriceParser.calculateItemPriceInfo(item);
+
+            if (priceInfo != TradeMarketPriceInfo.EMPTY) {
+                return new TradeMarketGearItem(gearItem, priceInfo.price(), priceInfo.amount());
+            }
+        }
+
+        return null;
+    }
+
+    public SimplifiedGearItem getItem() {
+        return item;
+    }
+
+    public int getListingPrice() {
+        return listingPrice;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public String getPlayerName() { return playerName; }
+
+    public String getModVersion() { return modVersion; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o instanceof TradeMarketGearItem other) {
+            return listingPrice == other.listingPrice &&
+                    amount == other.amount &&
+                    Objects.equals(item, other.item) &&
+                    Objects.equals(playerName, other.playerName) &&
+                    Objects.equals(modVersion, other.modVersion);
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(item, listingPrice, amount, playerName, modVersion);
+    }
+
+}
