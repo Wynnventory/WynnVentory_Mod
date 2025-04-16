@@ -1,5 +1,6 @@
 package com.wynnventory.model.item;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynntils.models.items.items.game.IngredientItem;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynntils.utils.mc.McUtils;
@@ -10,19 +11,12 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Objects;
 import java.util.Optional;
 
-public class TradeMarketIngredientItem {
+public class TradeMarketIngredientItem extends TradeMarketItem {
     private final SimplifiedIngredientItem item;
-    private final int listingPrice;
-    private final int amount;
-    private final String playerName;
-    private final String modVersion;
 
     public TradeMarketIngredientItem(IngredientItem ingredientItem, int listingPrice, int amount) {
+        super(listingPrice, amount, McUtils.playerName(), ModInfo.VERSION);
         this.item = new SimplifiedIngredientItem(ingredientItem);
-        this.listingPrice = listingPrice;
-        this.amount = amount;
-        this.playerName = McUtils.playerName();
-        this.modVersion = ModInfo.VERSION;
     }
 
     public static TradeMarketIngredientItem from(ItemStack itemStack) {
@@ -42,27 +36,16 @@ public class TradeMarketIngredientItem {
         return item;
     }
 
-    public int getListingPrice() {
-        return listingPrice;
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public String getPlayerName() {
-        return playerName;
-    }
-
-    public String getModVersion() {
-        return modVersion;
+    @JsonProperty("hash_code")
+    public int getHashCode() {
+        return hashCode();
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof TradeMarketIngredientItem other) {
-            return listingPrice == other.listingPrice &&
+            return this.listingPrice == other.listingPrice &&
                     amount == other.amount &&
                     Objects.equals(item, other.item) &&
                     Objects.equals(playerName, other.playerName) &&

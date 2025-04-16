@@ -5,10 +5,7 @@ import com.wynnventory.accessor.ItemQueueAccessor;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.enums.Region;
 import com.wynnventory.enums.RegionType;
-import com.wynnventory.model.item.Lootpool;
-import com.wynnventory.model.item.LootpoolItem;
-import com.wynnventory.model.item.TradeMarketGearItem;
-import com.wynnventory.model.item.TradeMarketIngredientItem;
+import com.wynnventory.model.item.*;
 import com.wynnventory.util.FavouriteNotifier;
 import com.wynnventory.util.ModUpdater;
 import net.minecraft.client.Minecraft;
@@ -42,9 +39,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     private static int JOIN_COUNTER = 0;
 
     @Unique
-    private final List<TradeMarketGearItem> marketGearItemsBuffer = new ArrayList<>();
-    @Unique
-    private final List<TradeMarketIngredientItem> marketIngredientItemsBuffer = new ArrayList<>();
+    private final List<TradeMarketItem> marketGearItemsBuffer = new ArrayList<>();
     @Unique
     private final Map<String, Lootpool> lootpoolBuffer = new ConcurrentHashMap<>();
     @Unique
@@ -128,8 +123,8 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
         TradeMarketIngredientItem ingredientItem = TradeMarketIngredientItem.from(item);
         if (ingredientItem != null) {
-            if (!marketIngredientItemsBuffer.contains(ingredientItem)) {
-                marketIngredientItemsBuffer.add(ingredientItem);
+            if (!marketGearItemsBuffer.contains(ingredientItem)) {
+                marketGearItemsBuffer.add(ingredientItem);
                 ModInfo.logDebug("Queued Ingredient item for submit: " + ingredientItem.getItem().getName());
             }
         }
@@ -145,7 +140,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     }
 
     @Override
-    public List<TradeMarketGearItem> getQueuedMarketItems() {
+    public List<TradeMarketItem> getQueuedMarketItems() {
         return marketGearItemsBuffer;
     }
 

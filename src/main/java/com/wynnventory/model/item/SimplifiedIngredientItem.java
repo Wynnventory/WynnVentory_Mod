@@ -6,29 +6,18 @@ import com.wynntils.models.profession.type.ProfessionType;
 import java.util.List;
 import java.util.Objects;
 
-public class SimplifiedIngredientItem {
-    private final String name;
+public class SimplifiedIngredientItem extends SimplifiedItem {
     private final int tier;
-    private final int level;
     private final List<ProfessionType> professions;
 
     public SimplifiedIngredientItem(IngredientItem item) {
-        this.name = item.getName();
+        super(item.getName(), "Common");
         this.tier = item.getQualityTier();
-        this.level = item.getLevel();
         this.professions = item.getProfessionTypes();
-    }
-
-    public String getName() {
-        return name;
     }
 
     public int getTier() {
         return tier;
-    }
-
-    public int getLevel() {
-        return level;
     }
 
     public List<ProfessionType> getProfessions() {
@@ -40,7 +29,6 @@ public class SimplifiedIngredientItem {
         if (this == o) return true;
         if (o instanceof SimplifiedIngredientItem other) {
             return tier == other.tier &&
-                    level == other.level &&
                     Objects.equals(name, other.name) &&
                     Objects.equals(professions, other.professions);
         }
@@ -49,6 +37,6 @@ public class SimplifiedIngredientItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, tier, level, professions);
+        return Objects.hash(name, tier, professions);
     }
 }

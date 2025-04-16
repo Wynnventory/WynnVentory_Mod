@@ -1,5 +1,6 @@
 package com.wynnventory.model.item;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
@@ -11,19 +12,12 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Objects;
 import java.util.Optional;
 
-public class TradeMarketGearItem {
+public class TradeMarketGearItem extends TradeMarketItem {
     private final SimplifiedGearItem item;
-    private final int listingPrice;
-    private final int amount;
-    private final String playerName;
-    private final String modVersion;
 
     public TradeMarketGearItem(GearItem item, int listingPrice, int amount) {
+        super(listingPrice, amount, McUtils.playerName(), ModInfo.VERSION);
         this.item = new SimplifiedGearItem(item);
-        this.listingPrice = listingPrice;
-        this.amount = amount;
-        this.playerName = McUtils.playerName();
-        this.modVersion = ModInfo.VERSION;
     }
 
     public static TradeMarketGearItem createTradeMarketItem(ItemStack item) {
@@ -44,17 +38,10 @@ public class TradeMarketGearItem {
         return item;
     }
 
-    public int getListingPrice() {
-        return listingPrice;
+    @JsonProperty("hash_code")
+    public int getHashCode() {
+        return hashCode();
     }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public String getPlayerName() { return playerName; }
-
-    public String getModVersion() { return modVersion; }
 
     @Override
     public boolean equals(Object o) {

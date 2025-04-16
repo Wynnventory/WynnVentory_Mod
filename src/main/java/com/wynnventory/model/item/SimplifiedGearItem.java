@@ -1,35 +1,24 @@
 package com.wynnventory.model.item;
 
-import com.wynntils.models.elements.type.Powder;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.stats.type.ShinyStat;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynnventory.model.stat.ActualStatWithPercentage;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class SimplifiedGearItem {
-    private final String name;
-    private final int level;
-    private final String rarity;
-    private final int powderSlots;
-    private final int rerollCount;
-    private final float overallPercentage;
+public class SimplifiedGearItem extends SimplifiedItem {
     private final boolean unidentified;
     private final Optional<ShinyStat> shinyStat;
     private final List<ActualStatWithPercentage> actualStatsWithPercentage = new ArrayList<>();
 
     public SimplifiedGearItem(GearItem item) {
-        this.name = item.getName();
-        this.level = item.getLevel();
-        this.rarity = item.getGearTier().getName();
-        this.powderSlots = item.getPowderSlots();
-        this.rerollCount = item.getRerollCount();
-        this.overallPercentage = item.getOverallPercentage();
+        super(item.getName(), item.getGearTier().getName());
         this.unidentified = item.isUnidentified();
         this.shinyStat = item.getShinyStat();
 
@@ -42,30 +31,6 @@ public class SimplifiedGearItem {
         }
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public String getRarity() {
-        return rarity;
-    }
-
-    public int getPowderSlots() {
-        return powderSlots;
-    }
-
-    public int getRerollCount() {
-        return rerollCount;
-    }
-
-    public float getOverallPercentage() {
-        return overallPercentage;
-    }
-
     public boolean isUnidentified() {
         return unidentified;
     }
@@ -74,6 +39,7 @@ public class SimplifiedGearItem {
         return shinyStat;
     }
 
+    @JsonIgnore
     public List<ActualStatWithPercentage> getActualStatsWithPercentage() {
         return actualStatsWithPercentage;
     }
@@ -83,11 +49,7 @@ public class SimplifiedGearItem {
         if (this == o) return true;
 
         if (o instanceof SimplifiedGearItem other) {
-            return level == other.level &&
-                    powderSlots == other.powderSlots &&
-                    rerollCount == other.rerollCount &&
-                    Float.compare(other.overallPercentage, overallPercentage) == 0 &&
-                    unidentified == other.unidentified &&
+            return unidentified == other.unidentified &&
                     Objects.equals(name, other.name) &&
                     Objects.equals(rarity, other.rarity) &&
                     Objects.equals(shinyStat, other.shinyStat) &&
@@ -99,9 +61,7 @@ public class SimplifiedGearItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, level, rarity, powderSlots, rerollCount,
-                overallPercentage, unidentified, shinyStat,
-                actualStatsWithPercentage);
+        return Objects.hash(name, rarity, unidentified, shinyStat, actualStatsWithPercentage);
     }
 
 }

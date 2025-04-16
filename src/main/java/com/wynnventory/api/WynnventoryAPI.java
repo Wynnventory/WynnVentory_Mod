@@ -10,10 +10,7 @@ import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.enums.PoolType;
-import com.wynnventory.model.item.GroupedLootpool;
-import com.wynnventory.model.item.Lootpool;
-import com.wynnventory.model.item.TradeMarketGearItem;
-import com.wynnventory.model.item.TradeMarketItemPriceInfo;
+import com.wynnventory.model.item.*;
 import com.wynnventory.util.HttpUtil;
 import net.minecraft.world.item.ItemStack;
 
@@ -29,7 +26,7 @@ public class WynnventoryAPI {
     private static final URI API_BASE_URL = createApiBaseUrl();
     private static final ObjectMapper objectMapper = createObjectMapper();
 
-    public void sendTradeMarketResults(List<TradeMarketGearItem> marketItems) {
+    public void sendTradeMarketResults(List<TradeMarketItem> marketItems) {
         if (marketItems.isEmpty()) return;
 
         URI endpointURI;
