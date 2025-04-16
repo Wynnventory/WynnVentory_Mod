@@ -14,12 +14,14 @@ import java.util.Optional;
 
 public class SimplifiedGearItem extends SimplifiedItem {
     private final boolean unidentified;
+    private final int rerollCount;
     private final Optional<ShinyStat> shinyStat;
     private final List<ActualStatWithPercentage> actualStatsWithPercentage = new ArrayList<>();
 
     public SimplifiedGearItem(GearItem item) {
         super(item.getName(), item.getGearTier().getName());
         this.unidentified = item.isUnidentified();
+        this.rerollCount = item.getRerollCount();
         this.shinyStat = item.getShinyStat();
 
         final List<StatActualValue> actualValues = item.getIdentifications();
@@ -40,6 +42,11 @@ public class SimplifiedGearItem extends SimplifiedItem {
     }
 
     @JsonIgnore
+    public int getRerollCount() {
+        return rerollCount;
+    }
+
+    @JsonIgnore
     public List<ActualStatWithPercentage> getActualStatsWithPercentage() {
         return actualStatsWithPercentage;
     }
@@ -53,6 +60,7 @@ public class SimplifiedGearItem extends SimplifiedItem {
                     Objects.equals(name, other.name) &&
                     Objects.equals(rarity, other.rarity) &&
                     Objects.equals(shinyStat, other.shinyStat) &&
+                    Objects.equals(rerollCount, other.rerollCount) &&
                     Objects.equals(actualStatsWithPercentage, other.actualStatsWithPercentage);
         }
 
@@ -61,7 +69,7 @@ public class SimplifiedGearItem extends SimplifiedItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, rarity, unidentified, shinyStat, actualStatsWithPercentage);
+        return Objects.hash(name, rarity, unidentified, rerollCount, shinyStat, actualStatsWithPercentage);
     }
 
 }
