@@ -8,20 +8,14 @@ import java.util.Objects;
 
 public class SimplifiedIngredientItem extends SimplifiedItem {
     private final int tier;
-    private final List<ProfessionType> professions;
 
     public SimplifiedIngredientItem(IngredientItem item) {
         super(item.getName(), "Common");
         this.tier = item.getQualityTier();
-        this.professions = item.getProfessionTypes();
     }
 
     public int getTier() {
         return tier;
-    }
-
-    public List<ProfessionType> getProfessions() {
-        return professions;
     }
 
     @Override
@@ -29,14 +23,13 @@ public class SimplifiedIngredientItem extends SimplifiedItem {
         if (this == o) return true;
         if (o instanceof SimplifiedIngredientItem other) {
             return tier == other.tier &&
-                    Objects.equals(name, other.name) &&
-                    Objects.equals(professions, other.professions);
+                    Objects.equals(name, other.name);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, tier, professions);
+        return Objects.hash(name, tier);
     }
 }
