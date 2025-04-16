@@ -284,7 +284,8 @@ public class PriceTooltipHelper {
 
         // Determine available width (for scaling the price tooltip) and base position depending on anchored mode.
         int availableWidth;
-        float posX, posY;
+        float posX;
+        float posY;
         int tooltipMaxHeight = Math.round(guiScaledHeight * 0.8f);
 
         if (!anchored) {
@@ -325,14 +326,14 @@ public class PriceTooltipHelper {
             // Non-anchored: position relative to the mouse.
             if (primaryRenderedRight) {
                 // Render price tooltip to the left of the mouse.
-                posX = mouseX - gap - scaledTooltipDim.width;
+                posX = (float) mouseX - gap - scaledTooltipDim.width;
             } else {
                 // Render price tooltip to the right of the mouse.
-                posX = mouseX + gap;
+                posX = (float) mouseX + gap;
             }
             // Vertical position: if rendering at mouseY would cause it to go off the bottom, adjust.
             if (mouseY + scaledTooltipDim.height > guiScaledHeight) {
-                posY = guiScaledHeight - scaledTooltipDim.height - gap;
+                posY = (float) guiScaledHeight - scaledTooltipDim.height - gap;
             } else {
                 posY = mouseY;
             }
@@ -344,7 +345,7 @@ public class PriceTooltipHelper {
                 posX = 0;
             } else {
                 // Primary is rendered on left → price tooltip anchored on right.
-                posX = guiScaledWidth - scaledTooltipDim.width;
+                posX = (float) guiScaledWidth - scaledTooltipDim.width;
             }
         }
 

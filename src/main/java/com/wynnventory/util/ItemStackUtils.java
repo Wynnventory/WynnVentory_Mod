@@ -6,16 +6,14 @@ import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
-import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.GearBoxItem;
 import com.wynntils.models.items.items.game.GearItem;
-import com.wynnventory.WynnventoryMod;
+import com.wynntils.models.items.items.game.MaterialItem;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.model.item.TradeMarketItemPriceHolder;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -38,18 +36,6 @@ public class ItemStackUtils {
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final WynnventoryAPI API = new WynnventoryAPI();
 
-    public static WynnItem getWynntilsAnnotation(ItemStack itemStack) {
-        try {
-            Field wynntilsAnnotation = ItemStack.class.getDeclaredField("wynntilsAnnotation");
-            wynntilsAnnotation.setAccessible(true);
-
-            return (WynnItem) wynntilsAnnotation.get(itemStack);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            ModInfo.logError("Error trying to get wynntilsAnnotation.", e);
-            return null;
-        }
-    }
-
     public static StyledText getWynntilsOriginalName(ItemStack itemStack) {
         try {
             Field wynntilsOriginalName = ItemStack.class.getDeclaredField("wynntilsOriginalName");
@@ -62,13 +48,6 @@ public class ItemStackUtils {
         }
     }
 
-    public static WynnItem getWynnItem(ItemStack itemStack) {
-        WynnItem wynnItem = getWynntilsAnnotation(itemStack);
-        assert wynnItem != null;
-        ItemStack item = wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY);
-        return ItemStackUtils.getWynntilsAnnotation(item);
-    }
-
     public static List<Component> getTooltips(ItemStack itemStack) {
         Optional<WynnItem> maybeWynnItem = Models.Item.getWynnItem(itemStack);
         List<Component> tooltipComponents = new ArrayList<>();
@@ -77,12 +56,9 @@ public class ItemStackUtils {
 
             WynnItem wynnItem = maybeWynnItem.get();
             switch (wynnItem) {
-                case GearItem gearItem -> {
-                    processGearTooltip(gearItem.getItemInfo(), tooltipComponents);
-                }
-                case GearBoxItem gearBoxItem -> {
-                    processGearBoxTooltip(gearBoxItem, tooltipComponents);
-                } default -> {
+                case GearItem gearItem -> processItemTooltip(gearItem.getItemInfo(), tooltipComponents);
+                case GearBoxItem gearBoxItem -> processBoxedTooltip(gearBoxItem, tooltipComponents);
+                default -> {
                     return tooltipComponents;
                 }
             }
@@ -93,13 +69,13 @@ public class ItemStackUtils {
         return tooltipComponents;
     }
 
-    private static void processGearTooltip(GearInfo gearInfo, List<Component> tooltipComponents) {
+    private static void processItemTooltip(GearInfo gearInfo, List<Component> tooltipComponents) {
         fetchPricesForGear(gearInfo);
         tooltipComponents.addAll(getTooltipsForGear(gearInfo));
         cleanExpiredPrices(gearInfo.name());
     }
 
-    private static void processGearBoxTooltip(GearBoxItem gearBoxItem, List<Component> tooltipComponents) {
+    private static void processBoxedTooltip(GearBoxItem gearBoxItem, List<Component> tooltipComponents) {
         List<GearInfo> possibleGears = Models.Gear.getPossibleGears(gearBoxItem);
         List<TradeMarketItemPriceHolder> priceHolders = new ArrayList<>();
         for (GearInfo gear : possibleGears) {
