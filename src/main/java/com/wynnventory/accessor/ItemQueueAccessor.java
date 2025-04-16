@@ -1,7 +1,6 @@
 package com.wynnventory.accessor;
 
 import com.wynnventory.model.item.Lootpool;
-import com.wynnventory.model.item.TradeMarketGearItem;
 import com.wynnventory.model.item.TradeMarketItem;
 import net.minecraft.world.item.ItemStack;
 

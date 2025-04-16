@@ -1,17 +1,15 @@
 package com.wynnventory.mixin;
 
-import com.wynntils.core.components.Models;
-import com.wynntils.models.items.items.game.MaterialItem;
-import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.accessor.ItemQueueAccessor;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.enums.Region;
 import com.wynnventory.enums.RegionType;
-import com.wynnventory.model.item.*;
+import com.wynnventory.model.item.Lootpool;
+import com.wynnventory.model.item.LootpoolItem;
+import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.util.FavouriteNotifier;
 import com.wynnventory.util.ModUpdater;
-import com.wynnventory.util.TradeMarketPriceParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -33,7 +31,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Mixin(ClientPacketListener.class)
@@ -44,7 +41,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     private static int JOIN_COUNTER = 0;
 
     @Unique
-    private final List<TradeMarketItem> marketGearItemsBuffer = new ArrayList<>();
+    private final List<TradeMarketItem> marketItemBuffer = new ArrayList<>();
     @Unique
     private final Map<String, Lootpool> lootpoolBuffer = new ConcurrentHashMap<>();
     @Unique
@@ -117,22 +114,11 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         if (item.getItem() == Items.AIR || item.getItem() == Items.COMPASS || item.getItem() == Items.POTION) return;
         if (McUtils.inventory().items.contains(item)) return;
 
-        TradeMarketGearItem gearItem = TradeMarketGearItem.createTradeMarketItem(item);
-        if (gearItem != null) {
-            if (!marketGearItemsBuffer.contains(gearItem)) {
-                marketGearItemsBuffer.add(gearItem);
-                ModInfo.logDebug("Queued Gear item for submit: " + gearItem.getItem().getName());
-            }
-            return;
-        }
-
-        TradeMarketCraftingItem ingredientItem = TradeMarketCraftingItem.from(item);
-        if (ingredientItem != null && !marketGearItemsBuffer.contains(ingredientItem)) {
-            marketGearItemsBuffer.add(ingredientItem);
-            ModInfo.logDebug("Queued Ingredient item for submit: " + ingredientItem.getItem().getName());
+        TradeMarketItem tradeMarketItem = TradeMarketItem.from(item);
+        if (tradeMarketItem != null && !marketItemBuffer.contains(tradeMarketItem)) {
+                marketItemBuffer.add(tradeMarketItem);
         }
     }
-
 
     private void addItemsToQueue(Map<String, Lootpool> queue, String region, List<ItemStack> items) {
         if (!queue.containsKey(region)) {
@@ -144,7 +130,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
     @Override
     public List<TradeMarketItem> getQueuedMarketItems() {
-        return marketGearItemsBuffer;
+        return marketItemBuffer;
     }
 
     @Override
