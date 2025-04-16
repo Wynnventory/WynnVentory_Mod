@@ -49,9 +49,7 @@ public class TradeMarketGearItem extends TradeMarketItem {
         if (o instanceof TradeMarketGearItem other) {
             return listingPrice == other.listingPrice &&
                     amount == other.amount &&
-                    Objects.equals(item, other.item) &&
-                    Objects.equals(playerName, other.playerName) &&
-                    Objects.equals(modVersion, other.modVersion);
+                    Objects.equals(item, other.item);
         }
 
         return false;
@@ -59,7 +57,7 @@ public class TradeMarketGearItem extends TradeMarketItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(item, listingPrice, amount, playerName, modVersion);
+        return Objects.hash(item, listingPrice, amount);
     }
 
 }

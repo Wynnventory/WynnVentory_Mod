@@ -47,15 +47,13 @@ public class TradeMarketIngredientItem extends TradeMarketItem {
         if (o instanceof TradeMarketIngredientItem other) {
             return this.listingPrice == other.listingPrice &&
                     amount == other.amount &&
-                    Objects.equals(item, other.item) &&
-                    Objects.equals(playerName, other.playerName) &&
-                    Objects.equals(modVersion, other.modVersion);
+                    Objects.equals(item, other.item);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(item, listingPrice, amount, playerName, modVersion);
+        return Objects.hash(item, listingPrice, amount);
     }
 }
