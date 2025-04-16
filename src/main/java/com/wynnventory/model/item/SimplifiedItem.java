@@ -4,9 +4,15 @@ public class SimplifiedItem {
     protected final String name;
     protected final String rarity;
 
-    SimplifiedItem(String name, String rarity) {
+
+    protected final String itemType;
+    protected final String type;
+
+    SimplifiedItem(String name, String rarity, String itemType, String type) {
         this.name = name;
         this.rarity = rarity;
+        this.itemType = itemType;
+        this.type = type;
     }
 
     public String getName() {
@@ -15,5 +21,13 @@ public class SimplifiedItem {
 
     public String getRarity() {
         return rarity;
+    }
+
+    public String getItemType() {
+        return itemType;
+    }
+
+    public String getType() {
+        return type;
     }
 }

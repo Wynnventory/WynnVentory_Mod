@@ -10,7 +10,7 @@ public class SimplifiedIngredientItem extends SimplifiedItem {
     private final int tier;
 
     public SimplifiedIngredientItem(IngredientItem item) {
-        super(item.getName(), "Common");
+        super(item.getName(), null, "IngredientItem", item.getIngredientInfo().professions().toString());
         this.tier = item.getQualityTier();
     }
 

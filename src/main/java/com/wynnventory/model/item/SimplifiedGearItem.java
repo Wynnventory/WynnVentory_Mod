@@ -19,7 +19,7 @@ public class SimplifiedGearItem extends SimplifiedItem {
     private final List<ActualStatWithPercentage> actualStatsWithPercentage = new ArrayList<>();
 
     public SimplifiedGearItem(GearItem item) {
-        super(item.getName(), item.getGearTier().getName());
+        super(item.getName(), item.getGearTier().getName(), "GearItem", item.getGearType().name());
         this.unidentified = item.isUnidentified();
         this.rerollCount = item.getRerollCount();
         this.shinyStat = item.getShinyStat();
