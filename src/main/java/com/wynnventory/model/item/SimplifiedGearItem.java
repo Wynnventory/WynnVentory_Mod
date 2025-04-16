@@ -1,11 +1,11 @@
 package com.wynnventory.model.item;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.stats.type.ShinyStat;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynnventory.model.stat.ActualStatWithPercentage;
-import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.ArrayList;
 import java.util.List;

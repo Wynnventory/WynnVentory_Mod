@@ -1,5 +1,8 @@
 package com.wynnventory.mixin;
 
+import com.wynntils.core.components.Models;
+import com.wynntils.models.items.items.game.MaterialItem;
+import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.accessor.ItemQueueAccessor;
 import com.wynnventory.core.ModInfo;
@@ -8,6 +11,7 @@ import com.wynnventory.enums.RegionType;
 import com.wynnventory.model.item.*;
 import com.wynnventory.util.FavouriteNotifier;
 import com.wynnventory.util.ModUpdater;
+import com.wynnventory.util.TradeMarketPriceParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -29,6 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Mixin(ClientPacketListener.class)
@@ -95,7 +100,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                 }
             }
 
-            if(ModInfo.isDev()) {
+            if (ModInfo.isDev()) {
                 McUtils.sendMessageToClient(Component.literal(region.getRegionType() + " DETECTED. Region is " + region.getShortName()));
             }
 
@@ -121,18 +126,16 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
             return;
         }
 
-        TradeMarketIngredientItem ingredientItem = TradeMarketIngredientItem.from(item);
-        if (ingredientItem != null) {
-            if (!marketGearItemsBuffer.contains(ingredientItem)) {
-                marketGearItemsBuffer.add(ingredientItem);
-                ModInfo.logDebug("Queued Ingredient item for submit: " + ingredientItem.getItem().getName());
-            }
+        TradeMarketCraftingItem ingredientItem = TradeMarketCraftingItem.from(item);
+        if (ingredientItem != null && !marketGearItemsBuffer.contains(ingredientItem)) {
+            marketGearItemsBuffer.add(ingredientItem);
+            ModInfo.logDebug("Queued Ingredient item for submit: " + ingredientItem.getItem().getName());
         }
     }
 
 
     private void addItemsToQueue(Map<String, Lootpool> queue, String region, List<ItemStack> items) {
-        if(!queue.containsKey(region)) {
+        if (!queue.containsKey(region)) {
             queue.put(region, new Lootpool(region, McUtils.playerName(), ModInfo.VERSION));
         }
 

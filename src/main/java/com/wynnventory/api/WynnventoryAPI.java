@@ -52,7 +52,7 @@ public class WynnventoryAPI {
             endpointURI = getEndpointURI("lootpool/items");
         }
 
-        for(Lootpool lootpool : lootpools) {
+        for (Lootpool lootpool : lootpools) {
             HttpUtil.sendHttpPostRequest(endpointURI, serializeData(lootpool));
             ModInfo.logInfo("Submitted " + lootpool.getItems().size() + " lootpool items to API: " + endpointURI);
         }
@@ -69,7 +69,7 @@ public class WynnventoryAPI {
             endpointURI = getEndpointURI("raidpool/items");
         }
 
-        for(Lootpool lootpool : lootpools) {
+        for (Lootpool lootpool : lootpools) {
             HttpUtil.sendHttpPostRequest(endpointURI, serializeData(lootpool));
             ModInfo.logInfo("Submitted " + lootpool.getItems().size() + " raidpool items to API: " + endpointURI);
         }
@@ -177,7 +177,8 @@ public class WynnventoryAPI {
 
     private TradeMarketItemPriceInfo parsePriceInfoResponse(String responseBody) {
         try {
-            List<TradeMarketItemPriceInfo> priceInfoList = objectMapper.readValue(responseBody, new TypeReference<>() {});
+            List<TradeMarketItemPriceInfo> priceInfoList = objectMapper.readValue(responseBody, new TypeReference<>() {
+            });
             return priceInfoList.isEmpty() ? null : priceInfoList.getFirst();
         } catch (JsonProcessingException e) {
             ModInfo.logError("Failed to parse item price response {}", e);
@@ -188,14 +189,15 @@ public class WynnventoryAPI {
 
     private List<GroupedLootpool> parseLootpoolResponse(String responseBody) {
         try {
-            return objectMapper.readValue(responseBody, new TypeReference<>() {});
+            return objectMapper.readValue(responseBody, new TypeReference<>() {
+            });
         } catch (JsonProcessingException e) {
             ModInfo.logError("Failed to parse item price response {}", e);
         }
 
         return new ArrayList<>();
     }
-            
+
     private TradeMarketItemPriceInfo parseHistoricPriceInfo(String responseBody) {
         try {
             return objectMapper.readValue(responseBody, TradeMarketItemPriceInfo.class);
