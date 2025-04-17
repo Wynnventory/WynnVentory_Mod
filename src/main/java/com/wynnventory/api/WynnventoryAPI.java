@@ -5,8 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.wynntils.core.components.Models;
-import com.wynntils.models.items.items.game.GearItem;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.enums.PoolType;
 import com.wynnventory.model.item.GroupedLootpool;
@@ -14,7 +12,6 @@ import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.HttpUtil;
-import net.minecraft.world.item.ItemStack;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -82,7 +79,6 @@ public class WynnventoryAPI {
     }
 
     public TradeMarketItemPriceInfo fetchItemPrice(String itemName, int tier) {
-        ModInfo.logError("RECEIVED ITEM WITH TIER: "+ tier);
         try {
             final String encodedItemName = HttpUtil.encodeName(itemName);
 
@@ -138,7 +134,7 @@ public class WynnventoryAPI {
     }
 
 
-    public TradeMarketItemPriceInfo fetchLatestHistoricGearPrice(String itemName) {
+    public TradeMarketItemPriceInfo fetchLatestHistoricItemPrice(String itemName) {
         try {
             final String encodedItemName = HttpUtil.encodeName(itemName);
 
