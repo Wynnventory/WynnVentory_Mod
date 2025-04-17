@@ -55,10 +55,10 @@ public class ItemStackUtils {
             switch (wynnItem) {
                 case GearItem gearItem -> processGear(gearItem.getItemInfo(), gearItem.getName(), gearItem.getGearTier().getChatFormatting(), tooltipLines);
                 case GearBoxItem gearBoxItem -> processGearBox(gearBoxItem, tooltipLines);
-                case IngredientItem ingredientItem -> processSimple(ingredientItem.getName(), ingredientItem.getName(), () -> wynnventoryAPI.fetchItemPrice(ingredientItem.getName(), ingredientItem.getQualityTier()), ChatFormatting.GRAY, tooltipLines);
+                case IngredientItem ingredientItem -> processSimple(ingredientItem.getName(), ingredientItem.getName(), -1, ChatFormatting.GRAY, tooltipLines);
                 case MaterialItem materialItem -> {
                     String materialKey = getMaterialKey(materialItem);
-                    processSimple(getMaterialName(materialItem), materialKey, () -> wynnventoryAPI.fetchItemPrice(getMaterialName(materialItem), materialItem.getQualityTier()), ChatFormatting.WHITE, tooltipLines);
+                    processSimple(getMaterialName(materialItem), materialKey, materialItem.getQualityTier(), ChatFormatting.WHITE, tooltipLines);
                 }
                 default -> {}
             }
@@ -108,17 +108,18 @@ public class ItemStackUtils {
         }
     }
 
-    private static void processSimple(String displayName, String itemKey, Supplier<TradeMarketItemPriceInfo> fetchSupplier, ChatFormatting color, List<Component> tooltipLines) {
+    private static void processSimple(String displayName, String itemKey, int tier, ChatFormatting color, List<Component> tooltipLines) {
         tooltipLines.addFirst(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
 
-        fetchPrices(itemKey, fetchSupplier, fetchSupplier);
+        fetchPrices(itemKey,
+                () -> wynnventoryAPI.fetchItemPrice(displayName, tier),
+                () -> wynnventoryAPI.fetchLatestHistoricItemPrice(displayName, tier));
+
         tooltipLines.addAll(createTooltip(displayName, itemKey, color, null));
         evictExpiredPrices(itemKey);
     }
 
-    private static void fetchPrices(String itemKey,
-                                    Supplier<TradeMarketItemPriceInfo> currentPriceSupplier,
-                                    Supplier<TradeMarketItemPriceInfo> historicPriceSupplier) {
+    private static void fetchPrices(String itemKey, Supplier<TradeMarketItemPriceInfo> currentPriceSupplier, Supplier<TradeMarketItemPriceInfo> historicPriceSupplier) {
         priceCache.computeIfAbsent(itemKey, key -> {
             TradeMarketItemPriceHolder currentHolder = new TradeMarketItemPriceHolder(FETCHING, key);
             TradeMarketItemPriceHolder historicHolder = new TradeMarketItemPriceHolder(FETCHING, key);

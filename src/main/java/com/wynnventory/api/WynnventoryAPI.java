@@ -133,17 +133,20 @@ public class WynnventoryAPI {
         }
     }
 
-
     public TradeMarketItemPriceInfo fetchLatestHistoricItemPrice(String itemName) {
+        return fetchLatestHistoricItemPrice(itemName, -1);
+    }
+
+    public TradeMarketItemPriceInfo fetchLatestHistoricItemPrice(String itemName, int tier) {
         try {
             final String encodedItemName = HttpUtil.encodeName(itemName);
 
             URI endpointURI;
             if (ModInfo.isDev()) {
                 ModInfo.logInfo("Fetching market data from DEV endpoint.");
-                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/history/" + encodedItemName + "/latest?env=dev2");
+                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/history/" + encodedItemName + "/latest?env=dev2&tier=" + tier);
             } else {
-                endpointURI = getEndpointURI("trademarket/history/" + encodedItemName + "/latest");
+                endpointURI = getEndpointURI("trademarket/history/" + encodedItemName + "/latest?tier=" + tier);
             }
 
             HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointURI);
