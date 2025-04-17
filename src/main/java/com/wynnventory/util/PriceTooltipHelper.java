@@ -5,9 +5,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.models.emeralds.type.EmeraldUnits;
 import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.gear.type.GearType;
+import com.wynntils.models.items.items.game.GameItem;
+import com.wynntils.models.items.items.game.GearItem;
+import com.wynntils.models.items.items.game.IngredientItem;
+import com.wynntils.models.items.items.game.MaterialItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.config.ConfigManager;
 import com.wynnventory.config.EmeraldDisplayOption;
+import com.wynnventory.core.ModInfo;
 import com.wynnventory.model.item.TradeMarketItemPriceHolder;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import net.minecraft.ChatFormatting;
@@ -24,9 +29,6 @@ import java.awt.*;
 import java.text.NumberFormat;
 import java.util.List;
 
-/**
- * Helper class for calculating tooltip dimensions, scale factors, and for formatting price tooltip lines.
- */
 public class PriceTooltipHelper {
 
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
@@ -34,30 +36,12 @@ public class PriceTooltipHelper {
 
     private PriceTooltipHelper() {}
 
-    /**
-     * Calculates the dimensions of the tooltip based on its lines.
-     *
-     * @param tooltipLines the list of tooltip lines
-     * @param font         the font used to render the tooltip
-     * @return the dimension (width and height) of the tooltip
-     */
     public static Dimension calculateTooltipDimension(List<Component> tooltipLines, Font font) {
         int width = tooltipLines.stream().mapToInt(font::width).max().orElse(0);
         int height = tooltipLines.size() * font.lineHeight;
         return new Dimension(width, height);
     }
 
-    /**
-     * Calculates a scale factor for the tooltip so it fits within the maximum allowed dimensions.
-     *
-     * @param tooltipLines the tooltip lines
-     * @param maxHeight    the maximum height available
-     * @param maxWidth     the maximum width available
-     * @param minScale     the minimum allowed scale
-     * @param maxScale     the maximum allowed scale
-     * @param font         the font used for the tooltip
-     * @return the calculated scale factor
-     */
     public static float calculateScaleFactor(List<Component> tooltipLines, int maxHeight, int maxWidth,
                                              float minScale, float maxScale, Font font) {
         Dimension dim = calculateTooltipDimension(tooltipLines, font);
@@ -71,18 +55,11 @@ public class PriceTooltipHelper {
         return scaleFactor;
     }
 
-    /**
-     * Creates a price tooltip for a given gear.
-     *
-     * @param info         the gear info
-     * @param priceInfo    the current price info
-     * @param historicInfo the historic price info (may be null)
-     * @return the list of components representing the tooltip lines
-     */
-    public static List<Component> createPriceTooltip(GearInfo info, TradeMarketItemPriceInfo priceInfo, TradeMarketItemPriceInfo historicInfo) {
+    public static List<Component> createPriceTooltip(TradeMarketItemPriceInfo priceInfo, TradeMarketItemPriceInfo historicInfo, String itemName, ChatFormatting color) {
         ConfigManager config = ConfigManager.getInstance();
         List<Component> tooltipLines = new java.util.ArrayList<>();
-        tooltipLines.add(formatText(info.name(), info.tier().getChatFormatting()));
+        tooltipLines.add(formatText(itemName, color));
+
 
         if (priceInfo == null) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
@@ -99,15 +76,6 @@ public class PriceTooltipHelper {
         return tooltipLines;
     }
 
-    /**
-     * Adds a price line to the tooltip if the price is valid and enabled in config.
-     *
-     * @param tooltipLines the list to add the line to
-     * @param label        the label for the price
-     * @param price        the price value
-     * @param showFluct    whether to show the fluctuation value
-     * @param historicPrice the historic price to calculate fluctuation against
-     */
     public static void addPriceLine(List<Component> tooltipLines, String label, int price, boolean showFluct, int historicPrice) {
         ConfigManager config = ConfigManager.getInstance();
         boolean shouldShow = switch (label) {
@@ -130,9 +98,6 @@ public class PriceTooltipHelper {
         }
     }
 
-    /**
-     * Formats a price value into a tooltip component.
-     */
     public static MutableComponent formatPrice(String label, int price) {
         ConfigManager config = ConfigManager.getInstance();
         EmeraldDisplayOption priceFormat = config.getPriceFormat();
@@ -162,9 +127,6 @@ public class PriceTooltipHelper {
         return priceComponent;
     }
 
-    /**
-     * Formats a price value with a fluctuation percentage.
-     */
     public static MutableComponent formatPriceWithFluctuation(String label, int price, float fluctuation) {
         return price > 0
                 ? formatPrice(label, price)
@@ -173,16 +135,10 @@ public class PriceTooltipHelper {
                 : Component.literal("");
     }
 
-    /**
-     * Formats a plain text component with the given color.
-     */
     public static MutableComponent formatText(String text, ChatFormatting color) {
         return Component.literal(text).withStyle(Style.EMPTY.withColor(color));
     }
 
-    /**
-     * Formats the fluctuation value.
-     */
     public static MutableComponent formatPriceFluctuation(float fluctuation) {
         Style style = fluctuation < 0 ? Style.EMPTY.withColor(ChatFormatting.RED)
                 : fluctuation > 0 ? Style.EMPTY.withColor(ChatFormatting.GREEN)
@@ -193,16 +149,10 @@ public class PriceTooltipHelper {
         return Component.literal(formattedValue).withStyle(style);
     }
 
-    /**
-     * Calculates the price difference in percentage.
-     */
     public static float calcPriceDiff(float newPrice, float oldPrice) {
         return oldPrice == 0 ? 0 : ((newPrice - oldPrice) / oldPrice) * 100;
     }
 
-    /**
-     * Sorts a list of TradeMarketItemPriceHolder objects based on price groups and values.
-     */
     public static void sortTradeMarketPriceHolders(List<TradeMarketItemPriceHolder> holders) {
         holders.sort((h1, h2) -> {
             TradeMarketItemPriceInfo p1 = h1.getPriceInfo();
@@ -223,9 +173,6 @@ public class PriceTooltipHelper {
         });
     }
 
-    /**
-     * Determines the price group for sorting.
-     */
     private static int getPriceGroup(TradeMarketItemPriceInfo priceInfo) {
         if (priceInfo == null) {
             return 2;

@@ -3,6 +3,7 @@ package com.wynnventory.model.item;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wynntils.models.items.items.game.IngredientItem;
 import com.wynntils.models.items.items.game.MaterialItem;
+import com.wynnventory.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -48,14 +49,11 @@ public class SimplifiedCraftingItem extends SimplifiedItem {
 
     @Override
     public String getName() {
-        if (resourceTypeName == null && sourceMaterialName == null) return super.getName();
-        return Arrays.stream((this.sourceMaterialName + " " + this.resourceTypeName).trim().split("\\s+"))
-                .map(SimplifiedCraftingItem::capitalize)
-                .collect(Collectors.joining(" "));
-    }
+        if (resourceTypeName == null && sourceMaterialName == null) {
+            return super.getName();
+        }
 
-    public static String capitalize(String str) {
-        if (str == null || str.isEmpty()) return str;
-        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+        String combined = (sourceMaterialName + " " + resourceTypeName).trim();
+        return StringUtils.toCamelCase(combined);
     }
 }

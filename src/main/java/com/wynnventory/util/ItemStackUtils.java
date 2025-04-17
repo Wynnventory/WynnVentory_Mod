@@ -6,9 +6,7 @@ import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
-import com.wynntils.models.items.items.game.GearBoxItem;
-import com.wynntils.models.items.items.game.GearItem;
-import com.wynntils.models.items.items.game.MaterialItem;
+import com.wynntils.models.items.items.game.*;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.model.item.TradeMarketItemPriceHolder;
@@ -56,8 +54,10 @@ public class ItemStackUtils {
 
             WynnItem wynnItem = maybeWynnItem.get();
             switch (wynnItem) {
-                case GearItem gearItem -> processItemTooltip(gearItem.getItemInfo(), tooltipComponents);
+                case GearItem gearItem -> processItemTooltip(gearItem, tooltipComponents);
                 case GearBoxItem gearBoxItem -> processBoxedTooltip(gearBoxItem, tooltipComponents);
+                case IngredientItem ingredientItem -> processIngredientTooltip(ingredientItem, tooltipComponents);
+                case MaterialItem materialItem -> processMaterialTooltip(materialItem, tooltipComponents);
                 default -> {
                     return tooltipComponents;
                 }
@@ -69,14 +69,19 @@ public class ItemStackUtils {
         return tooltipComponents;
     }
 
-    private static void processItemTooltip(GearInfo gearInfo, List<Component> tooltipComponents) {
-        fetchPricesForGear(gearInfo);
-        tooltipComponents.addAll(getTooltipsForGear(gearInfo));
-        cleanExpiredPrices(gearInfo.name());
+    private static void processItemTooltip(GearItem gearItem, List<Component> tooltipComponents) {
+        fetchPricesForGear(gearItem.getItemInfo());
+        tooltipComponents.addAll(getTooltipsForGear(gearItem.getName(), gearItem.getGearTier().getChatFormatting()));
+        cleanExpiredPrices(gearItem.getName());
     }
 
     private static void processBoxedTooltip(GearBoxItem gearBoxItem, List<Component> tooltipComponents) {
         List<GearInfo> possibleGears = Models.Gear.getPossibleGears(gearBoxItem);
+
+        if(possibleGears.isEmpty()) return;
+
+        ChatFormatting color = possibleGears.getFirst().tier().getChatFormatting();
+
         List<TradeMarketItemPriceHolder> priceHolders = new ArrayList<>();
         for (GearInfo gear : possibleGears) {
             fetchPricesForGear(gear);
@@ -85,11 +90,24 @@ public class ItemStackUtils {
 
         PriceTooltipHelper.sortTradeMarketPriceHolders(priceHolders);
         for (TradeMarketItemPriceHolder holder : priceHolders) {
-            GearInfo gearInfo = holder.getInfo();
-            tooltipComponents.addAll(getTooltipsForGear(gearInfo));
+            tooltipComponents.addAll(getTooltipsForGear(holder.getItemName(), color));
             tooltipComponents.add(Component.literal("")); // Spacer
-            cleanExpiredPrices(gearInfo.name());
+            cleanExpiredPrices(holder.getItemName());
         }
+    }
+
+    private static void processIngredientTooltip(IngredientItem ingredientItem, List<Component> tooltipComponents) {
+        fetchPricesForIngredients(ingredientItem);
+        tooltipComponents.addAll(getTooltipsForIngredient(ingredientItem.getName()));
+        cleanExpiredPrices(ingredientItem.getName());
+    }
+
+    private static void processMaterialTooltip(MaterialItem materialItem, List<Component> tooltipComponents) {
+        String itemName = getMaterialName(materialItem);
+
+        fetchPricesForMaterial(materialItem);
+        tooltipComponents.addAll(getTooltipsForMaterial(getMaterialName(materialItem), materialItem.getQualityTier()));
+        cleanExpiredPrices(itemName);
     }
 
     private static void cleanExpiredPrices(String gearName) {
@@ -106,51 +124,131 @@ public class ItemStackUtils {
     private static void fetchPricesForGear(GearInfo gearInfo) {
         String gearName = gearInfo.name();
         if (!fetchedPrices.containsKey(gearName)) {
-            TradeMarketItemPriceHolder priceHolder = new TradeMarketItemPriceHolder(FETCHING, gearInfo);
+            TradeMarketItemPriceHolder priceHolder = new TradeMarketItemPriceHolder(FETCHING, gearName);
             fetchedPrices.put(gearName, priceHolder);
 
             if (gearInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
                 priceHolder.setPriceInfo(UNTRADABLE);
             } else {
-                CompletableFuture.supplyAsync(() -> API.fetchItemPrices(gearName), executorService)
+                CompletableFuture.supplyAsync(() -> API.fetchItemPrice(gearName), executorService)
                         .thenAccept(priceHolder::setPriceInfo);
             }
         }
 
         if (!fetchedHistoricPrices.containsKey(gearName)) {
-            TradeMarketItemPriceHolder historicHolder = new TradeMarketItemPriceHolder(FETCHING, gearInfo);
+            TradeMarketItemPriceHolder historicHolder = new TradeMarketItemPriceHolder(FETCHING, gearName);
             fetchedHistoricPrices.put(gearName, historicHolder);
 
             if (gearInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE) {
                 historicHolder.setPriceInfo(UNTRADABLE);
             } else {
-                CompletableFuture.supplyAsync(() -> API.fetchLatestHistoricItemPrice(gearName), executorService)
+                CompletableFuture.supplyAsync(() -> API.fetchLatestHistoricGearPrice(gearName), executorService)
                         .thenAccept(historicHolder::setPriceInfo);
             }
         }
     }
 
-    private static List<Component> getTooltipsForGear(GearInfo gearInfo) {
-        TradeMarketItemPriceInfo priceInfo = fetchedPrices.get(gearInfo.name()).getPriceInfo();
+    public static void fetchPricesForMaterial(MaterialItem item) {
+        String name = getMaterialName(item);
+        int tier = item.getQualityTier();
+        String materialKey = name + tier;
+
+        fetchedPrices.computeIfAbsent(materialKey, key -> {
+            TradeMarketItemPriceHolder holder = new TradeMarketItemPriceHolder(FETCHING, key);
+
+            CompletableFuture
+                    .supplyAsync(() -> API.fetchItemPrice(name, tier), executorService)
+                    .thenAccept(holder::setPriceInfo);
+
+            return holder;
+        });
+
+        fetchedHistoricPrices.computeIfAbsent(materialKey, key -> {
+            // create the holder in FETCHING state
+            TradeMarketItemPriceHolder holder = new TradeMarketItemPriceHolder(FETCHING, key);
+
+            // asynchronously load the real price
+            CompletableFuture
+                    .supplyAsync(() -> API.fetchItemPrice(name, tier), executorService)
+                    .thenAccept(holder::setPriceInfo);
+
+            return holder;
+        });
+    }
+
+    public static void fetchPricesForIngredients(IngredientItem item) {
+        String name = item.getName();
+
+        fetchedPrices.computeIfAbsent(name, key -> {
+            TradeMarketItemPriceHolder holder = new TradeMarketItemPriceHolder(FETCHING, key);
+
+            CompletableFuture
+                    .supplyAsync(() -> API.fetchItemPrice(name, item.getQualityTier()), executorService)
+                    .thenAccept(holder::setPriceInfo);
+
+            return holder;
+        });
+
+        fetchedHistoricPrices.computeIfAbsent(name, key -> {
+            // create the holder in FETCHING state
+            TradeMarketItemPriceHolder holder = new TradeMarketItemPriceHolder(FETCHING, key);
+
+            // asynchronously load the real price
+            CompletableFuture
+                    .supplyAsync(() -> API.fetchItemPrice(name, item.getQualityTier()), executorService)
+                    .thenAccept(holder::setPriceInfo);
+
+            return holder;
+        });
+    }
+
+    private static List<Component> getTooltipsForGear(String itemName, ChatFormatting color) {
+        TradeMarketItemPriceInfo priceInfo = fetchedPrices.get(itemName).getPriceInfo();
         if (priceInfo == FETCHING) {
             return Collections.singletonList(Component.literal("Retrieving price information...").withStyle(ChatFormatting.WHITE));
         } else if (priceInfo == UNTRADABLE) {
             return Collections.singletonList(Component.literal("Item is untradable.").withStyle(ChatFormatting.RED));
         } else {
-            TradeMarketItemPriceInfo historicInfo = fetchedHistoricPrices.get(gearInfo.name()).getPriceInfo();
-            return PriceTooltipHelper.createPriceTooltip(gearInfo, priceInfo, historicInfo);
+            TradeMarketItemPriceInfo historicInfo = fetchedHistoricPrices.get(itemName).getPriceInfo();
+            return PriceTooltipHelper.createPriceTooltip(priceInfo, historicInfo, itemName, color);
+        }
+    }
+
+    private static List<Component> getTooltipsForMaterial(String itemName, int tier) {
+        TradeMarketItemPriceInfo priceInfo = fetchedPrices.get(itemName+tier).getPriceInfo();
+        if (priceInfo == FETCHING) {
+            return Collections.singletonList(Component.literal("Retrieving price information...").withStyle(ChatFormatting.WHITE));
+        } else {
+            TradeMarketItemPriceInfo historicInfo = fetchedHistoricPrices.get(itemName+tier).getPriceInfo();
+            return PriceTooltipHelper.createPriceTooltip(priceInfo, historicInfo, itemName, ChatFormatting.WHITE);
+        }
+    }
+
+    private static List<Component> getTooltipsForIngredient(String itemName) {
+        TradeMarketItemPriceInfo priceInfo = fetchedPrices.get(itemName).getPriceInfo();
+        if (priceInfo == FETCHING) {
+            return Collections.singletonList(Component.literal("Retrieving price information...").withStyle(ChatFormatting.WHITE));
+        } else {
+            TradeMarketItemPriceInfo historicInfo = fetchedHistoricPrices.get(itemName).getPriceInfo();
+            return PriceTooltipHelper.createPriceTooltip(priceInfo, historicInfo, itemName, ChatFormatting.GRAY);
         }
     }
 
     public static ChatFormatting getRarityColor(String rarity) {
         return switch (GearTier.fromString(rarity)) {
-            case GearTier.MYTHIC -> ChatFormatting.DARK_PURPLE;
-            case GearTier.FABLED -> ChatFormatting.RED;
-            case GearTier.LEGENDARY -> ChatFormatting.AQUA;
-            case GearTier.RARE -> ChatFormatting.LIGHT_PURPLE;
-            case GearTier.UNIQUE -> ChatFormatting.YELLOW;
-            case GearTier.SET -> ChatFormatting.GREEN;
+            case GearTier.MYTHIC -> GearTier.MYTHIC.getChatFormatting();
+            case GearTier.FABLED -> GearTier.FABLED.getChatFormatting();
+            case GearTier.LEGENDARY -> GearTier.LEGENDARY.getChatFormatting();
+            case GearTier.RARE -> GearTier.RARE.getChatFormatting();
+            case GearTier.UNIQUE -> GearTier.UNIQUE.getChatFormatting();
+            case GearTier.SET -> GearTier.SET.getChatFormatting();
             default -> ChatFormatting.WHITE; // including Common
         };
+    }
+
+    private static String getMaterialName(MaterialItem item) {
+        String sourceMaterialName = item.getMaterialProfile().getSourceMaterial().name();
+        String resourceTypeName = item.getMaterialProfile().getResourceType().name();
+        return StringUtils.toCamelCase(sourceMaterialName + " " + resourceTypeName);
     }
 }

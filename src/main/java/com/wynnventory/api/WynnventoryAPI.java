@@ -7,10 +7,12 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.items.items.game.GearItem;
-import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.enums.PoolType;
-import com.wynnventory.model.item.*;
+import com.wynnventory.model.item.GroupedLootpool;
+import com.wynnventory.model.item.Lootpool;
+import com.wynnventory.model.item.TradeMarketItem;
+import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.HttpUtil;
 import net.minecraft.world.item.ItemStack;
 
@@ -75,23 +77,21 @@ public class WynnventoryAPI {
         }
     }
 
-    public TradeMarketItemPriceInfo fetchItemPrices(ItemStack item) {
-        return Models.Item.asWynnItem(item, GearItem.class)
-                .map(gearItem -> fetchItemPrices(gearItem.getName()))
-                .orElse(null);
+    public TradeMarketItemPriceInfo fetchItemPrice(String itemName) {
+        return fetchItemPrice(itemName, -1);
     }
 
-    public TradeMarketItemPriceInfo fetchItemPrices(String itemName) {
-        String playerName = McUtils.playerName();
+    public TradeMarketItemPriceInfo fetchItemPrice(String itemName, int tier) {
+        ModInfo.logError("RECEIVED ITEM WITH TIER: "+ tier);
         try {
             final String encodedItemName = HttpUtil.encodeName(itemName);
 
             URI endpointURI;
             if (ModInfo.isDev()) {
                 ModInfo.logInfo("Fetching market data from DEV endpoint.");
-                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/item/" + encodedItemName + "/price?env=dev2&playername=" + playerName);
+                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/item/" + encodedItemName + "/price?tier=" + tier + "&env=dev2");
             } else {
-                endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price?playername=" + playerName);
+                endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price?tier=" + tier);
             }
 
             HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointURI);
@@ -138,7 +138,7 @@ public class WynnventoryAPI {
     }
 
 
-    public TradeMarketItemPriceInfo fetchLatestHistoricItemPrice(String itemName) {
+    public TradeMarketItemPriceInfo fetchLatestHistoricGearPrice(String itemName) {
         try {
             final String encodedItemName = HttpUtil.encodeName(itemName);
 

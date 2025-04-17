@@ -1,18 +1,18 @@
 package com.wynnventory.model.item;
 
 import com.wynntils.models.gear.type.GearInfo;
-import com.wynntils.models.items.items.game.GearItem;
+import com.wynntils.models.items.items.game.GameItem;
 
 import java.time.Instant;
 
 public class TradeMarketItemPriceHolder {
     private TradeMarketItemPriceInfo priceInfo;
-    private final GearInfo info;
+    private final String itemName;
     private final Instant timestamp;
 
-    public TradeMarketItemPriceHolder(TradeMarketItemPriceInfo priceInfo, GearInfo info) {
+    public TradeMarketItemPriceHolder(TradeMarketItemPriceInfo priceInfo, String itemName) {
         this.priceInfo = priceInfo;
-        this.info = info;
+        this.itemName = itemName;
         this.timestamp = Instant.now();
     }
 
@@ -20,8 +20,8 @@ public class TradeMarketItemPriceHolder {
         this.priceInfo = priceInfo;
     }
 
-    public GearInfo getInfo() {
-        return info;
+    public String getItemName() {
+        return itemName;
     }
 
     public TradeMarketItemPriceInfo getPriceInfo() {
