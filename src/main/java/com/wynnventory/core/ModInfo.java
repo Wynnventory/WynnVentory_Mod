@@ -34,6 +34,10 @@ public class ModInfo {
         LOGGER.info(msg);
     }
 
+    public static void logInfo(String msg, Object... args) {
+        LOGGER.info(msg, args);
+    }
+
     public static void logWarn(String msg) {
         LOGGER.warn(msg);
     }
@@ -44,6 +48,10 @@ public class ModInfo {
 
     public static void logError(String msg) {
         LOGGER.error(msg);
+    }
+
+    public static void logError(String msg, Object... args) {
+        LOGGER.error(msg, args);
     }
 
     public static void logError(String msg, Throwable t) {
