@@ -11,8 +11,9 @@ public final class ApiConfig {
     private static final URI PROD_URI = URI.create(PROD_BASE);
     private static final URI DEV_URI  = URI.create(DEV_BASE);
 
+    private ApiConfig() {}
+
     public static URI baseUri() {
         return ModInfo.isDev() ? DEV_URI : PROD_URI;
     }
 }
-
