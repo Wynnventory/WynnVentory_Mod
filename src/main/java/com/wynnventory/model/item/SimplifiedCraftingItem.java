@@ -37,14 +37,17 @@ public class SimplifiedCraftingItem extends SimplifiedItem {
         if (this == o) return true;
         if (o instanceof SimplifiedCraftingItem other) {
             return tier == other.tier &&
-                    Objects.equals(name, other.name);
+                    Objects.equals(name, other.name) &&
+                    Objects.equals(itemType, other.itemType) &&
+                    Objects.equals(type, other.type);
         }
+
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, tier);
+        return Objects.hash(tier, name, itemType, type);
     }
 
     @Override

@@ -61,7 +61,9 @@ public class SimplifiedGearItem extends SimplifiedItem {
                     Objects.equals(rarity, other.rarity) &&
                     Objects.equals(shinyStat, other.shinyStat) &&
                     Objects.equals(rerollCount, other.rerollCount) &&
-                    Objects.equals(actualStatsWithPercentage, other.actualStatsWithPercentage);
+                    Objects.equals(actualStatsWithPercentage, other.actualStatsWithPercentage) &&
+                    Objects.equals(itemType, other.itemType) &&
+                    Objects.equals(type, other.type);
         }
 
         return false;
@@ -69,7 +71,7 @@ public class SimplifiedGearItem extends SimplifiedItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, rarity, unidentified, rerollCount, shinyStat, actualStatsWithPercentage);
+        return Objects.hash(name, rarity, unidentified, rerollCount, shinyStat, actualStatsWithPercentage, itemType, type);
     }
 
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class SimplifiedItem {
     protected final String name;
     protected final String rarity;
-
     protected final String itemType;
     protected final String type;
 
