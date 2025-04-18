@@ -108,7 +108,7 @@ public class WynnventoryAPI {
 
     public List<GroupedLootpool> getLootpools(PoolType type) {
         try {
-            String path = "lootpool/" + type.getName() + "/items";
+            String path = type.getName() + "/items";
             URI endpointURI;
 
             if (ModInfo.isDev()) {

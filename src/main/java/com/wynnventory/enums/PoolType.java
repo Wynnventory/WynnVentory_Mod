@@ -1,7 +1,7 @@
 package com.wynnventory.enums;
 
 public enum PoolType {
-    LOOTRUN("lootrun"),
+    LOOTRUN("lootpool"),
     RAID("raidpool");
 
     private final String name;
