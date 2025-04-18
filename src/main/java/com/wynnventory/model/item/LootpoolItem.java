@@ -66,7 +66,6 @@ public class LootpoolItem {
             rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
         } else if (wynnItem instanceof TomeItem tomeItem) {
             name = tomeItem.getName();
-            ModInfo.logError("Found Tome item " + name);
 
             rarity = tomeItem.getGearTier().getName();
             type = tomeItem.getItemInfo().type().name();
@@ -141,7 +140,7 @@ public class LootpoolItem {
         if (LootpoolItem.LOOT_CLASSES.contains(wynnItem.getClass())) {
             lootpoolItems.add(new LootpoolItem(wynnItem));
         } else {
-            ModInfo.logError("Unknown class: " + wynnItem.getClass());
+            ModInfo.logDebug("Unknown class: " + wynnItem.getClass());
         }
 
 
