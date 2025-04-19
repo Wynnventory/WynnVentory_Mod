@@ -1,6 +1,7 @@
 package com.wynnventory.util;
 
 import com.wynnventory.WynnventoryMod;
+import com.wynnventory.api.ApiConfig;
 import com.wynnventory.core.ModInfo;
 
 import java.io.IOException;
@@ -16,8 +17,11 @@ public class HttpUtil {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
 
     public static void sendHttpPostRequest(URI uri, String payload) {
+        String key = ApiConfig.getApiKey();
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
+                .header("Authorization",  "Api-Key " + key)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(payload))
                 .build();
@@ -32,8 +36,11 @@ public class HttpUtil {
     }
 
     public static HttpResponse<String> sendHttpGetRequest(URI uri) throws IOException, InterruptedException {
+        String key = ApiConfig.getApiKey();
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
+                .header("Authorization",  "Api-Key " + key)
                 .header("Accept", "application/json")
                 .GET()
                 .build();
