@@ -40,4 +40,4 @@ replay_*.log
 *.jfr
 
 # custom
-/src/main/resources/api_key.dat
+src/main/resources/api_key.dat
