@@ -74,14 +74,6 @@ public class Lootpool {
         this.modVersion = modVersion;
     }
 
-    public Set<LootpoolItem> getLootpoolItems() {
-        return lootpoolItems;
-    }
-
-    public void setLootpoolItems(Set<LootpoolItem> lootpoolItems) {
-        this.lootpoolItems = lootpoolItems;
-    }
-
     public String getCollectionTime() { return collectionTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); }
 
     public void setCollectionTime(LocalDateTime collectionTime) { this.collectionTime = collectionTime; }
