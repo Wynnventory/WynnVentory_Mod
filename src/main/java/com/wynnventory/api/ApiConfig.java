@@ -1,10 +1,12 @@
 package com.wynnventory.api;
 
+import com.terraformersmc.modmenu.util.mod.Mod;
 import com.wynnventory.core.ModInfo;
 
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
 
 public final class ApiConfig {
@@ -27,10 +29,16 @@ public final class ApiConfig {
     public static String getApiKey() {
         if (apiKey != null) return apiKey;
 
-        try (InputStream in = ApiConfig.class.getResourceAsStream("/api_key.dat")) {
-            if (in == null) throw new IllegalStateException("Missing api_key.dat!");
+        try (InputStream in = ApiConfig.class.getResourceAsStream("/key.dat")) {
+            if (in == null) throw new IllegalStateException("Missing key.dat!");
 
             byte[] b64 = in.readAllBytes();
+            byte[] defaultC = "${api_key}".getBytes(StandardCharsets.UTF_8);
+
+            if(Arrays.equals(defaultC, b64)) {
+                b64 = System.getenv("API_KEY").getBytes(StandardCharsets.UTF_8);
+            }
+
             byte[] ob  = Base64.getDecoder().decode(b64);
 
             for (int i = 0; i < ob.length; i++) {
@@ -38,6 +46,7 @@ public final class ApiConfig {
             }
 
             apiKey = new String(ob, StandardCharsets.UTF_8);
+
             return apiKey;
         } catch (Exception e) {
             throw new RuntimeException("Failed to load API key", e);

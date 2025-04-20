@@ -60,6 +60,8 @@ jobs:
     name: Build
     needs: changelog
     runs-on: ubuntu-latest
+    env:
+      API_KEY: ${{ secrets.API_KEY }}
     outputs:
       jarName: ${{ steps.make_unique.outputs.jar_name }}
 
