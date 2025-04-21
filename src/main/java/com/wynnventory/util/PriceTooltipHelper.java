@@ -60,8 +60,7 @@ public class PriceTooltipHelper {
         List<Component> tooltipLines = new java.util.ArrayList<>();
         tooltipLines.add(formatText(itemName, color));
 
-
-        if (priceInfo.isEmpty()) {
+        if (priceInfo == null || priceInfo.isEmpty()) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
         } else {
             addPriceLine(tooltipLines, "Max: ", priceInfo.getHighestPrice(), config.isShowPriceFluctuation(), historicInfo.isEmpty() ? 0 : historicInfo.getHighestPrice());
