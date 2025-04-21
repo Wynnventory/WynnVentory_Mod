@@ -64,13 +64,12 @@ public class PriceTooltipHelper {
         if (priceInfo.isEmpty()) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
         } else {
-            boolean showFluctuation = config.isShowPriceFluctuation() && historicInfo != null;
-            addPriceLine(tooltipLines, "Max: ", priceInfo.getHighestPrice(), showFluctuation, historicInfo != null ? historicInfo.getHighestPrice() : 0);
-            addPriceLine(tooltipLines, "Min: ", priceInfo.getLowestPrice(), showFluctuation, historicInfo != null ? historicInfo.getLowestPrice() : 0);
-            addPriceLine(tooltipLines, "Avg: ", priceInfo.getAveragePrice(), showFluctuation, historicInfo != null ? historicInfo.getAveragePrice() : 0);
-            addPriceLine(tooltipLines, "Avg 80%: ", priceInfo.getAverage80Price(), showFluctuation, historicInfo != null ? historicInfo.getAverage80Price() : 0);
-            addPriceLine(tooltipLines, "Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice(), showFluctuation, historicInfo != null ? historicInfo.getUnidentifiedAveragePrice() : 0);
-            addPriceLine(tooltipLines, "Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price(), showFluctuation, historicInfo != null ? historicInfo.getUnidentifiedAverage80Price() : 0);
+            addPriceLine(tooltipLines, "Max: ", priceInfo.getHighestPrice(), config.isShowPriceFluctuation(), historicInfo.isEmpty() ? 0 : historicInfo.getHighestPrice());
+            addPriceLine(tooltipLines, "Min: ", priceInfo.getLowestPrice(), config.isShowPriceFluctuation(), historicInfo.isEmpty() ? 0 : historicInfo.getLowestPrice());
+            addPriceLine(tooltipLines, "Avg: ", priceInfo.getAveragePrice(), config.isShowPriceFluctuation(), historicInfo.isEmpty() ? 0 : historicInfo.getAveragePrice());
+            addPriceLine(tooltipLines, "Avg 80%: ", priceInfo.getAverage80Price(), config.isShowPriceFluctuation(), historicInfo.isEmpty() ? 0 : historicInfo.getAverage80Price());
+            addPriceLine(tooltipLines, "Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice(), config.isShowPriceFluctuation(), historicInfo.isEmpty() ? 0 : historicInfo.getUnidentifiedAveragePrice());
+            addPriceLine(tooltipLines, "Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price(), config.isShowPriceFluctuation(), historicInfo.isEmpty() ? 0 : historicInfo.getUnidentifiedAverage80Price());
         }
 
         return tooltipLines;
