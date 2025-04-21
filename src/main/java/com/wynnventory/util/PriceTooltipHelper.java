@@ -61,7 +61,7 @@ public class PriceTooltipHelper {
         tooltipLines.add(formatText(itemName, color));
 
 
-        if (priceInfo == null) {
+        if (priceInfo.isEmpty()) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
         } else {
             boolean showFluctuation = config.isShowPriceFluctuation() && historicInfo != null;

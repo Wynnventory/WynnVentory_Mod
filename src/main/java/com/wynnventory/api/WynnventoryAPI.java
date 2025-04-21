@@ -2,6 +2,7 @@ package com.wynnventory.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -92,7 +93,7 @@ public class WynnventoryAPI {
                     .uri(HttpUtil.encodeName(name), tier);
             ModInfo.logInfo("Fetching history from {} endpoint.", ModInfo.isDev() ? "DEV" : "PROD");
             HttpResponse<String> resp = HttpUtil.sendHttpGetRequest(uri);
-            return handleResponse(resp, this::parseHistoricPriceInfo);
+            return handleResponse(resp, this::parsePriceInfoResponse);
         } catch (Exception e) {
             ModInfo.logError("Failed to fetch historic price", e);
             return null;
@@ -128,11 +129,9 @@ public class WynnventoryAPI {
 
     private TradeMarketItemPriceInfo parsePriceInfoResponse(String responseBody) {
         try {
-            List<TradeMarketItemPriceInfo> priceInfoList = MAPPER.readValue(responseBody, new TypeReference<>() {
-            });
-            return priceInfoList.isEmpty() ? null : priceInfoList.getFirst();
+            return MAPPER.readValue(responseBody, TradeMarketItemPriceInfo.class);
         } catch (JsonProcessingException e) {
-            ModInfo.logError("Failed to parse item price response {}", e);
+            ModInfo.logError("Failed to parse item price response {}", responseBody, e);
         }
 
         return null;
@@ -140,22 +139,12 @@ public class WynnventoryAPI {
 
     private List<GroupedLootpool> parseLootpoolResponse(String responseBody) {
         try {
-            return MAPPER.readValue(responseBody, new TypeReference<>() {
-            });
+            return MAPPER.readValue(responseBody, new TypeReference<>() {});
         } catch (JsonProcessingException e) {
-            ModInfo.logError("Failed to parse item price response {}", e);
+            ModInfo.logError("Failed to parse lootpool response {}", e);
         }
 
         return new ArrayList<>();
-    }
-
-    private TradeMarketItemPriceInfo parseHistoricPriceInfo(String responseBody) {
-        try {
-            return MAPPER.readValue(responseBody, TradeMarketItemPriceInfo.class);
-        } catch (JsonProcessingException e) {
-            ModInfo.logError("Failed to parse historic item price response {}", e);
-            return null;
-        }
     }
 
     private static ObjectMapper createObjectMapper() {
