@@ -16,6 +16,7 @@ import com.wynnventory.input.KeyBindingManager;
 import com.wynnventory.model.item.GroupedLootpool;
 import com.wynnventory.model.item.LootpoolGroup;
 import com.wynnventory.model.item.LootpoolItem;
+import com.wynnventory.ui.layout.LayoutHelper;
 import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.LootpoolManager;
 import com.wynnventory.util.PriceTooltipHelper;
@@ -41,14 +42,6 @@ import java.util.function.Function;
 @Environment(EnvType.CLIENT)
 public class LootpoolScreen extends Screen {
 
-    private static final int ITEM_SIZE = 16;
-    private static final int ITEMS_PER_ROW = 5;
-    private static final int ITEM_PADDING = 8;
-    private static final int COL_WIDTH = (ITEM_SIZE * ITEMS_PER_ROW) + (ITEM_PADDING * ITEMS_PER_ROW);
-    private static final int PANEL_PADDING = 20;
-    private static final int GAP_TITLE_TO_ITEMS = 12;
-    private static final int GAP_FROM_RIGHT_BORDER = 10;
-
     private final Map<String, List<GuideItemStack>> stacksByName = new HashMap<>();
     private final List<WynnventoryItemButton<GuideItemStack>> elementButtons = new ArrayList<>();
     private final List<Button> filterToggles = new ArrayList<>();
@@ -59,9 +52,13 @@ public class LootpoolScreen extends Screen {
     private SettingsButton settingsButton;
     private EditBox searchBar;
 
-    private int lastTitlesY;
+    private LayoutHelper layoutHelper;
 
     private PoolType currentPool = PoolType.LOOTRUN;
+
+    // Cache for current data to avoid recalculation
+    private List<GroupedLootpool> currentPools;
+    private String currentQuery = "";
 
     public LootpoolScreen(Component title) {
         super(title);
@@ -71,6 +68,7 @@ public class LootpoolScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+        layoutHelper = new LayoutHelper(this.width, this.height);
         initTabs();
         initSettingsButton();
         initReloadButton();
@@ -83,15 +81,17 @@ public class LootpoolScreen extends Screen {
         int width = 80;
         int height = 20;
         int spacing = 10;
-        int totalWidth = 2 * width + spacing;
-        int x = (this.width - totalWidth) / 2;
+
+        int[] tabPosition = layoutHelper.calculateTabPosition(width, height, spacing);
+        int x = tabPosition[0];
+        int y = tabPosition[1];
 
         lootrunButton = Button.builder(Component.literal("Lootruns"), b -> switchTo(PoolType.LOOTRUN))
-                .bounds(x, 10, width, height)
+                .bounds(x, y, width, height)
                 .build();
 
         raidButton = Button.builder(Component.literal("Raids"), b -> switchTo(PoolType.RAID))
-                .bounds(x + width + spacing, 10, width, height)
+                .bounds(x + width + spacing, y, width, height)
                 .build();
 
         addRenderableWidget(lootrunButton);
@@ -102,24 +102,32 @@ public class LootpoolScreen extends Screen {
         int width = 175;
         int height = 20;
 
-        int x = this.width - width - settingsButton.getWidth() - 5 - GAP_FROM_RIGHT_BORDER - reloadButton.getWidth() - 5;
-        int y = raidButton.getY();
+        int[] position = layoutHelper.calculateSearchBarPosition(width, height, settingsButton.getWidth(), reloadButton.getWidth(), raidButton.getY());
+        int x = position[0];
+        int y = position[1];
 
         searchBar = new EditBox(this.font, x, y, width, height, Component.literal(""));
         searchBar.setMaxLength(50);
-        searchBar.setResponder(text -> updateScreen());
+        searchBar.setResponder(text -> {
+            // When search query changes, we need to update the screen
+            // No need to invalidate pools as they don't change, just the filtering
+            currentQuery = text.trim().toLowerCase();
+            updateScreen();
+        });
         addRenderableWidget(searchBar);
     }
 
     private void initReloadButton() {
-        int gap = 5;
-        int width = 16;
+        int buttonSize = 16;
 
-        int x = this.width - width - settingsButton.getWidth() - gap - GAP_FROM_RIGHT_BORDER;
-        int y = raidButton.getY() + raidButton.getHeight() / 2 - width / 2;
+        int[] position = layoutHelper.calculateReloadButtonPosition(buttonSize, settingsButton.getWidth(), raidButton.getHeight());
+        int x = position[0];
+        int y = position[1];
 
         reloadButton = new ReloadButton(x, y, () -> {
             LootpoolManager.reloadAllPools();
+            // Invalidate cached pools when reloading
+            currentPools = null;
             updateScreen();
         });
 
@@ -127,10 +135,11 @@ public class LootpoolScreen extends Screen {
     }
 
     private void initSettingsButton() {
-        int buttonHeight = 16;
+        int buttonSize = 16;
 
-        int x = this.width - buttonHeight - GAP_FROM_RIGHT_BORDER;
-        int y = raidButton.getY() + raidButton.getHeight() / 2 - buttonHeight / 2;
+        int[] position = layoutHelper.calculateSettingsButtonPosition(buttonSize, raidButton.getHeight());
+        int x = position[0];
+        int y = position[1];
 
         settingsButton = new SettingsButton(x, y, () -> Minecraft.getInstance().setScreen(AutoConfig.getConfigScreen(ConfigManager.class, this).get()));
 
@@ -142,14 +151,16 @@ public class LootpoolScreen extends Screen {
         int width = 80;
         int height = 20;
         int spacing = 5;
-//        int startX = reloadButton.getX() + reloadButton.getWidth() - width;
-        int startX = this.width - width - GAP_FROM_RIGHT_BORDER;
-        int startY = reloadButton.getY() + reloadButton.getHeight() + 6;
+
+        int[] position = layoutHelper.calculateFilterTogglePosition(width, height, spacing, reloadButton.getY(), reloadButton.getHeight());
+        int startX = position[0];
+        int startY = position[1];
+        int verticalStep = position[2];
 
         List<FilterToggle> filters = getFilterToggles();
 
         for (int i = 0; i < filters.size(); i++) {
-            int y = startY + i * (height + spacing);
+            int y = startY + i * verticalStep;
             FilterToggle toggle = filters.get(i);
             Button button = createToggleButton(toggle.label, toggle.getter, toggle.setter, startX, y, width, height);
             filterToggles.add(button);
@@ -180,12 +191,16 @@ public class LootpoolScreen extends Screen {
                     setter.accept(newValue);
                     b.setMessage(Component.literal(label + ": " + (newValue ? "On" : "Off")));
                     AutoConfig.getConfigHolder(ConfigManager.class).save();
+                    // Invalidate cached pools when filter is changed
+                    currentPools = null;
                     updateScreen();
                 }).bounds(x, y, width, height).build();
     }
 
     private void switchTo(PoolType type) {
         currentPool = type;
+        // Invalidate cached pools when switching pool types
+        currentPools = null;
         updateScreen();
     }
 
@@ -203,70 +218,21 @@ public class LootpoolScreen extends Screen {
 
         updateTabButtonStyles();
 
-        List<GroupedLootpool> pools = getCurrentPools();
-        String query = searchBar.getValue().trim().toLowerCase();
+        // Get pools and query, updating cached values
+        currentPools = getCurrentPools();
+        currentQuery = searchBar.getValue().trim().toLowerCase();
 
-        // --- Horizontal scaling ---
-        // Left boundary is fixed; right boundary is based on the filter buttons (if available) or fallback to search bar.
-        int leftBoundary = 20;
-        int rightBoundary = filterToggles.isEmpty() ? searchBar.getX() - 10 : filterToggles.get(0).getX() - 10;
-        int availableColumnsWidth = rightBoundary - leftBoundary;
-        // Calculate the desired total width of the columns.
-        int totalWidth = pools.size() * COL_WIDTH + (pools.size() - 1) * PANEL_PADDING;
-        float horizontalScale = 1.0f;
-        if (totalWidth > availableColumnsWidth) {
-            horizontalScale = availableColumnsWidth / (float) totalWidth;
-        }
+        // Calculate layout using the LayoutHelper
+        layoutHelper.calculateItemLayout(currentPools, searchBar, filterToggles, currentQuery);
 
-        // --- Vertical scaling ---
-        // Determine where the columns start.
-        lastTitlesY = searchBar.getY() + searchBar.getHeight() + 10;
-        // We'll assume a fixed bottom margin.
-        int bottomMargin = 10;
-        int availableVertical = this.height - lastTitlesY - bottomMargin;
+        // Build each column with positions calculated by LayoutHelper
+        for (int i = 0; i < currentPools.size(); i++) {
+            int[] columnPosition = layoutHelper.calculateColumnPosition(i);
+            int colX = columnPosition[0];
+            int colY = columnPosition[1];
 
-        // For each column, count the items that match the query and filtering, then compute the required (unscaled) height.
-        int maxColumnHeightUnscaled = 0;
-        for (GroupedLootpool pool : pools) {
-            int rendered = 0;
-            for (LootpoolGroup group : pool.getGroupItems()) {
-                for (LootpoolItem item : group.getLootItems()) {
-                    String name = item.getName();
-                    if (!name.toLowerCase().contains(query)) continue;
-                    if (!matchesRarityFilters(item, ConfigManager.getInstance())) continue;
-                    // For each matching item, assume it contributes one button.
-                    // (If there are multiple stacks per item, buildColumn() will add them one by one.)
-                    rendered++;
-                }
-            }
-            if (rendered > 0) {
-                // Compute number of rows for this column.
-                int rows = (rendered + ITEMS_PER_ROW - 1) / ITEMS_PER_ROW;
-                // Unscaled column height: for rows, each row is ITEM_SIZE, plus (rows-1) gaps of ITEM_PADDING.
-                int colHeight = rows * ITEM_SIZE + (rows - 1) * ITEM_PADDING;
-                maxColumnHeightUnscaled = Math.max(maxColumnHeightUnscaled, colHeight);
-            }
-        }
-        float verticalScale = 1.0f;
-        if (maxColumnHeightUnscaled > availableVertical && availableVertical > 0) {
-            verticalScale = availableVertical / (float) maxColumnHeightUnscaled;
-        }
-
-        // Use the smaller of the two scales.
-        float overallScale = Math.min(horizontalScale, verticalScale);
-
-        int scaledTotalWidth = Math.round(totalWidth * overallScale);
-        // Center the columns within the horizontal available space.
-        int startX = leftBoundary + (availableColumnsWidth - scaledTotalWidth) / 2;
-
-        // Determine starting Y for the columns.
-        int lastStartY = lastTitlesY + this.font.lineHeight + GAP_TITLE_TO_ITEMS;
-
-        // Build each column with positions scaled by overallScale.
-        for (int i = 0; i < pools.size(); i++) {
-            int colX = startX + Math.round(i * (COL_WIDTH + PANEL_PADDING) * overallScale);
-            // Pass overallScale to buildColumn so that button positions and sizes are scaled.
-            buildColumn(pools.get(i), colX, lastStartY, query, overallScale);
+            // Build column with positions calculated by LayoutHelper
+            buildColumn(currentPools.get(i), colX, colY, currentQuery);
         }
     }
 
@@ -275,7 +241,7 @@ public class LootpoolScreen extends Screen {
         raidButton.active = currentPool != PoolType.RAID;
     }
 
-    private void buildColumn(GroupedLootpool pool, int startX, int startY, String query, float scale) {
+    private void buildColumn(GroupedLootpool pool, int startX, int startY, String query) {
         var config = ConfigManager.getInstance();
         int rendered = 0;
 
@@ -283,16 +249,18 @@ public class LootpoolScreen extends Screen {
             for (LootpoolItem item : group.getLootItems()) {
                 String name = item.getName();
                 if (!name.toLowerCase().contains(query)) continue;
-                if (!matchesRarityFilters(item, config)) continue;
+                if (!layoutHelper.matchesRarityFilters(item, config)) continue;
 
-                // Scale positions using the overall scale factor.
-                int x = startX + Math.round((rendered % ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING) * scale);
-                int y = startY + Math.round((rendered / ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING) * scale);
                 List<GuideItemStack> stacks = stacksByName.get(name);
                 if (stacks == null || stacks.isEmpty()) continue;
 
                 for (GuideItemStack stack : stacks) {
-                    int buttonSize = Math.round(ITEM_SIZE * scale);
+                    // Use LayoutHelper to calculate item position
+                    int[] itemPosition = layoutHelper.calculateItemPosition(startX, rendered);
+                    int x = itemPosition[0];
+                    int y = itemPosition[1];
+                    int buttonSize = itemPosition[2];
+
                     WynnventoryItemButton<GuideItemStack> button = new WynnventoryItemButton<>(x, y, buttonSize, buttonSize, stack, item.isShiny());
                     elementButtons.add(button);
                     addRenderableWidget(button);
@@ -302,23 +270,14 @@ public class LootpoolScreen extends Screen {
         }
     }
 
-    private boolean matchesRarityFilters(LootpoolItem item, ConfigManager config) {
-        String rarity = item.getRarity().toLowerCase();
-        var filter = config.getRarityConfig();
-
-        return switch (rarity) {
-            case "mythic" -> filter.getShowMythic();
-            case "fabled" -> filter.getShowFabled();
-            case "legendary" -> filter.getShowLegendary();
-            case "unique" -> filter.getShowUnique();
-            case "rare" -> filter.getShowRare();
-            case "common" -> filter.getShowCommon();
-            case "set" -> filter.getShowSet();
-            default -> true;
-        };
-    }
 
     private List<GroupedLootpool> getCurrentPools() {
+        // If we already have the pools cached and the pool type hasn't changed, return the cached pools
+        if (currentPools != null) {
+            return currentPools;
+        }
+
+        // Otherwise, get the pools from the manager
         return currentPool == PoolType.LOOTRUN
                 ? LootpoolManager.getLootrunPools()
                 : LootpoolManager.getRaidPools();
@@ -329,56 +288,20 @@ public class LootpoolScreen extends Screen {
         renderBackground(g, mouseX, mouseY, partialTick);
         super.render(g, mouseX, mouseY, partialTick);
 
-        List<GroupedLootpool> pools = getCurrentPools();
-        // Use the same boundaries as in updateScreen().
-        int leftBoundary = 20;
-        int rightBoundary = filterToggles.isEmpty()
-                ? searchBar.getX() - 10
-                : filterToggles.get(0).getX() - 10;
-        int availableColumnsWidth = rightBoundary - leftBoundary;
-        int totalWidth = pools.size() * COL_WIDTH + (pools.size() - 1) * PANEL_PADDING;
-        float horizontalScale = 1.0f;
-        if (totalWidth > availableColumnsWidth) {
-            horizontalScale = availableColumnsWidth / (float) totalWidth;
+        // Use cached values instead of recalculating
+        if (currentPools == null) {
+            currentPools = getCurrentPools();
+            currentQuery = searchBar.getValue().trim().toLowerCase();
+            layoutHelper.calculateItemLayout(currentPools, searchBar, filterToggles, currentQuery);
         }
 
-        int bottomMargin = 20;
-        int lastTitlesYLocal = searchBar.getY() + searchBar.getHeight() + 10;
-        int availableVertical = this.height - lastTitlesYLocal - bottomMargin;
-
-        int maxColumnHeightUnscaled = 0;
-        String query = searchBar.getValue().trim().toLowerCase();
-        for (GroupedLootpool pool : pools) {
-            int rendered = 0;
-            for (LootpoolGroup group : pool.getGroupItems()) {
-                for (LootpoolItem item : group.getLootItems()) {
-                    String name = item.getName();
-                    if (!name.toLowerCase().contains(query)) continue;
-                    if (!matchesRarityFilters(item, ConfigManager.getInstance())) continue;
-                    rendered++;
-                }
-            }
-            if (rendered > 0) {
-                int rows = (rendered + ITEMS_PER_ROW - 1) / ITEMS_PER_ROW;
-                int colHeight = rows * ITEM_SIZE + (rows - 1) * ITEM_PADDING;
-                maxColumnHeightUnscaled = Math.max(maxColumnHeightUnscaled, colHeight);
-            }
-        }
-        float verticalScale = 1.0f;
-        if (maxColumnHeightUnscaled > availableVertical && availableVertical > 0) {
-            verticalScale = availableVertical / (float) maxColumnHeightUnscaled;
-        }
-
-        float overallScale = Math.min(horizontalScale, verticalScale);
-        int scaledTotalWidth = Math.round(totalWidth * overallScale);
-        int startX = leftBoundary + (availableColumnsWidth - scaledTotalWidth) / 2;
-
-        // Draw region (panel) titles using the same overallScale.
-        for (int i = 0; i < pools.size(); i++) {
-            int columnX = startX + Math.round(i * (COL_WIDTH + PANEL_PADDING) * overallScale);
-            String regionName = pools.get(i).getRegion();
-            int textX = columnX + Math.round(((COL_WIDTH - ITEM_PADDING) / 2f) * overallScale);
-            g.drawCenteredString(this.font, regionName, textX, lastTitlesYLocal, 0xFFFFFFFF);
+        // Draw region (panel) titles
+        for (int i = 0; i < currentPools.size(); i++) {
+            int[] titlePosition = layoutHelper.calculateColumnTitlePosition(i);
+            int textX = titlePosition[0];
+            int titleY = titlePosition[1];
+            String regionName = currentPools.get(i).getRegion();
+            g.drawCenteredString(this.font, regionName, textX, titleY, 0xFFFFFFFF);
         }
 
         // Render tooltips for hovered element buttons.
