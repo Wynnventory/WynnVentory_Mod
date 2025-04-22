@@ -47,6 +47,7 @@ public class LootpoolScreen extends Screen {
     private static final int COL_WIDTH = (ITEM_SIZE * ITEMS_PER_ROW) + (ITEM_PADDING * ITEMS_PER_ROW);
     private static final int PANEL_PADDING = 20;
     private static final int GAP_TITLE_TO_ITEMS = 12;
+    private static final int GAP_FROM_RIGHT_BORDER = 10;
 
     private final Map<String, List<GuideItemStack>> stacksByName = new HashMap<>();
     private final List<WynnventoryItemButton<GuideItemStack>> elementButtons = new ArrayList<>();
@@ -71,9 +72,9 @@ public class LootpoolScreen extends Screen {
     protected void init() {
         super.init();
         initTabs();
-        initSearchBar();
-        initReloadButton();
         initSettingsButton();
+        initReloadButton();
+        initSearchBar();
         initFilters();
         updateScreen();
     }
@@ -100,8 +101,9 @@ public class LootpoolScreen extends Screen {
     private void initSearchBar() {
         int width = 175;
         int height = 20;
-        int x = this.width - width - 50;
-        int y = 40;
+
+        int x = this.width - width - settingsButton.getWidth() - 5 - GAP_FROM_RIGHT_BORDER - reloadButton.getWidth() - 5;
+        int y = raidButton.getY();
 
         searchBar = new EditBox(this.font, x, y, width, height, Component.literal(""));
         searchBar.setMaxLength(50);
@@ -111,8 +113,10 @@ public class LootpoolScreen extends Screen {
 
     private void initReloadButton() {
         int gap = 5;
-        int x = searchBar.getX() + searchBar.getWidth() + gap;
-        int y = searchBar.getY();
+        int width = 16;
+
+        int x = this.width - width - settingsButton.getWidth() - gap - GAP_FROM_RIGHT_BORDER;
+        int y = raidButton.getY() + raidButton.getHeight() / 2 - width / 2;
 
         reloadButton = new ReloadButton(x, y, () -> {
             LootpoolManager.reloadAllPools();
@@ -123,10 +127,9 @@ public class LootpoolScreen extends Screen {
     }
 
     private void initSettingsButton() {
-        int gap = 5;
         int buttonHeight = 16;
 
-        int x = searchBar.getX() + searchBar.getWidth() + gap;
+        int x = this.width - buttonHeight - GAP_FROM_RIGHT_BORDER;
         int y = raidButton.getY() + raidButton.getHeight() / 2 - buttonHeight / 2;
 
         settingsButton = new SettingsButton(x, y, () -> Minecraft.getInstance().setScreen(AutoConfig.getConfigScreen(ConfigManager.class, this).get()));
@@ -139,7 +142,8 @@ public class LootpoolScreen extends Screen {
         int width = 80;
         int height = 20;
         int spacing = 5;
-        int startX = reloadButton.getX() + reloadButton.getWidth() - width;
+//        int startX = reloadButton.getX() + reloadButton.getWidth() - width;
+        int startX = this.width - width - GAP_FROM_RIGHT_BORDER;
         int startY = reloadButton.getY() + reloadButton.getHeight() + 6;
 
         List<FilterToggle> filters = getFilterToggles();
