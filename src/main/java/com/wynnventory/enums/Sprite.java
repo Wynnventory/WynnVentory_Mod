@@ -3,7 +3,8 @@ package com.wynnventory.enums;
 import net.minecraft.resources.ResourceLocation;
 
 public enum Sprite {
-    RELOAD_BUTTON("gui/reload.png", 64, 32);
+    RELOAD_BUTTON("gui/reload.png", 64, 32),
+    SETTINGS_BUTTON("gui/settings.png", 40, 20);
 
     private final ResourceLocation resource;
     private final int width;

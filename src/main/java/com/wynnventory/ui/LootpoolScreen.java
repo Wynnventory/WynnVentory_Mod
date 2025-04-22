@@ -9,6 +9,8 @@ import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
 import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.config.ConfigManager;
+import com.wynnventory.config.WynnventoryModMenu;
+import com.wynnventory.core.ModInfo;
 import com.wynnventory.enums.PoolType;
 import com.wynnventory.input.KeyBindingManager;
 import com.wynnventory.model.item.GroupedLootpool;
@@ -20,6 +22,7 @@ import com.wynnventory.util.PriceTooltipHelper;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -52,6 +55,7 @@ public class LootpoolScreen extends Screen {
     private Button lootrunButton;
     private Button raidButton;
     private ReloadButton reloadButton;
+    private SettingsButton settingsButton;
     private EditBox searchBar;
 
     private int lastTitlesY;
@@ -69,6 +73,7 @@ public class LootpoolScreen extends Screen {
         initTabs();
         initSearchBar();
         initReloadButton();
+        initSettingsButton();
         initFilters();
         updateScreen();
     }
@@ -115,6 +120,18 @@ public class LootpoolScreen extends Screen {
         });
 
         addRenderableWidget(reloadButton);
+    }
+
+    private void initSettingsButton() {
+        int gap = 5;
+        int buttonHeight = 16;
+
+        int x = searchBar.getX() + searchBar.getWidth() + gap;
+        int y = raidButton.getY() + raidButton.getHeight() / 2 - buttonHeight / 2;
+
+        settingsButton = new SettingsButton(x, y, () -> Minecraft.getInstance().setScreen(AutoConfig.getConfigScreen(ConfigManager.class, this).get()));
+
+        addRenderableWidget(settingsButton);
     }
 
     private void initFilters() {
@@ -175,6 +192,7 @@ public class LootpoolScreen extends Screen {
         // Add fixed UI widgets.
         addRenderableWidget(searchBar);
         addRenderableWidget(reloadButton);
+        addRenderableWidget(settingsButton);
         addRenderableWidget(lootrunButton);
         addRenderableWidget(raidButton);
         filterToggles.forEach(this::addRenderableWidget);
