@@ -46,18 +46,17 @@ public class FavouriteNotifier {
         Set<String> seen = new HashSet<>();
         List<FavouriteMatch> result = new ArrayList<>();
 
-        Stream<GroupedLootpool> allPools = Stream.concat(
+        List<GroupedLootpool> allPools = Stream.concat(
                 LootpoolManager.getLootrunPools().stream(),
                 LootpoolManager.getRaidPools().stream()
-        );
+        ).toList();
 
-        allPools.forEach(pool -> {
+        // Process all pools and collect all matches without early termination
+        for (GroupedLootpool pool : allPools) {
             String region = pool.getRegion();
             List<LootpoolItem> itemsToCheck = mythicsOnly ? pool.getMythics() : pool.getAllItems();
 
             for (LootpoolItem item : itemsToCheck) {
-                if (result.size() >= MAX_TOASTS) return;
-
                 String name = item.getName();
                 String uniqueKey = name + ":" + region;
 
@@ -65,7 +64,7 @@ public class FavouriteNotifier {
                     result.add(new FavouriteMatch(name, region, item.getRarityColor()));
                 }
             }
-        });
+        }
 
         return result;
     }
@@ -82,7 +81,7 @@ public class FavouriteNotifier {
 
         int remaining = total - shown;
         if (remaining > 0) {
-            showToast("More Favourites", Component.literal(+remaining + " more."));
+            showToast("More Favourites", Component.literal(remaining + " more..."));
         }
     }
 
