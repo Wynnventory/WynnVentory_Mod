@@ -1,9 +1,9 @@
 package com.wynnventory.ui.layout;
 
+import com.wynnventory.config.ConfigManager;
 import com.wynnventory.model.item.GroupedLootpool;
 import com.wynnventory.model.item.LootpoolGroup;
 import com.wynnventory.model.item.LootpoolItem;
-import com.wynnventory.config.ConfigManager;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 
@@ -20,7 +20,7 @@ public class LayoutHelper {
     private static final int ITEM_PADDING = 8;
     private static final int COL_WIDTH = (ITEM_SIZE * ITEMS_PER_ROW) + (ITEM_PADDING * ITEMS_PER_ROW);
     private static final int PANEL_PADDING = 20;
-    private static final int GAP_TITLE_TO_ITEMS = 12;
+    private static final int GAP_TITLE_TO_ITEMS = 24;
     private static final int GAP_FROM_RIGHT_BORDER = 10;
 
     // Screen dimensions
@@ -28,14 +28,9 @@ public class LayoutHelper {
     private final int screenHeight;
 
     // UI component positions
-    private int leftBoundary;
-    private int rightBoundary;
-    private int topBoundary;
-    private int bottomBoundary;
+    private final int leftBoundary;
 
-    // Scaling factors
-    private float horizontalScale;
-    private float verticalScale;
+    // Scaling
     private float overallScale;
 
     // Layout calculations
@@ -46,7 +41,7 @@ public class LayoutHelper {
     /**
      * Creates a new LayoutHelper for the given screen dimensions.
      *
-     * @param screenWidth The width of the screen
+     * @param screenWidth  The width of the screen
      * @param screenHeight The height of the screen
      */
     public LayoutHelper(int screenWidth, int screenHeight) {
@@ -59,89 +54,90 @@ public class LayoutHelper {
      * Calculates the position for tab buttons.
      *
      * @param buttonWidth Width of a single tab button
-     * @param buttonHeight Height of a single tab button
-     * @param spacing Spacing between buttons
+     * @param spacing     Spacing between buttons
      * @return An array with [x, y, totalWidth] for the first button
      */
-    public int[] calculateTabPosition(int buttonWidth, int buttonHeight, int spacing) {
+    public int[] calculateTabPosition(int buttonWidth, int spacing) {
         int totalWidth = 2 * buttonWidth + spacing;
         int x = (screenWidth - totalWidth) / 2;
         int y = 10;
-        return new int[] {x, y, totalWidth};
+        return new int[]{x, y, totalWidth};
     }
 
     /**
      * Calculates the position for the settings button.
      *
-     * @param buttonSize Size of the settings button (width and height)
+     * @param buttonSize      Size of the settings button (width and height)
      * @param tabButtonHeight Height of the tab buttons for vertical alignment
      * @return An array with [x, y] for the settings button
      */
     public int[] calculateSettingsButtonPosition(int buttonSize, int tabButtonHeight) {
         int x = screenWidth - buttonSize - GAP_FROM_RIGHT_BORDER;
         int y = 10 + tabButtonHeight / 2 - buttonSize / 2;
-        return new int[] {x, y};
+        return new int[]{x, y};
     }
 
     /**
      * Calculates the position for the reload button.
      *
-     * @param buttonSize Size of the reload button (width and height)
+     * @param buttonSize          Size of the reload button (width and height)
      * @param settingsButtonWidth Width of the settings button
-     * @param tabButtonHeight Height of the tab buttons for vertical alignment
+     * @param tabButtonHeight     Height of the tab buttons for vertical alignment
      * @return An array with [x, y] for the reload button
      */
     public int[] calculateReloadButtonPosition(int buttonSize, int settingsButtonWidth, int tabButtonHeight) {
         int gap = 5;
         int x = screenWidth - buttonSize - settingsButtonWidth - gap - GAP_FROM_RIGHT_BORDER;
         int y = 10 + tabButtonHeight / 2 - buttonSize / 2;
-        return new int[] {x, y};
+        return new int[]{x, y};
     }
 
     /**
      * Calculates the position for the search bar.
      *
-     * @param width Width of the search bar
-     * @param height Height of the search bar
+     * @param width               Width of the search bar
+     * @param height              Height of the search bar
      * @param settingsButtonWidth Width of the settings button
-     * @param reloadButtonWidth Width of the reload button
-     * @param tabButtonY Y position of the tab buttons for vertical alignment
+     * @param reloadButtonWidth   Width of the reload button
+     * @param tabButtonY          Y position of the tab buttons for vertical alignment
      * @return An array with [x, y] for the search bar
      */
     public int[] calculateSearchBarPosition(int width, int height, int settingsButtonWidth, int reloadButtonWidth, int tabButtonY) {
         int x = screenWidth - width - settingsButtonWidth - 5 - GAP_FROM_RIGHT_BORDER - reloadButtonWidth - 5;
         int y = tabButtonY;
-        return new int[] {x, y};
+        return new int[]{x, y};
     }
 
     /**
      * Calculates the position for filter toggle buttons.
      *
-     * @param buttonWidth Width of the filter toggle buttons
-     * @param buttonHeight Height of the filter toggle buttons
-     * @param spacing Spacing between buttons
-     * @param reloadButtonY Y position of the reload button
+     * @param buttonWidth        Width of the filter toggle buttons
+     * @param buttonHeight       Height of the filter toggle buttons
+     * @param spacing            Spacing between buttons
+     * @param reloadButtonY      Y position of the reload button
      * @param reloadButtonHeight Height of the reload button
      * @return An array with [x, y] for the first filter toggle button
      */
     public int[] calculateFilterTogglePosition(int buttonWidth, int buttonHeight, int spacing, int reloadButtonY, int reloadButtonHeight) {
         int x = screenWidth - buttonWidth - GAP_FROM_RIGHT_BORDER;
         int y = reloadButtonY + reloadButtonHeight + 6;
-        return new int[] {x, y, buttonHeight + spacing};
+        return new int[]{x, y, buttonHeight + spacing};
     }
 
     /**
      * Calculates the layout for item columns based on available space and content.
      *
-     * @param pools The list of lootpools to display
-     * @param searchBar The search bar component for reference
+     * @param pools         The list of lootpools to display
+     * @param searchBar     The search bar component for reference
      * @param filterToggles The list of filter toggle buttons
-     * @param query The current search query
-     * @return The calculated overall scale factor for items
+     * @param query         The current search query
      */
-    public float calculateItemLayout(List<GroupedLootpool> pools, EditBox searchBar, List<Button> filterToggles, String query) {
+    public void calculateItemLayout(List<GroupedLootpool> pools, EditBox searchBar, List<Button> filterToggles, String query) {
+        int rightBoundary;
+        float verticalScale;
+        float horizontalScale;
         // Set boundaries
-        this.rightBoundary = filterToggles.isEmpty() ? searchBar.getX() - 10 : filterToggles.get(0).getX() - 10;
+        rightBoundary = filterToggles.isEmpty() ? searchBar.getX() - 10 : filterToggles.getFirst().getX() - 10;
         int availableColumnsWidth = rightBoundary - leftBoundary;
 
         // Calculate horizontal scale
@@ -170,7 +166,6 @@ public class LayoutHelper {
         startX = leftBoundary + (availableColumnsWidth - scaledTotalWidth) / 2;
         itemsStartY = lastTitlesY + GAP_TITLE_TO_ITEMS;
 
-        return overallScale;
     }
 
     /**
@@ -198,7 +193,7 @@ public class LayoutHelper {
     /**
      * Counts the number of items in a pool that match the search query and rarity filters.
      *
-     * @param pool The lootpool to check
+     * @param pool  The lootpool to check
      * @param query The current search query
      * @return The number of matching items
      */
@@ -208,7 +203,7 @@ public class LayoutHelper {
             for (LootpoolItem item : group.getLootItems()) {
                 String name = item.getName();
                 if (!name.toLowerCase().contains(query.toLowerCase())) continue;
-                if (!matchesRarityFilters(item, ConfigManager.getInstance())) continue;
+                if (matchesRarityFilters(item, ConfigManager.getInstance())) continue;
                 count++;
             }
         }
@@ -218,7 +213,7 @@ public class LayoutHelper {
     /**
      * Checks if an item matches the current rarity filters.
      *
-     * @param item The item to check
+     * @param item   The item to check
      * @param config The config manager instance
      * @return True if the item matches the filters, false otherwise
      */
@@ -226,7 +221,7 @@ public class LayoutHelper {
         String rarity = item.getRarity().toLowerCase();
         var filter = config.getRarityConfig();
 
-        return switch (rarity) {
+        return !switch (rarity) {
             case "mythic" -> filter.getShowMythic();
             case "fabled" -> filter.getShowFabled();
             case "legendary" -> filter.getShowLegendary();
@@ -246,13 +241,13 @@ public class LayoutHelper {
      */
     public int[] calculateColumnPosition(int columnIndex) {
         int x = startX + Math.round(columnIndex * (COL_WIDTH + PANEL_PADDING) * overallScale);
-        return new int[] {x, itemsStartY};
+        return new int[]{x, itemsStartY};
     }
 
     /**
      * Calculates the position for an item within a column.
      *
-     * @param columnX The x position of the column
+     * @param columnX   The x position of the column
      * @param itemIndex The index of the item within the column
      * @return An array with [x, y, size] for the item
      */
@@ -260,7 +255,7 @@ public class LayoutHelper {
         int x = columnX + Math.round((itemIndex % ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING) * overallScale);
         int y = itemsStartY + Math.round((itemIndex / ITEMS_PER_ROW) * (ITEM_SIZE + ITEM_PADDING) * overallScale);
         int size = Math.round(ITEM_SIZE * overallScale);
-        return new int[] {x, y, size};
+        return new int[]{x, y, size};
     }
 
     /**
@@ -272,33 +267,6 @@ public class LayoutHelper {
     public int[] calculateColumnTitlePosition(int columnIndex) {
         int x = startX + Math.round(columnIndex * (COL_WIDTH + PANEL_PADDING) * overallScale);
         int textX = x + Math.round(((COL_WIDTH - ITEM_PADDING) / 2f) * overallScale);
-        return new int[] {textX, lastTitlesY};
-    }
-
-    /**
-     * Gets the overall scale factor for the layout.
-     *
-     * @return The overall scale factor
-     */
-    public float getOverallScale() {
-        return overallScale;
-    }
-
-    /**
-     * Gets the Y position for column titles.
-     *
-     * @return The Y position for column titles
-     */
-    public int getLastTitlesY() {
-        return lastTitlesY;
-    }
-
-    /**
-     * Gets the Y position for items.
-     *
-     * @return The Y position for items
-     */
-    public int getItemsStartY() {
-        return itemsStartY;
+        return new int[]{textX, lastTitlesY};
     }
 }

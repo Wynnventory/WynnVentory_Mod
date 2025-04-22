@@ -9,8 +9,6 @@ import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
 import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.config.ConfigManager;
-import com.wynnventory.config.WynnventoryModMenu;
-import com.wynnventory.core.ModInfo;
 import com.wynnventory.enums.PoolType;
 import com.wynnventory.input.KeyBindingManager;
 import com.wynnventory.model.item.GroupedLootpool;
@@ -232,7 +230,7 @@ public class LootpoolScreen extends Screen {
             int colY = columnPosition[1];
 
             // Build column with positions calculated by LayoutHelper
-            buildColumn(currentPools.get(i), colX, colY, currentQuery);
+            buildColumn(currentPools.get(i), colX, currentQuery);
         }
     }
 
@@ -241,7 +239,7 @@ public class LootpoolScreen extends Screen {
         raidButton.active = currentPool != PoolType.RAID;
     }
 
-    private void buildColumn(GroupedLootpool pool, int startX, int startY, String query) {
+    private void buildColumn(GroupedLootpool pool, int startX, String query) {
         var config = ConfigManager.getInstance();
         int rendered = 0;
 
@@ -249,7 +247,7 @@ public class LootpoolScreen extends Screen {
             for (LootpoolItem item : group.getLootItems()) {
                 String name = item.getName();
                 if (!name.toLowerCase().contains(query)) continue;
-                if (!layoutHelper.matchesRarityFilters(item, config)) continue;
+                if (layoutHelper.matchesRarityFilters(item, config)) continue;
 
                 List<GuideItemStack> stacks = stacksByName.get(name);
                 if (stacks == null || stacks.isEmpty()) continue;
