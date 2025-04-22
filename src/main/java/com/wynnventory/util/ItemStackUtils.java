@@ -6,8 +6,12 @@ import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.gear.type.GearType;
+import com.wynntils.models.ingredients.type.IngredientTierFormatting;
 import com.wynntils.models.items.WynnItem;
-import com.wynntils.models.items.items.game.*;
+import com.wynntils.models.items.items.game.GearBoxItem;
+import com.wynntils.models.items.items.game.GearItem;
+import com.wynntils.models.items.items.game.IngredientItem;
+import com.wynntils.models.items.items.game.MaterialItem;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.model.item.TradeMarketItemPriceHolder;
@@ -51,20 +55,20 @@ public class ItemStackUtils {
         Optional<WynnItem> maybeItem = Models.Item.getWynnItem(itemStack);
         List<Component> tooltipLines = new ArrayList<>();
 
-        if (maybeItem.isPresent()) {
-            WynnItem wynnItem = maybeItem.get();
-            switch (wynnItem) {
-                case GearItem gearItem -> processGear(gearItem.getItemInfo(), gearItem.getName(), gearItem.getGearTier().getChatFormatting(), tooltipLines);
-                case GearBoxItem gearBoxItem when !gearBoxItem.getGearType().equals(GearType.MASTERY_TOME) ->
+        if (maybeItem.isEmpty()) return tooltipLines;
+        switch (maybeItem.get()) {
+            case GearItem gearItem ->
+                    processGear(gearItem.getItemInfo(), gearItem.getName(), gearItem.getGearTier().getChatFormatting(), tooltipLines);
+            case GearBoxItem gearBoxItem when !gearBoxItem.getGearType().equals(GearType.MASTERY_TOME) ->
                     processGearBox(gearBoxItem, tooltipLines);
-                case IngredientItem ingredientItem -> processSimple(ingredientItem.getName(), ingredientItem.getName(), -1, ChatFormatting.GRAY, tooltipLines);
-                case MaterialItem materialItem -> {
-                    String materialKey = getMaterialKey(materialItem);
-                    processSimple(getMaterialName(materialItem), materialKey, materialItem.getQualityTier(), ChatFormatting.WHITE, tooltipLines);
-                }
-                default -> {
-                    return tooltipLines;
-                }
+            case IngredientItem ingredientItem ->
+                    processCrafting(ingredientItem.getName(), ingredientItem.getName(), ingredientItem.getQualityTier(), ChatFormatting.GRAY, tooltipLines);
+            case MaterialItem materialItem -> {
+                String materialKey = getMaterialKey(materialItem);
+                processCrafting(getMaterialName(materialItem), materialKey, materialItem.getQualityTier(), ChatFormatting.WHITE, tooltipLines);
+            }
+            default -> {
+                return tooltipLines;
             }
         }
 
@@ -78,7 +82,7 @@ public class ItemStackUtils {
                 () -> gearInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE ? UNTRADABLE : wynnventoryAPI.fetchLatestHistoricItemPrice(itemName)
         );
         tooltipLines.addAll(createTooltip(itemName, color, gearInfo.metaInfo().restrictions()));
-        evictExpiredPrices(itemName);
+        removeExpiredPrices(itemName);
     }
 
     private static void processGearBox(GearBoxItem gearBoxItem, List<Component> tooltipLines) {
@@ -108,19 +112,20 @@ public class ItemStackUtils {
             String itemKey = holder.getItemName();
             tooltipLines.addAll(createTooltip(itemKey, color, null));
             tooltipLines.add(Component.literal("")); // spacer
-            evictExpiredPrices(itemKey);
+            removeExpiredPrices(itemKey);
         }
     }
 
-    private static void processSimple(String displayName, String itemKey, int tier, ChatFormatting color, List<Component> tooltipLines) {
+    private static void processCrafting(String displayName, String itemKey, int tier, ChatFormatting color, List<Component> tooltipLines) {
         tooltipLines.addFirst(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
 
         fetchPrices(itemKey,
                 () -> wynnventoryAPI.fetchItemPrice(displayName, tier),
                 () -> wynnventoryAPI.fetchLatestHistoricItemPrice(displayName, tier));
 
-        tooltipLines.addAll(createTooltip(displayName, itemKey, color, null));
-        evictExpiredPrices(itemKey);
+        String name = displayName + " " + IngredientTierFormatting.fromTierNum(tier).getTierString();
+        tooltipLines.addAll(createTooltip(name, itemKey, color, null));
+        removeExpiredPrices(itemKey);
     }
 
     private static void fetchPrices(String itemKey, Supplier<TradeMarketItemPriceInfo> currentPriceSupplier, Supplier<TradeMarketItemPriceInfo> historicPriceSupplier) {
@@ -154,7 +159,7 @@ public class ItemStackUtils {
         return PriceTooltipHelper.createPriceTooltip(currentInfo, historicInfo, displayName, color);
     }
 
-    private static void evictExpiredPrices(String itemKey) {
+    private static void removeExpiredPrices(String itemKey) {
         PriceHolderPair holders = priceCache.get(itemKey);
         if (holders.currentHolder.isPriceExpired(EXPIRE_MINS)) {
             priceCache.remove(itemKey);
@@ -167,17 +172,8 @@ public class ItemStackUtils {
                 .orElse(ChatFormatting.WHITE);
     }
 
-    // Holds both current and historic price holders for an item
-    private static class PriceHolderPair {
-        final String itemKey;
-        final TradeMarketItemPriceHolder currentHolder;
-        final TradeMarketItemPriceHolder historicHolder;
-
-        PriceHolderPair(String itemKey, TradeMarketItemPriceHolder currentHolder, TradeMarketItemPriceHolder historicHolder) {
-            this.itemKey = itemKey;
-            this.currentHolder = currentHolder;
-            this.historicHolder = historicHolder;
-        }
+    private record PriceHolderPair(String itemKey, TradeMarketItemPriceHolder currentHolder,
+                                   TradeMarketItemPriceHolder historicHolder) {
     }
 
     private static String getMaterialName(MaterialItem item) {
