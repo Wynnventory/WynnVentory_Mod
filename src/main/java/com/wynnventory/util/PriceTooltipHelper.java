@@ -3,16 +3,10 @@ package com.wynnventory.util;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.models.emeralds.type.EmeraldUnits;
-import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.gear.type.GearType;
-import com.wynntils.models.items.items.game.GameItem;
-import com.wynntils.models.items.items.game.GearItem;
-import com.wynntils.models.items.items.game.IngredientItem;
-import com.wynntils.models.items.items.game.MaterialItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.config.ConfigManager;
 import com.wynnventory.config.EmeraldDisplayOption;
-import com.wynnventory.core.ModInfo;
 import com.wynnventory.model.item.TradeMarketItemPriceHolder;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import net.minecraft.ChatFormatting;
@@ -34,7 +28,8 @@ public class PriceTooltipHelper {
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
     private static final EmeraldPrice EMERALD_PRICE = new EmeraldPrice();
 
-    private PriceTooltipHelper() {}
+    private PriceTooltipHelper() {
+    }
 
     public static Dimension calculateTooltipDimension(List<Component> tooltipLines, Font font) {
         int width = tooltipLines.stream().mapToInt(font::width).max().orElse(0);
@@ -75,16 +70,7 @@ public class PriceTooltipHelper {
     }
 
     public static void addPriceLine(List<Component> tooltipLines, String label, int price, boolean showFluct, int historicPrice) {
-        ConfigManager config = ConfigManager.getInstance();
-        boolean shouldShow = switch (label) {
-            case "Max: " -> config.isShowMaxPrice();
-            case "Min: " -> config.isShowMinPrice();
-            case "Avg: " -> config.isShowAveragePrice();
-            case "Avg 80%: " -> config.isShowAverage80Price();
-            case "Unidentified Avg: " -> config.isShowUnidAveragePrice();
-            case "Unidentified Avg 80%: " -> config.isShowUnidAverage80Price();
-            default -> false;
-        };
+        boolean shouldShow = isShouldShow(label);
 
         if (price > 0 && shouldShow) {
             if (showFluct) {
@@ -94,6 +80,19 @@ public class PriceTooltipHelper {
                 tooltipLines.add(formatPrice(label, price));
             }
         }
+    }
+
+    private static boolean isShouldShow(String label) {
+        ConfigManager config = ConfigManager.getInstance();
+        return switch (label) {
+            case "Max: " -> config.isShowMaxPrice();
+            case "Min: " -> config.isShowMinPrice();
+            case "Avg: " -> config.isShowAveragePrice();
+            case "Avg 80%: " -> config.isShowAverage80Price();
+            case "Unidentified Avg: " -> config.isShowUnidAveragePrice();
+            case "Unidentified Avg 80%: " -> config.isShowUnidAverage80Price();
+            default -> false;
+        };
     }
 
     public static MutableComponent formatPrice(String label, int price) {
@@ -109,14 +108,12 @@ public class PriceTooltipHelper {
         if (price > 0) {
             String formattedPrice = NUMBER_FORMAT.format(price) + EmeraldUnits.EMERALD.getSymbol();
             String formattedEmeralds = EMERALD_PRICE.getFormattedString(price, false);
-            if (priceFormat == EmeraldDisplayOption.EMERALDS) {
-                priceComponent.append(Component.literal(formattedPrice)
+            switch (priceFormat) {
+                case EmeraldDisplayOption.EMERALDS -> priceComponent.append(Component.literal(formattedPrice)
                         .withStyle(Style.EMPTY.withColor(color)));
-            } else if (priceFormat == EmeraldDisplayOption.FORMATTED) {
-                priceComponent.append(Component.literal(formattedEmeralds)
+                case EmeraldDisplayOption.FORMATTED -> priceComponent.append(Component.literal(formattedEmeralds)
                         .withStyle(Style.EMPTY.withColor(color)));
-            } else {
-                priceComponent.append(Component.literal(formattedPrice)
+                default -> priceComponent.append(Component.literal(formattedPrice)
                                 .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)))
                         .append(Component.literal(" (" + formattedEmeralds + ")")
                                 .withStyle(Style.EMPTY.withColor(color)));
@@ -161,13 +158,11 @@ public class PriceTooltipHelper {
             if (groupComparison != 0) {
                 return groupComparison;
             }
-            if (group1 == 0) {
-                return Double.compare(p2.getUnidentifiedAverage80Price(), p1.getUnidentifiedAverage80Price());
-            } else if (group1 == 1) {
-                return Double.compare(p2.getAverage80Price(), p1.getAverage80Price());
-            } else {
-                return 0;
-            }
+            return switch (group1) {
+                case 0 -> Double.compare(p2.getUnidentifiedAverage80Price(), p1.getUnidentifiedAverage80Price());
+                case 1 -> Double.compare(p2.getAverage80Price(), p1.getAverage80Price());
+                default -> 0;
+            };
         });
     }
 
@@ -190,11 +185,11 @@ public class PriceTooltipHelper {
         mouseY = Math.max(mouseY, 10);
 
         // 2) Screen dims and fixed gap
-        int guiW_window   = window.getGuiScaledWidth();
-        int guiW_graphics = guiGraphics.guiWidth();
-        int guiH          = window.getGuiScaledHeight();
-        int guiScale      = (int) window.getGuiScale();
-        int gap           = 5 * guiScale;
+        int guiwWindow = window.getGuiScaledWidth();
+        int guiwGraphics = guiGraphics.guiWidth();
+        int guiH = window.getGuiScaledHeight();
+        int guiScale = (int) window.getGuiScale();
+        int gap = 5 * guiScale;
 
         // 3) Primary tooltip dimensions
         List<Component> primary = Screen.getTooltipFromItem(McUtils.mc(), item);
@@ -214,13 +209,13 @@ public class PriceTooltipHelper {
                 }
             }
             if (gearBox) {
-                pDim.width  += 35 * guiScale;
+                pDim.width += 35 * guiScale;
                 pDim.height += 35 * guiScale;
             }
         }
 
         // 5) Compute free space
-        int spaceR = guiW_window - (mouseX + pDim.width + gap);
+        int spaceR = guiwWindow - (mouseX + pDim.width + gap);
         int spaceL = mouseX - gap;
 
         // 6) Pick side
@@ -228,18 +223,19 @@ public class PriceTooltipHelper {
 
         // 7) Available width
         int availableWidth = Math.max(placeLeft ? spaceL : spaceR, 0);
-        int tooltipMaxH    = Math.round(guiH * 0.8f);
+        int tooltipMaxH = Math.round(guiH * 0.8f);
 
         // 8) Scale factor + dims
         float scale = PriceTooltipHelper.calculateScaleFactor(tooltipLines, tooltipMaxH, availableWidth, 0.4f, 1.0f, font);
         Dimension tDim = PriceTooltipHelper.calculateTooltipDimension(tooltipLines, font);
         Dimension sDim = new Dimension(
-                Math.round(tDim.width  * scale),
+                Math.round(tDim.width * scale),
                 Math.round(tDim.height * scale)
         );
 
         // 9) Compute raw posX/posY
-        float posX, posY;
+        float posX;
+        float posY;
         if (!anchored) {
             // non-anchored: standard left/right of primary
             if (placeLeft) {
@@ -255,14 +251,14 @@ public class PriceTooltipHelper {
             if (placeLeft) {
                 posX = 0;
             } else {
-                posX = guiW_window - sDim.width;
+                posX = guiwWindow - sDim.width;
             }
             posY = (guiH - sDim.height) / 2f;
         }
 
         // 10) Clamp into [gap .. screen - tooltip - gap]
-        int maxX = guiW_graphics - sDim.width - gap;
-        int maxY = guiH          - sDim.height - gap;
+        int maxX = guiwGraphics - sDim.width - gap;
+        int maxY = guiH - sDim.height - gap;
         if (!anchored) {
             posX = Math.min(Math.max(posX, 0), maxX);
         } else {
