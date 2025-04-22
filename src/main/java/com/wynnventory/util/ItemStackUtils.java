@@ -5,6 +5,7 @@ import com.wynntils.core.text.StyledText;
 import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.gear.type.GearTier;
+import com.wynntils.models.gear.type.GearType;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.items.game.*;
 import com.wynnventory.api.WynnventoryAPI;
@@ -54,13 +55,16 @@ public class ItemStackUtils {
             WynnItem wynnItem = maybeItem.get();
             switch (wynnItem) {
                 case GearItem gearItem -> processGear(gearItem.getItemInfo(), gearItem.getName(), gearItem.getGearTier().getChatFormatting(), tooltipLines);
-                case GearBoxItem gearBoxItem -> processGearBox(gearBoxItem, tooltipLines);
+                case GearBoxItem gearBoxItem when !gearBoxItem.getGearType().equals(GearType.MASTERY_TOME) ->
+                    processGearBox(gearBoxItem, tooltipLines);
                 case IngredientItem ingredientItem -> processSimple(ingredientItem.getName(), ingredientItem.getName(), -1, ChatFormatting.GRAY, tooltipLines);
                 case MaterialItem materialItem -> {
                     String materialKey = getMaterialKey(materialItem);
                     processSimple(getMaterialName(materialItem), materialKey, materialItem.getQualityTier(), ChatFormatting.WHITE, tooltipLines);
                 }
-                default -> {}
+                default -> {
+                    return tooltipLines;
+                }
             }
         }
 
