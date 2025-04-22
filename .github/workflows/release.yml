@@ -132,51 +132,51 @@ jobs:
         echo "::set-output name=short::$(date +'%Y-%m-%d')"
         echo "::set-output name=long::$(date +'%Y-%m-%d %H:%M')"
 
-    - name: Post release on Discord
-      uses: tsickert/discord-webhook@v6.0.0
-      with:
-        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        embed-color: "9498256"
-        embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
-        embed-description: ${{ needs.changelog.outputs.changelog }}
-        embed-url: ${{ steps.release.outputs.url }}
-        embed-timestamp: ${{ steps.date.outputs.long }}
+#    - name: Post release on Discord
+#      uses: tsickert/discord-webhook@v6.0.0
+#      with:
+#        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+#        embed-color: "9498256"
+#        embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
+#        embed-description: ${{ needs.changelog.outputs.changelog }}
+#        embed-url: ${{ steps.release.outputs.url }}
+#        embed-timestamp: ${{ steps.date.outputs.long }}
 
-  release-external:
-    name: Release to Modrinth and Curseforge
-    if: ${{ needs.changelog.outputs.skipped != 'true' }}
-    needs: [changelog, build]
-    runs-on: ubuntu-latest
-
-    steps:      
-    - name: Download JAR from build
-      id: download
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ needs.build.outputs.jarName }}
-        path: ${{ github.workspace }}
-
-    - uses: Kir-Antipov/mc-publish@v3.3.0
-      with: 
-        modrinth-id: CORVJbiT
-        modrinth-featured: true
-        modrinth-unfeature-mode: subset
-        modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-
-        curseforge-id: 1083173
-        curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-
-        files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
-
-        name: Wynnventory ${{ needs.changelog.outputs.tag }}
-        version: ${{ needs.changelog.outputs.tag }}
-        version-type: release
-        changelog: ${{ needs.changelog.outputs.changelog }}
-
-        game-versions: |
-          [1.21.4]
-        loaders: fabric
-        java: 21
+#  release-external:
+#    name: Release to Modrinth and Curseforge
+#    if: ${{ needs.changelog.outputs.skipped != 'true' }}
+#    needs: [changelog, build]
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - name: Download JAR from build
+#      id: download
+#      uses: actions/download-artifact@v4
+#      with:
+#        name: ${{ needs.build.outputs.jarName }}
+#        path: ${{ github.workspace }}
+#
+#    - uses: Kir-Antipov/mc-publish@v3.3.0
+#      with:
+#        modrinth-id: CORVJbiT
+#        modrinth-featured: true
+#        modrinth-unfeature-mode: subset
+#        modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+#
+#        curseforge-id: 1083173
+#        curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+#
+#        files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
+#
+#        name: Wynnventory ${{ needs.changelog.outputs.tag }}
+#        version: ${{ needs.changelog.outputs.tag }}
+#        version-type: release
+#        changelog: ${{ needs.changelog.outputs.changelog }}
+#
+#        game-versions: |
+#          [1.21.4]
+#        loaders: fabric
+#        java: 21
 
   sync-master:
     name: "Sync master with release branch after version bump"
