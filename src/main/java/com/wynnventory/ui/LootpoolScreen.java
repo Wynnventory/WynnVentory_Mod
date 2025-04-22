@@ -80,7 +80,7 @@ public class LootpoolScreen extends Screen {
         int height = 20;
         int spacing = 10;
 
-        int[] tabPosition = layoutHelper.calculateTabPosition(width, height, spacing);
+        int[] tabPosition = layoutHelper.calculateTabPosition(width, spacing);
         int x = tabPosition[0];
         int y = tabPosition[1];
 
