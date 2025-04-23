@@ -45,7 +45,6 @@ async function getOptions() {
         {
             types: [
                 // Unhide all types except "ci" so that they show up on generated changelog
-                // Default values:
                 { type: "feat", section: "New Features" },
                 { type: "feature", section: "New Features" },
                 { type: "fix", section: "Bug Fixes" },
