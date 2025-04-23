@@ -11,12 +11,11 @@ function determineVersionBump(commits) {
     for (let commit of commits) {
         if (commit == null || !commit.header) continue;
 
-        // We want to select the highest release type
         if (commit.header.startsWith("chore(release)") || commit.header.startsWith("feat(major)")) {
             releaseType = 0;
             break;
-        }
 
+        }
         if (commit.header.startsWith("feat") && releaseType > 1) {
             releaseType = 1;
         }
@@ -42,12 +41,10 @@ function determineVersionBump(commits) {
 }
 
 async function getOptions() {
+    console.log("Getting options...");
     let options = await config(
         {
             types: [
-                // Unhide all types except "ci" so that they show up on generated changelog
-                // Default values:
-                // https://github.com/conventional-changelog/conventional-changelog/blob/master/packages/conventional-changelog-conventionalcommits/writer-opts.js
                 { type: "feat", section: "New Features" },
                 { type: "feature", section: "New Features" },
                 { type: "fix", section: "Bug Fixes" },

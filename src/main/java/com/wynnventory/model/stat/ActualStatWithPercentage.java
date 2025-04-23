@@ -3,13 +3,12 @@ package com.wynnventory.model.stat;
 import com.wynntils.models.stats.StatCalculator;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
-import com.wynntils.utils.type.RangedValue;
 
 import java.util.Objects;
 
 public class ActualStatWithPercentage {
-    private StatActualValue statActualValue;
-    private StatPossibleValues possibleValues;
+    private final StatActualValue statActualValue;
+    private final StatPossibleValues possibleValues;
 
     public ActualStatWithPercentage(StatActualValue statActualValue, StatPossibleValues possibleValues) {
         this.statActualValue = statActualValue;

@@ -23,11 +23,7 @@ public class TradeMarketItemPriceInfo {
     @JsonProperty("unidentified_average_mid_80_percent_price")
     private Double unidentifiedAverage80Price;
 
-    // Default constructor
-    public TradeMarketItemPriceInfo() {}
-
     // Getters and Setters
-
     public int getAveragePrice() {
         if (averagePrice == null) {
             return 0;
@@ -90,6 +86,10 @@ public class TradeMarketItemPriceInfo {
 
     public void setUnidentifiedAverage80Price(Double unidentifiedAverage80Price) {
         this.unidentifiedAverage80Price = unidentifiedAverage80Price;
+    }
+
+    public boolean isEmpty() {
+        return averagePrice == null && average80Price == null && highestPrice == 0 && lowestPrice == 0 && unidentifiedAveragePrice == null && unidentifiedAverage80Price == null;
     }
 
     @Override

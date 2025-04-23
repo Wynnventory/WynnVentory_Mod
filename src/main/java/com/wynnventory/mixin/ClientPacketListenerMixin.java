@@ -1,13 +1,14 @@
 package com.wynnventory.mixin;
 
 import com.wynntils.utils.mc.McUtils;
-import com.wynnventory.WynnventoryMod;
 import com.wynnventory.accessor.ItemQueueAccessor;
-import com.wynnventory.model.Region;
-import com.wynnventory.model.RegionType;
+import com.wynnventory.core.ModInfo;
+import com.wynnventory.enums.Region;
+import com.wynnventory.enums.RegionType;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
 import com.wynnventory.model.item.TradeMarketItem;
+import com.wynnventory.util.FavouriteNotifier;
 import com.wynnventory.util.ModUpdater;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -18,7 +19,6 @@ import net.minecraft.client.multiplayer.CommonListenerCookie;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -29,7 +29,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,10 +38,10 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     private static final String MARKET_TITLE = "󏿨";
     private static final int CONTAINER_SLOTS = 54;
 
-    private static boolean IS_FIRST_WORLD_JOIN = true;
+    private static int JOIN_COUNTER = 0;
 
     @Unique
-    private final List<TradeMarketItem> marketItemsBuffer = new ArrayList<>();
+    private final List<TradeMarketItem> marketItemBuffer = new ArrayList<>();
     @Unique
     private final Map<String, Lootpool> lootpoolBuffer = new ConcurrentHashMap<>();
     @Unique
@@ -54,10 +53,9 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
     @Inject(method = "handleLogin", at = @At("RETURN"))
     private void onPlayerJoin(ClientboundLoginPacket packet, CallbackInfo ci) {
-        if(IS_FIRST_WORLD_JOIN) {
-           IS_FIRST_WORLD_JOIN = false;
-        } else {
+        if (++JOIN_COUNTER == 2) {
             ModUpdater.checkForUpdates();
+            FavouriteNotifier.checkFavourites();
         }
     }
 
@@ -70,7 +68,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         String screenTitle = currentScreen.getTitle().getString();
 
         if (screenTitle.equals(MARKET_TITLE)) {
-            TradeMarketItem marketItem = TradeMarketItem.createTradeMarketItem(item);
+            TradeMarketGearItem marketItem = TradeMarketGearItem.createTradeMarketItem(item);
 
             if(marketItem != null) {
                 marketItemsBuffer.add(marketItem);
@@ -99,7 +97,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                 }
             }
 
-            if(WynnventoryMod.isDev()) {
+            if (ModInfo.isDev()) {
                 McUtils.sendMessageToClient(Component.literal(region.getRegionType() + " DETECTED. Region is " + region.getShortName()));
             }
 
@@ -111,9 +109,20 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         }
     }
 
+    @Override
+    public void queueItemForSubmit(ItemStack item) {
+        if (item.getItem() == Items.AIR || item.getItem() == Items.COMPASS || item.getItem() == Items.POTION) return;
+        if (McUtils.inventory().items.contains(item)) return;
+
+        TradeMarketItem tradeMarketItem = TradeMarketItem.from(item);
+        if (tradeMarketItem != null && !marketItemBuffer.contains(tradeMarketItem)) {
+                marketItemBuffer.add(tradeMarketItem);
+        }
+    }
+
     private void addItemsToQueue(Map<String, Lootpool> queue, String region, List<ItemStack> items) {
-        if(!queue.containsKey(region)) {
-            queue.put(region, new Lootpool(region, McUtils.playerName(), WynnventoryMod.WYNNVENTORY_VERSION));
+        if (!queue.containsKey(region)) {
+            queue.put(region, new Lootpool(region, McUtils.playerName(), ModInfo.VERSION));
         }
 
         queue.get(region).addItems(LootpoolItem.createLootpoolItemsFromItemStack(items));
@@ -121,7 +130,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
     @Override
     public List<TradeMarketItem> getQueuedMarketItems() {
-        return marketItemsBuffer;
+        return marketItemBuffer;
     }
 
     @Override

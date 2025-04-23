@@ -7,10 +7,11 @@ import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
 import com.wynntils.models.items.properties.GearTierItemProperty;
-import com.wynntils.models.rewards.type.TomeInfo;
-import com.wynnventory.WynnventoryMod;
+import com.wynnventory.core.ModInfo;
 import com.wynnventory.util.ItemStackUtils;
+import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.ItemStack;
+import com.wynntils.models.gear.type.GearTier;
 
 import java.util.*;
 
@@ -36,6 +37,9 @@ public class LootpoolItem {
             TomeItem.class
     );
 
+    public LootpoolItem() {
+    }
+
     public LootpoolItem(String itemType, int amount, String name, String rarity, boolean shiny, String type) {
         this.itemType = itemType;
         this.amount = amount;
@@ -58,47 +62,32 @@ public class LootpoolItem {
             name = gearItem.getName();
             rarity = gearItem.getGearTier().getName();
             type = gearItem.getGearType().name();
-        }
-
-        else if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
+        } else if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
             rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
-        }
-
-        else if(wynnItem instanceof TomeItem tomeItem) {
+        } else if (wynnItem instanceof TomeItem tomeItem) {
             name = tomeItem.getName();
-            WynnventoryMod.error("Found Tome item " + name);
 
             rarity = tomeItem.getGearTier().getName();
             type = tomeItem.getItemInfo().type().name();
-        }
-
-        else if(wynnItem instanceof AspectItem aspectItem) {
+        } else if (wynnItem instanceof AspectItem aspectItem) {
             rarity = aspectItem.getGearTier().getName();
 
-            String classReq = aspectItem.getClassType().getName();
+            String classReq = aspectItem.getRequiredClass().getName();
             if(classReq != null && !classReq.isEmpty()) {
                 type = classReq + type;
             }
-        }
-
-        else if (wynnItem instanceof EmeraldItem emeraldItem) {
+        } else if (wynnItem instanceof EmeraldItem emeraldItem) {
             type = emeraldItem.getUnit().name();
-        }
-
-        else if (wynnItem instanceof RuneItem runeItem) {
+        } else if (wynnItem instanceof RuneItem runeItem) {
             type = runeItem.getType().name();
-        }
-
-        else if (wynnItem instanceof PowderItem powderItem) {
+        } else if (wynnItem instanceof PowderItem powderItem) {
             name = powderItem.getName().replaceAll("[✹✦❉❋✤]", "").trim();
             type = powderItem.getPowderProfile().element().getName() + type;
-        }
-
-        else if(wynnItem instanceof AmplifierItem amplifierItem) {
+        } else if (wynnItem instanceof AmplifierItem amplifierItem) {
             rarity = amplifierItem.getGearTier().getName();
             String[] nameParts = name.split(" ");
 
-            if(nameParts.length > 1) {
+            if (nameParts.length > 1) {
                 type = nameParts[0] + nameParts[1];
             }
         }
@@ -107,7 +96,7 @@ public class LootpoolItem {
     public static List<LootpoolItem> createLootpoolItemsFromWynnItem(List<WynnItem> wynnItems) {
         List<LootpoolItem> lootpoolItems = new ArrayList<>();
 
-        for(WynnItem wynnItem : wynnItems) {
+        for (WynnItem wynnItem : wynnItems) {
             lootpoolItems.addAll(createLootpoolItemFromWynnItem(wynnItem));
         }
 
@@ -124,12 +113,12 @@ public class LootpoolItem {
     public static List<LootpoolItem> createLootpoolItemFromWynnItem(WynnItem wynnItem) {
         List<LootpoolItem> lootpoolItems = new ArrayList<>();
 
-        if(wynnItem instanceof GearBoxItem gearBoxItem) {
+        if (wynnItem instanceof GearBoxItem gearBoxItem) {
             List<GearInfo> possibleGear = Models.Gear.getPossibleGears(gearBoxItem);
 
             String name, rarity, type;
-            for(GearInfo gearInfo : possibleGear) {
-                if(gearInfo.requirements().quest().isPresent() || gearInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE || gearInfo.metaInfo().restrictions() == GearRestrictions.QUEST_ITEM) {
+            for (GearInfo gearInfo : possibleGear) {
+                if (gearInfo.requirements().quest().isPresent() || gearInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE || gearInfo.metaInfo().restrictions() == GearRestrictions.QUEST_ITEM) {
                     continue;
                 }
 
@@ -143,7 +132,7 @@ public class LootpoolItem {
             return lootpoolItems;
         } else if (wynnItem instanceof GearItem gearItem) {
             GearInfo itemInfo = gearItem.getItemInfo();
-            if(itemInfo.requirements().quest().isPresent() || itemInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE || itemInfo.metaInfo().restrictions() == GearRestrictions.QUEST_ITEM) {
+            if (itemInfo.requirements().quest().isPresent() || itemInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE || itemInfo.metaInfo().restrictions() == GearRestrictions.QUEST_ITEM) {
                 return lootpoolItems;
             }
         }
@@ -151,7 +140,7 @@ public class LootpoolItem {
         if (LootpoolItem.LOOT_CLASSES.contains(wynnItem.getClass())) {
             lootpoolItems.add(new LootpoolItem(wynnItem));
         } else {
-            WynnventoryMod.error("Unknown class: " + wynnItem.getClass());
+            ModInfo.logDebug("Unknown class: " + wynnItem.getClass());
         }
 
 
@@ -196,12 +185,12 @@ public class LootpoolItem {
         this.rarity = rarity;
     }
 
-    public boolean getShiny() {
-        return shiny;
-    }
-
     public void setShiny(boolean shiny) {
         this.shiny = shiny;
+    }
+
+    public boolean isShiny() {
+        return shiny;
     }
 
     public String getType() {
@@ -235,5 +224,9 @@ public class LootpoolItem {
     @Override
     public int hashCode() {
         return Objects.hash(itemType, amount, name, rarity, shiny, type);
+    }
+
+    public ChatFormatting getRarityColor() {
+        return ItemStackUtils.getRarityColor(rarity);
     }
 }

@@ -1,6 +1,7 @@
 package com.wynnventory.api;
 
 import com.wynnventory.accessor.ItemQueueAccessor;
+import com.wynnventory.core.ModInfo;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.Minecraft;
 
@@ -14,14 +15,15 @@ public class WynnventoryScheduler {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static final int SEND_DELAY_MINS = 5;
 
+    private WynnventoryScheduler() {}
+
     public static void startScheduledTask() {
         scheduler.scheduleAtFixedRate(WynnventoryScheduler::processMarketAndLootItems, 1, SEND_DELAY_MINS, TimeUnit.MINUTES);
-        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
-            WynnventoryScheduler.stopScheduledTask();
-        });
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> WynnventoryScheduler.stopScheduledTask());
     }
 
     public static void stopScheduledTask() {
+        ModInfo.logInfo("Shutdown detected...");
         processMarketAndLootItems();
         scheduler.shutdown();
 

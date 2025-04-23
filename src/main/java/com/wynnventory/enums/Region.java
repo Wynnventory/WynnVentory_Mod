@@ -1,4 +1,4 @@
-package com.wynnventory.model;
+package com.wynnventory.enums;
 
 public enum Region {
     CANYON_OF_THE_LOST("COTL", "Canyon of the Lost","󏿲󏽯", RegionType.LOOTRUN),
@@ -12,10 +12,10 @@ public enum Region {
     CANYON_COLOSSUS("TCC", "The Canyon Colossus","󏿪󏽯", RegionType.RAID),
     NAMELESS_ANOMALY("TNA", "The Nameless Anomaly","󏿪󏽯", RegionType.RAID);
 
-    private String shortName;
-    private String name;
-    private String inventoryTitle;
-    private RegionType type;
+    private final String shortName;
+    private final String name;
+    private final String inventoryTitle;
+    private final RegionType type;
 
     Region(String shortName, String name, String inventoryTitle, RegionType type) {
         this.shortName = shortName;

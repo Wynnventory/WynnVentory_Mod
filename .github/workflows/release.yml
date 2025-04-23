@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+
       - uses: actions/setup-node@v4
         with:
           node-version: 16
@@ -37,16 +37,17 @@ jobs:
 
       - name: Create changelog
         id: changelog
-        uses: TriPSs/conventional-changelog-action@v5.2.1
+        uses: TriPSs/conventional-changelog-action@v6.0.0
         with:
           pre-commit: ./.github/pre-commit.js
           config-file-path: ./.github/config.js
           version-file: ./version.json
           skip-version-file: true
           skip-git-pull: true
+          skip-bump: false
           pre-release: false
           output-file: false
-          
+
       - name: Upload build.gradle with replaced version
         uses: actions/upload-artifact@v4
         with:
@@ -58,6 +59,8 @@ jobs:
     name: Build
     needs: changelog
     runs-on: ubuntu-latest
+    env:
+      API_KEY: ${{ secrets.API_KEY }}
     outputs:
       jarName: ${{ steps.make_unique.outputs.jar_name }}
 
@@ -67,7 +70,7 @@ jobs:
     - uses: actions/download-artifact@v4 # Download version information from changelog
       with:
         name: build
-        
+
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
@@ -98,7 +101,7 @@ jobs:
         name: ${{ steps.make_unique.outputs.jar_name }}
         if-no-files-found: error
         overwrite: true
-  
+
   release-github:
     name: Release to Github
     if: ${{ needs.changelog.outputs.skipped != 'true' }}
@@ -112,7 +115,7 @@ jobs:
       with:
         name: ${{ needs.build.outputs.jarName }}
         path: ${{ github.workspace }}
-      
+
     - name: Create release and upload files
       if: ${{ needs.changelog.outputs.skipped != 'true' }}
       id: release
@@ -123,58 +126,58 @@ jobs:
         draft: false
         prerelease: false
         files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
-    
+
     - name: Set current date
       id: date
       run: |
         echo "::set-output name=short::$(date +'%Y-%m-%d')"
         echo "::set-output name=long::$(date +'%Y-%m-%d %H:%M')"
 
-    - name: Post release on Discord
-      uses: tsickert/discord-webhook@v6.0.0
-      with:
-        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        embed-color: "9498256"
-        embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
-        embed-description: ${{ needs.changelog.outputs.changelog }}
-        embed-url: ${{ steps.release.outputs.url }}
-        embed-timestamp: ${{ steps.date.outputs.long }}
+#    - name: Post release on Discord
+#      uses: tsickert/discord-webhook@v6.0.0
+#      with:
+#        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+#        embed-color: "9498256"
+#        embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
+#        embed-description: ${{ needs.changelog.outputs.changelog }}
+#        embed-url: ${{ steps.release.outputs.url }}
+#        embed-timestamp: ${{ steps.date.outputs.long }}
 
-  release-external:
-    name: Release to Modrinth and Curseforge
-    if: ${{ needs.changelog.outputs.skipped != 'true' }}
-    needs: [changelog, build]
-    runs-on: ubuntu-latest
-
-    steps:      
-    - name: Download JAR from build
-      id: download
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ needs.build.outputs.jarName }}
-        path: ${{ github.workspace }}
-
-    - uses: Kir-Antipov/mc-publish@v3.3.0
-      with: 
-        modrinth-id: CORVJbiT
-        modrinth-featured: true
-        modrinth-unfeature-mode: subset
-        modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-
-        curseforge-id: 1083173
-        curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-
-        files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
-
-        name: Wynnventory ${{ needs.changelog.outputs.tag }}
-        version: ${{ needs.changelog.outputs.tag }}
-        version-type: release
-        changelog: ${{ needs.changelog.outputs.changelog }}
-
-        game-versions: |
-          [1.21.4]
-        loaders: fabric
-        java: 21
+#  release-external:
+#    name: Release to Modrinth and Curseforge
+#    if: ${{ needs.changelog.outputs.skipped != 'true' }}
+#    needs: [changelog, build]
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - name: Download JAR from build
+#      id: download
+#      uses: actions/download-artifact@v4
+#      with:
+#        name: ${{ needs.build.outputs.jarName }}
+#        path: ${{ github.workspace }}
+#
+#    - uses: Kir-Antipov/mc-publish@v3.3.0
+#      with:
+#        modrinth-id: CORVJbiT
+#        modrinth-featured: true
+#        modrinth-unfeature-mode: subset
+#        modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+#
+#        curseforge-id: 1083173
+#        curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+#
+#        files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
+#
+#        name: Wynnventory ${{ needs.changelog.outputs.tag }}
+#        version: ${{ needs.changelog.outputs.tag }}
+#        version-type: release
+#        changelog: ${{ needs.changelog.outputs.changelog }}
+#
+#        game-versions: |
+#          [1.21.4]
+#        loaders: fabric
+#        java: 21
 
   sync-master:
     name: "Sync master with release branch after version bump"
@@ -193,7 +196,7 @@ jobs:
 
       - name: Checkout master branch
         run: git checkout master
-  
+
       - name: Merge release branch into master after version bump [skip ci]
         run: |
           git config --global user.email "continuousIntegration@wynnventory.com"
