@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+
       - uses: actions/setup-node@v4
         with:
           node-version: 16
@@ -44,9 +44,10 @@ jobs:
           version-file: ./version.json
           skip-version-file: true
           skip-git-pull: true
+          skip-bump: true
           pre-release: false
           output-file: false
-          
+
       - name: Upload build.gradle with replaced version
         uses: actions/upload-artifact@v4
         with:
@@ -69,7 +70,7 @@ jobs:
     - uses: actions/download-artifact@v4 # Download version information from changelog
       with:
         name: build
-        
+
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
@@ -100,7 +101,7 @@ jobs:
         name: ${{ steps.make_unique.outputs.jar_name }}
         if-no-files-found: error
         overwrite: true
-  
+
   release-github:
     name: Release to Github
     if: ${{ needs.changelog.outputs.skipped != 'true' }}
@@ -114,7 +115,7 @@ jobs:
       with:
         name: ${{ needs.build.outputs.jarName }}
         path: ${{ github.workspace }}
-      
+
     - name: Create release and upload files
       if: ${{ needs.changelog.outputs.skipped != 'true' }}
       id: release
@@ -125,7 +126,7 @@ jobs:
         draft: false
         prerelease: false
         files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
-    
+
     - name: Set current date
       id: date
       run: |
@@ -195,7 +196,7 @@ jobs:
 
       - name: Checkout master branch
         run: git checkout master
-  
+
       - name: Merge release branch into master after version bump [skip ci]
         run: |
           git config --global user.email "continuousIntegration@wynnventory.com"
