@@ -44,7 +44,6 @@ async function getOptions() {
     let options = await config(
         {
             types: [
-                // Unhide all types except "ci" so that they show up on generated changelog
                 { type: "feat", section: "New Features" },
                 { type: "feature", section: "New Features" },
                 { type: "fix", section: "Bug Fixes" },
