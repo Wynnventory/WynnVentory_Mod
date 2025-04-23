@@ -44,7 +44,7 @@ jobs:
           version-file: ./version.json
           skip-version-file: true
           skip-git-pull: true
-          skip-bump: true
+          skip-bump: false
           pre-release: false
           output-file: false
 
