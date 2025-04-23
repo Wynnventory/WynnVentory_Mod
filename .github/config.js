@@ -41,6 +41,7 @@ function determineVersionBump(commits) {
 }
 
 async function getOptions() {
+    console.log("Getting options...");
     let options = await config(
         {
             types: [
