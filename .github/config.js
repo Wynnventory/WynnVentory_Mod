@@ -1,11 +1,7 @@
 "use strict";
 const config = require("conventional-changelog-conventionalcommits");
 
-console.log("LOADED CONFIG");
-
 function determineVersionBump(commits) {
-    console.log("DETERMINE VERSION BUMP");
-
     let releaseType = 2;
 
     // chore(release) or feat(major)! -> major (0)
@@ -16,15 +12,12 @@ function determineVersionBump(commits) {
         if (commit == null || !commit.header) continue;
 
         if (commit.header.startsWith("chore(release)") || commit.header.startsWith("feat(major)")) {
-            console.log("Found a commit with a chore(release) or feat(major) header.");
             releaseType = 0;
             break;
 
         }
         if (commit.header.startsWith("feat") && releaseType > 1) {
-            console.log("Found a commit with a feat: or fix: header.");
             releaseType = 1;
-
         }
     }
 
