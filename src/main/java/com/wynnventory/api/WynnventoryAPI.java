@@ -1,174 +1,150 @@
 package com.wynnventory.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.wynntils.core.components.Models;
-import com.wynntils.models.items.items.game.GearItem;
-import com.wynntils.utils.mc.McUtils;
-import com.wynnventory.WynnventoryMod;
+import com.wynnventory.core.ModInfo;
+import com.wynnventory.enums.PoolType;
+import com.wynnventory.model.item.GroupedLootpool;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.HttpUtil;
-import net.minecraft.world.item.ItemStack;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class WynnventoryAPI {
-    private static final String BASE_URL = "https://www.wynnventory.com";
-    private static final String API_IDENTIFIER = "api";
-    private static final URI API_BASE_URL = createApiBaseUrl();
-    private static final ObjectMapper objectMapper = createObjectMapper();
+    private static final ObjectMapper MAPPER = createObjectMapper();
 
-    public void sendTradeMarketResults(List<TradeMarketItem> marketItems) {
-        if (marketItems.isEmpty()) return;
-
-        URI endpointURI;
-        if (WynnventoryMod.isDev()) {
-            WynnventoryMod.info("Sending market data to DEV endpoint.");
-            endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/items?env=dev2");
-        } else {
-            endpointURI = getEndpointURI("trademarket/items");
-        }
-        HttpUtil.sendHttpPostRequest(endpointURI, serializeData(marketItems));
+    public void sendTradeMarketResults(List<TradeMarketItem> items) {
+        if (items.isEmpty()) return;
+        ModInfo.logInfo("Sending market data to {} endpoint.", ModInfo.isDev() ? "DEV" : "PROD");
+        URI uri = Endpoint.TRADE_MARKET_ITEMS.uri();
+        post(uri, items);
+        ModInfo.logInfo("Submitted {} market items to API: {}", items.size(), uri);
     }
 
-    public void sendLootpoolData(List<Lootpool> lootpools) {
-        if (lootpools.isEmpty()) return;
-
-        URI endpointURI;
-        if (WynnventoryMod.isDev()) {
-            WynnventoryMod.info("Sending lootpool data to DEV endpoint.");
-            endpointURI = URI.create("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/lootpool/items?env=dev2");
-        } else {
-            endpointURI = getEndpointURI("lootpool/items");
-        }
-
-        for(Lootpool lootpool : lootpools) {
-            HttpUtil.sendHttpPostRequest(endpointURI, serializeData(lootpool));
+    public void sendLootpoolData(List<Lootpool> pools) {
+        if (pools.isEmpty()) return;
+        ModInfo.logInfo("Sending lootpool data to {} endpoint.", ModInfo.isDev() ? "DEV" : "PROD");
+        URI uri = Endpoint.LOOTPOOL_ITEMS.uri();
+        for (Lootpool p : pools) {
+            post(uri, p);
+            ModInfo.logInfo("Submitted {} lootpool items to API: {}", p.getItems().size(), uri);
         }
     }
 
-    public void sendRaidpoolData(List<Lootpool> lootpools) {
-        if (lootpools.isEmpty()) return;
-
-        URI endpointURI;
-        if (WynnventoryMod.isDev()) {
-            WynnventoryMod.info("Sending raidpool data to DEV endpoint.");
-            endpointURI = URI.create("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/raidpool/items?env=dev2");
-        } else {
-            endpointURI = getEndpointURI("raidpool/items");
-        }
-
-        for(Lootpool lootpool : lootpools) {
-            HttpUtil.sendHttpPostRequest(endpointURI, serializeData(lootpool));
+    public void sendRaidpoolData(List<Lootpool> pools) {
+        if (pools.isEmpty()) return;
+        ModInfo.logInfo("Sending raidpool data to {} endpoint.", ModInfo.isDev() ? "DEV" : "PROD");
+        URI uri = Endpoint.RAIDPOOL_ITEMS.uri();
+        for (Lootpool p : pools) {
+            post(uri, p);
+            ModInfo.logInfo("Submitted {} raidpool items to API: {}", p.getItems().size(), uri);
         }
     }
 
-    public TradeMarketItemPriceInfo fetchItemPrices(ItemStack item) {
-        return Models.Item.asWynnItem(item, GearItem.class)
-                .map(gearItem -> fetchItemPrices(gearItem.getName()))
-                .orElse(null);
+    public TradeMarketItemPriceInfo fetchItemPrice(String itemName) {
+        return fetchItemPrice(itemName, -1);
     }
 
-    public TradeMarketItemPriceInfo fetchItemPrices(String itemName) {
-        String playerName = McUtils.playerName();
+    public TradeMarketItemPriceInfo fetchItemPrice(String name, int tier) {
         try {
-            final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
-
-            URI endpointURI;
-            if (WynnventoryMod.isDev()) {
-                WynnventoryMod.info("Fetching market data from DEV endpoint.");
-                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/item/" + encodedItemName + "/price?env=dev2&playername=" + playerName);
-            } else {
-                endpointURI = getEndpointURI("trademarket/item/" + encodedItemName + "/price?playername=" + playerName);
-            }
-
-            HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointURI);
-
-            if (response.statusCode() == 200) {
-                return parsePriceInfoResponse(response.body());
-            } else if (response.statusCode() == 404) {
-                return null;
-            } else {
-                WynnventoryMod.error("Failed to fetch item price from API: " + response.body());
-                return null;
-            }
+            URI uri = Endpoint.TRADE_MARKET_PRICE
+                    .uri(HttpUtil.encodeName(name), tier);
+            ModInfo.logInfo("Fetching market data from {} endpoint.", ModInfo.isDev() ? "DEV" : "PROD");
+            HttpResponse<String> resp = HttpUtil.sendHttpGetRequest(uri);
+            return handleResponse(resp, this::parsePriceInfoResponse);
         } catch (Exception e) {
-            WynnventoryMod.error("Failed to initiate item price fetch {}", e);
+            ModInfo.logError("Failed to fetch item price", e);
             return null;
+        }
+    }
+
+    public List<GroupedLootpool> getLootpools(PoolType type) {
+        try {
+            String path = type.getName() + "/items";
+            URI uri = ApiConfig.baseUri().resolve(path);
+            ModInfo.logInfo("Fetching {} lootpools from {} endpoint.", type, ModInfo.isDev() ? "DEV" : "PROD");
+            HttpResponse<String> resp = HttpUtil.sendHttpGetRequest(uri);
+            return handleResponse(resp, this::parseLootpoolResponse, ArrayList::new);
+        } catch (Exception e) {
+            ModInfo.logError("Failed to fetch lootpools", e);
+            return new ArrayList<>();
         }
     }
 
     public TradeMarketItemPriceInfo fetchLatestHistoricItemPrice(String itemName) {
+        return fetchLatestHistoricItemPrice(itemName, -1);
+    }
+
+    public TradeMarketItemPriceInfo fetchLatestHistoricItemPrice(String name, int tier) {
         try {
-            final String encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8).replace("+", "%20");
-
-            URI endpointURI;
-            if (WynnventoryMod.isDev()) {
-                WynnventoryMod.info("Fetching market data from DEV endpoint.");
-                endpointURI = getEndpointURI("https://wynn-ventory-dev-2a243523ab77.herokuapp.com/api/trademarket/history/" + encodedItemName + "/latest?env=dev2");
-            } else {
-                endpointURI = getEndpointURI("trademarket/history/" + encodedItemName + "/latest");
-            }
-
-            HttpResponse<String> response = HttpUtil.sendHttpGetRequest(endpointURI);
-
-            if (response.statusCode() == 200) {
-                return parseHistoricPriceInfo(response.body());
-            } else if (response.statusCode() == 404) {
-                return null;
-            } else {
-                WynnventoryMod.error("Failed to fetch item price from API: " + response.body());
-                return null;
-            }
+            URI uri = Endpoint.TRADE_MARKET_HISTORY_LATEST
+                    .uri(HttpUtil.encodeName(name), tier);
+            ModInfo.logInfo("Fetching history from {} endpoint.", ModInfo.isDev() ? "DEV" : "PROD");
+            HttpResponse<String> resp = HttpUtil.sendHttpGetRequest(uri);
+            return handleResponse(resp, this::parsePriceInfoResponse);
         } catch (Exception e) {
-            WynnventoryMod.error("Failed to initiate item price fetch {}", e);
+            ModInfo.logError("Failed to fetch historic price", e);
             return null;
         }
     }
 
-    private String serializeData(Object data) {
+    private <T> T handleResponse(HttpResponse<String> resp,
+                                 Function<String, T> on200) {
+        return handleResponse(resp, on200, () -> null);
+    }
+
+    private <T> T handleResponse(HttpResponse<String> resp, Function<String, T> on200, Supplier<T> on404) {
+        if (resp.statusCode() == 200)      return on200.apply(resp.body());
+        else if (resp.statusCode() == 404) return on404.get();
+        else {
+            ModInfo.logError("API error ({}): {}", resp.statusCode(), resp.body());
+            return on404.get();
+        }
+    }
+
+    private void post(URI uri, Object payload) {
+        HttpUtil.sendHttpPostRequest(uri, serialize(payload));
+    }
+
+    private String serialize(Object obj) {
         try {
-            return objectMapper.writeValueAsString(data);
+            return MAPPER.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            WynnventoryMod.LOGGER.error("Failed to serialize data", e);
+            ModInfo.logError("Serialization failed", e);
             return "[]";
         }
     }
 
     private TradeMarketItemPriceInfo parsePriceInfoResponse(String responseBody) {
         try {
-            List<TradeMarketItemPriceInfo> priceInfoList = objectMapper.readValue(responseBody, new com.fasterxml.jackson.core.type.TypeReference<>() {});
-            return priceInfoList.isEmpty() ? null : priceInfoList.getFirst();
+            return MAPPER.readValue(responseBody, TradeMarketItemPriceInfo.class);
         } catch (JsonProcessingException e) {
-            WynnventoryMod.error("Failed to parse item price response {}", e);
-            return null;
+            ModInfo.logError("Failed to parse item price response {}", responseBody, e);
         }
+
+        return null;
     }
 
-    private TradeMarketItemPriceInfo parseHistoricPriceInfo(String responseBody) {
+    private List<GroupedLootpool> parseLootpoolResponse(String responseBody) {
         try {
-            return objectMapper.readValue(responseBody, TradeMarketItemPriceInfo.class);
+            return MAPPER.readValue(responseBody, new TypeReference<>() {});
         } catch (JsonProcessingException e) {
-            WynnventoryMod.error("Failed to parse historic item price response {}", e);
-            return null;
+            ModInfo.logError("Failed to parse lootpool response {}", e);
         }
-    }
 
-    private static URI createApiBaseUrl() {
-        try {
-            return new URI(BASE_URL).resolve("/" + API_IDENTIFIER + "/");
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Invalid URL format", e);
-        }
+        return new ArrayList<>();
     }
 
     private static ObjectMapper createObjectMapper() {
@@ -176,9 +152,5 @@ public class WynnventoryAPI {
         mapper.registerModule(new JavaTimeModule());
         mapper.registerModule(new Jdk8Module());
         return mapper;
-    }
-
-    private static URI getEndpointURI(String endpoint) {
-        return API_BASE_URL.resolve(endpoint);
     }
 }

@@ -1,8 +1,9 @@
 {
   "client": [
+    "AbstractContainerScreenAccessor",
     "ClientPacketListenerMixin",
-    "TooltipMixin",
-    "AbstractContainerScreenAccessor"
+    "MinecraftMixin",
+    "TooltipMixin"
   ],
   "compatibilityLevel": "JAVA_21",
   "injectors": {

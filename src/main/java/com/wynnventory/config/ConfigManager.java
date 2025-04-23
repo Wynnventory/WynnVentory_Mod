@@ -24,6 +24,11 @@ public class ConfigManager implements ConfigData {
     @ConfigEntry.Gui.CollapsibleObject
     private ColorSettings colorSettings = new ColorSettings();
 
+    // Favourite Notifier settings
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
+    @ConfigEntry.Gui.CollapsibleObject
+    private FavouriteNotifierSettings favouriteNotifierSettings = new FavouriteNotifierSettings();
+
     @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     private EmeraldDisplayOption displayDropdown = EmeraldDisplayOption.BOTH;
@@ -45,6 +50,10 @@ public class ConfigManager implements ConfigData {
 
     @ConfigEntry.Category(ConfigCategory.CATEGORY_TOOLTIP)
     private boolean showUnidAverage80Price = true;
+
+    @ConfigEntry.Category(ConfigCategory.CATEGORY_GENERAL)
+    @ConfigEntry.Gui.Excluded
+    private RarityConfig rarityConfig = new RarityConfig();
 
     // Static getter to retrieve the instance managed by AutoConfig
     public static ConfigManager getInstance() {
@@ -123,12 +132,25 @@ public class ConfigManager implements ConfigData {
         this.showUnidAverage80Price = showUnidAverage80Price;
     }
 
-    // Getter and setter for ColorSettings
     public ColorSettings getColorSettings() {
         return colorSettings;
     }
     public void setColorSettings(ColorSettings colorSettings) {
         this.colorSettings = colorSettings;
+    }
+
+    public FavouriteNotifierSettings getFavouriteNotifierSettings() {
+        return favouriteNotifierSettings;
+    }
+    public void setFavouriteNotifierSettings(FavouriteNotifierSettings favouriteNotifierSettings) {
+        this.favouriteNotifierSettings = favouriteNotifierSettings;
+    }
+
+    public RarityConfig getRarityConfig() {
+        return rarityConfig;
+    }
+    public void setRarityConfig(RarityConfig rarityConfig) {
+        this.rarityConfig = rarityConfig;
     }
 
     public static class ColorSettings {
@@ -160,6 +182,113 @@ public class ConfigManager implements ConfigData {
 
         public void setHighlightColor(int highlightColor) {
             this.highlightColor = highlightColor;
+        }
+    }
+
+    public static class RarityConfig implements ConfigData {
+
+        // Controls whether Mythic items are shown
+        private boolean showMythic = true;
+
+        // Controls whether Fabled items are shown
+        private boolean showFabled = true;
+
+        // Controls whether Legendary items are shown
+        private boolean showLegendary = true;
+
+        // Controls whether Rare items are shown
+        private boolean showRare = true;
+
+        // Controls whether Unique items are shown
+        private boolean showUnique = true;
+
+        // Controls whether Unique items are shown
+        private boolean showCommon = true;
+
+        // Controls whether Unique items are shown
+        private boolean showSet = true;
+
+        // Getters and setters
+
+        public boolean getShowMythic() {
+            return showMythic;
+        }
+
+        public void setShowMythic(boolean showMythic) {
+            this.showMythic = showMythic;
+        }
+
+        public boolean getShowFabled() {
+            return showFabled;
+        }
+
+        public void setShowFabled(boolean showFabled) {
+            this.showFabled = showFabled;
+        }
+
+        public boolean getShowLegendary() {
+            return showLegendary;
+        }
+
+        public void setShowLegendary(boolean showLegendary) {
+            this.showLegendary = showLegendary;
+        }
+
+        public boolean getShowRare() {
+            return showRare;
+        }
+
+        public void setShowRare(boolean showRare) {
+            this.showRare = showRare;
+        }
+
+        public boolean getShowUnique() {
+            return showUnique;
+        }
+
+        public void setShowUnique(boolean showUnique) {
+            this.showUnique = showUnique;
+        }
+
+        public boolean getShowCommon() {
+            return showCommon;
+        }
+
+        public void setShowCommon(boolean showCommon) {
+            this.showCommon = showCommon;
+        }
+
+        public boolean getShowSet() {
+            return showSet;
+        }
+
+        public void setShowSet(boolean showSet) {
+            this.showSet = showSet;
+        }
+    }
+
+    public static class FavouriteNotifierSettings {
+        private boolean enableNotifier = true;
+        private int maxToasts = 5;
+        private boolean mythicsOnly = false;
+
+        public void setEnableNotifier(boolean enableNotifier) {
+            this.enableNotifier = enableNotifier;
+        }
+        public boolean isEnableNotifier() {
+            return enableNotifier;
+        }
+        public int getMaxToasts() {
+            return maxToasts;
+        }
+        public void setMaxToasts(int maxToasts) {
+            this.maxToasts = maxToasts;
+        }
+        public boolean isMythicsOnly() {
+            return mythicsOnly;
+        }
+        public void setMythicsOnly(boolean mythicsOnly) {
+            this.mythicsOnly = mythicsOnly;
         }
     }
 }

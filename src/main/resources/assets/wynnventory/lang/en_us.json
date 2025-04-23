@@ -1,4 +1,9 @@
 {
+  "category.wynnventory.keybinding": "WynnVentory",
+  "key.wynnventory.open_config": "Open config",
+  "key.wynnventory.toggle_tooltips": "Toggle tooltips",
+  "key.wynnventory.toggle_boxed_item_tooltips": "Toggle tooltips for boxed items",
+
   "text.autoconfig.wynnventory.title": "Wynnventory Config",
 
   "text.autoconfig.wynnventory.category.general": "General",
@@ -13,6 +18,11 @@
   "text.autoconfig.wynnventory.option.colorSettings.showColors": "Highlight prices above a certain price",
   "text.autoconfig.wynnventory.option.colorSettings.colorMinPrice": "Highlight prices above this price (in emeralds)",
   "text.autoconfig.wynnventory.option.colorSettings.highlightColor": "Highlight color",
+
+  "text.autoconfig.wynnventory.option.favouriteNotifierSettings": "Favourite Notifier Settings",
+  "text.autoconfig.wynnventory.option.favouriteNotifierSettings.enableNotifier": "Receive notifications about favourited items",
+  "text.autoconfig.wynnventory.option.favouriteNotifierSettings.maxToasts": "Maximum notifications to be displayed",
+  "text.autoconfig.wynnventory.option.favouriteNotifierSettings.mythicsOnly": "Only display notifications for Mythic items",
 
   "text.autoconfig.wynnventory.option.displayDropdown": "Choose how prices are formatted",
   "text.autoconfig.wynnventory.option.showMaxPrice": "Show max price for items",

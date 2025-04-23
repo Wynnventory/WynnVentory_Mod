@@ -7,6 +7,32 @@ plugins {
 version = "0.11.1"
 group = project.maven_group
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 1) Detect whether we’re running “build” task
+// ─────────────────────────────────────────────────────────────────────────────
+def isBuildInvocation = gradle.startParameter.taskNames.any { it == 'build' }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2) Grab the key only once (env‑var or -PapiKey)
+// ─────────────────────────────────────────────────────────────────────────────
+def api_key = System.getenv('API_KEY')
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3) Fail fast only if we really need it
+// ─────────────────────────────────────────────────────────────────────────────
+if (isBuildInvocation && api_key == null) {
+	throw new GradleException("""
+        You’re running the build task,  
+        but no API key was provided!  
+
+        • Set an environment variable:  
+          export API_KEY=your‑key  
+        • Or pass as a Gradle property:  
+          ./gradlew build -PapiKey=your‑key  
+        • Or add `apiKey=your‑key` to your ~/.gradle/gradle.properties  
+    """.stripIndent())
+}
+
 base {
 	archivesName = project.archives_base_name
 }
@@ -53,19 +79,29 @@ configurations {
 
 processResources {
 	var replaceProperties = [
-	java_version			: java_version,
-	mod_id					: mod_id,
-	mod_version				: project.version,
-	minecraft_version_range	: minecraft_version_range,
-	loader_version			: loader_version,
-	wynntils_version		: wynntils_version,
-	modmenu_version			: modmenu_version,
-	clothconfig_version		: clothconfig_version
+			java_version			: java_version,
+			mod_id					: mod_id,
+			mod_version				: project.version,
+			minecraft_version_range	: minecraft_version_range,
+			loader_version			: loader_version,
+			wynntils_version		: wynntils_version,
+			modmenu_version			: modmenu_version,
+			clothconfig_version		: clothconfig_version,
 	]
 	inputs.properties replaceProperties
 	
 	filesMatching("fabric.mod.json") {
 	expand replaceProperties
+	}
+
+	var apiKeyReplace = [
+			api_key : api_key
+	]
+
+	inputs.properties apiKeyReplace
+
+	filesMatching("key.dat") {
+		expand apiKeyReplace
 	}
 }
 
