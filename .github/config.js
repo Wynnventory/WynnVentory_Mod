@@ -46,7 +46,6 @@ async function getOptions() {
             types: [
                 // Unhide all types except "ci" so that they show up on generated changelog
                 // Default values:
-                // https://github.com/conventional-changelog/conventional-changelog/blob/master/packages/conventional-changelog-conventionalcommits/writer-opts.js
                 { type: "feat", section: "New Features" },
                 { type: "feature", section: "New Features" },
                 { type: "fix", section: "Bug Fixes" },
