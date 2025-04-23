@@ -17,11 +17,13 @@ function determineVersionBump(commits) {
 
         // We want to select the highest release type
         if (commit.header.startsWith("chore(release)") || commit.header.startsWith("feat(major)")) {
+            console.log("Found a commit with a chore(release) or feat(major) header.");
             releaseType = 0;
             break;
         }
 
         if (commit.header.startsWith("feat") && releaseType > 1) {
+            console.log("Found a commit with a feat: or fix: header.");
             releaseType = 1;
         }
     }
