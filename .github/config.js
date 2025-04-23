@@ -1,7 +1,11 @@
 "use strict";
 const config = require("conventional-changelog-conventionalcommits");
 
+console.log("LOADED CONFIG");
+
 function determineVersionBump(commits) {
+    console.log("DETERMINE VERSION BUMP");
+
     let releaseType = 2;
 
     // chore(release) or feat(major)! -> major (0)
