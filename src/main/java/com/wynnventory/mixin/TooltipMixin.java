@@ -62,7 +62,9 @@ public abstract class TooltipMixin {
             PriceTooltipHelper.renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, itemStack, tooltipComponents, config.isAnchorTooltips());
         }
 
-        Component rawName = Objects.requireNonNull(ItemStackUtils.getWynntilsOriginalName(itemStack)).getComponent();
+        StyledText wynntilsName = ItemStackUtils.getWynntilsOriginalName(itemStack);
+        if (wynntilsName == null) return;
+        Component rawName = Objects.requireNonNull(wynntilsName).getComponent();
         String displayName = StyledText.fromComponent(rawName).getStringWithoutFormatting();
         Region region = Region.getRegionByName(displayName);
 
