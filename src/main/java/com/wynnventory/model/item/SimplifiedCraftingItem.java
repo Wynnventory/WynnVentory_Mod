@@ -1,6 +1,7 @@
 package com.wynnventory.model.item;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wynntils.models.items.items.game.IngredientItem;
 import com.wynntils.models.items.items.game.MaterialItem;
 import com.wynnventory.util.StringUtils;
@@ -9,6 +10,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SimplifiedCraftingItem extends SimplifiedItem {
     private final int tier;
     @JsonIgnore

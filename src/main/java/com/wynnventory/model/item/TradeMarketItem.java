@@ -1,5 +1,6 @@
 package com.wynnventory.model.item;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.items.WynnItem;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Objects;
 import java.util.Optional;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TradeMarketItem {
     private final SimplifiedItem item;
     private final int listingPrice;

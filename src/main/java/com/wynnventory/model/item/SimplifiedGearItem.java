@@ -1,6 +1,7 @@
 package com.wynnventory.model.item;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.stats.type.ShinyStat;
 import com.wynntils.models.stats.type.StatActualValue;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SimplifiedGearItem extends SimplifiedItem {
     private final boolean unidentified;
     private final int rerollCount;
