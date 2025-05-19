@@ -1,28 +1,32 @@
 package com.wynnventory.model.item;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wynntils.core.components.Models;
+import com.wynntils.models.gear.GearModel;
 import com.wynntils.models.gear.type.GearInfo;
+import com.wynntils.models.gear.type.GearInstance;
 import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
 import com.wynntils.models.items.properties.GearTierItemProperty;
+import com.wynntils.models.stats.type.ShinyStat;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.ItemStack;
-import com.wynntils.models.gear.type.GearTier;
 
 import java.util.*;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LootpoolItem {
     private String itemType;
     private int amount;
     private String name;
     private String rarity;
-    private boolean shiny;
+    private ShinyStat shinyStat;
     private String type;
-    public static final List<Class<? extends WynnItem>> LOOT_CLASSES = Arrays.asList(
+    protected static final List<Class<? extends WynnItem>> LOOT_CLASSES = Arrays.asList(
             GearItem.class,
             InsulatorItem.class,
             SimulatorItem.class,
@@ -40,12 +44,12 @@ public class LootpoolItem {
     public LootpoolItem() {
     }
 
-    public LootpoolItem(String itemType, int amount, String name, String rarity, boolean shiny, String type) {
+    public LootpoolItem(String itemType, int amount, String name, String rarity, ShinyStat shinyStat, String type) {
         this.itemType = itemType;
         this.amount = amount;
         this.name = name;
         this.rarity = rarity;
-        this.shiny = shiny;
+        this.shinyStat = shinyStat;
         this.type = type;
     }
 
@@ -58,7 +62,8 @@ public class LootpoolItem {
         rarity = "Common";
 
         if (wynnItem instanceof GearItem gearItem) {
-            shiny = name.contains("Shiny");
+            GearInstance gearInstance = new GearModel().parseInstance(gearItem.getItemInfo(), (ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY));
+            gearInstance.shinyStat().ifPresent(stat -> shinyStat = stat);
             name = gearItem.getName();
             rarity = gearItem.getGearTier().getName();
             type = gearItem.getGearType().name();
@@ -73,7 +78,7 @@ public class LootpoolItem {
             rarity = aspectItem.getGearTier().getName();
 
             String classReq = aspectItem.getRequiredClass().getName();
-            if(classReq != null && !classReq.isEmpty()) {
+            if (classReq != null && !classReq.isEmpty()) {
                 type = classReq + type;
             }
         } else if (wynnItem instanceof EmeraldItem emeraldItem) {
@@ -116,7 +121,9 @@ public class LootpoolItem {
         if (wynnItem instanceof GearBoxItem gearBoxItem) {
             List<GearInfo> possibleGear = Models.Gear.getPossibleGears(gearBoxItem);
 
-            String name, rarity, type;
+            String name;
+            String rarity;
+            String type;
             for (GearInfo gearInfo : possibleGear) {
                 if (gearInfo.requirements().quest().isPresent() || gearInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE || gearInfo.metaInfo().restrictions() == GearRestrictions.QUEST_ITEM) {
                     continue;
@@ -126,7 +133,7 @@ public class LootpoolItem {
                 rarity = gearInfo.tier().name();
                 type = gearInfo.type().name();
 
-                lootpoolItems.add(new LootpoolItem("GearItem", 1, name, rarity, false, type));
+                lootpoolItems.add(new LootpoolItem("GearItem", 1, name, rarity, null, type));
             }
 
             return lootpoolItems;
@@ -185,12 +192,16 @@ public class LootpoolItem {
         this.rarity = rarity;
     }
 
-    public void setShiny(boolean shiny) {
-        this.shiny = shiny;
+    public void setShinyStat(ShinyStat shinyStat) {
+        this.shinyStat = shinyStat;
+    }
+
+    public Optional<ShinyStat> getShinyStat() {
+        return Optional.ofNullable(this.shinyStat);
     }
 
     public boolean isShiny() {
-        return shiny;
+        return this.shinyStat != null;
     }
 
     public String getType() {
@@ -217,13 +228,13 @@ public class LootpoolItem {
                 Objects.equals(itemType, that.itemType) &&
                 Objects.equals(name, that.name) &&
                 Objects.equals(rarity, that.rarity) &&
-                Objects.equals(shiny, that.shiny) &&
+                Objects.equals(shinyStat, that.shinyStat) &&
                 Objects.equals(type, that.type);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(itemType, amount, name, rarity, shiny, type);
+        return Objects.hash(itemType, amount, name, rarity, shinyStat, type);
     }
 
     public ChatFormatting getRarityColor() {
