@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl implements ItemQueueAccessor {
-    private static final String MARKET_TITLE = "󏿨";
     private static final int CONTAINER_SLOTS = 54;
 
     private static int JOIN_COUNTER = 0;

@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SimplifiedItem {
+public abstract class SimplifiedItem {
     protected final String name;
     protected final String rarity;
     protected final String itemType;
     protected final String type;
+    protected Icon icon;
 
-    public SimplifiedItem(String name, String rarity, String itemType, String type) {
+    protected SimplifiedItem(String name, String rarity, String itemType, String type) {
         this.name = name;
         this.rarity = rarity;
         this.itemType = itemType;
@@ -33,4 +34,6 @@ public class SimplifiedItem {
     public String getType() {
         return type;
     }
+
+    public Icon getIcon() { return icon; }
 }
