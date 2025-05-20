@@ -12,18 +12,7 @@ body:
     attributes:
       value: |
         Thanks for taking the time to fill out this bug report!
-
-  - type: dropdown
-    id: reproducible
-    attributes:
-      label: Is the issue reproducible?
-      description: Can you reproduce the issue consistently?
-      multiple: false
-      options:
-        - Yes
-        - No
-      default: 0   # 0 = Yes, 1 = No
-
+        
   - type: textarea
     id: steps-to-reproduce
     attributes:
@@ -45,8 +34,7 @@ body:
     attributes:
       label: What happened?
       description: Tell us what happened.
-      placeholder: Describe the issue.
-      value: "A bug happened!"
+      placeholder: Describe the issue and attach any logs you might have.
     validations:
       required: true
 
@@ -55,16 +43,6 @@ body:
     attributes:
       label: What did you expect to happen?
       description: Tell us what you would expect to happen.
-      placeholder: Describe the expected behavior.
-      value: "Something else should've happened!"
+      placeholder: Describe what you would have expected to happen.
     validations:
       required: true
-
-  - type: textarea
-    id: logs
-    attributes:
-      label: Relevant log output
-      description: |
-        Please copy and paste any relevant log output.
-        This will be automatically formatted into code, so no need for backticks.
-      render: shell
