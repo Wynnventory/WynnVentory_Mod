@@ -1,5 +1,6 @@
 package com.wynnventory.model.item;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.gear.GearModel;
@@ -12,6 +13,7 @@ import com.wynntils.models.items.items.game.*;
 import com.wynntils.models.items.properties.GearTierItemProperty;
 import com.wynntils.models.stats.type.ShinyStat;
 import com.wynnventory.core.ModInfo;
+import com.wynnventory.util.IconManager;
 import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.ItemStack;
@@ -26,6 +28,7 @@ public class LootpoolItem {
     private String rarity;
     private ShinyStat shinyStat;
     private String type;
+    private Icon icon;
     protected static final List<Class<? extends WynnItem>> LOOT_CLASSES = Arrays.asList(
             GearItem.class,
             InsulatorItem.class,
@@ -51,6 +54,7 @@ public class LootpoolItem {
         this.rarity = rarity;
         this.shinyStat = shinyStat;
         this.type = type;
+        this.icon = IconManager.getIcon(name);
     }
 
     public LootpoolItem(WynnItem wynnItem) {
@@ -60,6 +64,7 @@ public class LootpoolItem {
         name = name.replace("Unidentified ", "");
         type = wynnItem.getClass().getSimpleName().replace("Item", "");
         rarity = "Common";
+        this.icon = IconManager.getIcon(name);
 
         if (wynnItem instanceof GearItem gearItem) {
             GearInstance gearInstance = new GearModel().parseInstance(gearItem.getItemInfo(), (ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY));
@@ -212,6 +217,14 @@ public class LootpoolItem {
         this.type = type;
     }
 
+    public Icon getIcon() {
+        return icon;
+    }
+
+    public void setIcon(Icon icon) {
+        this.icon = icon;
+    }
+
     @Override
     public boolean equals(Object o) {
         // If the object is compared with itself, return true
@@ -237,6 +250,7 @@ public class LootpoolItem {
         return Objects.hash(itemType, amount, name, rarity, shinyStat, type);
     }
 
+    @JsonIgnore
     public ChatFormatting getRarityColor() {
         return ItemStackUtils.getRarityColor(rarity);
     }

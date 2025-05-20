@@ -4,11 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wynntils.models.items.items.game.IngredientItem;
 import com.wynntils.models.items.items.game.MaterialItem;
+import com.wynnventory.util.IconManager;
 import com.wynnventory.util.StringUtils;
 
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SimplifiedCraftingItem extends SimplifiedItem {
@@ -21,6 +20,7 @@ public class SimplifiedCraftingItem extends SimplifiedItem {
     public SimplifiedCraftingItem(IngredientItem ingredientItem) {
         super(ingredientItem.getName(), null, "IngredientItem", ingredientItem.getIngredientInfo().professions().toString());
         this.tier = ingredientItem.getQualityTier();
+        this.icon = IconManager.getIcon(ingredientItem.getName());
     }
 
     public SimplifiedCraftingItem(MaterialItem materialItem) {
@@ -28,6 +28,7 @@ public class SimplifiedCraftingItem extends SimplifiedItem {
         this.tier = materialItem.getQualityTier();
         this.sourceMaterialName = materialItem.getMaterialProfile().getSourceMaterial().name();
         this.resourceTypeName = materialItem.getMaterialProfile().getResourceType().name();
+        this.icon = IconManager.getIcon(getName() + " " + tier);
     }
 
     public int getTier() {

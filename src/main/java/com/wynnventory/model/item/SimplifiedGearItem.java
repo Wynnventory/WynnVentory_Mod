@@ -7,6 +7,7 @@ import com.wynntils.models.stats.type.ShinyStat;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynnventory.model.stat.ActualStatWithPercentage;
+import com.wynnventory.util.IconManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,11 +26,12 @@ public class SimplifiedGearItem extends SimplifiedItem {
         this.unidentified = item.isUnidentified();
         this.rerollCount = item.getRerollCount();
         this.shinyStat = item.getShinyStat();
+        this.icon = IconManager.getIcon(item.getName());
 
         final List<StatActualValue> actualValues = item.getIdentifications();
         final List<StatPossibleValues> possibleValues = item.getPossibleValues();
 
-        for(StatActualValue actual : actualValues) {
+        for (StatActualValue actual : actualValues) {
             StatPossibleValues possibleValue = possibleValues.stream().filter(p -> p.statType().getKey().equals(actual.statType().getKey())).findFirst().orElse(null);
             actualStatsWithPercentage.add(new ActualStatWithPercentage(actual, possibleValue));
         }
