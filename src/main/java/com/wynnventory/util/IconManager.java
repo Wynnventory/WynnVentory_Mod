@@ -63,7 +63,7 @@ public class IconManager {
     }
 
     public static Icon getIcon(String name) {
-        JsonObject entry = allEntries.get(name);
+        JsonObject entry = allEntries.get(name.replaceFirst("^Shiny ", ""));
         if (entry == null) {
             ModInfo.logError("No JSON entry for key: " + name);
             return null;
