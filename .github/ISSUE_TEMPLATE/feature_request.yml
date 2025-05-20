@@ -1,0 +1,51 @@
+name: Feature Request
+description: Describe a new feature.
+title: "[Feature]: "
+labels: ["enhancement"]
+type: "feature"
+projects: ["Wynnventory/2"]
+assignees:
+  - octocat
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to submit a feature request!
+
+  - type: dropdown
+    id: existing-feature
+    attributes:
+      label: Is this an enhancement of an existing feature?
+      description: >
+        Select “Yes” if you’re asking to improve something that already exists;
+        otherwise choose “No” to propose a brand-new capability.
+      multiple: false
+      options:
+        - "Yes"
+        - "No"
+      default: 1   # 0 = Yes, 1 = No
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the pain point or use case that motivates this feature.
+      placeholder: |
+        e.g.
+        1. I need a way to batch-import inventory items via CSV.
+        2. Right now I have to enter each item manually, which takes hours.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed solution
+      description: Explain clearly what you’d like to see implemented.
+      placeholder: |
+        e.g.
+        1. Add a “CSV Import” button to the Inventory page.
+        2. Allow mapping CSV columns to item fields in a wizard flow.
+    validations:
+      required: true
