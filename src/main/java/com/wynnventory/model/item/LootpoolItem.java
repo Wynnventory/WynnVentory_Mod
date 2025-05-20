@@ -69,7 +69,10 @@ public class LootpoolItem {
         if (wynnItem instanceof GearItem gearItem) {
             GearInstance gearInstance = new GearModel().parseInstance(gearItem.getItemInfo(), (ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY));
             gearInstance.shinyStat().ifPresent(stat -> shinyStat = stat);
-            name = gearItem.getName();
+            if (gearItem.getItemInfo().metaInfo().apiName().isPresent()) {
+                name = gearItem.getItemInfo().metaInfo().apiName().get();
+            }
+            this.icon = IconManager.getIcon(name);
             rarity = gearItem.getGearTier().getName();
             type = gearItem.getGearType().name();
         } else if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
