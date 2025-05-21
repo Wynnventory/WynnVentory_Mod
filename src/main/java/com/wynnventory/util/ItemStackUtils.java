@@ -58,7 +58,7 @@ public class ItemStackUtils {
         if (maybeItem.isEmpty()) return tooltipLines;
         switch (maybeItem.get()) {
             case GearItem gearItem ->
-                    processGear(gearItem.getItemInfo(), gearItem.getName(), gearItem.getGearTier().getChatFormatting(), tooltipLines);
+                    processGear(gearItem.getItemInfo(), getGearItemName(gearItem), gearItem.getGearTier().getChatFormatting(), tooltipLines);
             case GearBoxItem gearBoxItem when !gearBoxItem.getGearType().equals(GearType.MASTERY_TOME) ->
                     processGearBox(gearBoxItem, tooltipLines);
             case IngredientItem ingredientItem ->
@@ -184,5 +184,9 @@ public class ItemStackUtils {
 
     private static String getMaterialKey(MaterialItem item) {
         return getMaterialName(item) + item.getQualityTier();
+    }
+
+    public static String getGearItemName(GearItem item) {
+        return item.getItemInfo().metaInfo().apiName().orElseGet(item::getName);
     }
 }
