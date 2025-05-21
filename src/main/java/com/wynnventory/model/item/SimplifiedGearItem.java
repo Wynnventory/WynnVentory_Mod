@@ -8,6 +8,7 @@ import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynnventory.model.stat.ActualStatWithPercentage;
 import com.wynnventory.util.IconManager;
+import com.wynnventory.util.ItemStackUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +23,11 @@ public class SimplifiedGearItem extends SimplifiedItem {
     private final List<ActualStatWithPercentage> actualStatsWithPercentage = new ArrayList<>();
 
     public SimplifiedGearItem(GearItem item) {
-        super(item.getName(), item.getGearTier().getName(), "GearItem", item.getGearType().name());
+        super(ItemStackUtils.getGearItemName(item), item.getGearTier().getName(), "GearItem", item.getGearType().name());
         this.unidentified = item.isUnidentified();
         this.rerollCount = item.getRerollCount();
         this.shinyStat = item.getShinyStat();
-        this.icon = IconManager.getIcon(item.getName());
+        this.icon = IconManager.getIcon(this.name);
 
         final List<StatActualValue> actualValues = item.getIdentifications();
         final List<StatPossibleValues> possibleValues = item.getPossibleValues();

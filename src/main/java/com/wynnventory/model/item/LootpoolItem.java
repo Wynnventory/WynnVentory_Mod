@@ -61,47 +61,45 @@ public class LootpoolItem {
         this.itemType = wynnItem.getClass().getSimpleName();
         this.name = Objects.requireNonNull(ItemStackUtils.getWynntilsOriginalName(wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY))).getLastPart().getComponent().getString();
         this.amount = ((ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        name = name.replace("Unidentified ", "");
-        type = wynnItem.getClass().getSimpleName().replace("Item", "");
-        rarity = "Common";
+        this.name = name.replace("Unidentified ", "");
+        this.type = wynnItem.getClass().getSimpleName().replace("Item", "");
+        this.rarity = "Common";
         this.icon = IconManager.getIcon(name);
 
         if (wynnItem instanceof GearItem gearItem) {
             GearInstance gearInstance = new GearModel().parseInstance(gearItem.getItemInfo(), (ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY));
             gearInstance.shinyStat().ifPresent(stat -> shinyStat = stat);
-            if (gearItem.getItemInfo().metaInfo().apiName().isPresent()) {
-                name = gearItem.getItemInfo().metaInfo().apiName().get();
-            }
-            this.icon = IconManager.getIcon(name);
-            rarity = gearItem.getGearTier().getName();
-            type = gearItem.getGearType().name();
-        } else if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
-            rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
-        } else if (wynnItem instanceof TomeItem tomeItem) {
-            name = tomeItem.getName();
 
-            rarity = tomeItem.getGearTier().getName();
-            type = tomeItem.getItemInfo().type().name();
+            this.name = ItemStackUtils.getGearItemName(gearItem);
+            this.icon = IconManager.getIcon(name);
+            this.rarity = gearItem.getGearTier().getName();
+            this.type = gearItem.getGearType().name();
+        } else if (wynnItem instanceof SimulatorItem || wynnItem instanceof InsulatorItem) {
+            this.rarity = ((GearTierItemProperty) wynnItem).getGearTier().getName();
+        } else if (wynnItem instanceof TomeItem tomeItem) {
+            this.name = tomeItem.getName();
+            this.rarity = tomeItem.getGearTier().getName();
+            this.type = tomeItem.getItemInfo().type().name();
         } else if (wynnItem instanceof AspectItem aspectItem) {
-            rarity = aspectItem.getGearTier().getName();
+            this.rarity = aspectItem.getGearTier().getName();
 
             String classReq = aspectItem.getRequiredClass().getName();
             if (classReq != null && !classReq.isEmpty()) {
-                type = classReq + type;
+                this.type = classReq + this.type;
             }
         } else if (wynnItem instanceof EmeraldItem emeraldItem) {
-            type = emeraldItem.getUnit().name();
+            this.type = emeraldItem.getUnit().name();
         } else if (wynnItem instanceof RuneItem runeItem) {
-            type = runeItem.getType().name();
+            this.type = runeItem.getType().name();
         } else if (wynnItem instanceof PowderItem powderItem) {
-            name = powderItem.getName().replaceAll("[✹✦❉❋✤]", "").trim();
-            type = powderItem.getPowderProfile().element().getName() + type;
+            this.name = powderItem.getName().replaceAll("[✹✦❉❋✤]", "").trim();
+            this.type = powderItem.getPowderProfile().element().getName() + this.type;
         } else if (wynnItem instanceof AmplifierItem amplifierItem) {
-            rarity = amplifierItem.getGearTier().getName();
-            String[] nameParts = name.split(" ");
+            this.rarity = amplifierItem.getGearTier().getName();
+            String[] nameParts = this.name.split(" ");
 
             if (nameParts.length > 1) {
-                type = nameParts[0] + nameParts[1];
+                this.type = nameParts[0] + nameParts[1];
             }
         }
     }

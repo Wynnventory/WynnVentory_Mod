@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class SimplifiedItem {
-    protected final String name;
-    protected final String rarity;
-    protected final String itemType;
-    protected final String type;
+    protected String name;
+    protected String rarity;
+    protected String itemType;
+    protected String type;
     protected Icon icon;
 
     protected SimplifiedItem(String name, String rarity, String itemType, String type) {
@@ -36,4 +36,24 @@ public abstract class SimplifiedItem {
     }
 
     public Icon getIcon() { return icon; }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setRarity(String rarity) {
+        this.rarity = rarity;
+    }
+
+    public void setItemType(String itemType) {
+        this.itemType = itemType;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setIcon(Icon icon) {
+        this.icon = icon;
+    }
 }
