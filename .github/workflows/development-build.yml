@@ -22,9 +22,12 @@ jobs:
       clean_changelog: ${{ steps.changelog.outputs.clean_changelog }}
       changelog: ${{ steps.changelog.outputs.clean_changelog }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout using bot token
+        uses: actions/checkout@v4
         with:
+          token: ${{ secrets.BOT_PUSH_TOKEN }}
           fetch-depth: 0
+          persist-credentials: false   # so we don’t overwrite with GITHUB_TOKEN
           
       - uses: actions/setup-node@v4
         with:
