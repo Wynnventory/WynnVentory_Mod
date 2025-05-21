@@ -1,10 +1,10 @@
 package com.wynnventory.model.item;
 
-import com.wynntils.models.gear.type.GearInfo;
-import com.wynntils.models.items.items.game.GameItem;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.Instant;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TradeMarketItemPriceHolder {
     private TradeMarketItemPriceInfo priceInfo;
     private final String itemName;

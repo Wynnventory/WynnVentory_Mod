@@ -3,7 +3,6 @@ package com.wynnventory.util;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.enums.PoolType;
 import com.wynnventory.model.item.GroupedLootpool;
-import com.wynnventory.model.item.Lootpool;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
