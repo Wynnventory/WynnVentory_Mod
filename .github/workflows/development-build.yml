@@ -27,7 +27,6 @@ jobs:
         with:
           token: ${{ secrets.BOT_PAT }}
           fetch-depth: 0
-          persist-credentials: false   # so we don’t overwrite with GITHUB_TOKEN
           
       - uses: actions/setup-node@v4
         with:
