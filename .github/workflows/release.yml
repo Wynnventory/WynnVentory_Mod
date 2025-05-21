@@ -23,8 +23,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          token: ${{ secrets.BOT_PAT }}
           fetch-depth: 0
-
+          
       - uses: actions/setup-node@v4
         with:
           node-version: 16
@@ -66,7 +67,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
+      with:
+        token: ${{ secrets.BOT_PAT }}
+        fetch-depth: 0
     - uses: actions/download-artifact@v4 # Download version information from changelog
       with:
         name: build
@@ -190,6 +193,8 @@ jobs:
           with:
             ref: release
             fetch-depth: 0
+            token: ${{ secrets.BOT_PAT }}
+
   
         - name: Pull Changes
           run: git pull
@@ -199,9 +204,7 @@ jobs:
   
         - name: Merge release branch into master after version bump [skip ci]
           run: |
-            git config --global user.email "continuousIntegration@wynnventory.com"
+            git config --global user.email "wynnventory@gmail.com"
             git config --global user.name "Wynnventory (Bot)"
             git merge release --no-ff -m "chore(release): Merge release branch into master after version bump [skip ci]"
             git push origin master
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
