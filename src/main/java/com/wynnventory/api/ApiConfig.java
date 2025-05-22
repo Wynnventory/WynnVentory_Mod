@@ -1,6 +1,5 @@
 package com.wynnventory.api;
 
-import com.terraformersmc.modmenu.util.mod.Mod;
 import com.wynnventory.core.ModInfo;
 
 import java.io.InputStream;

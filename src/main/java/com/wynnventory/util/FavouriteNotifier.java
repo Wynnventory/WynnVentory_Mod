@@ -1,13 +1,10 @@
 package com.wynnventory.util;
 
 import com.wynntils.core.components.Services;
-import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.utils.mc.McUtils;
-import com.wynnventory.WynnventoryMod;
 import com.wynnventory.config.ConfigManager;
 import com.wynnventory.core.ModInfo;
-import com.wynnventory.model.item.GroupedLootpool;
-import com.wynnventory.model.item.LootpoolGroup;
+import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.toasts.SystemToast;
@@ -46,15 +43,15 @@ public class FavouriteNotifier {
         Set<String> seen = new HashSet<>();
         List<FavouriteMatch> result = new ArrayList<>();
 
-        List<GroupedLootpool> allPools = Stream.concat(
+        List<Lootpool> allPools = Stream.concat(
                 LootpoolManager.getLootrunPools().stream(),
                 LootpoolManager.getRaidPools().stream()
         ).toList();
 
         // Process all pools and collect all matches without early termination
-        for (GroupedLootpool pool : allPools) {
+        for (Lootpool pool : allPools) {
             String region = pool.getRegion();
-            List<LootpoolItem> itemsToCheck = mythicsOnly ? pool.getMythics() : pool.getAllItems();
+            List<LootpoolItem> itemsToCheck = mythicsOnly ? pool.getMythics() : pool.getItems().stream().toList();
 
             for (LootpoolItem item : itemsToCheck) {
                 String name = item.getName();

@@ -10,8 +10,7 @@ import com.wynnventory.accessor.ItemQueueAccessor;
 import com.wynnventory.config.ConfigManager;
 import com.wynnventory.enums.Region;
 import com.wynnventory.enums.RegionType;
-import com.wynnventory.model.item.GroupedLootpool;
-import com.wynnventory.model.item.LootpoolItem;
+import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.ui.WynnventoryItemButton;
 import com.wynnventory.util.*;
 import net.minecraft.ChatFormatting;
@@ -85,7 +84,7 @@ public abstract class TooltipMixin {
                 .map(info -> new GuideAspectItemStack(info, 1))
                 .collect(Collectors.toMap(stack -> stack.getAspectInfo().name(), Function.identity()));
 
-        List<GroupedLootpool> raidPools = LootpoolManager.getRaidPools();
+        List<Lootpool> raidPools = LootpoolManager.getRaidPools();
         List<WynnventoryItemButton<GuideAspectItemStack>> tooltipButtons = new ArrayList<>();
 
         int x = 20;
@@ -93,7 +92,7 @@ public abstract class TooltipMixin {
         int itemSize = 16;
         int spacing = 22;
 
-        for (GroupedLootpool pool : raidPools) {
+        for (Lootpool pool : raidPools) {
             Region region = Region.getRegionByShortName(pool.getRegion());
             if (region == null) continue;
 
@@ -106,11 +105,7 @@ public abstract class TooltipMixin {
             int buttonY = y + 12;
 
             // Render each mythic aspect as a button
-            pool.getGroupItems().stream()
-                    .flatMap(group -> group.getLootItems().stream())
-                    .filter(item -> "Mythic".equalsIgnoreCase(item.getRarity()) &&
-                            "AspectItem".equalsIgnoreCase(item.getItemType()))
-                    .sorted(Comparator.comparing(LootpoolItem::getName))
+            pool.getMythicAspects()
                     .forEach(lootItem -> {
                         GuideAspectItemStack stack = aspectStacks.get(lootItem.getName());
                         if (stack == null) return;

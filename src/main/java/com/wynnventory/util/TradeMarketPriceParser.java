@@ -3,7 +3,6 @@ package com.wynnventory.util;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynntils.utils.mc.LoreUtils;
-import com.wynnventory.WynnventoryMod;
 import com.wynnventory.core.ModInfo;
 import net.minecraft.world.item.ItemStack;
 
