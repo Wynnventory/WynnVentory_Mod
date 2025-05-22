@@ -1,8 +1,7 @@
 package com.wynnventory.ui.layout;
 
 import com.wynnventory.config.ConfigManager;
-import com.wynnventory.model.item.GroupedLootpool;
-import com.wynnventory.model.item.LootpoolGroup;
+import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -132,7 +131,7 @@ public class LayoutHelper {
      * @param filterToggles The list of filter toggle buttons
      * @param query         The current search query
      */
-    public void calculateItemLayout(List<GroupedLootpool> pools, EditBox searchBar, List<Button> filterToggles, String query) {
+    public void calculateItemLayout(List<Lootpool> pools, EditBox searchBar, List<Button> filterToggles, String query) {
         int rightBoundary;
         float verticalScale;
         float horizontalScale;
@@ -175,10 +174,10 @@ public class LayoutHelper {
      * @param query The current search query
      * @return The maximum unscaled column height
      */
-    private int calculateMaxColumnHeight(List<GroupedLootpool> pools, String query) {
+    private int calculateMaxColumnHeight(List<Lootpool> pools, String query) {
         int maxColumnHeightUnscaled = 0;
 
-        for (GroupedLootpool pool : pools) {
+        for (Lootpool pool : pools) {
             int rendered = countMatchingItems(pool, query);
             if (rendered > 0) {
                 int rows = (rendered + ITEMS_PER_ROW - 1) / ITEMS_PER_ROW;
@@ -197,16 +196,15 @@ public class LayoutHelper {
      * @param query The current search query
      * @return The number of matching items
      */
-    private int countMatchingItems(GroupedLootpool pool, String query) {
+    private int countMatchingItems(Lootpool pool, String query) {
         int count = 0;
-        for (LootpoolGroup group : pool.getGroupItems()) {
-            for (LootpoolItem item : group.getLootItems()) {
-                String name = item.getName();
-                if (!name.toLowerCase().contains(query.toLowerCase())) continue;
-                if (matchesRarityFilters(item, ConfigManager.getInstance())) continue;
-                count++;
-            }
+        for (LootpoolItem item: pool.getItems()) {
+            String name = item.getName();
+            if (!name.toLowerCase().contains(query.toLowerCase())) continue;
+            if (matchesRarityFilters(item, ConfigManager.getInstance())) continue;
+            count++;
         }
+
         return count;
     }
 

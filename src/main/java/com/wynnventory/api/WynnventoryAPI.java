@@ -2,22 +2,19 @@ package com.wynnventory.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.enums.PoolType;
-import com.wynnventory.model.item.GroupedLootpool;
 import com.wynnventory.model.item.Lootpool;
+import com.wynnventory.model.item.RewardWeek;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.model.item.TradeMarketItemPriceInfo;
 import com.wynnventory.util.HttpUtil;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -70,16 +67,16 @@ public class WynnventoryAPI {
         }
     }
 
-    public List<GroupedLootpool> getLootpools(PoolType type) {
+    public List<Lootpool> getLootpools(PoolType type) {
+        URI uri = type == PoolType.RAID ? Endpoint.RAIDPOOL_CURRENT.uri() : Endpoint.LOOTPOOL_CURRENT.uri();
+
         try {
-            String path = type.getName() + "/items";
-            URI uri = ApiConfig.baseUri().resolve(path);
             ModInfo.logInfo("Fetching {} lootpools from {} endpoint.", type, ModInfo.isDev() ? "DEV" : "PROD");
             HttpResponse<String> resp = HttpUtil.sendHttpGetRequest(uri);
-            return handleResponse(resp, this::parseLootpoolResponse, ArrayList::new);
+            return handleResponse(resp, this::parseLootpoolResponse).getRegions();
         } catch (Exception e) {
             ModInfo.logError("Failed to fetch lootpools", e);
-            return new ArrayList<>();
+            return null;
         }
     }
 
@@ -137,14 +134,14 @@ public class WynnventoryAPI {
         return null;
     }
 
-    private List<GroupedLootpool> parseLootpoolResponse(String responseBody) {
+    private RewardWeek parseLootpoolResponse(String responseBody) {
         try {
             return MAPPER.readValue(responseBody, new TypeReference<>() {});
         } catch (JsonProcessingException e) {
             ModInfo.logError("Failed to parse lootpool response {}", e);
         }
 
-        return new ArrayList<>();
+        return null;
     }
 
     private static ObjectMapper createObjectMapper() {

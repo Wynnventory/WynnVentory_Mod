@@ -3,7 +3,7 @@ package com.wynnventory.util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.enums.ClassIcon;
-import com.wynnventory.model.item.GroupedLootpool;
+import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
@@ -14,7 +14,6 @@ import net.minecraft.util.Mth;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,22 +23,15 @@ public final class AspectTooltipHelper {
     private AspectTooltipHelper() {
     }
 
-    public static void renderAspectTooltip(GuiGraphics graphics, int mouseX, int mouseY, GroupedLootpool pool) {
+    public static void renderAspectTooltip(GuiGraphics graphics, int mouseX, int mouseY, Lootpool pool) {
         List<Component> tooltipLines = buildLines(pool);
         if (tooltipLines.isEmpty()) return;
 
         drawAlignedTooltip(graphics, mouseX, mouseY, tooltipLines);
     }
 
-    private static List<Component> buildLines(GroupedLootpool pool) {
-        List<LootpoolItem> mythics = pool.getGroupItems().stream()
-                .flatMap(g -> g.getLootItems().stream())
-                .filter(i ->
-                        "Mythic".equalsIgnoreCase(i.getRarity()) &&
-                                "AspectItem".equalsIgnoreCase(i.getItemType())
-                )
-                .sorted(Comparator.comparing(LootpoolItem::getName, String.CASE_INSENSITIVE_ORDER))
-                .toList();
+    private static List<Component> buildLines(Lootpool pool) {
+        List<LootpoolItem> mythics = pool.getMythicAspects();
 
         if (mythics.isEmpty()) {
             return Collections.emptyList();

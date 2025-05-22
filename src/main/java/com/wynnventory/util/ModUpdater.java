@@ -3,7 +3,6 @@ package com.wynnventory.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wynntils.utils.FileUtils;
 import com.wynntils.utils.mc.McUtils;
-import com.wynnventory.WynnventoryMod;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.model.github.Asset;
 import com.wynnventory.model.github.Release;

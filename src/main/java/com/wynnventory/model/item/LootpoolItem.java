@@ -1,5 +1,6 @@
 package com.wynnventory.model.item;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wynntils.core.components.Models;
@@ -27,6 +28,8 @@ public class LootpoolItem {
     private String name;
     private String rarity;
     private ShinyStat shinyStat;
+
+    @JsonAlias("subtype")
     private String type;
     private Icon icon;
     protected static final List<Class<? extends WynnItem>> LOOT_CLASSES = Arrays.asList(

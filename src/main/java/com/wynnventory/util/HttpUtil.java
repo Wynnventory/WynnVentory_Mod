@@ -1,6 +1,5 @@
 package com.wynnventory.util;
 
-import com.wynnventory.WynnventoryMod;
 import com.wynnventory.api.ApiConfig;
 import com.wynnventory.core.ModInfo;
 

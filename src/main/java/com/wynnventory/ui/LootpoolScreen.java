@@ -11,8 +11,7 @@ import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.config.ConfigManager;
 import com.wynnventory.enums.PoolType;
 import com.wynnventory.input.KeyBindingManager;
-import com.wynnventory.model.item.GroupedLootpool;
-import com.wynnventory.model.item.LootpoolGroup;
+import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
 import com.wynnventory.ui.layout.LayoutHelper;
 import com.wynnventory.util.ItemStackUtils;
@@ -55,7 +54,7 @@ public class LootpoolScreen extends Screen {
     private PoolType currentPool = PoolType.LOOTRUN;
 
     // Cache for current data to avoid recalculation
-    private List<GroupedLootpool> currentPools;
+    private List<Lootpool> currentPools;
     private String currentQuery = "";
 
     public LootpoolScreen(Component title) {
@@ -239,37 +238,35 @@ public class LootpoolScreen extends Screen {
         raidButton.active = currentPool != PoolType.RAID;
     }
 
-    private void buildColumn(GroupedLootpool pool, int startX, String query) {
+    private void buildColumn(Lootpool pool, int startX, String query) {
         var config = ConfigManager.getInstance();
         int rendered = 0;
+        List<LootpoolItem> items = currentPool == PoolType.LOOTRUN ? pool.getLootrunSortedItems() : pool.getRaidSortedItems();
+        for (LootpoolItem item : items) {
+            String name = item.getName();
+            if (!name.toLowerCase().contains(query)) continue;
+            if (layoutHelper.matchesRarityFilters(item, config)) continue;
 
-        for (LootpoolGroup group : pool.getGroupItems()) {
-            for (LootpoolItem item : group.getLootItems()) {
-                String name = item.getName();
-                if (!name.toLowerCase().contains(query)) continue;
-                if (layoutHelper.matchesRarityFilters(item, config)) continue;
+            List<GuideItemStack> stacks = stacksByName.get(name);
+            if (stacks == null || stacks.isEmpty()) continue;
 
-                List<GuideItemStack> stacks = stacksByName.get(name);
-                if (stacks == null || stacks.isEmpty()) continue;
+            for (GuideItemStack stack : stacks) {
+                // Use LayoutHelper to calculate item position
+                int[] itemPosition = layoutHelper.calculateItemPosition(startX, rendered);
+                int x = itemPosition[0];
+                int y = itemPosition[1];
+                int buttonSize = itemPosition[2];
 
-                for (GuideItemStack stack : stacks) {
-                    // Use LayoutHelper to calculate item position
-                    int[] itemPosition = layoutHelper.calculateItemPosition(startX, rendered);
-                    int x = itemPosition[0];
-                    int y = itemPosition[1];
-                    int buttonSize = itemPosition[2];
-
-                    WynnventoryItemButton<GuideItemStack> button = new WynnventoryItemButton<>(x, y, buttonSize, buttonSize, stack, item.isShiny());
-                    elementButtons.add(button);
-                    addRenderableWidget(button);
-                    rendered++;
-                }
+                WynnventoryItemButton<GuideItemStack> button = new WynnventoryItemButton<>(x, y, buttonSize, buttonSize, stack, item.isShiny());
+                elementButtons.add(button);
+                addRenderableWidget(button);
+                rendered++;
             }
         }
     }
 
 
-    private List<GroupedLootpool> getCurrentPools() {
+    private List<Lootpool> getCurrentPools() {
         // If we already have the pools cached and the pool type hasn't changed, return the cached pools
         if (currentPools != null) {
             return currentPools;

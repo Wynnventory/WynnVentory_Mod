@@ -5,7 +5,6 @@ import com.wynnventory.config.ConfigManager;
 import com.wynnventory.ui.LootpoolScreen;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.ChatFormatting;

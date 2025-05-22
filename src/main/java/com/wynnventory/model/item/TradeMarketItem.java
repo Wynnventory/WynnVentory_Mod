@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.items.WynnItem;
-import com.wynntils.models.items.items.game.GearBoxItem;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.items.items.game.IngredientItem;
 import com.wynntils.models.items.items.game.MaterialItem;
