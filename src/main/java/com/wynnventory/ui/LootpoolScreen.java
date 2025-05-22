@@ -9,7 +9,7 @@ import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
 import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.config.ConfigManager;
-import com.wynnventory.enums.PoolType;
+import com.wynnventory.enums.RegionType;
 import com.wynnventory.input.KeyBindingManager;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
@@ -51,7 +51,7 @@ public class LootpoolScreen extends Screen {
 
     private LayoutHelper layoutHelper;
 
-    private PoolType currentPool = PoolType.LOOTRUN;
+    private RegionType currentPool = RegionType.LOOTRUN;
 
     // Cache for current data to avoid recalculation
     private List<Lootpool> currentPools;
@@ -83,11 +83,11 @@ public class LootpoolScreen extends Screen {
         int x = tabPosition[0];
         int y = tabPosition[1];
 
-        lootrunButton = Button.builder(Component.literal("Lootruns"), b -> switchTo(PoolType.LOOTRUN))
+        lootrunButton = Button.builder(Component.literal("Lootruns"), b -> switchTo(RegionType.LOOTRUN))
                 .bounds(x, y, width, height)
                 .build();
 
-        raidButton = Button.builder(Component.literal("Raids"), b -> switchTo(PoolType.RAID))
+        raidButton = Button.builder(Component.literal("Raids"), b -> switchTo(RegionType.RAID))
                 .bounds(x + width + spacing, y, width, height)
                 .build();
 
@@ -194,7 +194,7 @@ public class LootpoolScreen extends Screen {
                 }).bounds(x, y, width, height).build();
     }
 
-    private void switchTo(PoolType type) {
+    private void switchTo(RegionType type) {
         currentPool = type;
         // Invalidate cached pools when switching pool types
         currentPools = null;
@@ -234,14 +234,14 @@ public class LootpoolScreen extends Screen {
     }
 
     private void updateTabButtonStyles() {
-        lootrunButton.active = currentPool != PoolType.LOOTRUN;
-        raidButton.active = currentPool != PoolType.RAID;
+        lootrunButton.active = currentPool != RegionType.LOOTRUN;
+        raidButton.active = currentPool != RegionType.RAID;
     }
 
     private void buildColumn(Lootpool pool, int startX, String query) {
         var config = ConfigManager.getInstance();
         int rendered = 0;
-        List<LootpoolItem> items = currentPool == PoolType.LOOTRUN ? pool.getLootrunSortedItems() : pool.getRaidSortedItems();
+        List<LootpoolItem> items = currentPool == RegionType.LOOTRUN ? pool.getLootrunSortedItems() : pool.getRaidSortedItems();
         for (LootpoolItem item : items) {
             String name = item.getName();
             if (!name.toLowerCase().contains(query)) continue;
@@ -273,7 +273,7 @@ public class LootpoolScreen extends Screen {
         }
 
         // Otherwise, get the pools from the manager
-        return currentPool == PoolType.LOOTRUN
+        return currentPool == RegionType.LOOTRUN
                 ? LootpoolManager.getLootrunPools()
                 : LootpoolManager.getRaidPools();
     }

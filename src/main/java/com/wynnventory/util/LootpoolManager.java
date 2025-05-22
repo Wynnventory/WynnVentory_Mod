@@ -1,7 +1,7 @@
 package com.wynnventory.util;
 
 import com.wynnventory.api.WynnventoryAPI;
-import com.wynnventory.enums.PoolType;
+import com.wynnventory.enums.RegionType;
 import com.wynnventory.model.item.Lootpool;
 
 import java.util.List;
@@ -19,9 +19,9 @@ public class LootpoolManager {
     private LootpoolManager() {}
 
     public static void reloadAllPools() {
-        CompletableFuture.supplyAsync(() -> API.getLootpools(PoolType.LOOTRUN), EXECUTOR)
+        CompletableFuture.supplyAsync(() -> API.getLootpools(RegionType.LOOTRUN), EXECUTOR)
                 .thenAccept(result -> lootrunPools = result);
-        CompletableFuture.supplyAsync(() -> API.getLootpools(PoolType.RAID), EXECUTOR)
+        CompletableFuture.supplyAsync(() -> API.getLootpools(RegionType.RAID), EXECUTOR)
                 .thenAccept(result -> raidPools = result);
     }
 
