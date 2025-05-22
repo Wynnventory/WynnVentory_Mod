@@ -208,6 +208,8 @@ public class ConfigManager implements ConfigData {
         // Controls whether Unique items are shown
         private boolean showSet = true;
 
+        private boolean showUnusable = true;
+
         // Getters and setters
 
         public boolean getShowMythic() {
@@ -264,6 +266,14 @@ public class ConfigManager implements ConfigData {
 
         public void setShowSet(boolean showSet) {
             this.showSet = showSet;
+        }
+
+        public boolean getShowUnusable() {
+            return showUnusable;
+        }
+
+        public void setShowUnusable(boolean showUnusable) {
+            this.showUnusable = showUnusable;
         }
     }
 
