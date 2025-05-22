@@ -100,16 +100,14 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                 McUtils.sendMessageToClient(Component.literal(region.getRegionType() + " DETECTED. Region is " + region.getShortName()));
             }
 
-            if (region.getRegionType() == RegionType.LOOTRUN) {
-                addItemsToQueue(lootpoolBuffer, region.getShortName(), items);
-            } else if (region.getRegionType() == RegionType.RAID) {
-                addItemsToQueue(raidpoolBuffer, region.getShortName(), items);
+            if(region.getRegionType() != null) {
+                addItemsToLootpoolQueue(region, items);
             }
         }
     }
 
     @Override
-    public void queueItemForSubmit(ItemStack item) {
+    public void addItemToTrademarketQueue(ItemStack item) {
         if (item.getItem() == Items.AIR || item.getItem() == Items.COMPASS || item.getItem() == Items.POTION) return;
         if (McUtils.inventory().items.contains(item)) return;
 
@@ -119,12 +117,19 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         }
     }
 
-    private void addItemsToQueue(Map<String, Lootpool> queue, String region, List<ItemStack> items) {
-        if (!queue.containsKey(region)) {
-            queue.put(region, new Lootpool(region, McUtils.playerName(), ModInfo.VERSION));
-        }
+    @Override
+    public void addItemsToLootpoolQueue(Region region, List<ItemStack> items) {
+        String shortName = region.getShortName();
 
-        queue.get(region).addItems(LootpoolItem.createLootpoolItemsFromItemStack(items));
+        if(region.getRegionType() == RegionType.LOOTRUN) {
+            lootpoolBuffer.computeIfAbsent(shortName,
+                            k -> new Lootpool(region, McUtils.playerName(), ModInfo.VERSION))
+                .addItems(LootpoolItem.createLootpoolItemsFromItemStack(items));
+        } else if(region.getRegionType() == RegionType.RAID) {
+            raidpoolBuffer.computeIfAbsent(shortName,
+                            k -> new Lootpool(region, McUtils.playerName(), ModInfo.VERSION))
+                    .addItems(LootpoolItem.createLootpoolItemsFromItemStack(items));
+        }
     }
 
     @Override

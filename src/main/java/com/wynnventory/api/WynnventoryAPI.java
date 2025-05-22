@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.wynnventory.core.ModInfo;
-import com.wynnventory.enums.PoolType;
+import com.wynnventory.enums.RegionType;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.RewardWeek;
 import com.wynnventory.model.item.TradeMarketItem;
@@ -67,8 +67,8 @@ public class WynnventoryAPI {
         }
     }
 
-    public List<Lootpool> getLootpools(PoolType type) {
-        URI uri = type == PoolType.RAID ? Endpoint.RAIDPOOL_CURRENT.uri() : Endpoint.LOOTPOOL_CURRENT.uri();
+    public List<Lootpool> getLootpools(RegionType type) {
+        URI uri = type == RegionType.RAID ? Endpoint.RAIDPOOL_CURRENT.uri() : Endpoint.LOOTPOOL_CURRENT.uri();
 
         try {
             ModInfo.logInfo("Fetching {} lootpools from {} endpoint.", type, ModInfo.isDev() ? "DEV" : "PROD");

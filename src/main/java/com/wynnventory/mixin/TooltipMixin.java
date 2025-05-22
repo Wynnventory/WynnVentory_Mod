@@ -53,7 +53,7 @@ public abstract class TooltipMixin {
         // If in the market screen, submit the item for market processing
         if (MARKET_TITLE.equals(currentScreen.getTitle().getString())) {
             assert accessor != null;
-            accessor.queueItemForSubmit(itemStack);
+            accessor.addItemToTrademarketQueue(itemStack);
         }
 
         if (config.isShowTooltips() && maybeWynnItem.isPresent()) {

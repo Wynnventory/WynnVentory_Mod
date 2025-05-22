@@ -3,6 +3,8 @@ package com.wynnventory.model.item;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wynnventory.enums.Region;
+import com.wynnventory.enums.RegionType;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -19,14 +21,16 @@ public class Lootpool {
     private String region;
     private String playerName;
     private String modVersion;
+    private RegionType type;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime collectionTime;
 
     public Lootpool() { }
 
-    public Lootpool(String region, String playerName, String modVersion) {
-        this.region = region;
+    public Lootpool(Region region, String playerName, String modVersion) {
+        this.region = region.getShortName();
+        this.type   = region.getRegionType();
         this.playerName = playerName;
         this.modVersion = modVersion;
         this.collectionTime = LocalDateTime.now(ZoneOffset.UTC);
@@ -74,6 +78,14 @@ public class Lootpool {
 
     public void setModVersion(String modVersion) {
         this.modVersion = modVersion;
+    }
+
+    public RegionType getType() {
+        return type;
+    }
+
+    public void setType(RegionType type) {
+        this.type = type;
     }
 
     public String getCollectionTime() { return collectionTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); }
