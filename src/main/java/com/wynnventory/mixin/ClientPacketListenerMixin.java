@@ -122,17 +122,13 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         String shortName = region.getShortName();
 
         if(region.getRegionType() == RegionType.LOOTRUN) {
-            if(lootpoolBuffer.containsKey(shortName)) {
-                lootpoolBuffer.put(shortName, new Lootpool(region, McUtils.playerName(), ModInfo.VERSION));
-            }
-
-            lootpoolBuffer.get(shortName).addItems(LootpoolItem.createLootpoolItemsFromItemStack(items));
+            lootpoolBuffer.computeIfAbsent(shortName,
+                            k -> new Lootpool(region, McUtils.playerName(), ModInfo.VERSION))
+                .addItems(LootpoolItem.createLootpoolItemsFromItemStack(items));
         } else if(region.getRegionType() == RegionType.RAID) {
-            if(raidpoolBuffer.containsKey(shortName)) {
-                raidpoolBuffer.put(shortName, new Lootpool(region, McUtils.playerName(), ModInfo.VERSION));
-            }
-
-            raidpoolBuffer.get(shortName).addItems(LootpoolItem.createLootpoolItemsFromItemStack(items));
+            raidpoolBuffer.computeIfAbsent(shortName,
+                            k -> new Lootpool(region, McUtils.playerName(), ModInfo.VERSION))
+                    .addItems(LootpoolItem.createLootpoolItemsFromItemStack(items));
         }
     }
 
