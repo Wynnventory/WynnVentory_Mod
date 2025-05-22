@@ -1,5 +1,10 @@
 package com.wynnventory.ui.layout;
 
+import com.wynntils.core.components.Models;
+import com.wynntils.models.character.type.ClassType;
+import com.wynntils.screens.guides.GuideItemStack;
+import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
+import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynnventory.config.ConfigManager;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
@@ -7,6 +12,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Helper class for managing UI layout in the LootpoolScreen.
@@ -178,7 +184,7 @@ public class LayoutHelper {
         int maxColumnHeightUnscaled = 0;
 
         for (Lootpool pool : pools) {
-            int rendered = countMatchingItems(pool, query);
+            int rendered = pool.getItems().size();
             if (rendered > 0) {
                 int rows = (rendered + ITEMS_PER_ROW - 1) / ITEMS_PER_ROW;
                 int colHeight = rows * ITEM_SIZE + (rows - 1) * ITEM_PADDING;
@@ -190,46 +196,47 @@ public class LayoutHelper {
     }
 
     /**
-     * Counts the number of items in a pool that match the search query and rarity filters.
-     *
-     * @param pool  The lootpool to check
-     * @param query The current search query
-     * @return The number of matching items
-     */
-    private int countMatchingItems(Lootpool pool, String query) {
-        int count = 0;
-        for (LootpoolItem item: pool.getItems()) {
-            String name = item.getName();
-            if (!name.toLowerCase().contains(query.toLowerCase())) continue;
-            if (matchesRarityFilters(item, ConfigManager.getInstance())) continue;
-            count++;
-        }
-
-        return count;
-    }
-
-    /**
      * Checks if an item matches the current rarity filters.
      *
      * @param item   The item to check
      * @param config The config manager instance
      * @return True if the item matches the filters, false otherwise
      */
-    public boolean matchesRarityFilters(LootpoolItem item, ConfigManager config) {
-        String rarity = item.getRarity().toLowerCase();
-        var filter = config.getRarityConfig();
+    public boolean matchesRarityFilters(GuideItemStack item, String rarity, ConfigManager config) {
+        if(item == null) return false;
 
-        return !switch (rarity) {
-            case "mythic" -> filter.getShowMythic();
-            case "fabled" -> filter.getShowFabled();
+        var filter = config.getRarityConfig();
+        boolean usable = filter.getShowUnusable() || isUsable(item);
+        boolean showThisRarity = switch (rarity.toLowerCase()) {
+            case "mythic"    -> filter.getShowMythic();
+            case "fabled"    -> filter.getShowFabled();
             case "legendary" -> filter.getShowLegendary();
-            case "unique" -> filter.getShowUnique();
-            case "rare" -> filter.getShowRare();
-            case "common" -> filter.getShowCommon();
-            case "set" -> filter.getShowSet();
+            case "unique"    -> filter.getShowUnique();
+            case "rare"      -> filter.getShowRare();
+            case "common"    -> filter.getShowCommon();
+            case "set"       -> filter.getShowSet();
             default -> true;
         };
+        
+        // we “match” (i.e. pass through) only if both the rarity is shown AND it’s usable
+        return !(showThisRarity && usable);
     }
+
+    private boolean isUsable(GuideItemStack item) {
+        Optional<ClassType> req = switch (item) {
+            case GuideGearItemStack gear
+                    -> gear.getGearInfo().requirements().classType();
+            case GuideAspectItemStack aspect
+                    -> Optional.ofNullable(aspect.getAspectInfo().classType());
+            default
+                    -> Optional.empty();
+        };
+
+        // if there’s no requirement, or it matches the player’s class, it’s usable
+        return req.map(ct -> Models.Character.getClassType() == ct)
+                .orElse(true);
+    }
+
 
     /**
      * Calculates the position for a column of items.

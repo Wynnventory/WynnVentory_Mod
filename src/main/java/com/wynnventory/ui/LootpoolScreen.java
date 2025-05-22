@@ -175,7 +175,8 @@ public class LootpoolScreen extends Screen {
                 new FilterToggle("Uniques", cfg::getShowUnique, cfg::setShowUnique),
                 new FilterToggle("Rares", cfg::getShowRare, cfg::setShowRare),
                 new FilterToggle("Common", cfg::getShowCommon, cfg::setShowCommon),
-                new FilterToggle("Set", cfg::getShowSet, cfg::setShowSet)
+                new FilterToggle("Set", cfg::getShowSet, cfg::setShowSet),
+                new FilterToggle("Show Unusable", cfg::getShowUnusable, cfg::setShowUnusable)
         );
     }
 
@@ -245,12 +246,13 @@ public class LootpoolScreen extends Screen {
         for (LootpoolItem item : items) {
             String name = item.getName();
             if (!name.toLowerCase().contains(query)) continue;
-            if (layoutHelper.matchesRarityFilters(item, config)) continue;
 
             List<GuideItemStack> stacks = stacksByName.get(name);
             if (stacks == null || stacks.isEmpty()) continue;
 
             for (GuideItemStack stack : stacks) {
+                if (layoutHelper.matchesRarityFilters(stack, item.getRarity(), config)) continue;
+
                 // Use LayoutHelper to calculate item position
                 int[] itemPosition = layoutHelper.calculateItemPosition(startX, rendered);
                 int x = itemPosition[0];
