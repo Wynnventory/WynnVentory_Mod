@@ -75,8 +75,8 @@ public abstract class TooltipMixin {
                     .findFirst()
                     .ifPresent(pool -> AspectTooltipHelper.renderAspectTooltip(guiGraphics, mouseX, mouseY, pool));
         } else if(displayName.contains("Gambit")) {
-            ModInfo.logError("Gambit: " + displayName);
-            ModInfo.logError("Gambit Description: " + displayName);
+            ModInfo.logError("Gambit Name: " + displayName);
+            ModInfo.logError("Gambit Description:");
             List<StyledText> lore = LoreUtils.getLore(itemStack);
 
             for(StyledText line : lore) {
