@@ -4,10 +4,12 @@ import com.wynntils.core.components.Models;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
+import com.wynntils.utils.mc.LoreUtils;
 import com.wynntils.utils.mc.McUtils;
 import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.accessor.ItemQueueAccessor;
 import com.wynnventory.config.ConfigManager;
+import com.wynnventory.core.ModInfo;
 import com.wynnventory.enums.Region;
 import com.wynnventory.enums.RegionType;
 import com.wynnventory.model.item.Lootpool;
@@ -72,6 +74,14 @@ public abstract class TooltipMixin {
                     .filter(p -> p.getRegion().equalsIgnoreCase(region.getShortName()))
                     .findFirst()
                     .ifPresent(pool -> AspectTooltipHelper.renderAspectTooltip(guiGraphics, mouseX, mouseY, pool));
+        } else if(displayName.contains("Gambit")) {
+            ModInfo.logError("Gambit: " + displayName);
+            ModInfo.logError("Gambit Description: " + displayName);
+            List<StyledText> lore = LoreUtils.getLore(itemStack);
+
+            for(StyledText line : lore) {
+                ModInfo.logError(line.getStringWithoutFormatting());
+            }
         }
     }
 
