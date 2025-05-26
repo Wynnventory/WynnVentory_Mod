@@ -1,43 +1,28 @@
+// config.js
 "use strict";
 const config = require("conventional-changelog-conventionalcommits");
+const pkg    = require("./package.json");
 
 function determineVersionBump(commits) {
+    //  ─── if we're already on a dev prerelease, just bump that ──────────────
+    if (/-dev\.\d+$/.test(pkg.version)) {
+        return "prerelease";
+    }
+
+    // ─── otherwise fall back to your existing major/minor/patch logic ───────
     let releaseType = 2;
-
-    // chore(release) or feat(major)! -> major (0)
-    // feat! or fix! -> minor (1)
-    // otherwise -> patch (2)
-
     for (let commit of commits) {
-        if (commit == null || !commit.header) continue;
-
-        if (commit.header.startsWith("chore(release)") || commit.header.startsWith("feat(major)")) {
-            releaseType = 0;
-            break;
-
+        if (!commit || !commit.header) continue;
+        if (commit.header.startsWith("chore(release)")
+            || commit.header.startsWith("feat(major)")) {
+            releaseType = 0; break;
         }
         if (commit.header.startsWith("feat") && releaseType > 1) {
             releaseType = 1;
         }
     }
 
-    let releaseTypes = ["major", "minor", "patch"];
-
-    let reason = "No special commits found. Defaulting to a patch.";
-
-    switch (releaseTypes[releaseType]) {
-        case "major":
-            reason = "Found a commit with a chore(release) or feat(major) header.";
-            break;
-        case "minor":
-            reason = "Found a commit with a feat! or fix! header.";
-            break;
-    }
-
-    return {
-        releaseType: releaseTypes[releaseType],
-        reason: reason
-    }
+    return ["major", "minor", "patch"][releaseType];
 }
 
 async function getOptions() {
