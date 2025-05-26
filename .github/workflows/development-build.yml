@@ -22,7 +22,15 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-
+          
+      - name: Ensure CHANGELOG.md exists
+        run: |
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Changelog" > CHANGELOG.md
+            git add CHANGELOG.md
+            git commit -m "chore: initialize CHANGELOG.md" || true
+          fi
+          
       - name: Release Please
         uses: google-github-actions/release-please-action@v4
         id: release
