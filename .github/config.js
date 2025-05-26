@@ -1,7 +1,8 @@
 // config.js
 "use strict";
 const config = require("conventional-changelog-conventionalcommits");
-const pkg    = require("./package.json");
+const path        = require("path");
+const versionInfo = require(path.join(__dirname, "..", "version.json"));
 
 function determineVersionBump(commits) {
     //  ─── if we're already on a dev prerelease, just bump that ──────────────
