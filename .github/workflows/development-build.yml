@@ -36,7 +36,9 @@ jobs:
           npm install conventional-recommended-bump@9.0.0
 
       - name: Set up version.json
-        run: echo "{"version":$(git describe --tags --abbrev=0)}" > version.json
+        run: |
+          TAG=$(git describe --tags --abbrev=0)
+          printf '{\n  "version": "%s"\n}\n' "$TAG" > version.json
 
       - name: Create changelog
         id: changelog
