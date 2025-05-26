@@ -15,6 +15,7 @@ import com.wynnventory.util.HttpUtil;
 
 import java.net.URI;
 import java.net.http.HttpResponse;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -71,12 +72,12 @@ public class WynnventoryAPI {
         URI uri = type == RegionType.RAID ? Endpoint.RAIDPOOL_CURRENT.uri() : Endpoint.LOOTPOOL_CURRENT.uri();
 
         try {
-            ModInfo.logInfo("Fetching {} lootpools from {} endpoint.", type, ModInfo.isDev() ? "DEV" : "PROD");
+            ModInfo.logDebug("Fetching {} lootpools from {} endpoint.", type, ModInfo.isDev() ? "DEV" : "PROD");
             HttpResponse<String> resp = HttpUtil.sendHttpGetRequest(uri);
             return handleResponse(resp, this::parseLootpoolResponse).getRegions();
         } catch (Exception e) {
             ModInfo.logError("Failed to fetch lootpools", e);
-            return null;
+            return Collections.emptyList();
         }
     }
 
