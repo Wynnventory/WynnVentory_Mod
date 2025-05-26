@@ -73,7 +73,7 @@ public class LootpoolItem {
             GearInstance gearInstance = new GearModel().parseInstance(gearItem.getItemInfo(), (ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY));
             gearInstance.shinyStat().ifPresent(stat -> shinyStat = stat);
 
-            this.name = ItemStackUtils.getGearItemName(gearItem);
+            this.name = gearItem.getName();
             this.icon = IconManager.getIcon(name);
             this.rarity = gearItem.getGearTier().getName();
             this.type = gearItem.getGearType().name();
