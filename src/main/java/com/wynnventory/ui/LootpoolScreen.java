@@ -9,10 +9,9 @@ import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
 import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.config.ConfigManager;
-import com.wynnventory.enums.PoolType;
+import com.wynnventory.enums.RegionType;
 import com.wynnventory.input.KeyBindingManager;
-import com.wynnventory.model.item.GroupedLootpool;
-import com.wynnventory.model.item.LootpoolGroup;
+import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
 import com.wynnventory.ui.layout.LayoutHelper;
 import com.wynnventory.util.ItemStackUtils;
@@ -52,10 +51,10 @@ public class LootpoolScreen extends Screen {
 
     private LayoutHelper layoutHelper;
 
-    private PoolType currentPool = PoolType.LOOTRUN;
+    private RegionType currentPool = RegionType.LOOTRUN;
 
     // Cache for current data to avoid recalculation
-    private List<GroupedLootpool> currentPools;
+    private List<Lootpool> currentPools;
     private String currentQuery = "";
 
     public LootpoolScreen(Component title) {
@@ -84,11 +83,11 @@ public class LootpoolScreen extends Screen {
         int x = tabPosition[0];
         int y = tabPosition[1];
 
-        lootrunButton = Button.builder(Component.literal("Lootruns"), b -> switchTo(PoolType.LOOTRUN))
+        lootrunButton = Button.builder(Component.literal("Lootruns"), b -> switchTo(RegionType.LOOTRUN))
                 .bounds(x, y, width, height)
                 .build();
 
-        raidButton = Button.builder(Component.literal("Raids"), b -> switchTo(PoolType.RAID))
+        raidButton = Button.builder(Component.literal("Raids"), b -> switchTo(RegionType.RAID))
                 .bounds(x + width + spacing, y, width, height)
                 .build();
 
@@ -176,7 +175,8 @@ public class LootpoolScreen extends Screen {
                 new FilterToggle("Uniques", cfg::getShowUnique, cfg::setShowUnique),
                 new FilterToggle("Rares", cfg::getShowRare, cfg::setShowRare),
                 new FilterToggle("Common", cfg::getShowCommon, cfg::setShowCommon),
-                new FilterToggle("Set", cfg::getShowSet, cfg::setShowSet)
+                new FilterToggle("Set", cfg::getShowSet, cfg::setShowSet),
+                new FilterToggle("Show Unusable", cfg::getShowUnusable, cfg::setShowUnusable)
         );
     }
 
@@ -195,7 +195,7 @@ public class LootpoolScreen extends Screen {
                 }).bounds(x, y, width, height).build();
     }
 
-    private void switchTo(PoolType type) {
+    private void switchTo(RegionType type) {
         currentPool = type;
         // Invalidate cached pools when switching pool types
         currentPools = null;
@@ -235,48 +235,47 @@ public class LootpoolScreen extends Screen {
     }
 
     private void updateTabButtonStyles() {
-        lootrunButton.active = currentPool != PoolType.LOOTRUN;
-        raidButton.active = currentPool != PoolType.RAID;
+        lootrunButton.active = currentPool != RegionType.LOOTRUN;
+        raidButton.active = currentPool != RegionType.RAID;
     }
 
-    private void buildColumn(GroupedLootpool pool, int startX, String query) {
+    private void buildColumn(Lootpool pool, int startX, String query) {
         var config = ConfigManager.getInstance();
         int rendered = 0;
+        List<LootpoolItem> items = currentPool == RegionType.LOOTRUN ? pool.getLootrunSortedItems() : pool.getRaidSortedItems();
+        for (LootpoolItem item : items) {
+            String name = item.getName();
+            if (!name.toLowerCase().contains(query)) continue;
 
-        for (LootpoolGroup group : pool.getGroupItems()) {
-            for (LootpoolItem item : group.getLootItems()) {
-                String name = item.getName();
-                if (!name.toLowerCase().contains(query)) continue;
-                if (layoutHelper.matchesRarityFilters(item, config)) continue;
+            List<GuideItemStack> stacks = stacksByName.get(name);
+            if (stacks == null || stacks.isEmpty()) continue;
 
-                List<GuideItemStack> stacks = stacksByName.get(name);
-                if (stacks == null || stacks.isEmpty()) continue;
+            for (GuideItemStack stack : stacks) {
+                if (layoutHelper.matchesRarityFilters(stack, item.getRarity(), config)) continue;
 
-                for (GuideItemStack stack : stacks) {
-                    // Use LayoutHelper to calculate item position
-                    int[] itemPosition = layoutHelper.calculateItemPosition(startX, rendered);
-                    int x = itemPosition[0];
-                    int y = itemPosition[1];
-                    int buttonSize = itemPosition[2];
+                // Use LayoutHelper to calculate item position
+                int[] itemPosition = layoutHelper.calculateItemPosition(startX, rendered);
+                int x = itemPosition[0];
+                int y = itemPosition[1];
+                int buttonSize = itemPosition[2];
 
-                    WynnventoryItemButton<GuideItemStack> button = new WynnventoryItemButton<>(x, y, buttonSize, buttonSize, stack, item.isShiny());
-                    elementButtons.add(button);
-                    addRenderableWidget(button);
-                    rendered++;
-                }
+                WynnventoryItemButton<GuideItemStack> button = new WynnventoryItemButton<>(x, y, buttonSize, buttonSize, stack, item.isShiny());
+                elementButtons.add(button);
+                addRenderableWidget(button);
+                rendered++;
             }
         }
     }
 
 
-    private List<GroupedLootpool> getCurrentPools() {
+    private List<Lootpool> getCurrentPools() {
         // If we already have the pools cached and the pool type hasn't changed, return the cached pools
         if (currentPools != null) {
             return currentPools;
         }
 
         // Otherwise, get the pools from the manager
-        return currentPool == PoolType.LOOTRUN
+        return currentPool == RegionType.LOOTRUN
                 ? LootpoolManager.getLootrunPools()
                 : LootpoolManager.getRaidPools();
     }

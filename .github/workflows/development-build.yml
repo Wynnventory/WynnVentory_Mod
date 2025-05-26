@@ -22,8 +22,10 @@ jobs:
       clean_changelog: ${{ steps.changelog.outputs.clean_changelog }}
       changelog: ${{ steps.changelog.outputs.clean_changelog }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout using bot token
+        uses: actions/checkout@v4
         with:
+          token: ${{ secrets.BOT_PAT }}
           fetch-depth: 0
           
       - uses: actions/setup-node@v4
@@ -127,3 +129,19 @@ jobs:
         draft: false
         prerelease: true
         files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
+
+    - name: Set current date
+      id: date
+      run: |
+        echo "::set-output name=short::$(date +'%Y-%m-%d')"
+        echo "::set-output name=long::$(date +'%Y-%m-%d %H:%M')"
+        
+    - name: Post release on Discord
+      uses: tsickert/discord-webhook@v6.0.0
+      with:
+       webhook-url: ${{ secrets.DISCORD_DEV_RELEASE_WEBHOOK_URL }}
+       embed-color: "9498256"
+       embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
+       embed-description: ${{ needs.changelog.outputs.changelog }}
+       embed-url: ${{ steps.release.outputs.url }}
+       embed-timestamp: ${{ steps.date.outputs.long }}

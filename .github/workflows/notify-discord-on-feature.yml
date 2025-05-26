@@ -1,0 +1,26 @@
+# .github/workflows/notify-discord-on-feature.yml
+name: Notify Discord on Feature Request
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  notify_discord:
+    runs-on: ubuntu-latest
+    # Only run when the new issue is labeled "enhancement"
+    if: contains(github.event.issue.labels.*.name, 'enhancement')
+
+    steps:
+      - name: Post Bug Issue to Discord
+        uses: tsickert/discord-webhook@v6.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_FEATURE_REQUEST_WEBHOOK_URL }}
+          embed-color: "9498256"
+          embed-title: ${{ github.event.issue.title }} - ${{ github.event.repository.name }}
+          embed-description: |
+            **Opened by**: ${{ github.event.issue.user.login }}
+            
+            ${{ github.event.issue.body }}
+          embed-url: ${{ github.event.issue.html_url }}
+          embed-timestamp: ${{ github.event.issue.created_at }}

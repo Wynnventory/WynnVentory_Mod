@@ -1,0 +1,26 @@
+# .github/workflows/notify-discord-on-bug.yml
+name: Notify Discord on Bug Issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  notify_discord:
+    runs-on: ubuntu-latest
+    # Only run when the new issue is labeled "bug"
+    if: contains(github.event.issue.labels.*.name, 'bug')
+
+    steps:
+      - name: Post Bug Issue to Discord
+        uses: tsickert/discord-webhook@v6.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_BUG_REPORT_WEBHOOK_URL }}
+          embed-color: "15158332"
+          embed-title: ${{ github.event.issue.title }} - ${{ github.event.repository.name }}
+          embed-description: |
+            **Opened by**: ${{ github.event.issue.user.login }}
+            
+            ${{ github.event.issue.body }}
+          embed-url: ${{ github.event.issue.html_url }}
+          embed-timestamp: ${{ github.event.issue.created_at }}

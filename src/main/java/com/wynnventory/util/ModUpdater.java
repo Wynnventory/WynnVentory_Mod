@@ -3,7 +3,6 @@ package com.wynnventory.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wynntils.utils.FileUtils;
 import com.wynntils.utils.mc.McUtils;
-import com.wynnventory.WynnventoryMod;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.model.github.Asset;
 import com.wynnventory.model.github.Release;
@@ -21,7 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 public class ModUpdater {
-    private static final String LATEST_RELEASE_URL = "https://api.github.com/repos/Aruloci/Wynnventory/releases/latest";
+    private static final String LATEST_RELEASE_URL = "https://api.github.com/repos/Wynnventory/Wynnventory_Mod/releases/latest";
     private static boolean alreadyChecked = false;
 
     private ModUpdater() { }
