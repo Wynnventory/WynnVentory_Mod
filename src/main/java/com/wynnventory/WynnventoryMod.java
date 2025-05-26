@@ -12,6 +12,8 @@ public class WynnventoryMod implements ClientModInitializer {
 	public void onInitializeClient() {
 		if (!ModInfo.init()) return;
 
+		ModInfo.logDebug("Test");
+
 		InitHandler.initialize();
 		KeyBindingManager.register();
 		KeyEventHandler.register();
