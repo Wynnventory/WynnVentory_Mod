@@ -1,96 +1,94 @@
 "use strict";
-const path   = require("path");
-const fs     = require("fs");
+const path = require("path");
+const fs = require("fs");
 const config = require("conventional-changelog-conventionalcommits");
 
-// Resolve the path to your root-level version.json
+// ─── Load & log version.json ────────────────────────────────────────────────
 const versionPath = path.join(__dirname, "..", "version.json");
 console.log(`🔍 Loading version.json from: ${versionPath}`);
 
-// Read and log the raw file contents
-let raw = "";
+let raw, versionInfo;
 try {
-  raw = fs.readFileSync(versionPath, "utf8");
-  console.log("📄 version.json raw content:");
-  console.log(raw);
+    raw = fs.readFileSync(versionPath, "utf8");
+    console.log("📄 version.json raw content:\n", raw);
+    versionInfo = JSON.parse(raw);
+    console.log(`✅ Parsed version.json → version = "${versionInfo.version}"`);
 } catch (err) {
-  console.error(`❌ Failed to read version.json: ${err.message}`);
+    console.error(`❌ Error reading/parsing version.json: ${err.message}`);
+    versionInfo = {version: ""};
 }
 
-// Attempt JSON.parse on that raw content
-let versionInfo = { version: "unknown" };
-try {
-  versionInfo = JSON.parse(raw);
-  console.log(`✅ Parsed version.json → version = "${versionInfo.version}"`);
-} catch (err) {
-  console.error(`❌ Failed to parse version.json: ${err.message}`);
-}
-
+// ─── decide bump ────────────────────────────────────────────────────────────
 function determineVersionBump(commits) {
-  console.log("🔨 determineVersionBump() called");
-  console.log(`   • Current version: ${versionInfo.version}`);
+    console.log("🔨 determineVersionBump() called");
+    console.log(`   • Current version: ${versionInfo.version}`);
 
-  let releaseType = 2; // default to patch
-  for (let commit of commits || []) {
-    if (!commit || !commit.header) continue;
-    console.log(`   • Inspecting commit header: "${commit.header}"`);
-
-    if (
-      commit.header.startsWith("chore(release)") ||
-      commit.header.startsWith("feat(major)")
-    ) {
-      console.log("     → Matched chore(release) or feat(major) → major bump");
-      releaseType = 0;
-      break;
+    // 1) If we’re already on a dev prerelease, just bump that
+    if (/-dev\.\d+$/.test(versionInfo.version)) {
+        console.log("   → Detected existing -dev.N prerelease → returning prerelease bump");
+        return {
+            releaseType: "prerelease",
+            reason: "Already on a dev prerelease, bump only the prerelease counter."
+        };
     }
-    if (commit.header.startsWith("feat") && releaseType > 1) {
-      console.log("     → Matched feat → minor bump (if not already set)");
-      releaseType = 1;
+
+    // 2) Otherwise use your original major/minor/patch logic
+    let releaseType = 2;  // default → patch
+    for (let commit of commits || []) {
+        if (!commit || !commit.header) continue;
+        console.log(`   • Inspecting commit: "${commit.header}"`);
+
+        if (
+            commit.header.startsWith("chore(release)") ||
+            commit.header.startsWith("feat(major)")
+        ) {
+            console.log("     → matched chore(release)/feat(major) → major bump");
+            releaseType = 0;
+            break;
+        }
+        if (commit.header.startsWith("feat") && releaseType > 1) {
+            console.log("     → matched feat → minor bump (if not already set)");
+            releaseType = 1;
+        }
     }
-  }
 
-  const releaseTypes = ["major", "minor", "patch"];
-  let reason = "No special commits found. Defaulting to a patch.";
-  switch (releaseTypes[releaseType]) {
-    case "major":
-      reason = "Found a commit with a chore(release) or feat(major) header.";
-      break;
-    case "minor":
-      reason = "Found a commit with a feat! or fix! header.";
-      break;
-  }
+    const releaseTypes = ["major", "minor", "patch"];
+    const choice = releaseTypes[releaseType];
+    let reason = "No special commits found. Defaulting to a patch.";
 
-  console.log(
-    `   • Final decision → releaseType="${releaseTypes[releaseType]}", reason="${reason}"`
-  );
-  return {
-    releaseType: releaseTypes[releaseType],
-    reason,
-  };
+    if (choice === "major") {
+        reason = "Found a chore(release) or feat(major) commit.";
+    } else if (choice === "minor") {
+        reason = "Found a feat commit.";
+    }
+
+    console.log(`   → Final decision: ${choice} (${reason})`);
+    return {releaseType: choice, reason};
 }
 
 async function getOptions() {
-  console.log("🚀 getOptions(): initializing conventional-changelog options…");
-  const options = await config({
-    types: [
-      { type: "feat", section: "New Features" },
-      { type: "feature", section: "New Features" },
-      { type: "fix", section: "Bug Fixes" },
-      { type: "perf", section: "Performance Improvements" },
-      { type: "revert", section: "Reverts" },
-      { type: "docs", section: "Documentation" },
-      { type: "style", section: "Styles" },
-      { type: "refactor", section: "Code Refactoring" },
-      { type: "test", section: "Tests" },
-      { type: "build", section: "Build System" },
-      { type: "chore", section: "Miscellaneous Chores", hidden: true },
-      { type: "ci", section: "Continuous Integration", hidden: true },
-    ],
-  });
+    console.log("🚀 getOptions(): initializing conventional-changelog…");
+    const options = await config({
+        types: [
+            {type: "feat", section: "New Features"},
+            {type: "feature", section: "New Features"},
+            {type: "fix", section: "Bug Fixes"},
+            {type: "perf", section: "Performance Improvements"},
+            {type: "revert", section: "Reverts"},
+            {type: "docs", section: "Documentation"},
+            {type: "style", section: "Styles"},
+            {type: "refactor", section: "Code Refactoring"},
+            {type: "test", section: "Tests"},
+            {type: "build", section: "Build System"},
+            {type: "chore", section: "Miscellaneous Chores", hidden: true},
+            {type: "ci", section: "Continuous Integration", hidden: true},
+        ]
+    });
 
-  console.log("🔧 Plugging in custom bumpType function");
-  options.bumpType = determineVersionBump;
-  return options;
+    console.log("🔧 Attaching custom bumpType function");
+    options.bumpType = determineVersionBump;
+
+    return options;
 }
 
 module.exports = getOptions();
