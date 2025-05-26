@@ -1,10 +1,3 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-# This workflow will build a package using Gradle and then publish it to GitHub packages when a release is created
-# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#Publishing-using-gradle
-
 name: Publish Development Build
 
 on:
@@ -12,55 +5,57 @@ on:
     branches:
       - master
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
-  changelog:
-    name: Generate Changelog
+  release:
+    name: Create Release via Release Please
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ steps.changelog.outputs.tag }}
-      skipped: ${{ steps.changelog.outputs.skipped }}
-      clean_changelog: ${{ steps.changelog.outputs.clean_changelog }}
-      changelog: ${{ steps.changelog.outputs.clean_changelog }}
+      tag: ${{ steps.release.outputs.tag_name }}
+      changelog: ${{ steps.get-changelog.outputs.changelog }}
     steps:
-      - name: Checkout using bot token
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.BOT_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-          
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 16
-      - run: |
-          npm install conventional-changelog-conventionalcommits@7.0.2
-          npm install conventional-recommended-bump@9.0.0
 
-      - name: Set up version.json
-        run: echo "{"version":$(git describe --tags --abbrev=0)}" > version.json
-
-      - name: Create changelog
-        id: changelog
-        uses: TriPSs/conventional-changelog-action@v6.0.0
+      - name: Release Please
+        uses: google-github-actions/release-please-action@v4
+        id: release
         with:
-          pre-commit: ./.github/pre-commit.js
-          config-file-path: ./.github/config.js
-          version-file: ./version.json
-          skip-version-file: true
-          skip-git-pull: true
-          pre-release: true
-          pre-release-identifier: dev
-          output-file: false
-          
-      - name: Upload build.gradle with replaced version
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: simple    # only update CHANGELOG.md and tag
+          prerelease: true
+          prerelease-identifier: dev
+          target-branch: master
+
+      - name: Read Changelog
+        id: get-changelog
+        run: |
+          CHANGELOG=$(sed -n '/^## \[.*\]/,$p' CHANGELOG.md)
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "tag=${{ steps.release.outputs.tag_name }}" >> $GITHUB_OUTPUT
+
+      - name: Update build.gradle
+        run: |
+          node -e "require('./.github/pre-commit').preCommit({ version: '${{ steps.release.outputs.tag_name }}', isPreRelease: true })"
+
+      - name: Upload build.gradle
         uses: actions/upload-artifact@v4
         with:
           name: build
           path: build.gradle
           overwrite: true
-          
+
   build:
-    name: Build
-    needs: changelog
+    name: Build JAR
+    needs: release
     runs-on: ubuntu-latest
     env:
       API_KEY: ${{ secrets.API_KEY }}
@@ -68,80 +63,61 @@ jobs:
       jarName: ${{ steps.make_unique.outputs.jar_name }}
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - uses: actions/download-artifact@v4 # Download version information from changelog
-      with:
-        name: build
-  
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+      - name: Download build.gradle
+        uses: actions/download-artifact@v4
+        with:
+          name: build
 
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
-    - name: Build with Gradle
-      run: ./gradlew shadowjar --stacktrace
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-    - name: Make filename unique
-      id: make_unique
-      run: |
-        jar_name="Wynnventory-${{ needs.changelog.outputs.tag }}.jar"
-        mv build/libs/*-shadow.jar build/libs/$jar_name
-        echo "::set-output name=jar_name::$jar_name"
+      - name: Build with Gradle
+        run: ./gradlew shadowjar --stacktrace
 
-    - name: Upload JAR
-      uses: actions/upload-artifact@v4
-      with:
-        path: build/libs/${{ steps.make_unique.outputs.jar_name }}
-        name: ${{ steps.make_unique.outputs.jar_name }}
-        if-no-files-found: error
-        overwrite: true
-  
-  release-github:
-    name: Release to Github
-    if: ${{ needs.changelog.outputs.skipped != 'true' }}
+      - name: Make filename unique
+        id: make_unique
+        run: |
+          jar_name="Wynnventory-${{ needs.release.outputs.tag }}.jar"
+          mv build/libs/*-shadow.jar build/libs/$jar_name
+          echo "::set-output name=jar_name::$jar_name"
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.make_unique.outputs.jar_name }}
+          path: build/libs/${{ steps.make_unique.outputs.jar_name }}
+          if-no-files-found: error
+          overwrite: true
+
+  notify:
+    name: Post Release Notification
+    needs: [release, build]
     runs-on: ubuntu-latest
-    needs: [ build, changelog ]
 
-    steps:      
-    - name: Download JAR
-      id: download
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ needs.build.outputs.jarName }}
-        path: ${{ github.workspace }}
-      
-    - name: Create release and upload files
-      if: ${{ needs.changelog.outputs.skipped != 'true' }}
-      id: release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: ${{ needs.changelog.outputs.tag }}
-        body: ${{ needs.changelog.outputs.changelog }}
-        draft: false
-        prerelease: true
-        files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
+    steps:
+      - name: Set Current Date
+        id: date
+        run: |
+          echo "short=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "long=$(date +'%Y-%m-%d %H:%M')" >> $GITHUB_OUTPUT
 
-    - name: Set current date
-      id: date
-      run: |
-        echo "::set-output name=short::$(date +'%Y-%m-%d')"
-        echo "::set-output name=long::$(date +'%Y-%m-%d %H:%M')"
-        
-    - name: Post release on Discord
-      uses: tsickert/discord-webhook@v6.0.0
-      with:
-       webhook-url: ${{ secrets.DISCORD_DEV_RELEASE_WEBHOOK_URL }}
-       embed-color: "9498256"
-       embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
-       embed-description: ${{ needs.changelog.outputs.changelog }}
-       embed-url: ${{ steps.release.outputs.url }}
-       embed-timestamp: ${{ steps.date.outputs.long }}
+      - name: Post Release on Discord
+        uses: tsickert/discord-webhook@v6.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_DEV_RELEASE_WEBHOOK_URL }}
+          embed-color: "9498256"
+          embed-title: ${{ format('Wynnventory {0}', needs.release.outputs.tag) }}
+          embed-description: ${{ needs.release.outputs.changelog }}
+          embed-url: ${{ steps.release.outputs.html_url }}
+          embed-timestamp: ${{ steps.date.outputs.long }}
