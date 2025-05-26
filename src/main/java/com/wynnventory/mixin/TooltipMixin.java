@@ -48,7 +48,6 @@ public abstract class TooltipMixin {
         if (slot == null || !slot.hasItem()) return;
 
         ItemStack stack = slot.getItem();
-        String title = screen.getTitle().getString();
 
         // Screen independent actions
         if (config.isShowTooltips()) {
@@ -57,10 +56,10 @@ public abstract class TooltipMixin {
         }
 
         // Screen specific actions
+        String title = screen.getTitle().getString();
         if (MARKET_TITLE.equalsIgnoreCase(title)) {
             enqueueForMarket(stack);
         }
-
         else if (PARTY_FINDER_TITLE.equalsIgnoreCase(title)) {
             renderPartyFinderAspects(guiGraphics, mouseX, mouseY, stack);
         }
