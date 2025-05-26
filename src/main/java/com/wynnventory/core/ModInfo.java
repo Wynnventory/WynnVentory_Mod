@@ -46,6 +46,11 @@ public class ModInfo {
         LOGGER.debug(msg);
     }
 
+    public static void logDebug(String msg, Object... args) {
+        LOGGER.debug(msg, args);
+    }
+
+
     public static void logError(String msg) {
         LOGGER.error(msg);
     }
