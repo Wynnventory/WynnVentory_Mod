@@ -20,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_PAT }}
           fetch-depth: 0
           
       - name: Ensure CHANGELOG.md exists
@@ -32,10 +32,10 @@ jobs:
           fi
           
       - name: Release Please
-        uses: google-github-actions/release-please-action@v4
+        uses: googleapis/release-please-action@v3.1.2
         id: release
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_PAT }}
           release-type: simple    # only update CHANGELOG.md and tag
           prerelease: true
           prerelease-identifier: dev
