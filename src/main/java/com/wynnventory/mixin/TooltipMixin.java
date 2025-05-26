@@ -34,44 +34,34 @@ import java.util.stream.Collectors;
 @Mixin(AbstractContainerScreen.class)
 public abstract class TooltipMixin {
     private static final String MARKET_TITLE = "󏿨";
+    private static final String PARTY_FINDER_TITLE = "Party Finder";
 
     private final ConfigManager config = ConfigManager.getInstance();
     private final ItemQueueAccessor accessor = (ItemQueueAccessor) McUtils.mc().getConnection();
 
     @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
     private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
-        Screen currentScreen = Minecraft.getInstance().screen;
-        if (currentScreen == null) return;
+        Screen screen = Minecraft.getInstance().screen;
+        if (screen == null) return;
 
-        // Get the hovered slot using an accessor (assumed available)
-        Slot hoveredSlot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
-        if (hoveredSlot == null || !hoveredSlot.hasItem()) return;
+        Slot slot = ((AbstractContainerScreenAccessor) this).getHoveredSlot();
+        if (slot == null || !slot.hasItem()) return;
 
-        ItemStack itemStack = hoveredSlot.getItem();
-        Optional<WynnItem> maybeWynnItem = Models.Item.getWynnItem(itemStack);
+        ItemStack stack = slot.getItem();
 
-        // If in the market screen, submit the item for market processing
-        if (MARKET_TITLE.equals(currentScreen.getTitle().getString())) {
-            assert accessor != null;
-            accessor.addItemToTrademarketQueue(itemStack);
+        // Screen independent actions
+        if (config.isShowTooltips()) {
+            Models.Item.getWynnItem(stack)
+                    .ifPresent(wynnItem -> renderPriceTooltip(guiGraphics, mouseX, mouseY, stack));
         }
 
-        if (config.isShowTooltips() && maybeWynnItem.isPresent()) {
-            List<Component> tooltipComponents = ItemStackUtils.getTooltips(itemStack);
-            PriceTooltipHelper.renderPriceInfoTooltip(guiGraphics, mouseX, mouseY, itemStack, tooltipComponents, config.isAnchorTooltips());
+        // Screen specific actions
+        String title = screen.getTitle().getString();
+        if (MARKET_TITLE.equalsIgnoreCase(title)) {
+            enqueueForMarket(stack);
         }
-
-        StyledText wynntilsName = ItemStackUtils.getWynntilsOriginalName(itemStack);
-        if (wynntilsName == null) return;
-        Component rawName = Objects.requireNonNull(wynntilsName).getComponent();
-        String displayName = StyledText.fromComponent(rawName).getStringWithoutFormatting();
-        Region region = Region.getRegionByName(displayName);
-
-        if (region != null && region.getRegionType() == RegionType.RAID) {
-            LootpoolManager.getRaidPools().stream()
-                    .filter(p -> p.getRegion().equalsIgnoreCase(region.getShortName()))
-                    .findFirst()
-                    .ifPresent(pool -> AspectTooltipHelper.renderAspectTooltip(guiGraphics, mouseX, mouseY, pool));
+        else if (PARTY_FINDER_TITLE.equalsIgnoreCase(title)) {
+            renderPartyFinderAspects(guiGraphics, mouseX, mouseY, stack);
         }
     }
 
@@ -148,5 +138,35 @@ public abstract class TooltipMixin {
     private boolean isMouseOver(WynnventoryItemButton<?> button, int mouseX, int mouseY) {
         return mouseX >= button.getX() && mouseX <= button.getX() + button.getWidth()
                 && mouseY >= button.getY() && mouseY <= button.getY() + button.getHeight();
+    }
+
+    @Unique
+    private void renderPriceTooltip(GuiGraphics guiGraphics, int x, int y, ItemStack stack) {
+        List<Component> tooltips = ItemStackUtils.getTooltips(stack);
+        PriceTooltipHelper.renderPriceInfoTooltip(
+                guiGraphics, x, y, stack, tooltips, config.isAnchorTooltips()
+        );
+    }
+
+    @Unique
+    private void enqueueForMarket(ItemStack stack) {
+        accessor.addItemToTrademarketQueue(stack);
+    }
+
+    @Unique
+    private void renderPartyFinderAspects(GuiGraphics guiGraphics, int x, int y, ItemStack stack) {
+        StyledText originalName = ItemStackUtils.getWynntilsOriginalName(stack);
+        if (originalName == null) return;
+
+        String name = originalName.getStringWithoutFormatting();
+        Region region = Region.getRegionByName(name);
+        if (region == null || region.getRegionType() != RegionType.RAID) return;
+
+        LootpoolManager.getRaidPools().stream()
+                .filter(pool -> pool.getRegion().equalsIgnoreCase(region.getShortName()))
+                .findFirst()
+                .ifPresent(pool ->
+                        AspectTooltipHelper.renderAspectTooltip(guiGraphics, x, y, pool)
+                );
     }
 }
