@@ -155,10 +155,10 @@ public abstract class TooltipMixin {
 
     @Unique
     private void renderPartyFinderAspects(GuiGraphics guiGraphics, int x, int y, ItemStack stack) {
-        StyledText origName = ItemStackUtils.getWynntilsOriginalName(stack);
-        if (origName == null) return;
+        StyledText originalName = ItemStackUtils.getWynntilsOriginalName(stack);
+        if (originalName == null) return;
 
-        String name = origName.getStringWithoutFormatting();
+        String name = originalName.getStringWithoutFormatting();
         Region region = Region.getRegionByName(name);
         if (region == null || region.getRegionType() != RegionType.RAID) return;
 
