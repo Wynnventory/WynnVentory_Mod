@@ -4,7 +4,7 @@ plugins {
 	id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
-version = "null"
+version = "1.1.1"
 group = project.maven_group
 
 // ─────────────────────────────────────────────────────────────────────────────
