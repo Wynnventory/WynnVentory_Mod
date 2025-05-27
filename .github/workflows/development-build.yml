@@ -25,10 +25,9 @@ jobs:
 
       - name: Bump & Changelog via Release Please
         id: release_please
-        uses: googleapis/release-please-action@v4.2.0
+        uses: googleapis/release-please-action@v4
         with:
           token: ${{ secrets.BOT_PAT }}
-          release-type: node
           include-component-in-tag: false
           config-file: ./.github/release-please-config.json
           
