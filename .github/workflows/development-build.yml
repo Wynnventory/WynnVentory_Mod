@@ -35,10 +35,10 @@ jobs:
           npm install conventional-changelog-conventionalcommits@7.0.2
           npm install conventional-recommended-bump@9.0.0
 
-      - name: Set up version.json
+      - name: Set up package.json
         run: |
           TAG=$(git describe --tags --abbrev=0)
-          printf '{\n  "version": "%s"\n}\n' "$TAG" > version.json
+          printf '{\n  "version": "%s"\n}\n' "$TAG" > package.json
 
       - name: Create changelog
         id: changelog
@@ -46,8 +46,6 @@ jobs:
         with:
           pre-commit: ./.github/pre-commit.js
           config-file-path: ./.github/config.js
-          version-file: ./version.json
-          skip-version-file: true
           skip-git-pull: true
           pre-release: true
           pre-release-identifier: dev
