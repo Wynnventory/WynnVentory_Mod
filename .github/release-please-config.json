@@ -3,12 +3,11 @@
   "prerelease": true,
   "release-search-depth": 15,
   "commit-search-depth": 100,
-  "label": "snapshot",
+  "label": "autorelease: snapshot",
   "packages": {
     ".": {
         "prerelease": true,
         "prerelease-type": "dev",
-        "snapshot-label": "snapshot",
         "include-v-in-tag": true
      }
   }
