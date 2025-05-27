@@ -52,6 +52,7 @@ jobs:
   build:
     name: Build
     needs: changelog
+    if: ${{ needs.changelog.outputs.tag != '' }}
     runs-on: ubuntu-latest
     env:
       API_KEY: ${{ secrets.API_KEY }}
