@@ -67,4 +67,4 @@ async function getOptions() {
     return options;
 }
 
-module.exports = getOptions();
+module.exports = getOptions;
