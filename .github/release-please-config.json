@@ -1,14 +1,14 @@
 {
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/refs/heads/main/schemas/config.json",
   "release-type": "node",
   "prerelease": true,
-  "prerelease-type": "beta",
   "release-search-depth": 15,
   "commit-search-depth": 100,
   "packages": {
     ".": {
-      "release-type": "node",
-      "prerelease": true,
-      "prerelease-type": "beta"
-    }
+        "prerelease": true,
+        "prerelease-type": "dev",
+        "snapshot-label": "snapshot"
+     }
   }
 }
