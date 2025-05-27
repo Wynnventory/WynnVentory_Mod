@@ -144,11 +144,12 @@ jobs:
           prerelease: true
           files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
 
-      - name: Set current date
+      - name: Set current timestamp
         id: date
         run: |
-          echo "::set-output name=short::$(date +'%Y-%m-%d')"
-          echo "::set-output name=long::$(date +'%Y-%m-%d %H:%M')"
+          # Use UTC so you get a Z suffix
+          ts=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          echo "timestamp=$ts" >> $GITHUB_OUTPUT
 
       - name: Post release on Discord
         uses: tsickert/discord-webhook@v7.0.0
@@ -158,4 +159,4 @@ jobs:
           embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
           embed-description: ${{ needs.changelog.outputs.changelog }}
           embed-url: ${{ steps.release.outputs.url }}
-          embed-timestamp: ${{ steps.date.outputs.long }}
+          embed-timestamp:    ${{ steps.date.outputs.timestamp }}
