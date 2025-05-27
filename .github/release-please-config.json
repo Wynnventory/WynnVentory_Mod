@@ -4,5 +4,7 @@
   "prerelease-type": "beta",
   "release-search-depth": 15,
   "commit-search-depth": 100,
-  "packages": {}
+  "packages": {
+    ".": { }
+  }
 }
