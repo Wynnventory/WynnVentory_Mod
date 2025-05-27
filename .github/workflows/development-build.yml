@@ -1,10 +1,3 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-# This workflow will build a package using Gradle and then publish it to GitHub packages when a release is created
-# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#Publishing-using-gradle
-
 name: Publish Development Build
 
 on:
@@ -14,51 +7,61 @@ on:
 
 jobs:
   changelog:
-    name: Generate Changelog
+    name: Generate Changelog & Bump Version
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ steps.changelog.outputs.tag }}
-      skipped: ${{ steps.changelog.outputs.skipped }}
-      clean_changelog: ${{ steps.changelog.outputs.clean_changelog }}
-      changelog: ${{ steps.changelog.outputs.clean_changelog }}
+      tag: ${{ steps.set-outputs.outputs.tag }}
+      clean_changelog: ${{ steps.set-outputs.outputs.clean_changelog }}
+      changelog: ${{ steps.set-outputs.outputs.clean_changelog }}
     steps:
       - name: Checkout using bot token
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.BOT_PAT }}
           fetch-depth: 0
-          
+
       - uses: actions/setup-node@v4
         with:
           node-version: 16
-      - run: |
-          npm install conventional-changelog-conventionalcommits@7.0.2
-          npm install conventional-recommended-bump@9.0.0
 
-      - name: Set up package.json
+      - name: Install standard-version
+        run: npm install standard-version@9.6.0
+
+      # 1) Bump only the prerelease counter (no tag, no changelog)
+      - name: Bump prerelease
         run: |
-          TAG=$(git describe --tags --abbrev=0)
-          printf '{\n  "version": "%s"\n}\n' "$TAG" > package.json
+          npx standard-version --prerelease dev \
+            --skip.tag \
+            --skip.changelog
 
-      - name: Create changelog
-        id: changelog
-        uses: TriPSs/conventional-changelog-action@v6.0.0
-        with:
-          pre-commit: ./.github/pre-commit.js
-          config-file-path: ./.github/config.js
-          skip-git-pull: true
-          skip-version-file: true
-          pre-release: true
-          pre-release-identifier: dev
-          output-file: false
-          
+      # 2) Generate changelog, commit it, and tag the prerelease
+      - name: Generate changelog & tag
+        run: |
+          npx standard-version --release-as prerelease --prerelease dev
+
+      # 3) Persist outputs for downstream jobs
+      - name: Set outputs
+        id: set-outputs
+        run: |
+          # New version after bumping
+          TAG=$(jq -r .version package.json)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+          # Grab the latest section (from the top of CHANGELOG.md)
+          # Here we take all lines from the first "## [" until the blank line after it.
+          # Adjust sed/awk as needed for your CHANGELOG structure.
+          clean=$(sed -n '1,/^$/p' CHANGELOG.md)
+          echo "clean_changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$clean" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Upload build.gradle with replaced version
         uses: actions/upload-artifact@v4
         with:
           name: build
           path: build.gradle
           overwrite: true
-          
+
   build:
     name: Build
     needs: changelog
@@ -67,95 +70,81 @@ jobs:
       API_KEY: ${{ secrets.API_KEY }}
     outputs:
       jarName: ${{ steps.make_unique.outputs.jar_name }}
-
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - uses: actions/download-artifact@v4 # Download version information from changelog
-      with:
-        name: build
-        
-      # 1) Cache your Gradle dependencies yourself
-    - name: Cache Gradle dependencies
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*','**/gradle-wrapper.properties') }}
-        restore-keys: ${{ runner.os }}-gradle-
-  
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
 
-    # 2) Disable the Gradle action’s built-in cache (we’re using actions/cache)
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        cache-disabled: true
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            $HOME/.gradle/caches
+            $HOME/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*','**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
 
-    - name: Build with Gradle
-      run: ./gradlew shadowjar --stacktrace
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-disabled: true
 
-    - name: Make filename unique
-      id: make_unique
-      run: |
-        jar_name="Wynnventory-${{ needs.changelog.outputs.tag }}.jar"
-        mv build/libs/*-shadow.jar build/libs/$jar_name
-        echo "::set-output name=jar_name::$jar_name"
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-    - name: Upload JAR
-      uses: actions/upload-artifact@v4
-      with:
-        path: build/libs/${{ steps.make_unique.outputs.jar_name }}
-        name: ${{ steps.make_unique.outputs.jar_name }}
-        if-no-files-found: error
-        overwrite: true
-  
+      - name: Build with Gradle
+        run: ./gradlew shadowjar --stacktrace
+
+      - name: Make filename unique
+        id: make_unique
+        run: |
+          jar_name="Wynnventory-${{ needs.changelog.outputs.tag }}.jar"
+          mv build/libs/*-shadow.jar build/libs/$jar_name
+          echo "::set-output name=jar_name::$jar_name"
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          path: build/libs/${{ steps.make_unique.outputs.jar_name }}
+          name: ${{ steps.make_unique.outputs.jar_name }}
+          if-no-files-found: error
+          overwrite: true
+
   release-github:
     name: Release to Github
-    if: ${{ needs.changelog.outputs.skipped != 'true' }}
+    if: ${{ needs.changelog.outputs.tag != '' }}
     runs-on: ubuntu-latest
     needs: [ build, changelog ]
+    steps:
+      - name: Download JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build.outputs.jarName }}
+          path: ${{ github.workspace }}
 
-    steps:      
-    - name: Download JAR
-      id: download
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ needs.build.outputs.jarName }}
-        path: ${{ github.workspace }}
-      
-    - name: Create release and upload files
-      if: ${{ needs.changelog.outputs.skipped != 'true' }}
-      id: release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: ${{ needs.changelog.outputs.tag }}
-        body: ${{ needs.changelog.outputs.changelog }}
-        draft: false
-        prerelease: true
-        files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
+      - name: Create release and upload files
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.changelog.outputs.tag }}
+          body: ${{ needs.changelog.outputs.changelog }}
+          draft: false
+          prerelease: true
+          files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
 
-    - name: Set current date
-      id: date
-      run: |
-        echo "::set-output name=short::$(date +'%Y-%m-%d')"
-        echo "::set-output name=long::$(date +'%Y-%m-%d %H:%M')"
-        
-    - name: Post release on Discord
-      uses: tsickert/discord-webhook@v6.0.0
-      with:
-       webhook-url: ${{ secrets.DISCORD_DEV_RELEASE_WEBHOOK_URL }}
-       embed-color: "9498256"
-       embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
-       embed-description: ${{ needs.changelog.outputs.changelog }}
-       embed-url: ${{ steps.release.outputs.url }}
-       embed-timestamp: ${{ steps.date.outputs.long }}
+      - name: Post release on Discord
+        uses: tsickert/discord-webhook@v6.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_DEV_RELEASE_WEBHOOK_URL }}
+          embed-color: "9498256"
+          embed-title: Wynnventory ${{ needs.changelog.outputs.tag }}
+          embed-description: ${{ needs.changelog.outputs.changelog }}
+          embed-url: ${{ steps.release.outputs.url }}
+          embed-timestamp: ${{ steps.date.outputs.long }}
