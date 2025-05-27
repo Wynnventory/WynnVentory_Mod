@@ -1,4 +1,5 @@
 {
+  "release-type": "node",
   "prerelease": true,
   "prerelease-type": "beta",
   "release-search-depth": 15,
