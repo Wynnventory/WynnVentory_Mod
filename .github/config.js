@@ -1,5 +1,4 @@
 "use strict";
-const config = require("conventional-changelog-conventionalcommits");
 
 function determineVersionBump(commits) {
     // chore(release) or feat(major) -> major (0)
@@ -37,32 +36,32 @@ function determineVersionBump(commits) {
     return {
         releaseType: releaseTypes[releaseType],
         reason: reason
-    }
+    };
 }
 
 async function getOptions() {
-    let options = await config(
-        {
-            types: [
-                // Unhide all types except "ci" so that they show up on generated changelog
-                // Default values:
-                // https://github.com/conventional-changelog/conventional-changelog/blob/master/packages/conventional-changelog-conventionalcommits/writer-opts.js
-                { type: "feat", section: "New Features" },
-                { type: "feature", section: "New Features" },
-                { type: "fix", section: "Bug Fixes" },
-                { type: "perf", section: "Performance Improvements" },
-                { type: "refactor", section: "Code Refactoring" },
-                { type: "revert", section: "Reverts" },
-                { type: "style", section: "Styles", hidden: true },
-                { type: "docs", section: "Documentation", hidden: true },
-                { type: "chore", section: "Miscellaneous Chores", hidden: true },
-                { type: "test", section: "Tests", hidden: true },
-                { type: "build", section: "Build System", hidden: true},
-                { type: "ci", section: "Continuous Integration", hidden: true },
-            ]
-        }
-    );
+    const { default: config } = await import("conventional-changelog-conventionalcommits");
 
+    // Initialize options using the preset
+    const options = await config({
+        types: [
+            // Unhide all types except "ci" so they appear in the changelog
+            { type: "feat", section: "New Features" },
+            { type: "feature", section: "New Features" },
+            { type: "fix", section: "Bug Fixes" },
+            { type: "perf", section: "Performance Improvements" },
+            { type: "refactor", section: "Code Refactoring" },
+            { type: "revert", section: "Reverts" },
+            { type: "style", section: "Styles", hidden: true },
+            { type: "docs", section: "Documentation", hidden: true },
+            { type: "chore", section: "Miscellaneous Chores", hidden: true },
+            { type: "test", section: "Tests", hidden: true },
+            { type: "build", section: "Build System", hidden: true },
+            { type: "ci", section: "Continuous Integration", hidden: true },
+        ]
+    });
+
+    // Override bumpType to use our custom logic
     options.bumpType = determineVersionBump;
 
     return options;
