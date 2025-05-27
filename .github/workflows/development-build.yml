@@ -47,7 +47,7 @@ jobs:
           github-token: '${{ secrets.BOT_PAT }}'
           pre-commit: ./.github/pre-commit.js
           config-file-path: ./.github/config.js
-          skip-version-file: true
+          skip-version-file: false
           skip-git-pull: true
           pre-release: true
           pre-release-identifier: dev
