@@ -10,9 +10,8 @@ jobs:
     name: Generate Changelog & Bump Version
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ steps.set-outputs.outputs.tag }}
-      clean_changelog: ${{ steps.set-outputs.outputs.clean_changelog }}
-      changelog: ${{ steps.set-outputs.outputs.clean_changelog }}
+      tag: ${{ steps.release_please.outputs.next_tag }}
+      changelog: ${{ steps.release_please.outputs.changelog }}
     steps:
       - name: Checkout using bot token
         uses: actions/checkout@v4
@@ -24,36 +23,25 @@ jobs:
         with:
           node-version: 16
 
-      - name: Install standard-version
-        run: npm install standard-version@9.6.0
-
-      # 1) Bump only the prerelease counter (no tag, no changelog)
-      - name: Bump prerelease
-        run: |
-          npx standard-version --prerelease dev \
-            --skip.tag \
-            --skip.changelog
-
-      # 2) Generate changelog, commit it, and tag the prerelease
-      - name: Generate changelog & tag
-        run: |
-          npx standard-version --release-as prerelease --prerelease dev
-
-      # 3) Persist outputs for downstream jobs
-      - name: Set outputs
-        id: set-outputs
-        run: |
-          # New version after bumping
-          TAG=$(jq -r .version package.json)
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-
-          # Grab the latest section (from the top of CHANGELOG.md)
-          # Here we take all lines from the first "## [" until the blank line after it.
-          # Adjust sed/awk as needed for your CHANGELOG structure.
-          clean=$(sed -n '1,/^$/p' CHANGELOG.md)
-          echo "clean_changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$clean" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Bump & Changelog via Release Please
+        id: release_please
+        uses: google-github-actions/release-please-action@v4.2.0
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          release-type: simple
+          prerelease: true
+          prerelease-id: dev
+          
+      - name: Update build.gradle version
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const version = '${{ steps.release_please.outputs.next_tag }}'.replace(/^v/, '');
+            let text = fs.readFileSync('build.gradle', 'utf8');
+            text = text.replace(/(?<=version = ")\d+\.\d+\.\d+(-\w+\.\d+)?(?=")/, version);
+            fs.writeFileSync('build.gradle', text);
+            console.log('build.gradle updated to version', version);
 
       - name: Upload build.gradle with replaced version
         uses: actions/upload-artifact@v4
@@ -131,6 +119,7 @@ jobs:
           path: ${{ github.workspace }}
 
       - name: Create release and upload files
+        id: release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.changelog.outputs.tag }}
@@ -138,7 +127,13 @@ jobs:
           draft: false
           prerelease: true
           files: ${{ github.workspace }}/${{ needs.build.outputs.jarName }}
-
+          
+      - name: Set current date
+        id: date
+        run: |
+          echo "::set-output name=short::$(date +'%Y-%m-%d')"
+          echo "::set-output name=long::$(date +'%Y-%m-%dT%H:%M:%SZ')"
+          
       - name: Post release on Discord
         uses: tsickert/discord-webhook@v6.0.0
         with:
