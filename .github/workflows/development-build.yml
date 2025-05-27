@@ -30,7 +30,7 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
           release-type: node
           include-component-in-tag: false
-          config-file: .github/release-please-config.json
+          config-file: ./.github/release-please-config.json
           
       - name: Update build.gradle version
         uses: actions/github-script@v7
