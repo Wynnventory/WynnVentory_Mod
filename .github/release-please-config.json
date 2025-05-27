@@ -3,9 +3,9 @@
   "prerelease": true,
   "release-search-depth": 15,
   "commit-search-depth": 100,
+  "label": "snapshot",
   "packages": {
     ".": {
-        "release-type": "java",
         "prerelease": true,
         "prerelease-type": "dev",
         "snapshot-label": "snapshot",
