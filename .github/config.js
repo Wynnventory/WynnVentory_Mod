@@ -1,68 +1,85 @@
 "use strict";
-const config = require("conventional-changelog-conventionalcommits");
+const semver = require("semver");
+const preset = require("conventional-changelog-conventionalcommits");
 
-function determineVersionBump(commits) {
-    // chore(release) or feat(major) -> major (0)
-    // feat -> minor (1)
-    // otherwise -> patch (2)
-
-    let releaseType = 2;
-    for (let commit of commits) {
-        if (commit == null || !commit.header) continue;
-
-        // We want to select the highest release type
-        if (commit.header.startsWith("chore(release)") || commit.header.startsWith("feat(major)")) {
-            releaseType = 0;
-            break;
-        }
-
-        if (commit.header.startsWith("feat") && releaseType > 1) {
-            releaseType = 1;
+/**
+ * Determine the semantic release bump, handling pre-releases with the "dev" identifier.
+ * @param {Array} commits - List of commit objects with headers
+ * @param {number} _releaseCount - Number of previous releases (unused)
+ * @param {Object} context - Context object containing lastRelease.version
+ * @returns {{releaseType: string, reason: string}}
+ */
+function determineVersionBump(commits, _releaseCount, context) {
+    const lastVersion = context.lastRelease?.version;
+    // If the last release was already a dev prerelease, bump just the prerelease counter
+    if (lastVersion) {
+        const pre = semver.prerelease(lastVersion);
+        if (pre && pre[0] === "dev") {
+            return {
+                releaseType: "prerelease",
+                reason: `Previous was prerelease (${lastVersion}), bumping dev counter`,
+            };
         }
     }
 
-    let releaseTypes = ["major", "minor", "patch"];
+    // Otherwise apply normal semver rules: chore(release)/feat(major) -> major; feat -> minor; else patch
+    let releaseTypeIndex = 2; // default patch
+    for (const commit of commits) {
+        if (!commit || !commit.header) continue;
+        if (
+            commit.header.startsWith("chore(release)") ||
+            commit.header.startsWith("feat(major)")
+        ) {
+            releaseTypeIndex = 0;
+            break;
+        }
+        if (
+            commit.header.startsWith("feat") &&
+            releaseTypeIndex > 1
+        ) {
+            releaseTypeIndex = 1;
+        }
+    }
 
-    let reason = "No special commits found. Defaulting to a patch.";
-
-    switch (releaseTypes[releaseType]) {
+    const releaseTypes = ["major", "minor", "patch"];
+    let reason = "No special commits found. Defaulting to patch.";
+    switch (releaseTypes[releaseTypeIndex]) {
         case "major":
-            reason = "Found a commit with a chore(release) or feat(major) header.";
+            reason = "Found chore(release) or feat(major).";
             break;
         case "minor":
-            reason = "Found a commit with a feat! or fix! header.";
+            reason = "Found feat commit.";
             break;
     }
 
     return {
-        releaseType: releaseTypes[releaseType],
+        releaseType: releaseTypes[releaseTypeIndex],
         reason: reason
     };
 }
 
+/**
+ * Exported config function for conventional-changelog-action
+ */
 async function getOptions() {
-    let options = await config(
-        {
-            types: [
-                // Unhide all types except "ci" so they appear in the changelog
-                { type: "feat", section: "New Features" },
-                { type: "feature", section: "New Features" },
-                { type: "fix", section: "Bug Fixes" },
-                { type: "perf", section: "Performance Improvements" },
-                { type: "refactor", section: "Code Refactoring" },
-                { type: "revert", section: "Reverts" },
-                { type: "style", section: "Styles", hidden: true },
-                { type: "docs", section: "Documentation", hidden: true },
-                { type: "chore", section: "Miscellaneous Chores", hidden: true },
-                { type: "test", section: "Tests", hidden: true },
-                { type: "build", section: "Build System", hidden: true },
-                { type: "ci", section: "Continuous Integration", hidden: true },
-            ]
-        }
-    );
+    const options = await preset({
+        types: [
+            { type: "feat", section: "New Features" },
+            { type: "feature", section: "New Features" },
+            { type: "fix", section: "Bug Fixes" },
+            { type: "perf", section: "Performance Improvements" },
+            { type: "refactor", section: "Code Refactoring" },
+            { type: "revert", section: "Reverts" },
+            { type: "style", section: "Styles", hidden: true },
+            { type: "docs", section: "Documentation", hidden: true },
+            { type: "chore", section: "Miscellaneous Chores", hidden: true },
+            { type: "test", section: "Tests", hidden: true },
+            { type: "build", section: "Build System", hidden: true },
+            { type: "ci", section: "Continuous Integration", hidden: true },
+        ],
+    });
 
     options.bumpType = determineVersionBump;
-
     return options;
 }
 
