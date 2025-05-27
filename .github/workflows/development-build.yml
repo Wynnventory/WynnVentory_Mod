@@ -28,9 +28,7 @@ jobs:
         uses: googleapis/release-please-action@v4.2.0
         with:
           token: ${{ secrets.BOT_PAT }}
-          release-type: simple
-          prerelease: true
-          prerelease-id: dev
+          release-type: node
           
       - name: Update build.gradle version
         uses: actions/github-script@v7
@@ -94,7 +92,7 @@ jobs:
       - name: Make filename unique
         id: make_unique
         run: |
-          jar_name="Wynnventory-${{ needs.changelog.outputs.tag }}.jar"
+          jar_name="Wynnventory-v${{ needs.changelog.outputs.tag }}.jar"
           mv build/libs/*-shadow.jar build/libs/$jar_name
           echo "::set-output name=jar_name::$jar_name"
 
