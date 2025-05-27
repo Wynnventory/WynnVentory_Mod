@@ -2,7 +2,7 @@
   "release-type": "node",
   "prerelease": true,
   "prerelease-type": "beta",
-  "include-component-in-tag": false
+  "include-component-in-tag": false,
   "packages": {
     ".": {
       "include-component-in-tag": false
