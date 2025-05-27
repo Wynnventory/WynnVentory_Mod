@@ -13,6 +13,7 @@ function determineVersionBump(commits, _releaseCount, context) {
     const last = context.lastRelease?.version;
     // If the last tag is already a dev prerelease, bump only that counter:
     if (last && semver.prerelease(last)?.[0] === "dev") {
+        console.log(`Last release was a dev prerelease, bumping dev counter`);
         return {
             releaseType: "prerelease",
             reason: `Previous was prerelease (${last}), bumping dev counter`,
