@@ -1,4 +1,5 @@
 "use strict";
+const config = require("conventional-changelog-conventionalcommits");
 
 function determineVersionBump(commits) {
     // chore(release) or feat(major) -> major (0)
@@ -40,31 +41,29 @@ function determineVersionBump(commits) {
 }
 
 async function getOptions() {
-    const { default: config } = await import("conventional-changelog-conventionalcommits");
+    let options = await config(
+        {
+            types: [
+                // Unhide all types except "ci" so they appear in the changelog
+                { type: "feat", section: "New Features" },
+                { type: "feature", section: "New Features" },
+                { type: "fix", section: "Bug Fixes" },
+                { type: "perf", section: "Performance Improvements" },
+                { type: "refactor", section: "Code Refactoring" },
+                { type: "revert", section: "Reverts" },
+                { type: "style", section: "Styles", hidden: true },
+                { type: "docs", section: "Documentation", hidden: true },
+                { type: "chore", section: "Miscellaneous Chores", hidden: true },
+                { type: "test", section: "Tests", hidden: true },
+                { type: "build", section: "Build System", hidden: true },
+                { type: "ci", section: "Continuous Integration", hidden: true },
+            ]
+        }
+    );
 
-    // Initialize options using the preset
-    const options = await config({
-        types: [
-            // Unhide all types except "ci" so they appear in the changelog
-            { type: "feat", section: "New Features" },
-            { type: "feature", section: "New Features" },
-            { type: "fix", section: "Bug Fixes" },
-            { type: "perf", section: "Performance Improvements" },
-            { type: "refactor", section: "Code Refactoring" },
-            { type: "revert", section: "Reverts" },
-            { type: "style", section: "Styles", hidden: true },
-            { type: "docs", section: "Documentation", hidden: true },
-            { type: "chore", section: "Miscellaneous Chores", hidden: true },
-            { type: "test", section: "Tests", hidden: true },
-            { type: "build", section: "Build System", hidden: true },
-            { type: "ci", section: "Continuous Integration", hidden: true },
-        ]
-    });
-
-    // Override bumpType to use our custom logic
     options.bumpType = determineVersionBump;
 
     return options;
 }
 
-module.exports = getOptions;
+module.exports = getOptions();
