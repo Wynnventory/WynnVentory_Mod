@@ -5,6 +5,10 @@
   "release-search-depth": 15,
   "commit-search-depth": 100,
   "packages": {
-    ".": { }
+    ".": {
+      "release-type": "node",
+      "prerelease": true,
+      "prerelease-type": "beta"
+    }
   }
 }
