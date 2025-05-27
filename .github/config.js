@@ -1,8 +1,25 @@
 "use strict";
+const path   = require("path");
 const config = require("conventional-changelog-conventionalcommits");
 
+// Resolve the path to your project-root package.json
+const pkgPath = path.join(__dirname, "..", "package.json");
+console.log(`🔍 Loading package.json from: ${pkgPath}`);
+const pkg = require(pkgPath);
+console.log(`✅ Current version in package.json: ${pkg.version}`);
+
 function determineVersionBump(commits) {
-    console.log("🔨 determineVersionBump(): starting");
+  console.log("🔨 determineVersionBump(): called");
+
+    // 1) If we're already on a dev prerelease, bump only the prerelease counter
+    if (/-dev\.\d+$/.test(pkg.version)) {
+        console.log("   → Detected existing -dev.N prerelease → returning 'prerelease'");
+        return {
+          releaseType: "prerelease",
+          reason: "Already on dev prerelease, only bumping its counter."
+        };
+    }
+    
     let releaseType = 2;
     console.log(`   • Initial releaseType = patch (2)`);
 
