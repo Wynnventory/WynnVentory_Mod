@@ -5,9 +5,11 @@
   "commit-search-depth": 100,
   "packages": {
     ".": {
+        "release-type": "java",
         "prerelease": true,
         "prerelease-type": "dev",
-        "snapshot-label": "snapshot"
+        "snapshot-label": "snapshot",
+        "include-v-in-tag": true
      }
   }
 }
