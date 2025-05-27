@@ -15,6 +15,7 @@ function determineVersionBump(commits, _releaseCount, context) {
     if (lastVersion) {
         const pre = semver.prerelease(lastVersion);
         if (pre && pre[0] === "dev") {
+            console.log(`Previous release was a dev prerelease (${lastVersion}), bumping dev counter`);
             return {
                 releaseType: "prerelease",
                 reason: `Previous was prerelease (${lastVersion}), bumping dev counter`,
