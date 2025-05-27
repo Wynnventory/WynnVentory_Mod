@@ -2,66 +2,67 @@
 const config = require("conventional-changelog-conventionalcommits");
 
 function determineVersionBump(commits) {
-    console.log("🔨 determineVersionBump(): starting");
+    // chore(release) or feat(major) -> major (0)
+    // feat -> minor (1)
+    // otherwise -> patch (2)
+
     let releaseType = 2;
-    console.log(`   • Initial releaseType = patch (2)`);
-
     for (let commit of commits) {
-        if (!commit || !commit.header) continue;
-        console.log(`   • Inspecting commit.header: "${commit.header}"`);
+        if (commit == null || !commit.header) continue;
 
-        // chore(release) or feat(major)! -> major (0)
-        if (commit.header.startsWith("chore(release)") || commit.header.startsWith("feat(major)")
-        ) {
-            console.log("     → matched chore(release) or feat(major) → major bump");
+        // We want to select the highest release type
+        if (commit.header.startsWith("chore(release)") || commit.header.startsWith("feat(major)")) {
             releaseType = 0;
             break;
         }
 
-        // feature commit -> minor (1)
         if (commit.header.startsWith("feat") && releaseType > 1) {
-            console.log("     → matched feat → minor bump (if not already set)");
             releaseType = 1;
         }
     }
 
-    const releaseTypes = ["major", "minor", "patch"];
-    const chosen = releaseTypes[releaseType];
+    let releaseTypes = ["major", "minor", "patch"];
+
     let reason = "No special commits found. Defaulting to a patch.";
 
-    switch (chosen) {
+    switch (releaseTypes[releaseType]) {
         case "major":
-            reason = "Found a chore(release) or feat(major) commit.";
+            reason = "Found a commit with a chore(release) or feat(major) header.";
             break;
         case "minor":
-            reason = "Found a feat commit.";
+            reason = "Found a commit with a feat! or fix! header.";
             break;
     }
 
-    console.log(`   • Final decision → releaseType="${chosen}", reason="${reason}"`);
-    return { releaseType: chosen, reason };
+    return {
+        releaseType: releaseTypes[releaseType],
+        reason: reason
+    }
 }
 
 async function getOptions() {
-    console.log("🚀 getOptions(): initializing conventional-changelog options…");
-    const options = await config({
-        types: [
-            { type: "feat", section: "New Features" },
-            { type: "feature", section: "New Features" },
-            { type: "fix", section: "Bug Fixes" },
-            { type: "perf", section: "Performance Improvements" },
-            { type: "revert", section: "Reverts" },
-            { type: "docs", section: "Documentation" },
-            { type: "style", section: "Styles" },
-            { type: "refactor", section: "Code Refactoring" },
-            { type: "test", section: "Tests" },
-            { type: "build", section: "Build System" },
-            { type: "chore", section: "Miscellaneous Chores", hidden: true },
-            { type: "ci", section: "Continuous Integration", hidden: true },
-        ]
-    });
+    let options = await config(
+        {
+            types: [
+                // Unhide all types except "ci" so that they show up on generated changelog
+                // Default values:
+                // https://github.com/conventional-changelog/conventional-changelog/blob/master/packages/conventional-changelog-conventionalcommits/writer-opts.js
+                { type: "feat", section: "New Features" },
+                { type: "feature", section: "New Features" },
+                { type: "fix", section: "Bug Fixes" },
+                { type: "perf", section: "Performance Improvements" },
+                { type: "refactor", section: "Code Refactoring" },
+                { type: "revert", section: "Reverts" },
+                { type: "style", section: "Styles", hidden: true },
+                { type: "docs", section: "Documentation", hidden: true },
+                { type: "chore", section: "Miscellaneous Chores", hidden: true },
+                { type: "test", section: "Tests", hidden: true },
+                { type: "build", section: "Build System", hidden: true},
+                { type: "ci", section: "Continuous Integration", hidden: true },
+            ]
+        }
+    );
 
-    console.log("🔧 getOptions(): attaching custom bumpType function");
     options.bumpType = determineVersionBump;
 
     return options;

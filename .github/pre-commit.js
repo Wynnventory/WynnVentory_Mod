@@ -1,11 +1,6 @@
 const fs = require("fs");
 
 exports.preCommit = (props) => {
-    console.log(
-        "⚙️  preCommit() props →",
-        JSON.stringify(props, null, 2)
-    );
-
     const replace = (path, searchValue, replaceValue) => {
         let content = fs.readFileSync(path, "utf-8");
         if (content.match(searchValue)) {
