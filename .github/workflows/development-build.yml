@@ -47,6 +47,7 @@ jobs:
           pre-commit: ./.github/pre-commit.js
           config-file-path: ./.github/config.js
           skip-git-pull: true
+          skip-version-file: true
           pre-release: true
           pre-release-identifier: dev
           output-file: false
