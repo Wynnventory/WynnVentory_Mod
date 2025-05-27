@@ -28,10 +28,11 @@ jobs:
           
       - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 22
+
       - run: |
-          npm install conventional-changelog-conventionalcommits@7.0.2
-          npm install conventional-recommended-bump@9.0.0
+          npm install conventional-changelog-conventionalcommits@9.0.0
+          npm install conventional-recommended-bump@11.1.0
 
       - name: Set up package.json
         run: |
@@ -40,14 +41,14 @@ jobs:
 
       - name: Create changelog
         id: changelog
-        uses: TriPSs/conventional-changelog-action@v6.0.0
+        uses: TriPSs/conventional-changelog-action@v6
         with:
+          github-token: '${{ secrets.BOT_PAT }}'
           pre-commit: ./.github/pre-commit.js
           config-file-path: ./.github/config.js
           skip-git-pull: true
-          skip-bump: false
           pre-release: false
-          output-file: false
+          pre-release-identifier: dev
 
       - name: Upload build.gradle with replaced version
         uses: actions/upload-artifact@v4
@@ -70,19 +71,30 @@ jobs:
       with:
         token: ${{ secrets.BOT_PAT }}
         fetch-depth: 0
+
     - uses: actions/download-artifact@v4 # Download version information from changelog
       with:
         name: build
+
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*','**/gradle-wrapper.properties') }}
+        restore-keys: ${{ runner.os }}-gradle-
 
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
-        server-id: github
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        cache-disabled: true
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -120,7 +132,6 @@ jobs:
         path: ${{ github.workspace }}
 
     - name: Create release and upload files
-      if: ${{ needs.changelog.outputs.skipped != 'true' }}
       id: release
       uses: softprops/action-gh-release@v2
       with:
@@ -137,7 +148,7 @@ jobs:
         echo "::set-output name=long::$(date +'%Y-%m-%d %H:%M')"
         
     - name: Post release on Discord
-      uses: tsickert/discord-webhook@v6.0.0
+      uses: tsickert/discord-webhook@v7.0.0
       with:
        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
        embed-color: "9498256"
@@ -194,7 +205,6 @@ jobs:
             ref: release
             fetch-depth: 0
             token: ${{ secrets.BOT_PAT }}
-
   
         - name: Pull Changes
           run: git pull
