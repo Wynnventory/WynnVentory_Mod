@@ -1,9 +1,0 @@
-{
-  "packages": {
-    ".": {
-      "release-type": "node",
-      "prerelease": true,
-      "include-component-in-tag": false
-    }
-  }
-}
