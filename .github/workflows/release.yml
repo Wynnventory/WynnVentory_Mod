@@ -28,13 +28,20 @@ jobs:
           
       - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 22
       - run: |
           npm install conventional-changelog-conventionalcommits@7.0.2
           npm install conventional-recommended-bump@9.0.0
 
-      - name: Set up version.json
-        run: echo "{"version":$(git describe --tags --abbrev=0)}" > version.json
+      - name: Set up package.json if missing
+        run: |
+          if [ ! -f package.json ]; then
+            echo "package.json not found, bootstrapping from latest tag…"
+            TAG=$(git describe --tags --abbrev=0)
+            printf '{\n  "version": "%s"\n}\n' "$TAG" > package.json
+          else
+            echo "package.json already exists, skipping"
+          fi
 
       - name: Create changelog
         id: changelog
@@ -42,12 +49,9 @@ jobs:
         with:
           pre-commit: ./.github/pre-commit.js
           config-file-path: ./.github/config.js
-          version-file: ./version.json
-          skip-version-file: true
           skip-git-pull: true
           skip-bump: false
           pre-release: false
-          output-file: false
 
       - name: Upload build.gradle with replaced version
         uses: actions/upload-artifact@v4
@@ -70,9 +74,20 @@ jobs:
       with:
         token: ${{ secrets.BOT_PAT }}
         fetch-depth: 0
+
     - uses: actions/download-artifact@v4 # Download version information from changelog
       with:
         name: build
+
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*','**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
 
     - name: Set up JDK 21
       uses: actions/setup-java@v4
@@ -82,7 +97,9 @@ jobs:
         server-id: github
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        cache-disabled: true
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -133,18 +150,18 @@ jobs:
     - name: Set current date
       id: date
       run: |
-        echo "::set-output name=short::$(date +'%Y-%m-%d')"
-        echo "::set-output name=long::$(date +'%Y-%m-%d %H:%M')"
+        echo "short=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+        echo "long=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
         
     - name: Post release on Discord
-      uses: tsickert/discord-webhook@v6.0.0
+      uses: tsickert/discord-webhook@v7
       with:
-       webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-       embed-color: "9498256"
-       embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
-       embed-description: ${{ needs.changelog.outputs.changelog }}
-       embed-url: ${{ steps.release.outputs.url }}
-       embed-timestamp: ${{ steps.date.outputs.long }}
+        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        embed-color: "9498256"
+        embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
+        embed-description: ${{ needs.changelog.outputs.changelog }}
+        embed-url: ${{ steps.release.outputs.url }}
+        embed-timestamp: ${{ steps.date.outputs.long }}
 
   release-external:
     name: Release to Modrinth and Curseforge
