@@ -53,9 +53,7 @@ public class IconManager {
                 throw new IOException("Unexpected response code: " + resp.statusCode());
             }
 
-            Type mapType = new TypeToken<Map<String, JsonObject>>() {
-            }.getType();
-            return GSON.fromJson(resp.body(), mapType);
+            return parseAndStripUnicodeKeys(resp.body());
         } catch (InterruptedException | IOException e) {
             ModInfo.logError("Could not fetch JSON from " + url, e);
             return Map.of();
@@ -130,5 +128,27 @@ public class IconManager {
         }
 
         return flattenedMap;
+    }
+
+    public static Map<String, JsonObject> parseAndStripUnicodeKeys(String jsonBody) {
+        Type mapType = new TypeToken<Map<String, JsonObject>>() {}.getType();
+        Map<String, JsonObject> original = GSON.fromJson(jsonBody, mapType);
+
+        Map<String, JsonObject> cleaned = new HashMap<>();
+        for (Map.Entry<String, JsonObject> entry : original.entrySet()) {
+            String rawKey = entry.getKey();
+            // "\\P{ASCII}" matches any character NOT in the ASCII range (0x00 – 0x7F).
+            // Replacing all \P{ASCII} with "" leaves only ASCII characters behind.
+            String strippedKey = rawKey.replaceAll("\\P{ASCII}", "");
+
+            if (cleaned.containsKey(strippedKey)) {
+                ModInfo.logWarn("Key collision after stripping Unicode: " + strippedKey);
+                continue;
+            }
+
+            cleaned.put(strippedKey, entry.getValue());
+        }
+
+        return cleaned;
     }
 }
