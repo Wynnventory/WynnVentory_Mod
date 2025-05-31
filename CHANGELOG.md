@@ -1,4 +1,4 @@
-## [1.1.2](https://github.com/Wynnventory/WynnVentory_Mod/compare/v1.1.2-dev.0...v1.1.2) (2025-05-31)
+## [1.1.3](https://github.com/Wynnventory/WynnVentory_Mod/compare/v1.1.2-dev.0...v1.1.3) (2025-05-31)
 
 ## [1.1.2-dev.0](https://github.com/Wynnventory/WynnVentory_Mod/compare/v1.1.1...v1.1.2-dev.0) (2025-05-31)
 
