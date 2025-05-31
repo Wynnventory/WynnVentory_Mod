@@ -158,7 +158,7 @@ jobs:
         echo "long=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
 
     - name: Post release on Discord
-      uses: tsickert/discord-webhook@v7
+      uses: tsickert/discord-webhook@v7.0.0
       with:
        webhook-url: ${{ secrets.DISCORD_DEV_RELEASE_WEBHOOK_URL }}
        embed-color: "9498256"
