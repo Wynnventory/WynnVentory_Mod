@@ -113,7 +113,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
         TradeMarketItem tradeMarketItem = TradeMarketItem.from(item);
         if (tradeMarketItem != null && !marketItemBuffer.contains(tradeMarketItem)) {
-                marketItemBuffer.add(tradeMarketItem);
+            marketItemBuffer.add(tradeMarketItem);
         }
     }
 
