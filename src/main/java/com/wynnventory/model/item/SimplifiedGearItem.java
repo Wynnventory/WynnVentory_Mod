@@ -2,6 +2,9 @@ package com.wynnventory.model.item;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wynntils.models.gear.GearModel;
+import com.wynntils.models.gear.type.GearInstance;
+import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.stats.type.ShinyStat;
 import com.wynntils.models.stats.type.StatActualValue;
@@ -9,6 +12,7 @@ import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynnventory.model.stat.ActualStatWithPercentage;
 import com.wynnventory.util.IconManager;
 import com.wynnventory.util.ItemStackUtils;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +30,10 @@ public class SimplifiedGearItem extends SimplifiedItem {
         super(item.getName(), item.getGearTier().getName(), "GearItem", item.getGearType().name());
         this.unidentified = item.isUnidentified();
         this.rerollCount = item.getRerollCount();
-        this.shinyStat = item.getShinyStat();
+
+        GearInstance gearInstance = new GearModel().parseInstance(item.getItemInfo(), (ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY));
+        this.shinyStat = Optional.of(gearInstance.shinyStat()).orElse(Optional.empty());
+
         this.icon = IconManager.getIcon(this.name);
 
         final List<StatActualValue> actualValues = item.getIdentifications();
