@@ -1,6 +1,7 @@
 package com.wynnventory.model.item;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.ModInfo;
 
@@ -12,6 +13,7 @@ public abstract class CrowdSourcedData {
     protected String playerName;
     protected String modVersion;
 
+    @JsonProperty("timestamp")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     protected LocalDateTime collectionTime;
 
