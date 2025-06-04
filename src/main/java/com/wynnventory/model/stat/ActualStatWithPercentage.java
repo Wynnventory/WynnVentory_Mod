@@ -3,6 +3,7 @@ package com.wynnventory.model.stat;
 import com.wynntils.models.stats.StatCalculator;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
+import com.wynntils.utils.type.RangedValue;
 
 import java.util.Objects;
 
@@ -15,12 +16,34 @@ public class ActualStatWithPercentage {
         this.possibleValues = possibleValues;
     }
 
-    public String getStatName() {
-        return statActualValue.statType().getKey();
+    public String getDisplayName() {
+        return statActualValue.statType().getDisplayName();
     }
 
-    public int getValue() {
+    public String getApiName() {
+        return statActualValue.statType().getApiName();
+    }
+
+    public int getStatRoll() {
         return statActualValue.value();
+    }
+
+    public RangedValue getStatRange() {
+        if(possibleValues == null) return null;
+
+        return possibleValues.range();
+    }
+
+    public String getUnit() {
+        return statActualValue.statType().getUnit().name();
+    }
+
+    public int getStars() {
+        return statActualValue.stars();
+    }
+
+    public RangedValue getInternalRoll() {
+        return statActualValue.internalRoll();
     }
 
     public String getActualRollPercentage() {
@@ -36,8 +59,7 @@ public class ActualStatWithPercentage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof ActualStatWithPercentage other) {
-            return Objects.equals(getStatName(), other.getStatName()) &&
-                    Objects.equals(getActualRollPercentage(), other.getActualRollPercentage());
+            return Objects.equals(statActualValue, other.statActualValue);
         }
 
         return false;
@@ -45,7 +67,7 @@ public class ActualStatWithPercentage {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getStatName(), getActualRollPercentage());
+        return Objects.hash(getApiName(), getActualRollPercentage());
     }
 
 
