@@ -3,6 +3,7 @@ package com.wynnventory.mixin;
 import com.wynntils.core.components.Models;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.items.WynnItem;
+import com.wynntils.models.items.items.gui.GambitItem;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.utils.mc.McUtils;
 import com.wynntils.utils.render.FontRenderer;
@@ -59,8 +60,7 @@ public abstract class TooltipMixin {
         String title = screen.getTitle().getString();
         if (MARKET_TITLE.equalsIgnoreCase(title)) {
             enqueueForMarket(stack);
-        }
-        else if (PARTY_FINDER_TITLE.equalsIgnoreCase(title)) {
+        } else if (PARTY_FINDER_TITLE.equalsIgnoreCase(title)) {
             renderPartyFinderAspects(guiGraphics, mouseX, mouseY, stack);
         }
     }
@@ -151,6 +151,11 @@ public abstract class TooltipMixin {
     @Unique
     private void enqueueForMarket(ItemStack stack) {
         accessor.addItemToTrademarketQueue(stack);
+    }
+
+    @Unique
+    private void enqueueGambit(GambitItem gambitItem) {
+        accessor.addItemToGambitQueue(gambitItem);
     }
 
     @Unique

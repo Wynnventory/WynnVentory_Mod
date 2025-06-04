@@ -53,12 +53,10 @@ public class SimplifiedGearItem extends SimplifiedItem {
         return shinyStat;
     }
 
-    @JsonIgnore
     public int getRerollCount() {
         return rerollCount;
     }
 
-    @JsonIgnore
     public List<ActualStatWithPercentage> getActualStatsWithPercentage() {
         return actualStatsWithPercentage;
     }
