@@ -24,12 +24,14 @@ public class SimplifiedGearItem extends SimplifiedItem {
     private final boolean unidentified;
     private final int rerollCount;
     private final Optional<ShinyStat> shinyStat;
+    private final float overallRollPercentage;
     private final List<ActualStatWithPercentage> actualStatsWithPercentage = new ArrayList<>();
 
     public SimplifiedGearItem(GearItem item) {
         super(item.getName(), item.getGearTier().getName(), "GearItem", item.getGearType().name());
         this.unidentified = item.isUnidentified();
         this.rerollCount = item.getRerollCount();
+        this.overallRollPercentage = item.getOverallPercentage();
 
         GearInstance gearInstance = new GearModel().parseInstance(item.getItemInfo(), (ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY));
         this.shinyStat = Optional.of(gearInstance.shinyStat()).orElse(Optional.empty());
@@ -53,12 +55,14 @@ public class SimplifiedGearItem extends SimplifiedItem {
         return shinyStat;
     }
 
-    @JsonIgnore
+    public float getOverallRollPercentage() {
+        return overallRollPercentage;
+    }
+
     public int getRerollCount() {
         return rerollCount;
     }
 
-    @JsonIgnore
     public List<ActualStatWithPercentage> getActualStatsWithPercentage() {
         return actualStatsWithPercentage;
     }

@@ -16,24 +16,19 @@ import java.util.Set;
 import java.util.function.ToIntFunction;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Lootpool {
+public class Lootpool extends CrowdSourcedData {
     private final Set<LootpoolItem> items = new HashSet<>();
     private String region;
-    private String playerName;
-    private String modVersion;
     private RegionType type;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime collectionTime;
+    public Lootpool() {
+        super();
+    }
 
-    public Lootpool() { }
-
-    public Lootpool(Region region, String playerName, String modVersion) {
+    public Lootpool(Region region) {
+        super();
         this.region = region.getShortName();
         this.type   = region.getRegionType();
-        this.playerName = playerName;
-        this.modVersion = modVersion;
-        this.collectionTime = LocalDateTime.now(ZoneOffset.UTC);
     }
 
     public void addItem(LootpoolItem item) {
@@ -64,22 +59,6 @@ public class Lootpool {
         this.region = region;
     }
 
-    public String getPlayerName() {
-        return playerName;
-    }
-
-    public void setPlayerName(String playerName) {
-        this.playerName = playerName;
-    }
-
-    public String getModVersion() {
-        return modVersion;
-    }
-
-    public void setModVersion(String modVersion) {
-        this.modVersion = modVersion;
-    }
-
     public RegionType getType() {
         return type;
     }
@@ -87,10 +66,6 @@ public class Lootpool {
     public void setType(RegionType type) {
         this.type = type;
     }
-
-    public String getCollectionTime() { return collectionTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); }
-
-    public void setCollectionTime(LocalDateTime collectionTime) { this.collectionTime = collectionTime; }
 
     @JsonIgnore
     public List<LootpoolItem> getMythics() {

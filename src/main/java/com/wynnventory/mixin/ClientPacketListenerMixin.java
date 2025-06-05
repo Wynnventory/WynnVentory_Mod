@@ -1,5 +1,7 @@
 package com.wynnventory.mixin;
 
+import com.wynntils.core.components.Models;
+import com.wynntils.models.items.items.gui.GambitItem;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.accessor.ItemQueueAccessor;
 import com.wynnventory.core.ModInfo;
@@ -7,6 +9,7 @@ import com.wynnventory.enums.Region;
 import com.wynnventory.enums.RegionType;
 import com.wynnventory.model.item.Lootpool;
 import com.wynnventory.model.item.LootpoolItem;
+import com.wynnventory.model.item.SimplifiedGambitItem;
 import com.wynnventory.model.item.TradeMarketItem;
 import com.wynnventory.util.FavouriteNotifier;
 import com.wynnventory.util.ModUpdater;
@@ -36,11 +39,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl implements ItemQueueAccessor {
     private static final int CONTAINER_SLOTS = 54;
-
     private static int JOIN_COUNTER = 0;
+    private static final String RAID_WINDOW_TITLE = "󏿡";
 
     @Unique
     private final List<TradeMarketItem> marketItemBuffer = new ArrayList<>();
+
+    @Unique
+    private final List<SimplifiedGambitItem> gambitItemBuffer = new ArrayList<>();
+
     @Unique
     private final Map<String, Lootpool> lootpoolBuffer = new ConcurrentHashMap<>();
     @Unique
@@ -84,23 +91,29 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
             String title = containerScreen.getTitle().getString();
             Region region = Region.getRegionByInventoryTitle(title);
 
-            if (region == null) return;
-
             List<ItemStack> items = new ArrayList<>();
             List<ItemStack> packetItems = packet.getItems();
 
             for (int i = 0; i < CONTAINER_SLOTS; i++) {
                 ItemStack item = packetItems.get(i);
                 if (!item.isEmpty() && item.getItem() != Items.COMPASS) {
+                    if (RAID_WINDOW_TITLE.equalsIgnoreCase(title)) {
+                        Models.Item.getWynnItem(item).ifPresent(wynnItem -> {
+                            if (wynnItem instanceof GambitItem gambitItem) {
+                                addItemToGambitQueue(gambitItem);
+                            }
+                        });
+                    }
+
                     items.add(item);
                 }
             }
 
-            if (ModInfo.isDev()) {
+            if (ModInfo.isDev() && region != null) {
                 McUtils.sendMessageToClient(Component.literal(region.getRegionType() + " DETECTED. Region is " + region.getShortName()));
             }
 
-            if(region.getRegionType() != null) {
+            if (region != null && region.getRegionType() != null) {
                 addItemsToLootpoolQueue(region, items);
             }
         }
@@ -118,16 +131,25 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     }
 
     @Override
+    public void addItemToGambitQueue(GambitItem gambitItem) {
+        SimplifiedGambitItem item = new SimplifiedGambitItem(gambitItem);
+
+        if (!gambitItemBuffer.contains(item)) {
+            gambitItemBuffer.add(item);
+        }
+    }
+
+    @Override
     public void addItemsToLootpoolQueue(Region region, List<ItemStack> items) {
         String shortName = region.getShortName();
 
-        if(region.getRegionType() == RegionType.LOOTRUN) {
+        if (region.getRegionType() == RegionType.LOOTRUN) {
             lootpoolBuffer.computeIfAbsent(shortName,
-                            k -> new Lootpool(region, McUtils.playerName(), ModInfo.VERSION))
-                .addItems(LootpoolItem.createLootpoolItemsFromItemStack(items));
-        } else if(region.getRegionType() == RegionType.RAID) {
+                            k -> new Lootpool(region))
+                    .addItems(LootpoolItem.createLootpoolItemsFromItemStack(items));
+        } else if (region.getRegionType() == RegionType.RAID) {
             raidpoolBuffer.computeIfAbsent(shortName,
-                            k -> new Lootpool(region, McUtils.playerName(), ModInfo.VERSION))
+                            k -> new Lootpool(region))
                     .addItems(LootpoolItem.createLootpoolItemsFromItemStack(items));
         }
     }
@@ -135,6 +157,11 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     @Override
     public List<TradeMarketItem> getQueuedMarketItems() {
         return marketItemBuffer;
+    }
+
+    @Override
+    public List<SimplifiedGambitItem> getQueuedGambitItems() {
+        return gambitItemBuffer;
     }
 
     @Override

@@ -8,6 +8,7 @@ public enum Endpoint {
     LOOTPOOL_CURRENT           ("lootpool/current"),
     RAIDPOOL_ITEMS             ("raidpool/items"),
     RAIDPOOL_CURRENT           ("raidpool/current"),
+    RAIDPOOL_GAMBITS           ("raidpool/gambits"),
     TRADE_MARKET_PRICE         ("trademarket/item/%s/price?tier=%d"),
     TRADE_MARKET_HISTORY_LATEST("trademarket/history/%s/price?tier=%d");
 

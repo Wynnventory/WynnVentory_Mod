@@ -18,13 +18,13 @@ public class WynnventoryScheduler {
     private WynnventoryScheduler() {}
 
     public static void startScheduledTask() {
-        scheduler.scheduleAtFixedRate(WynnventoryScheduler::processMarketAndLootItems, 1, SEND_DELAY_MINS, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(WynnventoryScheduler::processBufferQueues, 1, SEND_DELAY_MINS, TimeUnit.MINUTES);
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> WynnventoryScheduler.stopScheduledTask());
     }
 
     public static void stopScheduledTask() {
         ModInfo.logInfo("Shutdown detected...");
-        processMarketAndLootItems();
+        processBufferQueues();
         scheduler.shutdown();
 
         try {
@@ -36,7 +36,7 @@ public class WynnventoryScheduler {
         }
     }
 
-    private static void processMarketAndLootItems() {
+    private static void processBufferQueues() {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.getConnection() != null) {
             ItemQueueAccessor accessor = (ItemQueueAccessor) minecraft.getConnection();
@@ -54,6 +54,11 @@ public class WynnventoryScheduler {
             if (!accessor.getQueuedRaidpools().isEmpty()) {
                 API.sendRaidpoolData(accessor.getQueuedRaidpools().values().stream().toList());
                 accessor.getQueuedRaidpools().clear();
+            }
+
+            if(!accessor.getQueuedGambitItems().isEmpty()) {
+                API.sendGambitItems(accessor.getQueuedGambitItems());
+                accessor.getQueuedGambitItems().clear();
             }
         }
     }

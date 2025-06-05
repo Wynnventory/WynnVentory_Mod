@@ -3,6 +3,7 @@ package com.wynnventory.mixin;
 import com.wynntils.core.components.Models;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.items.WynnItem;
+import com.wynntils.models.items.items.gui.GambitItem;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.utils.mc.McUtils;
 import com.wynntils.utils.render.FontRenderer;
