@@ -34,6 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Mixin(ClientPacketListener.class)
@@ -85,38 +86,45 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     @Inject(method = "handleContainerContent", at = @At("RETURN"))
     private void handleContainerContent(ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
         Screen currentScreen = Minecraft.getInstance().screen;
-        if (currentScreen == null || packet.getContainerId() <= 0) return;
+        if (!(currentScreen instanceof AbstractContainerScreen<?> containerScreen) || packet.getContainerId() <= 0)
+            return;
 
-        if (currentScreen instanceof AbstractContainerScreen<?> containerScreen) {
-            String title = containerScreen.getTitle().getString();
-            Region region = Region.getRegionByInventoryTitle(title);
+        String title = containerScreen.getTitle().getString();
+        List<ItemStack> packetItems = packet.getItems();
 
-            List<ItemStack> items = new ArrayList<>();
-            List<ItemStack> packetItems = packet.getItems();
-
-            for (int i = 0; i < CONTAINER_SLOTS && i < packetItems.size(); i++) {
-                ItemStack item = packetItems.get(i);
-                if (!item.isEmpty() && item.getItem() != Items.COMPASS) {
-                    if (RAID_WINDOW_TITLE.equalsIgnoreCase(title)) {
-                        Models.Item.getWynnItem(item).ifPresent(wynnItem -> {
-                            if (wynnItem instanceof GambitItem gambitItem) {
-                                addItemToGambitQueue(gambitItem);
-                            }
-                        });
-                    }
-
-                    items.add(item);
-                }
-            }
-
-            if (ModInfo.isDev() && region != null) {
-                McUtils.sendMessageToClient(Component.literal(region.getRegionType() + " DETECTED. Region is " + region.getShortName()));
-            }
-
-            if (region != null && region.getRegionType() != null) {
-                addItemsToLootpoolQueue(region, items);
-            }
+        Region region = Region.getRegionByInventoryTitle(title);
+        if (region != null && region.getRegionType() != null) {
+            handleRewardContainer(region, packetItems);
+        } else if (RAID_WINDOW_TITLE.equalsIgnoreCase(title)) {
+            handleRaidWindowContainer(packetItems);
         }
+    }
+
+    @Unique
+    private void handleRewardContainer(Region region, List<ItemStack> items) {
+        if (ModInfo.isDev()) {
+            McUtils.sendMessageToClient(Component.literal(region.getRegionType() + " DETECTED. Region is " + region.getShortName()));
+        }
+
+        List<ItemStack> filtered = items.stream()
+                .limit(CONTAINER_SLOTS)
+                .filter(item -> !item.isEmpty() && item.getItem() != Items.COMPASS)
+                .toList();
+
+        addItemsToLootpoolQueue(region, filtered);
+    }
+
+    @Unique
+    private void handleRaidWindowContainer(List<ItemStack> items) {
+        items.stream()
+                .limit(CONTAINER_SLOTS)
+                .filter(item -> !item.isEmpty() && item.getItem() != Items.COMPASS)
+                .map(Models.Item::getWynnItem)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(GambitItem.class::isInstance)
+                .map(GambitItem.class::cast)
+                .forEach(this::addItemToGambitQueue);
     }
 
     @Override
