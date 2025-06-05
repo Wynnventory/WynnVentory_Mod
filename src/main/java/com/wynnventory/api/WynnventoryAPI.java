@@ -3,10 +3,8 @@ package com.wynnventory.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.wynntils.models.items.items.gui.GambitItem;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.enums.RegionType;
 import com.wynnventory.model.item.*;
@@ -16,7 +14,6 @@ import java.net.URI;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class WynnventoryAPI {
     private static final ObjectMapper MAPPER = createObjectMapper();
@@ -69,7 +66,7 @@ public class WynnventoryAPI {
                     .uri(HttpUtil.encodeName(name), tier);
             ModInfo.logInfo("Fetching market data from {} endpoint.", ModInfo.isDev() ? "DEV" : "PROD");
             HttpResponse<String> resp = HttpUtil.sendHttpGetRequest(uri);
-            return handleResponse(resp, this::parsePriceInfoResponse, null);
+            return handleResponse(resp, this::parsePriceInfoResponse);
         } catch (Exception e) {
             ModInfo.logError("Failed to fetch item price", e);
             return null;
@@ -82,7 +79,9 @@ public class WynnventoryAPI {
         try {
             ModInfo.logInfo("Fetching {} lootpools from {} endpoint.", type, ModInfo.isDev() ? "DEV" : "PROD");
             HttpResponse<String> resp = HttpUtil.sendHttpGetRequest(uri);
-            return handleResponse(resp, this::parseLootpoolResponse, List.of()).getRegions();
+
+            RewardWeek result = handleResponse(resp, this::parseLootpoolResponse);
+            return result != null ? result.getRegions() : List.of();
         } catch (Exception e) {
             ModInfo.logError("Failed to fetch lootpools", e);
             return List.of();
@@ -99,26 +98,21 @@ public class WynnventoryAPI {
                     .uri(HttpUtil.encodeName(name), tier);
             ModInfo.logInfo("Fetching history from {} endpoint.", ModInfo.isDev() ? "DEV" : "PROD");
             HttpResponse<String> resp = HttpUtil.sendHttpGetRequest(uri);
-            return handleResponse(resp, this::parsePriceInfoResponse, null);
+            return handleResponse(resp, this::parsePriceInfoResponse);
         } catch (Exception e) {
             ModInfo.logError("Failed to fetch historic price", e);
             return null;
         }
     }
 
-    private <T> T handleResponse(HttpResponse<String> resp,
-                                 Function<String, T> on200,
-                                 Object returnOn404) {
-        return handleResponse(resp, on200, returnOn404);
-    }
-
-    private <T> T handleResponse(HttpResponse<String> resp, Function<String, T> on200, Supplier<T> on404) {
-        if (resp.statusCode() == 200)      return on200.apply(resp.body());
-        else if (resp.statusCode() == 404) return on404.get();
-        else {
+    private <T> T handleResponse(HttpResponse<String> resp, Function<String, T> on200) {
+        if (resp.statusCode() == 200) {
+            return on200.apply(resp.body());
+        } else {
             ModInfo.logError("API error ({}): {}", resp.statusCode(), resp.body());
-            return on404.get();
         }
+
+        return null;
     }
 
     private void post(URI uri, Object payload) {
