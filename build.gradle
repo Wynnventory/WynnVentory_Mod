@@ -4,7 +4,7 @@ plugins {
 	id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
-version = "1.1.3"
+version = "1.2.0-dev.0"
 group = project.maven_group
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -54,7 +54,7 @@ dependencies {
 		parchment("org.parchmentmc.data:parchment-${parchment_version}@zip")
 	}
 
-	modImplementation "maven.modrinth:wynntils:${project.wynntils_version}-fabric"
+	modImplementation "maven.modrinth:wynntils:v${project.wynntils_version}-fabric"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")

@@ -17,19 +17,16 @@ import java.util.Objects;
 import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TradeMarketItem {
+public class TradeMarketItem extends CrowdSourcedData {
     private final SimplifiedItem item;
     private final int listingPrice;
     private final int amount;
-    private final String playerName;
-    private final String modVersion;
 
     protected TradeMarketItem(SimplifiedItem item, int listingPrice, int amount) {
+        super();
         this.item = item;
         this.listingPrice = listingPrice;
         this.amount = amount;
-        this.playerName = McUtils.playerName();
-        this.modVersion = ModInfo.VERSION;
     }
 
     public static TradeMarketItem from(ItemStack itemStack) {
@@ -61,14 +58,6 @@ public class TradeMarketItem {
 
     public int getAmount() {
         return amount;
-    }
-
-    public String getPlayerName() {
-        return playerName;
-    }
-
-    public String getModVersion() {
-        return modVersion;
     }
 
     public SimplifiedItem getItem() {
