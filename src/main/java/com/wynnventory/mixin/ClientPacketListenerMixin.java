@@ -94,7 +94,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
             List<ItemStack> items = new ArrayList<>();
             List<ItemStack> packetItems = packet.getItems();
 
-            for (int i = 0; i < CONTAINER_SLOTS; i++) {
+            for (int i = 0; i < CONTAINER_SLOTS && i < packetItems.size(); i++) {
                 ItemStack item = packetItems.get(i);
                 if (!item.isEmpty() && item.getItem() != Items.COMPASS) {
                     if (RAID_WINDOW_TITLE.equalsIgnoreCase(title)) {
