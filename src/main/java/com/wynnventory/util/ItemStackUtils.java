@@ -2,14 +2,14 @@ package com.wynnventory.util;
 
 import com.wynntils.core.components.Models;
 import com.wynntils.core.text.StyledText;
-import com.wynntils.models.elements.type.PowderTierInfo;
 import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.gear.type.GearType;
-import com.wynntils.models.ingredients.type.IngredientTierFormatting;
 import com.wynntils.models.items.WynnItem;
+import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
+import com.wynntils.utils.MathUtils;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.model.item.trademarket.TradeMarketItemPriceHolder;
@@ -49,6 +49,10 @@ public class ItemStackUtils {
         }
     }
 
+    public static String getWynntilsOriginalNameAsString(WynnItem item) {
+        return Objects.requireNonNull(ItemStackUtils.getWynntilsOriginalName(item.getData().get(WynnItemData.ITEMSTACK_KEY))).getLastPart().getComponent().getString();
+    }
+
     public static List<Component> getTooltips(ItemStack itemStack) {
         Optional<WynnItem> maybeItem = Models.Item.getWynnItem(itemStack);
         List<Component> tooltipLines = new ArrayList<>();
@@ -60,12 +64,14 @@ public class ItemStackUtils {
             case GearBoxItem gearBoxItem when !gearBoxItem.getGearType().equals(GearType.MASTERY_TOME) ->
                     processGearBox(gearBoxItem, tooltipLines);
             case IngredientItem ingredientItem ->
-                    processCrafting(ingredientItem.getName(), ingredientItem.getName(), ingredientItem.getQualityTier(), ChatFormatting.GRAY, tooltipLines);
+                    processTiered(ingredientItem.getName(), ingredientItem.getQualityTier(), ChatFormatting.GRAY, tooltipLines);
             case PowderItem powderItem ->
-                    processSimple(getPowderName(powderItem), powderItem.getTier(), ChatFormatting.GRAY, tooltipLines);
+                    processTiered(getPowderName(powderItem), powderItem.getTier(), powderItem.getPowderProfile().element().getLightColor(), tooltipLines);
+            case AmplifierItem amplifierItem ->
+                    processTiered(getAmplifierName(amplifierItem), amplifierItem.getTier(), amplifierItem.getGearTier().getChatFormatting(), tooltipLines);
             case MaterialItem materialItem -> {
                 String materialKey = getMaterialKey(materialItem);
-                processCrafting(getMaterialName(materialItem), materialKey, materialItem.getQualityTier(), ChatFormatting.WHITE, tooltipLines);
+                processTiered(getMaterialName(materialItem), materialKey, materialItem.getQualityTier(), ChatFormatting.WHITE, tooltipLines);
             }
             default -> {
                 return tooltipLines;
@@ -116,27 +122,21 @@ public class ItemStackUtils {
         }
     }
 
-    private static void processCrafting(String displayName, String itemKey, int tier, ChatFormatting color, List<Component> tooltipLines) {
+    private static void processTiered(String displayName, int tier, ChatFormatting color, List<Component> tooltipLines) {
+        processTiered(displayName, displayName,tier, color, tooltipLines);
+    }
+
+
+    private static void processTiered(String displayName, String itemKey, int tier, ChatFormatting color, List<Component> tooltipLines) {
         tooltipLines.addFirst(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
 
         fetchPrices(itemKey,
                 () -> wynnventoryAPI.fetchItemPrice(displayName, tier),
                 () -> wynnventoryAPI.fetchLatestHistoricItemPrice(displayName, tier));
 
-        String name = displayName + " " + IngredientTierFormatting.fromTierNum(tier).getTierString();
+        String name = displayName + " " + MathUtils.toRoman(tier);
         tooltipLines.addAll(createTooltip(name, itemKey, color, null));
         removeExpiredPrices(itemKey);
-    }
-
-    private static void processSimple(String displayName, int tier, ChatFormatting color, List<Component> tooltipLines) {
-        tooltipLines.addFirst(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
-
-        fetchPrices(displayName,
-                () -> wynnventoryAPI.fetchItemPrice(displayName, tier),
-                () -> wynnventoryAPI.fetchLatestHistoricItemPrice(displayName, tier));
-
-        tooltipLines.addAll(createTooltip(displayName, color, null));
-        removeExpiredPrices(displayName);
     }
 
     private static void fetchPrices(String itemKey, Supplier<TradeMarketItemPriceInfo> currentPriceSupplier, Supplier<TradeMarketItemPriceInfo> historicPriceSupplier) {
@@ -186,11 +186,30 @@ public class ItemStackUtils {
     public static String getMaterialName(MaterialItem item) {
         String source = item.getMaterialProfile().getSourceMaterial().name();
         String resource = item.getMaterialProfile().getResourceType().name();
-        return StringUtils.toCamelCase(source + " " + resource);
+        return StringUtils.toCamelCase(source + " " + resource, " ");
     }
 
     public static String getPowderName(PowderItem item) {
-        return item.getName().replaceAll("[✹✦❉❋✤]", "").trim();
+        return item.getPowderProfile().element().getName() + " Powder";
+    }
+
+    public static String getPowderType(PowderItem item) {
+        return StringUtils.toCamelCase(getPowderName(item));
+    }
+
+    public static String getAmplifierName(AmplifierItem item) {
+        String name = getWynntilsOriginalNameAsString(item);
+        String[] nameParts = name.split(" ");
+
+        if (nameParts.length > 1) {
+            return nameParts[0] + " " + nameParts[1];
+        }
+
+        return name;
+    }
+
+    public static String getAmplifierType(AmplifierItem item) {
+        return StringUtils.toCamelCase(getAmplifierName(item));
     }
 
     private record PriceHolderPair(String itemKey, TradeMarketItemPriceHolder currentHolder,

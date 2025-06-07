@@ -1,10 +1,12 @@
 package com.wynnventory.model.item.simplified;
 
+import com.wynntils.models.items.items.game.AmplifierItem;
 import com.wynntils.models.items.items.game.IngredientItem;
 import com.wynntils.models.items.items.game.MaterialItem;
 import com.wynntils.models.items.items.game.PowderItem;
 import com.wynnventory.util.IconManager;
 import com.wynnventory.util.ItemStackUtils;
+import com.wynnventory.util.StringUtils;
 
 import java.util.Objects;
 
@@ -43,10 +45,20 @@ public class SimplifiedTieredItem extends SimplifiedItem {
         this.icon = IconManager.getIcon(this.name, this.tier);
     }
 
+    public SimplifiedTieredItem(AmplifierItem amplifierItem) {
+        super();
+
+        this.name = ItemStackUtils.getAmplifierName(amplifierItem);
+        this.rarity = amplifierItem.getGearTier().getName();
+        this.itemType = "AmplifierItem";
+        this.type = StringUtils.toCamelCase(this.name);
+        this.tier = amplifierItem.getTier();
+        this.icon = IconManager.getIcon(this.name, this.tier);
+    }
+
     public int getTier() {
         return tier;
     }
-
 
     @Override
     public boolean equals(Object o) {
