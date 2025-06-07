@@ -6,6 +6,7 @@ import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.gear.type.GearRestrictions;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.gear.type.GearType;
+import com.wynntils.models.ingredients.type.IngredientTierFormatting;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
@@ -64,15 +65,13 @@ public class ItemStackUtils {
             case GearBoxItem gearBoxItem when !gearBoxItem.getGearType().equals(GearType.MASTERY_TOME) ->
                     processGearBox(gearBoxItem, tooltipLines);
             case IngredientItem ingredientItem ->
-                    processTiered(ingredientItem.getName(), ingredientItem.getQualityTier(), ChatFormatting.GRAY, tooltipLines);
+                    processCrafting(ingredientItem.getName(), ingredientItem.getQualityTier(), ChatFormatting.GRAY, tooltipLines);
+            case MaterialItem materialItem ->
+                    processCrafting(getMaterialName(materialItem), materialItem.getQualityTier(), ChatFormatting.WHITE, tooltipLines);
             case PowderItem powderItem ->
                     processTiered(getPowderName(powderItem), powderItem.getTier(), powderItem.getPowderProfile().element().getLightColor(), tooltipLines);
             case AmplifierItem amplifierItem ->
                     processTiered(getAmplifierName(amplifierItem), amplifierItem.getTier(), amplifierItem.getGearTier().getChatFormatting(), tooltipLines);
-            case MaterialItem materialItem -> {
-                String materialKey = getMaterialKey(materialItem);
-                processTiered(getMaterialName(materialItem), materialKey, materialItem.getQualityTier(), ChatFormatting.WHITE, tooltipLines);
-            }
             default -> {
                 return tooltipLines;
             }
@@ -122,19 +121,37 @@ public class ItemStackUtils {
         }
     }
 
-    private static void processTiered(String displayName, int tier, ChatFormatting color, List<Component> tooltipLines) {
-        processTiered(displayName, displayName,tier, color, tooltipLines);
-    }
-
-
-    private static void processTiered(String displayName, String itemKey, int tier, ChatFormatting color, List<Component> tooltipLines) {
+    private static void processCrafting(String displayName, int tier, ChatFormatting color, List<Component> tooltipLines) {
         tooltipLines.addFirst(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
 
+        String itemKey = displayName + "_" + tier;
+        fetchPrices(itemKey,
+                () -> wynnventoryAPI.fetchItemPrice(displayName, tier),
+                () -> wynnventoryAPI.fetchLatestHistoricItemPrice(displayName, tier));
+        
+        String name = displayName;
+        if(tier > 0) {
+             name = displayName + " " + IngredientTierFormatting.fromTierNum(tier).getTierString();
+        }
+
+        tooltipLines.addAll(createTooltip(name, itemKey, color, null));
+        removeExpiredPrices(itemKey);
+    }
+
+    private static void processTiered(String displayName, int tier, ChatFormatting color, List<Component> tooltipLines) {
+        tooltipLines.addFirst(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
+
+        String itemKey = displayName + " " + tier;
         fetchPrices(itemKey,
                 () -> wynnventoryAPI.fetchItemPrice(displayName, tier),
                 () -> wynnventoryAPI.fetchLatestHistoricItemPrice(displayName, tier));
 
-        String name = displayName + " " + MathUtils.toRoman(tier);
+
+        String name = displayName;
+        if(tier > 0) {
+            name = displayName + " " + MathUtils.toRoman(tier);
+        }
+
         tooltipLines.addAll(createTooltip(name, itemKey, color, null));
         removeExpiredPrices(itemKey);
     }
@@ -215,9 +232,5 @@ public class ItemStackUtils {
     private record PriceHolderPair(String itemKey, TradeMarketItemPriceHolder currentHolder,
                                    TradeMarketItemPriceHolder historicHolder) {
 
-    }
-
-    private static String getMaterialKey(MaterialItem item) {
-        return getMaterialName(item) + item.getQualityTier();
     }
 }
