@@ -1,4 +1,4 @@
-package com.wynnventory.model.item;
+package com.wynnventory.model.item.trademarket;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,9 +7,13 @@ import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.items.items.game.IngredientItem;
 import com.wynntils.models.items.items.game.MaterialItem;
+import com.wynntils.models.items.items.game.PowderItem;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
-import com.wynntils.utils.mc.McUtils;
-import com.wynnventory.core.ModInfo;
+import com.wynnventory.model.item.CrowdSourcedData;
+import com.wynnventory.model.item.simplified.SimplifiedTieredItem;
+import com.wynnventory.model.item.simplified.SimplifiedGearItem;
+import com.wynnventory.model.item.simplified.SimplifiedItem;
+import com.wynnventory.model.item.simplified.SimplifiedTieredItem;
 import com.wynnventory.util.TradeMarketPriceParser;
 import net.minecraft.world.item.ItemStack;
 
@@ -41,12 +45,16 @@ public class TradeMarketItem extends CrowdSourcedData {
             return new TradeMarketItem(new SimplifiedGearItem(gearItem), priceInfo.price(), priceInfo.amount());
         }
 
-        if (wynnItem instanceof IngredientItem ingredientItem) {
-            return new TradeMarketItem(new SimplifiedCraftingItem(ingredientItem), priceInfo.price(), priceInfo.amount());
+        else if (wynnItem instanceof IngredientItem ingredientItem) {
+            return new TradeMarketItem(new SimplifiedTieredItem(ingredientItem), priceInfo.price(), priceInfo.amount());
         }
 
-        if (wynnItem instanceof MaterialItem materialItem) {
-            return new TradeMarketItem(new SimplifiedCraftingItem(materialItem), priceInfo.price(), priceInfo.amount());
+        else if (wynnItem instanceof MaterialItem materialItem) {
+            return new TradeMarketItem(new SimplifiedTieredItem(materialItem), priceInfo.price(), priceInfo.amount());
+        }
+
+        else if (wynnItem instanceof PowderItem powderItem) {
+            return new TradeMarketItem(new SimplifiedTieredItem(powderItem), priceInfo.price(), priceInfo.amount());
         }
 
         return null;

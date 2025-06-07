@@ -1,4 +1,4 @@
-package com.wynnventory.model.item;
+package com.wynnventory.model.item.trademarket;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

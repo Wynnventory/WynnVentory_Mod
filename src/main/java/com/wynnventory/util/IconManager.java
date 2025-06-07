@@ -60,6 +60,10 @@ public class IconManager {
         }
     }
 
+    public static Icon getIcon(String name, int tier) {
+        return getIcon(name + " " + tier);
+    }
+
     public static Icon getIcon(String name) {
         JsonObject entry = allEntries.get(name.replaceFirst("^Shiny ", ""));
         if (entry == null) {

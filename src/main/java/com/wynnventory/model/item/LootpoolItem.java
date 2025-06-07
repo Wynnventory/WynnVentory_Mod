@@ -95,7 +95,7 @@ public class LootpoolItem {
         } else if (wynnItem instanceof RuneItem runeItem) {
             this.type = runeItem.getType().name();
         } else if (wynnItem instanceof PowderItem powderItem) {
-            this.name = powderItem.getName().replaceAll("[✹✦❉❋✤]", "").trim();
+            this.name = ItemStackUtils.getPowderName(powderItem);
             this.type = powderItem.getPowderProfile().element().getName() + this.type;
         } else if (wynnItem instanceof AmplifierItem amplifierItem) {
             this.rarity = amplifierItem.getGearTier().getName();

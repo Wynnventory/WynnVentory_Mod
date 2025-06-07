@@ -1,7 +1,8 @@
-package com.wynnventory.model.item;
+package com.wynnventory.model.item.simplified;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wynnventory.model.item.Icon;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class SimplifiedItem {
@@ -11,11 +12,18 @@ public abstract class SimplifiedItem {
     protected String type;
     protected Icon icon;
 
+    public SimplifiedItem() {}
+
     protected SimplifiedItem(String name, String rarity, String itemType, String type) {
+        this(name, rarity, itemType, type, null);
+    }
+
+    protected SimplifiedItem(String name, String rarity, String itemType, String type, Icon icon) {
         this.name = name;
         this.rarity = rarity;
         this.itemType = itemType;
         this.type = type;
+        this.icon = icon;
     }
 
     public String getName() {
