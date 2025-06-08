@@ -89,6 +89,8 @@ public class ItemStackUtils {
                     processTiered(getPowderName(powderItem), powderItem.getTier(), powderItem.getPowderProfile().element().getLightColor(), tooltipLines);
             case AmplifierItem amplifierItem ->
                     processTiered(getAmplifierName(amplifierItem), amplifierItem.getTier(), amplifierItem.getGearTier().getChatFormatting(), tooltipLines);
+            case HorseItem horseItem ->
+                    processTiered(getHorseName(horseItem), horseItem.getTier().getNumeral(), GearTier.NORMAL.getChatFormatting(), tooltipLines);
             case InsulatorItem insulatorItem ->
                 processSimple(ItemStackUtils.getWynntilsOriginalNameAsString(insulatorItem), insulatorItem.getGearTier().getChatFormatting(), tooltipLines, false);
             case SimulatorItem simulatorItem ->
@@ -248,6 +250,10 @@ public class ItemStackUtils {
 
     public static String getAmplifierType(AmplifierItem item) {
         return StringUtils.toCamelCase(getAmplifierName(item));
+    }
+
+    public static String getHorseName(HorseItem item) {
+        return item.getName().orElse(getWynntilsOriginalNameAsString(item));
     }
 
     public static String getRollPercentColor(Float rollPercent) {

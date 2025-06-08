@@ -1,9 +1,6 @@
 package com.wynnventory.model.item.simplified;
 
-import com.wynntils.models.items.items.game.AmplifierItem;
-import com.wynntils.models.items.items.game.IngredientItem;
-import com.wynntils.models.items.items.game.MaterialItem;
-import com.wynntils.models.items.items.game.PowderItem;
+import com.wynntils.models.items.items.game.*;
 import com.wynnventory.util.IconManager;
 import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.StringUtils;
@@ -53,6 +50,17 @@ public class SimplifiedTieredItem extends SimplifiedItem {
         this.itemType = "AmplifierItem";
         this.type = StringUtils.toCamelCase(this.name);
         this.tier = amplifierItem.getTier();
+        this.icon = IconManager.getIcon(this.name, this.tier);
+    }
+
+    public SimplifiedTieredItem(HorseItem horseItem) {
+        super();
+
+        this.name = ItemStackUtils.getHorseName(horseItem);
+        this.rarity = "Normal";
+        this.itemType = "HorseItem";
+        this.type = StringUtils.toCamelCase(this.name);
+        this.tier = horseItem.getTier().getNumeral();
         this.icon = IconManager.getIcon(this.name, this.tier);
     }
 

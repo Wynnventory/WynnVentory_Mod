@@ -65,6 +65,10 @@ public class TradeMarketItem extends CrowdSourcedData {
             return new TradeMarketItem(new SimplifiedItem(simulatorItem), priceInfo.price(), priceInfo.amount());
         }
 
+        else if (wynnItem instanceof HorseItem horseItem) {
+            return new TradeMarketItem(new SimplifiedTieredItem(horseItem), priceInfo.price(), priceInfo.amount());
+        }
+
         return null;
     }
 
