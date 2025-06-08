@@ -8,16 +8,17 @@ import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.gear.type.GearType;
 import com.wynntils.models.ingredients.type.IngredientTierFormatting;
 import com.wynntils.models.items.WynnItem;
-import com.wynntils.models.items.items.game.GearBoxItem;
-import com.wynntils.models.items.items.game.GearItem;
-import com.wynntils.models.items.items.game.IngredientItem;
-import com.wynntils.models.items.items.game.MaterialItem;
+import com.wynntils.models.items.WynnItemData;
+import com.wynntils.models.items.items.game.*;
+import com.wynntils.utils.MathUtils;
+import com.wynntils.utils.wynn.ColorScaleUtils;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.core.ModInfo;
-import com.wynnventory.model.item.TradeMarketItemPriceHolder;
-import com.wynnventory.model.item.TradeMarketItemPriceInfo;
+import com.wynnventory.model.item.trademarket.TradeMarketItemPriceHolder;
+import com.wynnventory.model.item.trademarket.TradeMarketItemPriceInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.item.ItemStack;
 
 import java.lang.reflect.Field;
@@ -40,6 +41,21 @@ public class ItemStackUtils {
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final WynnventoryAPI wynnventoryAPI = new WynnventoryAPI();
 
+    private static final NavigableMap<Float, TextColor> COLOR_MAP;
+    static {
+        float redThreshold  = 20f;
+        float aquaThreshold = 95f;
+
+        NavigableMap<Float, TextColor> m = new TreeMap<>();
+        m.put(redThreshold,  TextColor.fromLegacyFormat(ChatFormatting.RED));
+        m.put(80f,           TextColor.fromLegacyFormat(ChatFormatting.YELLOW));
+        m.put(aquaThreshold, TextColor.fromLegacyFormat(ChatFormatting.GREEN));
+        m.put(Float.MAX_VALUE, TextColor.fromLegacyFormat(ChatFormatting.AQUA));
+
+        // Optional: make it truly immutable
+        COLOR_MAP = Collections.unmodifiableNavigableMap(m);
+    }
+
     public static StyledText getWynntilsOriginalName(ItemStack itemStack) {
         try {
             Field originalNameField = ItemStack.class.getDeclaredField("wynntilsOriginalName");
@@ -51,6 +67,10 @@ public class ItemStackUtils {
         }
     }
 
+    public static String getWynntilsOriginalNameAsString(WynnItem item) {
+        return Objects.requireNonNull(ItemStackUtils.getWynntilsOriginalName(item.getData().get(WynnItemData.ITEMSTACK_KEY))).getLastPart().getComponent().getString();
+    }
+
     public static List<Component> getTooltips(ItemStack itemStack) {
         Optional<WynnItem> maybeItem = Models.Item.getWynnItem(itemStack);
         List<Component> tooltipLines = new ArrayList<>();
@@ -58,15 +78,29 @@ public class ItemStackUtils {
         if (maybeItem.isEmpty()) return tooltipLines;
         switch (maybeItem.get()) {
             case GearItem gearItem ->
-                    processGear(gearItem.getItemInfo(), gearItem.getName(), gearItem.getGearTier().getChatFormatting(), tooltipLines);
+                    processSimple(gearItem.getName(), gearItem.getGearTier().getChatFormatting(), tooltipLines, gearItem.getItemInfo().metaInfo().restrictions() == GearRestrictions.UNTRADABLE);
             case GearBoxItem gearBoxItem when !gearBoxItem.getGearType().equals(GearType.MASTERY_TOME) ->
                     processGearBox(gearBoxItem, tooltipLines);
             case IngredientItem ingredientItem ->
-                    processCrafting(ingredientItem.getName(), ingredientItem.getName(), ingredientItem.getQualityTier(), ChatFormatting.GRAY, tooltipLines);
-            case MaterialItem materialItem -> {
-                String materialKey = getMaterialKey(materialItem);
-                processCrafting(getMaterialName(materialItem), materialKey, materialItem.getQualityTier(), ChatFormatting.WHITE, tooltipLines);
-            }
+                    processCrafting(ingredientItem.getName(), ingredientItem.getQualityTier(), ChatFormatting.GRAY, tooltipLines);
+            case MaterialItem materialItem ->
+                    processCrafting(getMaterialName(materialItem), materialItem.getQualityTier(), ChatFormatting.WHITE, tooltipLines);
+            case PowderItem powderItem ->
+                    processTiered(getPowderName(powderItem), powderItem.getTier(), powderItem.getPowderProfile().element().getLightColor(), tooltipLines);
+            case AmplifierItem amplifierItem ->
+                    processTiered(getAmplifierName(amplifierItem), amplifierItem.getTier(), amplifierItem.getGearTier().getChatFormatting(), tooltipLines);
+            case HorseItem horseItem ->
+                    processTiered(getHorseName(horseItem), horseItem.getTier().getNumeral(), GearTier.NORMAL.getChatFormatting(), tooltipLines);
+            case EmeraldPouchItem emeraldPouchItem ->
+                    processTiered(emeraldPouchItem.getName(), emeraldPouchItem.getName() + " " + emeraldPouchItem.getTier(), emeraldPouchItem.getTier(), GearTier.NORMAL.getChatFormatting(), tooltipLines);
+            case InsulatorItem insulatorItem ->
+                processSimple(ItemStackUtils.getWynntilsOriginalNameAsString(insulatorItem), insulatorItem.getGearTier().getChatFormatting(), tooltipLines);
+            case SimulatorItem simulatorItem ->
+                processSimple(ItemStackUtils.getWynntilsOriginalNameAsString(simulatorItem), simulatorItem.getGearTier().getChatFormatting(), tooltipLines);
+            case RuneItem runeItem ->
+                    processSimple(ItemStackUtils.getWynntilsOriginalNameAsString(runeItem), GearTier.NORMAL.getChatFormatting(), tooltipLines);
+            case DungeonKeyItem dungeonKeyItem ->
+                    processSimple(ItemStackUtils.getWynntilsOriginalNameAsString(dungeonKeyItem), GearTier.NORMAL.getChatFormatting(), tooltipLines);
             default -> {
                 return tooltipLines;
             }
@@ -75,13 +109,17 @@ public class ItemStackUtils {
         return tooltipLines;
     }
 
-    private static void processGear(GearInfo gearInfo, String itemName, ChatFormatting color, List<Component> tooltipLines) {
+    private static void processSimple(String itemName, ChatFormatting color, List<Component> tooltipLines) {
+        processSimple(itemName, color, tooltipLines, false);
+    }
+
+    private static void processSimple(String itemName, ChatFormatting color, List<Component> tooltipLines, boolean untradable) {
         tooltipLines.addFirst(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
         fetchPrices(itemName,
                 () -> wynnventoryAPI.fetchItemPrice(itemName),
-                () -> gearInfo.metaInfo().restrictions() == GearRestrictions.UNTRADABLE ? UNTRADABLE : wynnventoryAPI.fetchLatestHistoricItemPrice(itemName)
+                () -> untradable ? UNTRADABLE : wynnventoryAPI.fetchLatestHistoricItemPrice(itemName)
         );
-        tooltipLines.addAll(createTooltip(itemName, color, gearInfo.metaInfo().restrictions()));
+        tooltipLines.addAll(createTooltip(itemName, color, untradable));
         removeExpiredPrices(itemName);
     }
 
@@ -110,22 +148,42 @@ public class ItemStackUtils {
         PriceTooltipHelper.sortTradeMarketPriceHolders(priceHolders);
         for (TradeMarketItemPriceHolder holder : priceHolders) {
             String itemKey = holder.getItemName();
-            tooltipLines.addAll(createTooltip(itemKey, color, null));
+            tooltipLines.addAll(createTooltip(itemKey, color, false));
             tooltipLines.add(Component.literal("")); // spacer
             removeExpiredPrices(itemKey);
         }
     }
 
-    private static void processCrafting(String displayName, String itemKey, int tier, ChatFormatting color, List<Component> tooltipLines) {
+    private static void processCrafting(String displayName, int tier, ChatFormatting color, List<Component> tooltipLines) {
         tooltipLines.addFirst(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
 
+        String itemKey = displayName + "_" + tier;
         fetchPrices(itemKey,
                 () -> wynnventoryAPI.fetchItemPrice(displayName, tier),
                 () -> wynnventoryAPI.fetchLatestHistoricItemPrice(displayName, tier));
 
-        String name = displayName + " " + IngredientTierFormatting.fromTierNum(tier).getTierString();
-        tooltipLines.addAll(createTooltip(name, itemKey, color, null));
+        String name = displayName;
+        if (tier > 0) {
+            name = displayName + " " + IngredientTierFormatting.fromTierNum(tier).getTierString();
+        }
+
+        tooltipLines.addAll(createTooltip(name, itemKey, color, false));
         removeExpiredPrices(itemKey);
+    }
+
+    private static void processTiered(String displayName, int tier, ChatFormatting color, List<Component> tooltipLines) {
+        processTiered(displayName + " " + MathUtils.toRoman(tier), displayName + " " + tier, tier, color, tooltipLines);
+    }
+
+    private static void processTiered(String displayName, String key, int tier, ChatFormatting color, List<Component> tooltipLines) {
+        tooltipLines.addFirst(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
+
+        fetchPrices(key,
+                () -> wynnventoryAPI.fetchItemPrice(displayName, tier),
+                () -> wynnventoryAPI.fetchLatestHistoricItemPrice(displayName, tier));
+
+        tooltipLines.addAll(createTooltip(displayName, key, color, false));
+        removeExpiredPrices(key);
     }
 
     private static void fetchPrices(String itemKey, Supplier<TradeMarketItemPriceInfo> currentPriceSupplier, Supplier<TradeMarketItemPriceInfo> historicPriceSupplier) {
@@ -140,15 +198,15 @@ public class ItemStackUtils {
         });
     }
 
-    private static List<Component> createTooltip(String itemKey, ChatFormatting color, GearRestrictions restrictions) {
-        return createTooltip(itemKey, itemKey, color, restrictions);
+    private static List<Component> createTooltip(String itemKey, ChatFormatting color, boolean untradable) {
+        return createTooltip(itemKey, itemKey, color, untradable);
     }
 
-    private static List<Component> createTooltip(String displayName, String itemKey, ChatFormatting color, GearRestrictions restrictions) {
+    private static List<Component> createTooltip(String displayName, String itemKey, ChatFormatting color, boolean untradable) {
         PriceHolderPair holders = priceCache.get(itemKey);
         TradeMarketItemPriceInfo currentInfo = holders.currentHolder.getPriceInfo();
 
-        if (restrictions == GearRestrictions.UNTRADABLE || currentInfo == UNTRADABLE) {
+        if (untradable || currentInfo == UNTRADABLE) {
             return Collections.singletonList(Component.literal("Item is untradable.").withStyle(ChatFormatting.RED));
         }
         if (currentInfo == FETCHING) {
@@ -172,17 +230,54 @@ public class ItemStackUtils {
                 .orElse(ChatFormatting.WHITE);
     }
 
-    private record PriceHolderPair(String itemKey, TradeMarketItemPriceHolder currentHolder,
-                                   TradeMarketItemPriceHolder historicHolder) {
-    }
-
-    private static String getMaterialName(MaterialItem item) {
+    public static String getMaterialName(MaterialItem item) {
         String source = item.getMaterialProfile().getSourceMaterial().name();
         String resource = item.getMaterialProfile().getResourceType().name();
-        return StringUtils.toCamelCase(source + " " + resource);
+        return StringUtils.toCamelCase(source + " " + resource, " ");
     }
 
-    private static String getMaterialKey(MaterialItem item) {
-        return getMaterialName(item) + item.getQualityTier();
+    public static String getPowderName(PowderItem item) {
+        return item.getPowderProfile().element().getName() + " Powder";
+    }
+
+    public static String getPowderType(PowderItem item) {
+        return StringUtils.toCamelCase(getPowderName(item));
+    }
+
+    public static String getAmplifierName(AmplifierItem item) {
+        String name = getWynntilsOriginalNameAsString(item);
+        String[] nameParts = name.split(" ");
+
+        if (nameParts.length > 1) {
+            return nameParts[0] + " " + nameParts[1];
+        }
+
+        return name;
+    }
+
+    public static String getAmplifierType(AmplifierItem item) {
+        return StringUtils.toCamelCase(getAmplifierName(item));
+    }
+
+    public static String getHorseName(HorseItem item) {
+        return item.getName().orElse(getWynntilsOriginalNameAsString(item));
+    }
+
+    public static String getRollPercentColor(Float rollPercent) {
+        try {
+            int colorValue = ColorScaleUtils.getPercentageTextComponent(
+                    COLOR_MAP,
+                    rollPercent,
+                    true,
+                    1).getStyle().getColor().getValue();
+            return String.format("#%06X", 0xFFFFFF & colorValue);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private record PriceHolderPair(String itemKey, TradeMarketItemPriceHolder currentHolder,
+                                   TradeMarketItemPriceHolder historicHolder) {
+
     }
 }

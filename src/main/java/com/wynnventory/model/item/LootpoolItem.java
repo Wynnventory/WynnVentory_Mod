@@ -62,7 +62,7 @@ public class LootpoolItem {
 
     public LootpoolItem(WynnItem wynnItem) {
         this.itemType = wynnItem.getClass().getSimpleName();
-        this.name = Objects.requireNonNull(ItemStackUtils.getWynntilsOriginalName(wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY))).getLastPart().getComponent().getString();
+        this.name = ItemStackUtils.getWynntilsOriginalNameAsString(wynnItem);
         this.amount = ((ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
         this.name = name.replace("Unidentified ", "");
         this.type = wynnItem.getClass().getSimpleName().replace("Item", "");
@@ -95,15 +95,11 @@ public class LootpoolItem {
         } else if (wynnItem instanceof RuneItem runeItem) {
             this.type = runeItem.getType().name();
         } else if (wynnItem instanceof PowderItem powderItem) {
-            this.name = powderItem.getName().replaceAll("[✹✦❉❋✤]", "").trim();
-            this.type = powderItem.getPowderProfile().element().getName() + this.type;
+            this.name = ItemStackUtils.getPowderName(powderItem);
+            this.type = ItemStackUtils.getPowderType(powderItem);
         } else if (wynnItem instanceof AmplifierItem amplifierItem) {
             this.rarity = amplifierItem.getGearTier().getName();
-            String[] nameParts = this.name.split(" ");
-
-            if (nameParts.length > 1) {
-                this.type = nameParts[0] + nameParts[1];
-            }
+            this.type = ItemStackUtils.getAmplifierType(amplifierItem);
         }
     }
 

@@ -1,7 +1,7 @@
 package com.wynnventory.core;
 
-import com.wynnventory.config.ConfigManager;
 import com.wynnventory.api.WynnventoryScheduler;
+import com.wynnventory.config.ConfigManager;
 import com.wynnventory.util.IconManager;
 import com.wynnventory.util.LootpoolManager;
 import me.shedaniel.autoconfig.AutoConfig;

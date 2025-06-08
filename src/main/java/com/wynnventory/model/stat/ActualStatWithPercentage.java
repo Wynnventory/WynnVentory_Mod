@@ -1,13 +1,10 @@
 package com.wynnventory.model.stat;
 
-import com.wynntils.features.tooltips.ItemStatInfoFeature;
-import com.wynntils.handlers.tooltip.type.TooltipStyle;
 import com.wynntils.models.stats.StatCalculator;
-import com.wynntils.models.stats.StatListOrderer;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
-import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.type.RangedValue;
+import com.wynnventory.util.ItemStackUtils;
 
 import java.util.Objects;
 
@@ -42,15 +39,6 @@ public class ActualStatWithPercentage {
         return statActualValue.statType().getUnit().name();
     }
 
-    public String getRollPercentageColor() {
-        try {
-            int colorValue = new ItemStatInfoFeature().getDecorator().getSuffix(statActualValue, possibleValues, new TooltipStyle(null, false, false, false, false)).getStyle().getColor().getValue();
-            return String.format("#%06X", 0xFFFFFF & colorValue);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     public int getStars() {
         return statActualValue.stars();
     }
@@ -59,13 +47,12 @@ public class ActualStatWithPercentage {
         return statActualValue.internalRoll();
     }
 
-    public String getRollPercentage() {
-        if (possibleValues == null) return "NaN";
-        float percent = StatCalculator.getPercentage(statActualValue, possibleValues);
-        if (Float.isInfinite(percent) || Float.isNaN(percent)) {
-            return "NaN";
-        }
-        return StatCalculator.getPercentage(statActualValue, possibleValues)+"%";
+    public float getRollPercentage() {
+        return StatCalculator.getPercentage(statActualValue, possibleValues);
+    }
+
+    public String getRollPercentageColor() {
+        return ItemStackUtils.getRollPercentColor(getRollPercentage());
     }
 
     @Override

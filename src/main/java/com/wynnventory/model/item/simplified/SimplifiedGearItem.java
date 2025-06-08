@@ -1,6 +1,5 @@
-package com.wynnventory.model.item;
+package com.wynnventory.model.item.simplified;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wynntils.models.gear.GearModel;
 import com.wynntils.models.gear.type.GearInstance;
@@ -28,15 +27,18 @@ public class SimplifiedGearItem extends SimplifiedItem {
     private final List<ActualStatWithPercentage> actualStatsWithPercentage = new ArrayList<>();
 
     public SimplifiedGearItem(GearItem item) {
-        super(item.getName(), item.getGearTier().getName(), "GearItem", item.getGearType().name());
+        super(item.getName(),
+                item.getGearTier().getName(),
+                "GearItem",
+                item.getGearType().name(),
+                IconManager.getIcon(item.getName()));
+
         this.unidentified = item.isUnidentified();
         this.rerollCount = item.getRerollCount();
         this.overallRollPercentage = item.getOverallPercentage();
 
         GearInstance gearInstance = new GearModel().parseInstance(item.getItemInfo(), (ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY));
         this.shinyStat = Optional.of(gearInstance.shinyStat()).orElse(Optional.empty());
-
-        this.icon = IconManager.getIcon(this.name);
 
         final List<StatActualValue> actualValues = item.getIdentifications();
         final List<StatPossibleValues> possibleValues = item.getPossibleValues();
@@ -57,6 +59,10 @@ public class SimplifiedGearItem extends SimplifiedItem {
 
     public float getOverallRollPercentage() {
         return overallRollPercentage;
+    }
+
+    public String getOverallRollPercentageColor() {
+        return ItemStackUtils.getRollPercentColor(getOverallRollPercentage());
     }
 
     public int getRerollCount() {

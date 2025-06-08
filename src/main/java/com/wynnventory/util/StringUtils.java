@@ -8,10 +8,14 @@ public class StringUtils {
     private StringUtils() {}
 
     public static String toCamelCase(String input) {
+        return toCamelCase(input, "");
+    }
+
+    public static String toCamelCase(String input, String delimiter) {
         if (input == null || input.isBlank()) return input;
         return Arrays.stream(input.trim().split("\\s+"))
                 .map(StringUtils::capitalize)
-                .collect(Collectors.joining(" "));
+                .collect(Collectors.joining(delimiter));
     }
 
     public static String capitalize(String str) {

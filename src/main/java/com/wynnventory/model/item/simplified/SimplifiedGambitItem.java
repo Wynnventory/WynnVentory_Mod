@@ -1,8 +1,9 @@
-package com.wynnventory.model.item;
+package com.wynnventory.model.item.simplified;
 
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.items.items.gui.GambitItem;
 import com.wynntils.utils.colors.CustomColor;
+import com.wynnventory.model.item.CrowdSourcedData;
 
 import java.util.ArrayList;
 import java.util.List;
