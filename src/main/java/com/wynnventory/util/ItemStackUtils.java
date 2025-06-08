@@ -91,6 +91,8 @@ public class ItemStackUtils {
                     processTiered(getAmplifierName(amplifierItem), amplifierItem.getTier(), amplifierItem.getGearTier().getChatFormatting(), tooltipLines);
             case HorseItem horseItem ->
                     processTiered(getHorseName(horseItem), horseItem.getTier().getNumeral(), GearTier.NORMAL.getChatFormatting(), tooltipLines);
+            case EmeraldPouchItem emeraldPouchItem ->
+                    processTiered(emeraldPouchItem.getName(), emeraldPouchItem.getName() + " " + emeraldPouchItem.getTier(), emeraldPouchItem.getTier(), GearTier.NORMAL.getChatFormatting(), tooltipLines);
             case InsulatorItem insulatorItem ->
                 processSimple(ItemStackUtils.getWynntilsOriginalNameAsString(insulatorItem), insulatorItem.getGearTier().getChatFormatting(), tooltipLines, false);
             case SimulatorItem simulatorItem ->
@@ -162,21 +164,18 @@ public class ItemStackUtils {
     }
 
     private static void processTiered(String displayName, int tier, ChatFormatting color, List<Component> tooltipLines) {
+        processTiered(displayName + " " + MathUtils.toRoman(tier), displayName + " " + tier, tier, color, tooltipLines);
+    }
+
+    private static void processTiered(String displayName, String key, int tier, ChatFormatting color, List<Component> tooltipLines) {
         tooltipLines.addFirst(Component.literal(TITLE_TEXT).withStyle(ChatFormatting.GOLD));
 
-        String itemKey = displayName + " " + tier;
-        fetchPrices(itemKey,
+        fetchPrices(key,
                 () -> wynnventoryAPI.fetchItemPrice(displayName, tier),
                 () -> wynnventoryAPI.fetchLatestHistoricItemPrice(displayName, tier));
 
-
-        String name = displayName;
-        if (tier > 0) {
-            name = displayName + " " + MathUtils.toRoman(tier);
-        }
-
-        tooltipLines.addAll(createTooltip(name, itemKey, color, false));
-        removeExpiredPrices(itemKey);
+        tooltipLines.addAll(createTooltip(displayName, key, color, false));
+        removeExpiredPrices(key);
     }
 
     private static void fetchPrices(String itemKey, Supplier<TradeMarketItemPriceInfo> currentPriceSupplier, Supplier<TradeMarketItemPriceInfo> historicPriceSupplier) {

@@ -64,6 +64,17 @@ public class SimplifiedTieredItem extends SimplifiedItem {
         this.icon = IconManager.getIcon(this.name, this.tier);
     }
 
+    public SimplifiedTieredItem(EmeraldPouchItem emeraldPouchItem) {
+        super();
+
+        this.name = "Emerald Pouch";
+        this.rarity = "Normal";
+        this.itemType = "EmeraldPouchItem";
+        this.type = StringUtils.toCamelCase(this.name);
+        this.tier = emeraldPouchItem.getTier();
+        this.icon = IconManager.getIcon(this.name, this.tier);
+    }
+
     public int getTier() {
         return tier;
     }

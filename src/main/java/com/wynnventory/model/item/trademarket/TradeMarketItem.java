@@ -37,39 +37,28 @@ public class TradeMarketItem extends CrowdSourcedData {
         TradeMarketPriceInfo priceInfo = TradeMarketPriceParser.calculateItemPriceInfo(itemStack);
         WynnItem wynnItem = wynnItemOptional.get();
 
-        if (wynnItem instanceof GearItem gearItem) {
-            return new TradeMarketItem(new SimplifiedGearItem(gearItem), priceInfo.price(), priceInfo.amount());
-        }
+        return switch (wynnItem) {
+            case GearItem gearItem ->
+                    new TradeMarketItem(new SimplifiedGearItem(gearItem), priceInfo.price(), priceInfo.amount());
+            case IngredientItem ingredientItem ->
+                    new TradeMarketItem(new SimplifiedTieredItem(ingredientItem), priceInfo.price(), priceInfo.amount());
+            case MaterialItem materialItem ->
+                    new TradeMarketItem(new SimplifiedTieredItem(materialItem), priceInfo.price(), priceInfo.amount());
+            case PowderItem powderItem ->
+                    new TradeMarketItem(new SimplifiedTieredItem(powderItem), priceInfo.price(), priceInfo.amount());
+            case AmplifierItem amplifierItem ->
+                    new TradeMarketItem(new SimplifiedTieredItem(amplifierItem), priceInfo.price(), priceInfo.amount());
+            case InsulatorItem insulatorItem ->
+                    new TradeMarketItem(new SimplifiedItem(insulatorItem), priceInfo.price(), priceInfo.amount());
+            case SimulatorItem simulatorItem ->
+                    new TradeMarketItem(new SimplifiedItem(simulatorItem), priceInfo.price(), priceInfo.amount());
+            case HorseItem horseItem ->
+                    new TradeMarketItem(new SimplifiedTieredItem(horseItem), priceInfo.price(), priceInfo.amount());
+            case EmeraldPouchItem emeraldPouchItem ->
+                    new TradeMarketItem(new SimplifiedTieredItem(emeraldPouchItem), priceInfo.price(), priceInfo.amount());
+            default -> null;
+        };
 
-        else if (wynnItem instanceof IngredientItem ingredientItem) {
-            return new TradeMarketItem(new SimplifiedTieredItem(ingredientItem), priceInfo.price(), priceInfo.amount());
-        }
-
-        else if (wynnItem instanceof MaterialItem materialItem) {
-            return new TradeMarketItem(new SimplifiedTieredItem(materialItem), priceInfo.price(), priceInfo.amount());
-        }
-
-        else if (wynnItem instanceof PowderItem powderItem) {
-            return new TradeMarketItem(new SimplifiedTieredItem(powderItem), priceInfo.price(), priceInfo.amount());
-        }
-
-        else if (wynnItem instanceof AmplifierItem amplifierItem) {
-            return new TradeMarketItem(new SimplifiedTieredItem(amplifierItem), priceInfo.price(), priceInfo.amount());
-        }
-
-        else if (wynnItem instanceof InsulatorItem insulatorItem) {
-            return new TradeMarketItem(new SimplifiedItem(insulatorItem), priceInfo.price(), priceInfo.amount());
-        }
-
-        else if (wynnItem instanceof SimulatorItem simulatorItem) {
-            return new TradeMarketItem(new SimplifiedItem(simulatorItem), priceInfo.price(), priceInfo.amount());
-        }
-
-        else if (wynnItem instanceof HorseItem horseItem) {
-            return new TradeMarketItem(new SimplifiedTieredItem(horseItem), priceInfo.price(), priceInfo.amount());
-        }
-
-        return null;
     }
 
     public int getListingPrice() {
