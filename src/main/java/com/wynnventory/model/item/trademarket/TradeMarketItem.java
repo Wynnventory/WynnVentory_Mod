@@ -56,9 +56,12 @@ public class TradeMarketItem extends CrowdSourcedData {
                     new TradeMarketItem(new SimplifiedTieredItem(horseItem), priceInfo.price(), priceInfo.amount());
             case EmeraldPouchItem emeraldPouchItem ->
                     new TradeMarketItem(new SimplifiedTieredItem(emeraldPouchItem), priceInfo.price(), priceInfo.amount());
+            case RuneItem runeItem ->
+                    new TradeMarketItem(new SimplifiedItem(runeItem), priceInfo.price(), priceInfo.amount());
+            case DungeonKeyItem dungeonKeyItem ->
+                    new TradeMarketItem(new SimplifiedItem(dungeonKeyItem), priceInfo.price(), priceInfo.amount());
             default -> null;
         };
-
     }
 
     public int getListingPrice() {

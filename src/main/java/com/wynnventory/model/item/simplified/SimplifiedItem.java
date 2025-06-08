@@ -2,7 +2,9 @@ package com.wynnventory.model.item.simplified;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wynntils.models.items.items.game.DungeonKeyItem;
 import com.wynntils.models.items.items.game.InsulatorItem;
+import com.wynntils.models.items.items.game.RuneItem;
 import com.wynntils.models.items.items.game.SimulatorItem;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.util.IconManager;
@@ -45,6 +47,22 @@ public class SimplifiedItem {
         this.name = ItemStackUtils.getWynntilsOriginalNameAsString(insulatorItem);
         this.rarity = insulatorItem.getGearTier().getName();
         this.itemType = "InsulatorItem";
+        this.type = StringUtils.toCamelCase(this.name);
+        this.icon = IconManager.getIcon(this.name);
+    }
+
+    public SimplifiedItem(RuneItem runeItem) {
+        this.name = ItemStackUtils.getWynntilsOriginalNameAsString(runeItem);
+        this.rarity = "Normal";
+        this.itemType = "RuneItem";
+        this.type = StringUtils.toCamelCase(this.name);
+        this.icon = IconManager.getIcon(this.name);
+    }
+
+    public SimplifiedItem(DungeonKeyItem dungeonKeyItem) {
+        this.name = ItemStackUtils.getWynntilsOriginalNameAsString(dungeonKeyItem);
+        this.rarity = "Normal";
+        this.itemType = "DungeonKeyItem";
         this.type = StringUtils.toCamelCase(this.name);
         this.icon = IconManager.getIcon(this.name);
     }

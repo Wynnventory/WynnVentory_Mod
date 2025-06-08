@@ -94,15 +94,23 @@ public class ItemStackUtils {
             case EmeraldPouchItem emeraldPouchItem ->
                     processTiered(emeraldPouchItem.getName(), emeraldPouchItem.getName() + " " + emeraldPouchItem.getTier(), emeraldPouchItem.getTier(), GearTier.NORMAL.getChatFormatting(), tooltipLines);
             case InsulatorItem insulatorItem ->
-                processSimple(ItemStackUtils.getWynntilsOriginalNameAsString(insulatorItem), insulatorItem.getGearTier().getChatFormatting(), tooltipLines, false);
+                processSimple(ItemStackUtils.getWynntilsOriginalNameAsString(insulatorItem), insulatorItem.getGearTier().getChatFormatting(), tooltipLines);
             case SimulatorItem simulatorItem ->
-                processSimple(ItemStackUtils.getWynntilsOriginalNameAsString(simulatorItem), simulatorItem.getGearTier().getChatFormatting(), tooltipLines, false);
+                processSimple(ItemStackUtils.getWynntilsOriginalNameAsString(simulatorItem), simulatorItem.getGearTier().getChatFormatting(), tooltipLines);
+            case RuneItem runeItem ->
+                    processSimple(ItemStackUtils.getWynntilsOriginalNameAsString(runeItem), GearTier.NORMAL.getChatFormatting(), tooltipLines);
+            case DungeonKeyItem dungeonKeyItem ->
+                    processSimple(ItemStackUtils.getWynntilsOriginalNameAsString(dungeonKeyItem), GearTier.NORMAL.getChatFormatting(), tooltipLines);
             default -> {
                 return tooltipLines;
             }
         }
 
         return tooltipLines;
+    }
+
+    private static void processSimple(String itemName, ChatFormatting color, List<Component> tooltipLines) {
+        processSimple(itemName, color, tooltipLines, false);
     }
 
     private static void processSimple(String itemName, ChatFormatting color, List<Component> tooltipLines, boolean untradable) {
