@@ -7,7 +7,6 @@ import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.items.game.*;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynnventory.model.item.CrowdSourcedData;
-import com.wynnventory.model.item.simplified.SimplifiedTieredItem;
 import com.wynnventory.model.item.simplified.SimplifiedGearItem;
 import com.wynnventory.model.item.simplified.SimplifiedItem;
 import com.wynnventory.model.item.simplified.SimplifiedTieredItem;

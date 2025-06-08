@@ -1,8 +1,6 @@
 package com.wynnventory.model.item.simplified;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.wynntils.core.components.Managers;
-import com.wynntils.features.tooltips.ItemStatInfoFeature;
 import com.wynntils.models.gear.GearModel;
 import com.wynntils.models.gear.type.GearInstance;
 import com.wynntils.models.items.WynnItemData;
@@ -10,7 +8,6 @@ import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.stats.type.ShinyStat;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
-import com.wynntils.utils.wynn.ColorScaleUtils;
 import com.wynnventory.model.stat.ActualStatWithPercentage;
 import com.wynnventory.util.IconManager;
 import com.wynnventory.util.ItemStackUtils;

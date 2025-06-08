@@ -1,17 +1,10 @@
 package com.wynnventory.model.stat;
 
-import com.wynntils.core.components.Managers;
-import com.wynntils.features.tooltips.ItemStatInfoFeature;
-import com.wynntils.handlers.tooltip.type.TooltipStyle;
 import com.wynntils.models.stats.StatCalculator;
-import com.wynntils.models.stats.StatListOrderer;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
-import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.type.RangedValue;
-import com.wynntils.utils.wynn.ColorScaleUtils;
 import com.wynnventory.util.ItemStackUtils;
-import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.Objects;
 
