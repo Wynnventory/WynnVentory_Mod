@@ -11,12 +11,14 @@ import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
 import com.wynntils.utils.MathUtils;
+import com.wynntils.utils.wynn.ColorScaleUtils;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.model.item.trademarket.TradeMarketItemPriceHolder;
 import com.wynnventory.model.item.trademarket.TradeMarketItemPriceInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.item.ItemStack;
 
 import java.lang.reflect.Field;
@@ -38,6 +40,21 @@ public class ItemStackUtils {
 
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final WynnventoryAPI wynnventoryAPI = new WynnventoryAPI();
+
+    private static final NavigableMap<Float, TextColor> COLOR_MAP;
+    static {
+        float redThreshold  = 20f;
+        float aquaThreshold = 95f;
+
+        NavigableMap<Float, TextColor> m = new TreeMap<>();
+        m.put(redThreshold,  TextColor.fromLegacyFormat(ChatFormatting.RED));
+        m.put(80f,           TextColor.fromLegacyFormat(ChatFormatting.YELLOW));
+        m.put(aquaThreshold, TextColor.fromLegacyFormat(ChatFormatting.GREEN));
+        m.put(Float.MAX_VALUE, TextColor.fromLegacyFormat(ChatFormatting.AQUA));
+
+        // Optional: make it truly immutable
+        COLOR_MAP = Collections.unmodifiableNavigableMap(m);
+    }
 
     public static StyledText getWynntilsOriginalName(ItemStack itemStack) {
         try {
@@ -231,6 +248,19 @@ public class ItemStackUtils {
 
     public static String getAmplifierType(AmplifierItem item) {
         return StringUtils.toCamelCase(getAmplifierName(item));
+    }
+
+    public static String getRollPercentColor(Float rollPercent) {
+        try {
+            int colorValue = ColorScaleUtils.getPercentageTextComponent(
+                    COLOR_MAP,
+                    rollPercent,
+                    true,
+                    1).getStyle().getColor().getValue();
+            return String.format("#%06X", 0xFFFFFF & colorValue);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private record PriceHolderPair(String itemKey, TradeMarketItemPriceHolder currentHolder,
