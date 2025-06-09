@@ -41,20 +41,17 @@ public class ItemStackUtils {
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final WynnventoryAPI wynnventoryAPI = new WynnventoryAPI();
 
-    private static final NavigableMap<Float, TextColor> COLOR_MAP;
-    static {
-        float redThreshold  = 20f;
-        float aquaThreshold = 95f;
-
-        NavigableMap<Float, TextColor> m = new TreeMap<>();
-        m.put(redThreshold,  TextColor.fromLegacyFormat(ChatFormatting.RED));
-        m.put(80f,           TextColor.fromLegacyFormat(ChatFormatting.YELLOW));
-        m.put(aquaThreshold, TextColor.fromLegacyFormat(ChatFormatting.GREEN));
-        m.put(Float.MAX_VALUE, TextColor.fromLegacyFormat(ChatFormatting.AQUA));
-
-        // Optional: make it truly immutable
-        COLOR_MAP = Collections.unmodifiableNavigableMap(m);
-    }
+    private static final NavigableMap<Float, TextColor> COLOR_MAP = new TreeMap<>(Map.of(
+            0f,
+            TextColor.fromLegacyFormat(ChatFormatting.RED),
+            40f,
+            TextColor.fromLegacyFormat(ChatFormatting.GOLD),
+            70f,
+            TextColor.fromLegacyFormat(ChatFormatting.YELLOW),
+            90f,
+            TextColor.fromLegacyFormat(ChatFormatting.GREEN),
+            100f,
+            TextColor.fromLegacyFormat(ChatFormatting.AQUA)));
 
     public static StyledText getWynntilsOriginalName(ItemStack itemStack) {
         try {
