@@ -4,7 +4,6 @@ import com.wynntils.models.stats.StatCalculator;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynntils.utils.type.RangedValue;
-import com.wynnventory.util.ItemStackUtils;
 
 import java.util.Objects;
 
@@ -49,10 +48,6 @@ public class ActualStatWithPercentage {
 
     public float getRollPercentage() {
         return StatCalculator.getPercentage(statActualValue, possibleValues);
-    }
-
-    public String getRollPercentageColor() {
-        return ItemStackUtils.getRollPercentColor(getRollPercentage());
     }
 
     @Override
