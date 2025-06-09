@@ -11,14 +11,12 @@ import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
 import com.wynntils.utils.MathUtils;
-import com.wynntils.utils.wynn.ColorScaleUtils;
 import com.wynnventory.api.WynnventoryAPI;
 import com.wynnventory.core.ModInfo;
 import com.wynnventory.model.item.trademarket.TradeMarketItemPriceHolder;
 import com.wynnventory.model.item.trademarket.TradeMarketItemPriceInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.item.ItemStack;
 
 import java.lang.reflect.Field;
@@ -40,18 +38,6 @@ public class ItemStackUtils {
 
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final WynnventoryAPI wynnventoryAPI = new WynnventoryAPI();
-
-    private static final NavigableMap<Float, TextColor> COLOR_MAP = new TreeMap<>(Map.of(
-            0f,
-            TextColor.fromLegacyFormat(ChatFormatting.RED),
-            40f,
-            TextColor.fromLegacyFormat(ChatFormatting.GOLD),
-            70f,
-            TextColor.fromLegacyFormat(ChatFormatting.YELLOW),
-            90f,
-            TextColor.fromLegacyFormat(ChatFormatting.GREEN),
-            100f,
-            TextColor.fromLegacyFormat(ChatFormatting.AQUA)));
 
     public static StyledText getWynntilsOriginalName(ItemStack itemStack) {
         try {
@@ -258,19 +244,6 @@ public class ItemStackUtils {
 
     public static String getHorseName(HorseItem item) {
         return item.getName().orElse(getWynntilsOriginalNameAsString(item));
-    }
-
-    public static String getRollPercentColor(Float rollPercent) {
-        try {
-            int colorValue = ColorScaleUtils.getPercentageTextComponent(
-                    COLOR_MAP,
-                    rollPercent,
-                    true,
-                    1).getStyle().getColor().getValue();
-            return String.format("#%06X", 0xFFFFFF & colorValue);
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     private record PriceHolderPair(String itemKey, TradeMarketItemPriceHolder currentHolder,
