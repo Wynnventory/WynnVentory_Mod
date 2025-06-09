@@ -54,7 +54,8 @@ public class ActualStatWithPercentage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof ActualStatWithPercentage other) {
-            return Objects.equals(statActualValue, other.statActualValue);
+            return Objects.equals(statActualValue.statType().getKey(), other.statActualValue.statType().getKey()) &&
+                    Objects.equals(getRollPercentage(), other.getRollPercentage());
         }
 
         return false;
@@ -62,9 +63,8 @@ public class ActualStatWithPercentage {
 
     @Override
     public int hashCode() {
-        return Objects.hash(statActualValue, getRollPercentage());
+        return Objects.hash(statActualValue.statType().getKey(), getRollPercentage());
     }
-
 
     @Override
     public String toString() {
