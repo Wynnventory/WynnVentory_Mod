@@ -10,7 +10,6 @@ import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynnventory.model.stat.ActualStatWithPercentage;
 import com.wynnventory.util.IconManager;
-import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -59,10 +58,6 @@ public class SimplifiedGearItem extends SimplifiedItem {
 
     public float getOverallRollPercentage() {
         return overallRollPercentage;
-    }
-
-    public String getOverallRollPercentageColor() {
-        return ItemStackUtils.getRollPercentColor(getOverallRollPercentage());
     }
 
     public int getRerollCount() {
