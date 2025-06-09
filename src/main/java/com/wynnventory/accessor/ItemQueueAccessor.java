@@ -3,9 +3,8 @@ package com.wynnventory.accessor;
 import com.wynntils.models.items.items.gui.GambitItem;
 import com.wynnventory.enums.Region;
 import com.wynnventory.model.item.Lootpool;
-import com.wynnventory.model.item.SimplifiedCraftingItem;
-import com.wynnventory.model.item.SimplifiedGambitItem;
-import com.wynnventory.model.item.TradeMarketItem;
+import com.wynnventory.model.item.simplified.SimplifiedGambitItem;
+import com.wynnventory.model.item.trademarket.TradeMarketItem;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;

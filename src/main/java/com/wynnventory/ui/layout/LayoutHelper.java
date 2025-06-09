@@ -7,7 +7,6 @@ import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynnventory.config.ConfigManager;
 import com.wynnventory.model.item.Lootpool;
-import com.wynnventory.model.item.LootpoolItem;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 
