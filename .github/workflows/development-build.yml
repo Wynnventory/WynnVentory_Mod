@@ -136,7 +136,7 @@ jobs:
     - name: Create release and upload files
       if: ${{ needs.changelog.outputs.skipped != 'true' }}
       id: release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v2.2.2
       with:
         tag_name: ${{ needs.changelog.outputs.tag }}
         body: ${{ needs.changelog.outputs.changelog }}
