@@ -243,6 +243,7 @@ public class ItemStackUtils {
     }
 
     public static String getHorseName(HorseItem item) {
+        // manually building the name as item.getName() would return the nickname if present
         return StringUtils.toCamelCase(item.getTier().name()) + " Horse";
     }
 
