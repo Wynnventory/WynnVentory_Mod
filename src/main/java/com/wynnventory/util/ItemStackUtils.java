@@ -243,7 +243,8 @@ public class ItemStackUtils {
     }
 
     public static String getHorseName(HorseItem item) {
-        return item.getName().orElse(getWynntilsOriginalNameAsString(item));
+        // manually building the name as item.getName() would return the nickname if present
+        return StringUtils.toCamelCase(item.getTier().name()) + " Horse";
     }
 
     private record PriceHolderPair(String itemKey, TradeMarketItemPriceHolder currentHolder,
