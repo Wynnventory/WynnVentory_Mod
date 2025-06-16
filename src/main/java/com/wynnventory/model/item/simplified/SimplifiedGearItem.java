@@ -37,7 +37,7 @@ public class SimplifiedGearItem extends SimplifiedItem {
         this.overallRollPercentage = item.getOverallPercentage();
 
         GearInstance gearInstance = new GearModel().parseInstance(item.getItemInfo(), (ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY));
-        this.shinyStat = Optional.of(gearInstance.shinyStat()).orElse(Optional.empty());
+        this.shinyStat = gearInstance.shinyStat();
 
         final List<StatActualValue> actualValues = item.getIdentifications();
         final List<StatPossibleValues> possibleValues = item.getPossibleValues();
@@ -76,11 +76,14 @@ public class SimplifiedGearItem extends SimplifiedItem {
             return unidentified == other.unidentified &&
                     Objects.equals(name, other.name) &&
                     Objects.equals(rarity, other.rarity) &&
-                    Objects.equals(shinyStat, other.shinyStat) &&
                     Objects.equals(rerollCount, other.rerollCount) &&
                     Objects.equals(actualStatsWithPercentage, other.actualStatsWithPercentage) &&
                     Objects.equals(itemType, other.itemType) &&
-                    Objects.equals(type, other.type);
+                    Objects.equals(type, other.type) &&
+                    Objects.equals(
+                            shinyStat.map(s -> s.statType().key() + ":" + s.value()),
+                            other.shinyStat.map(s -> s.statType().key() + ":" + s.value())
+                    );
         }
 
         return false;
@@ -88,7 +91,15 @@ public class SimplifiedGearItem extends SimplifiedItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, rarity, unidentified, rerollCount, shinyStat, actualStatsWithPercentage, itemType, type);
+        return Objects.hash(
+                name,
+                rarity,
+                unidentified,
+                rerollCount,
+                shinyStat.map(s -> s.statType().key() + ":" + s.value()).orElse(null),
+                actualStatsWithPercentage,
+                itemType,
+                type);
     }
 
 }
