@@ -9,15 +9,9 @@ exports.preCommit = (props) => {
         }
     };
 
-    let version = props.version;
-
-    // If this is a release workflow (not a pre-release) and the version contains "-dev"
-    // Strip the "-dev" suffix from the version
-    if (props.isPreRelease === false && version.includes("-dev")) {
-        version = version.replace(/-dev\.\d+$/, "");
-        console.log(`Stripping -dev suffix for release. New version: ${version}`);
-    }
-
-    // replace only the version string with new version generated from config.json:
-    replace("./build.gradle", /(?<=version = ")\d+\.\d+\.\d+((-\w+)+\.\d+)?(?=")/g, version);
+    // replace only the version string example:
+    // version = "0.0.3-alpha.2"
+    // version = "0.0.3-alpha.103+MC-1.19.4"
+    replace("./build.gradle", /(?<=version = ")\d+\.\d+\.\d+((-\w+)+\.\d+)?(-SNAPSHOT)?(?=")/g, props.version);
+    // Regex provided by Github Copilot
 };
