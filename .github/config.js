@@ -9,7 +9,7 @@ function whatBump(commits) {
     // otherwise -> patch (2)
 
     for (let commit of commits) {
-        if (commit == null || !commit.header) continue;
+        if (commit == null || !commit.header || commit.header.includes("[skip ci]")) continue;
 
         if (commit.header.startsWith("chore(release)") || commit.header.startsWith("feat(major)")) {
             releaseType = 0;
