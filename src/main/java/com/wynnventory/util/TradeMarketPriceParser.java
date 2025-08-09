@@ -11,9 +11,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TradeMarketPriceParser {
-    private static final Pattern PRICE_STR = Pattern.compile("§6Price:");
+    private static final Pattern PRICE_STR = Pattern.compile("§6󏿼󏿿󏿾 Price");
     private static final Pattern PRICE_PATTERN = Pattern.compile(
-            "§[67] ?- (?:§f(?<amount>[\\d,]+) §7x )?§(?:(?:(?:c✖|a✔) §f)|f§m|f)(?<price>[\\d,]+)§7(?:§m)?²(?:§b ✮ (?<silverbullPrice>[\\d,]+)§3²)?(?: .+)?");
+            "§6󏿼󐀆 (?:§f(?<amount>[\\d,]+) §7x )?§(?:(§f)|f§m|f)(?<price>[\\d,]+)§7(?:§m)?²(?:§b ✮ (?<silverbullPrice>[\\d,]+)§3²)?(?: .+)");
 
     public static TradeMarketPriceInfo calculateItemPriceInfo(ItemStack itemStack) {
         List<StyledText> loreLines = LoreUtils.getLore(itemStack);
