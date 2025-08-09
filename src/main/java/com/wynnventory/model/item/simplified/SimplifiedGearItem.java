@@ -44,7 +44,9 @@ public class SimplifiedGearItem extends SimplifiedItem {
 
         for (StatActualValue actual : actualValues) {
             StatPossibleValues possibleValue = possibleValues.stream().filter(p -> p.statType().getKey().equals(actual.statType().getKey())).findFirst().orElse(null);
-            actualStatsWithPercentage.add(new ActualStatWithPercentage(actual, possibleValue));
+            if(possibleValue != null) {
+                actualStatsWithPercentage.add(new ActualStatWithPercentage(actual, possibleValue));
+            }
         }
     }
 

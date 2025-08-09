@@ -28,8 +28,7 @@ public class PriceTooltipHelper {
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
     private static final EmeraldPrice EMERALD_PRICE = new EmeraldPrice();
 
-    private PriceTooltipHelper() {
-    }
+    private PriceTooltipHelper() {}
 
     public static Dimension calculateTooltipDimension(List<Component> tooltipLines, Font font) {
         int width = tooltipLines.stream().mapToInt(font::width).max().orElse(0);
@@ -55,15 +54,15 @@ public class PriceTooltipHelper {
         List<Component> tooltipLines = new java.util.ArrayList<>();
         tooltipLines.add(formatText(itemName, color));
 
-        if (priceInfo == null || priceInfo.isEmpty()) {
+        if (!isPriceInfoValid(priceInfo)) {
             tooltipLines.add(formatText("No price data available yet!", ChatFormatting.RED));
         } else {
-            addPriceLine(tooltipLines, "Max: ", priceInfo.getHighestPrice(), config.isShowPriceFluctuation(), historicInfo.isEmpty() ? 0 : historicInfo.getHighestPrice());
-            addPriceLine(tooltipLines, "Min: ", priceInfo.getLowestPrice(), config.isShowPriceFluctuation(), historicInfo.isEmpty() ? 0 : historicInfo.getLowestPrice());
-            addPriceLine(tooltipLines, "Avg: ", priceInfo.getAveragePrice(), config.isShowPriceFluctuation(), historicInfo.isEmpty() ? 0 : historicInfo.getAveragePrice());
-            addPriceLine(tooltipLines, "Avg 80%: ", priceInfo.getAverage80Price(), config.isShowPriceFluctuation(), historicInfo.isEmpty() ? 0 : historicInfo.getAverage80Price());
-            addPriceLine(tooltipLines, "Unidentified Avg: ", priceInfo.getUnidentifiedAveragePrice(), config.isShowPriceFluctuation(), historicInfo.isEmpty() ? 0 : historicInfo.getUnidentifiedAveragePrice());
-            addPriceLine(tooltipLines, "Unidentified Avg 80%: ", priceInfo.getUnidentifiedAverage80Price(), config.isShowPriceFluctuation(), historicInfo.isEmpty() ? 0 : historicInfo.getUnidentifiedAverage80Price());
+            addPriceLine(tooltipLines, "Max: ",                     priceInfo.getHighestPrice(),                config.isShowPriceFluctuation(), isPriceInfoValid(historicInfo) ? historicInfo.getHighestPrice()                : 0);
+            addPriceLine(tooltipLines, "Min: ",                     priceInfo.getLowestPrice(),                 config.isShowPriceFluctuation(), isPriceInfoValid(historicInfo) ? historicInfo.getLowestPrice()                 : 0);
+            addPriceLine(tooltipLines, "Avg: ",                     priceInfo.getAveragePrice(),                config.isShowPriceFluctuation(), isPriceInfoValid(historicInfo) ? historicInfo.getAveragePrice()                : 0);
+            addPriceLine(tooltipLines, "Avg 80%: ",                 priceInfo.getAverage80Price(),              config.isShowPriceFluctuation(), isPriceInfoValid(historicInfo) ? historicInfo.getAverage80Price()              : 0);
+            addPriceLine(tooltipLines, "Unidentified Avg: ",        priceInfo.getUnidentifiedAveragePrice(),    config.isShowPriceFluctuation(), isPriceInfoValid(historicInfo) ? historicInfo.getUnidentifiedAveragePrice()    : 0);
+            addPriceLine(tooltipLines, "Unidentified Avg 80%: ",    priceInfo.getUnidentifiedAverage80Price(),  config.isShowPriceFluctuation(), isPriceInfoValid(historicInfo) ? historicInfo.getUnidentifiedAverage80Price()  : 0);
         }
 
         return tooltipLines;
@@ -274,5 +273,9 @@ public class PriceTooltipHelper {
         ms.scale(scale, scale, 1f);
         guiGraphics.renderComponentTooltip(font, tooltipLines, 0, 0);
         ms.popPose();
+    }
+
+    private static boolean isPriceInfoValid(TradeMarketItemPriceInfo info) {
+        return info != null && !info.isEmpty();
     }
 }
