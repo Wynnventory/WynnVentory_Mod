@@ -35,8 +35,10 @@ public class TradeMarketItem extends CrowdSourcedData {
         if (wynnItemOptional.isEmpty()) return null;
 
         TradeMarketPriceInfo priceInfo = TradeMarketPriceParser.calculateItemPriceInfo(itemStack);
-        WynnItem wynnItem = wynnItemOptional.get();
 
+        if (priceInfo == null || priceInfo == TradeMarketPriceInfo.EMPTY) return null;
+
+        WynnItem wynnItem = wynnItemOptional.get();
         return switch (wynnItem) {
             case GearItem gearItem ->
                     new TradeMarketItem(new SimplifiedGearItem(gearItem), priceInfo.price(), priceInfo.amount());
