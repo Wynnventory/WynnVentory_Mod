@@ -129,7 +129,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
     @Override
     public void addItemToTrademarketQueue(ItemStack item) {
-        if (item.getItem() == Items.AIR || item.getItem() == Items.COMPASS || item.getItem() == Items.POTION) return;
+        if (item.getItem() == Items.AIR || item.getItem() == Items.COMPASS) return;
         if (McUtils.inventory().items.contains(item)) return;
 
         TradeMarketItem tradeMarketItem = TradeMarketItem.from(item);
