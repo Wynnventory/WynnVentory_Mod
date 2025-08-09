@@ -28,8 +28,7 @@ public class PriceTooltipHelper {
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
     private static final EmeraldPrice EMERALD_PRICE = new EmeraldPrice();
 
-    private PriceTooltipHelper() {
-    }
+    private PriceTooltipHelper() {}
 
     public static Dimension calculateTooltipDimension(List<Component> tooltipLines, Font font) {
         int width = tooltipLines.stream().mapToInt(font::width).max().orElse(0);
@@ -275,8 +274,8 @@ public class PriceTooltipHelper {
         guiGraphics.renderComponentTooltip(font, tooltipLines, 0, 0);
         ms.popPose();
     }
-}
 
-private static boolean isPriceInfoValid(TradeMarketItemPriceInfo info) {
-    return info != null && !info.isEmpty();
+    private static boolean isPriceInfoValid(TradeMarketItemPriceInfo info) {
+        return info != null && !info.isEmpty();
+    }
 }
