@@ -1,3 +1,12 @@
+## [1.3.7](https://github.com/Wynnventory/WynnVentory_Mod/compare/v1.3.7-dev.0...v1.3.7) (2025-08-09)
+
+## [1.3.7-dev.0](https://github.com/Wynnventory/WynnVentory_Mod/compare/v1.3.6...v1.3.7-dev.0) (2025-08-09)
+
+
+### Bug Fixes
+
+* fixed certain items not being submitted due to type mismatch ([957de16](https://github.com/Wynnventory/WynnVentory_Mod/commit/957de169f0d9d195fd2ebde80b96e649ea99dc29))
+
 ## [1.3.6](https://github.com/Wynnventory/WynnVentory_Mod/compare/v1.3.6-dev.0...v1.3.6) (2025-08-09)
 
 
@@ -16,13 +25,4 @@
 * updated minimum required wynntils version ([af06a5b](https://github.com/Wynnventory/WynnVentory_Mod/commit/af06a5bb8644800602197faf2e6b40c3c7b5b7d6))
 
 ## [1.3.5](https://github.com/Wynnventory/WynnVentory_Mod/compare/v1.3.5-dev.0...v1.3.5) (2025-06-16)
-
-## [1.3.5-dev.0](https://github.com/Wynnventory/WynnVentory_Mod/compare/v1.3.4...v1.3.5-dev.0) (2025-06-16)
-
-
-### Bug Fixes
-
-* fixed issue that caused shiny TM listings to be submitted multiple times ([cda4017](https://github.com/Wynnventory/WynnVentory_Mod/commit/cda4017590afd6ebaa09946b9f8b6a5cd84ee233))
-
-## [1.3.4](https://github.com/Wynnventory/WynnVentory_Mod/compare/v1.3.4-dev.0...v1.3.4) (2025-06-10)
 
