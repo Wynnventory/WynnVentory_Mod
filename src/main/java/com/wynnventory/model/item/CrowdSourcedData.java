@@ -16,11 +16,8 @@ public abstract class CrowdSourcedData {
     protected String modVersion;
 
     @JsonProperty(value = "timestamp", access = Access.READ_ONLY)
-    @JsonFormat(
-            shape = JsonFormat.Shape.STRING,
-            timezone = "UTC"
-    )
-    protected Instant collectionTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING,timezone = "UTC")
+    protected Instant timestamp;
 
     protected CrowdSourcedData() {
         if (McUtils.player() != null) {
@@ -30,7 +27,7 @@ public abstract class CrowdSourcedData {
         }
 
         this.modVersion = ModInfo.VERSION;
-        this.collectionTime = Instant.now();
+        this.timestamp = Instant.now();
     }
 
     public String getPlayerName() {
@@ -49,5 +46,5 @@ public abstract class CrowdSourcedData {
         this.modVersion = modVersion;
     }
 
-    public void setCollectionTime(Instant collectionTime) { this.collectionTime = collectionTime; }
+    public void setTimestamp(Instant timestamp) { this.timestamp = timestamp; }
 }
