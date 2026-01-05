@@ -6,9 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.ModInfo;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
 
 public abstract class CrowdSourcedData {
     @JsonProperty(value = "playerName", access = Access.READ_ONLY)
@@ -18,8 +16,8 @@ public abstract class CrowdSourcedData {
     protected String modVersion;
 
     @JsonProperty(value = "timestamp", access = Access.READ_ONLY)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    protected LocalDateTime collectionTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING,timezone = "UTC")
+    protected Instant timestamp;
 
     protected CrowdSourcedData() {
         if (McUtils.player() != null) {
@@ -29,7 +27,7 @@ public abstract class CrowdSourcedData {
         }
 
         this.modVersion = ModInfo.VERSION;
-        this.collectionTime = LocalDateTime.now(ZoneOffset.UTC);
+        this.timestamp = Instant.now();
     }
 
     public String getPlayerName() {
@@ -48,7 +46,5 @@ public abstract class CrowdSourcedData {
         this.modVersion = modVersion;
     }
 
-    public String getCollectionTime() { return collectionTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); }
-
-    public void setCollectionTime(LocalDateTime collectionTime) { this.collectionTime = collectionTime; }
+    public void setTimestamp(Instant timestamp) { this.timestamp = timestamp; }
 }

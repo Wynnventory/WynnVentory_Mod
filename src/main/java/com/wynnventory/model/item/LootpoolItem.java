@@ -22,7 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LootpoolItem {
+public class LootpoolItem extends CrowdSourcedData {
     private String itemType;
     private int amount;
     private String name;
@@ -47,10 +47,9 @@ public class LootpoolItem {
             TomeItem.class
     );
 
-    public LootpoolItem() {
-    }
-
     public LootpoolItem(String itemType, int amount, String name, String rarity, ShinyStat shinyStat, String type) {
+        super();
+
         this.itemType = itemType;
         this.amount = amount;
         this.name = name;
@@ -61,6 +60,8 @@ public class LootpoolItem {
     }
 
     public LootpoolItem(WynnItem wynnItem) {
+        super();
+
         this.itemType = wynnItem.getClass().getSimpleName();
         this.name = ItemStackUtils.getWynntilsOriginalNameAsString(wynnItem);
         this.amount = ((ItemStack) wynnItem.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
