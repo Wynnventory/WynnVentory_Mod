@@ -47,6 +47,8 @@ public class LootpoolItem extends CrowdSourcedData {
             TomeItem.class
     );
 
+    public LootpoolItem() { }
+
     public LootpoolItem(String itemType, int amount, String name, String rarity, ShinyStat shinyStat, String type) {
         super();
 
