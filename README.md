@@ -4,3 +4,8 @@
 
 # Wynnventory
 WynnVentory is a Minecraft mod for the Wynncraft server. It allows users to display trade market prices on items ingame. Data is also be available on the [WynnVentory website](https://www.wynnventory.com/).
+
+
+## Setup
+The project is using [DevAuth](https://github.com/DJtheRedstoner/DevAuth) which you need to enable in your run configs.
+Just add `-Ddevauth.enabled=true` to your JVM options and you should be good to go.
