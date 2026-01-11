@@ -2,12 +2,12 @@ package com.wynnventory.neoforge;
 
 import net.neoforged.fml.common.Mod;
 
-import com.wynnventory.ExampleMod;
+import com.wynnventory.core.WynnventoryMod;
 
-@Mod(ExampleMod.MOD_ID)
+@Mod(WynnventoryMod.MOD_ID)
 public final class ExampleModNeoForge {
     public ExampleModNeoForge() {
         // Run our common setup.
-        ExampleMod.init();
+        WynnventoryMod.init();
     }
 }

@@ -2,7 +2,7 @@ package com.wynnventory.fabric;
 
 import net.fabricmc.api.ModInitializer;
 
-import com.wynnventory.ExampleMod;
+import com.wynnventory.core.WynnventoryMod;
 
 public final class ExampleModFabric implements ModInitializer {
     @Override
@@ -12,6 +12,6 @@ public final class ExampleModFabric implements ModInitializer {
         // Proceed with mild caution.
 
         // Run our common setup.
-        ExampleMod.init();
+        WynnventoryMod.init();
     }
 }

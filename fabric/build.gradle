@@ -15,6 +15,7 @@ configurations {
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentFabric.extendsFrom common
+    implementation.extendsFrom shadowImplementation
 
     // Files in this configuration will be bundled into your mod using the Shadow plugin.
     // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
@@ -30,6 +31,12 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
+
+    shadowImplementation("net.neoforged:bus:${neoforge_eventbus_version}") {
+        exclude group: "org.ow2.asm"
+        exclude group: "org.apache.logging.log4j"
+        exclude group: "cpw.mods", module: "modlauncher"
+    }
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
