@@ -39,6 +39,8 @@ subprojects {
     dependencies {
         minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
         mappings loom.officialMojangMappings()
+
+        implementation("tools.jackson.core:jackson-databind:3.0.3")
     }
 
     java {
