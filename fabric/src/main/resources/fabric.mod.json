@@ -3,17 +3,18 @@
   "id": "wynnventory",
   "version": "${version}",
   "name": "wynnventory",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "Real-time insights and historical data from the Wynncraft Trade Market.",
   "authors": [
-    "Me!"
+    "Aruloci",
+    "SiropBVST"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://www.wynnventory.com/",
+    "sources": "https://github.com/Aruloci/Wynnventory"
   },
-  "license": "CC0-1.0",
+  "license": "MIT",
   "icon": "assets/wynnventory/icon.png",
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
     "client": [
       "com.wynnventory.fabric.WynnventoryModFabric"
@@ -24,11 +25,17 @@
   ],
   "depends": {
     "fabricloader": ">=0.18.4",
-    "minecraft": "~1.21.10",
+    "minecraft": "~1.21.11",
     "java": ">=21",
     "fabric-api": "*"
   },
-  "suggests": {
-    "another-mod": "*"
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/b6ATfrePuR",
+        "modmenu.website": "https://www.wynnventory.com/"
+      },
+      "update_checker": false
+    }
   }
 }

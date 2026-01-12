@@ -1,31 +1,31 @@
 modLoader = "javafml"
 loaderVersion = "[10,)"
-#issueTrackerURL = ""
-license = "Insert License Here"
+issueTrackerURL = "https://github.com/Wynnventory/WynnVentory_Mod/issues"
+license = "MIT"
 
 [[mods]]
 modId = "wynnventory"
 version = "${version}"
 displayName = "wynnventory"
-authors = "Me!"
+authors = "Aruloci, SiropBVST"
 description = '''
-This is an example description! Tell everyone what your mod is about!
+Real-time insights and historical data from the Wynncraft Trade Market.
 '''
-#logoFile = ""
+logoFile = "assets/wynnventory/icon.png"
 
 [[dependencies.wynnventory]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.10,)"
+versionRange = "[21.11.0-beta,)"
 ordering = "NONE"
-side = "BOTH"
+side = "CLIENT"
 
 [[dependencies.wynnventory]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.10,)"
+versionRange = "[1.21.11,)"
 ordering = "NONE"
-side = "BOTH"
+side = "CLIENT"
 
 [[mixins]]
 config = "wynnventory.mixins.json"
