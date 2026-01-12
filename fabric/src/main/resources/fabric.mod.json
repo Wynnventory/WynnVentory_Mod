@@ -15,11 +15,8 @@
   "icon": "assets/wynnventory/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "com.wynnventory.fabric.ExampleModFabric"
-    ],
     "client": [
-      "com.wynnventory.fabric.client.ExampleModFabricClient"
+      "com.wynnventory.fabric.WynnventoryModFabric"
     ]
   },
   "mixins": [
