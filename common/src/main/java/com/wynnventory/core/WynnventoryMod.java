@@ -1,6 +1,6 @@
 package com.wynnventory.core;
 
-import com.wynnventory.LootRewardHandler;
+import com.wynnventory.feature.LootRewardHandler;
 import com.wynnventory.core.event.EventBusWrapper;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
