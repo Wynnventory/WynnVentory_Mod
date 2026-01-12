@@ -47,10 +47,6 @@ subprojects {
     }
 
     java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(21) // or 23 if your toolchain supports it
-        }
-
         // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
         // if it is present.
         // If you remove this line, sources will not be generated.
