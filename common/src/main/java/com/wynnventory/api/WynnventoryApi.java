@@ -1,9 +1,9 @@
 package com.wynnventory.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.util.HttpUtil;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.net.http.HttpResponse;
@@ -51,7 +51,7 @@ public class WynnventoryApi  {
     private String serialize(Object obj) {
         try {
             return MAPPER.writeValueAsString(obj);
-        } catch (JacksonException e) {
+        } catch (JsonProcessingException e) {
             WynnventoryMod.logError("Serialization failed", e);
             return "[]";
         }
