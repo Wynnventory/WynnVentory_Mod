@@ -30,7 +30,6 @@ dependencies {
     modRuntimeOnly "me.djtheredstoner:DevAuth-fabric:${devauth_version}"
 
     // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
     modImplementation "maven.modrinth:wynntils:${project.wynntils_version}-fabric"
 
     shadowImplementation("net.neoforged:bus:${neoforge_eventbus_version}") {
