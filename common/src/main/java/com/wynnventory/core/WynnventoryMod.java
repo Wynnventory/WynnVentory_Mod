@@ -1,10 +1,13 @@
 package com.wynnventory.core;
 
+import com.wynnventory.config.ModConfig;
 import com.wynnventory.feature.LootRewardHandler;
 import com.wynnventory.core.event.EventBusWrapper;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.bus.api.IEventBus;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,20 +19,22 @@ public final class WynnventoryMod {
     private static final IEventBus eventBus = EventBusWrapper.createEventBus();
     private static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-    private static ModLoader     LOADER;
-    private static String        VERSION;
-    private static boolean       IS_DEV;
-    private static File          MOD_FILE;
+    private static ModLoader loader;
+    private static String version;
+    private static boolean isDev;
+    private static File modFile;
 
     private WynnventoryMod() {}
 
     public static void init(ModLoader loader, String version, File modFile) {
-        LOADER = loader;
-        VERSION = version;
-        IS_DEV = VERSION.contains("dev");
-        MOD_FILE = modFile;
+        WynnventoryMod.loader   = loader;
+        WynnventoryMod.version  = version;
+        WynnventoryMod.isDev    = WynnventoryMod.version.contains("dev");
+        WynnventoryMod.modFile  = modFile;
 
-        logInfo("Initializing Wynnventory mod v{} ({}), from file {}", version, loader.name(), modFile.getAbsolutePath());
+        WynnventoryMod.logInfo("Initializing Wynnventory mod v{} ({}), from file {}", version, loader.name(), modFile.getAbsolutePath());
+
+        ModConfig.init();
 
         eventBus.register(new LootRewardHandler());
     }
@@ -38,7 +43,7 @@ public final class WynnventoryMod {
         try {
             eventBus.post(event);
             return event instanceof ICancellableEvent cancellableEvent && cancellableEvent.isCanceled();
-        } catch (Throwable t) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -72,11 +77,27 @@ public final class WynnventoryMod {
     }
 
     public static boolean isDev() {
-        return IS_DEV;
+        return isDev;
     }
 
     public enum ModLoader {
         FORGE,
         FABRIC
+    }
+
+    public static ModLoader getLoader() {
+        return loader;
+    }
+
+    public static String getVersion() {
+        return version;
+    }
+
+    public static boolean isIsDev() {
+        return isDev;
+    }
+
+    public static File getModFile() {
+        return modFile;
     }
 }
