@@ -3,7 +3,7 @@ package com.wynnventory.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wynnventory.core.WynnventoryMod;
-import com.wynnventory.util.HttpUtil;
+import com.wynnventory.util.HttpUtils;
 
 import java.net.URI;
 import java.net.http.HttpResponse;
@@ -45,7 +45,7 @@ public class WynnventoryApi  {
     }
 
     private void post(URI uri, Object payload) {
-        HttpUtil.sendHttpPostRequest(uri, serialize(payload));
+        HttpUtils.sendHttpPostRequest(uri, serialize(payload));
     }
 
     private String serialize(Object obj) {

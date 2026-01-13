@@ -12,7 +12,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
-public class HttpUtil {
+public class HttpUtils {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
 
     public static void sendHttpPostRequest(URI uri, String payload) {
