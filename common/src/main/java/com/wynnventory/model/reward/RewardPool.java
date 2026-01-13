@@ -2,7 +2,7 @@ package com.wynnventory.model.reward;
 
 import java.util.regex.Pattern;
 
-public enum RewardScreen {
+public enum RewardPool {
 
     // --- Lootruns ---
     CANYON_OF_THE_LOST(RewardType.LOOTRUN, "COTL", "Canyon of the Lost", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF006")),
@@ -19,7 +19,7 @@ public enum RewardScreen {
     private final String fullName;
     private final Pattern screenTitle;
 
-    RewardScreen(RewardType type, String shortName, String fullName, Pattern screenTitle) {
+    RewardPool(RewardType type, String shortName, String fullName, Pattern screenTitle) {
         this.type = type;
         this.shortName = shortName;
         this.fullName = fullName;
@@ -38,10 +38,10 @@ public enum RewardScreen {
         return fullName;
     }
 
-    public static RewardScreen fromTitle(String title) {
+    public static RewardPool fromTitle(String title) {
         if (title == null) return null;
 
-        for (RewardScreen screen : values()) {
+        for (RewardPool screen : values()) {
             if (screen.screenTitle.matcher(title).find()) {
                 return screen;
             }
@@ -50,7 +50,7 @@ public enum RewardScreen {
     }
 
     public static boolean isLootrunTitle(String title) {
-        RewardScreen screen = fromTitle(title);
+        RewardPool screen = fromTitle(title);
         return screen != null && screen.type == RewardType.LOOTRUN;
     }
 }

@@ -13,7 +13,7 @@ public abstract class ModInfoProvider {
     @JsonProperty(value = "modVersion", access = Access.READ_ONLY)
     protected String modVersion;
 
-    private ModInfoProvider() {
+    protected ModInfoProvider() {
         if (McUtils.player() != null) {
             this.playerName = McUtils.playerName();
         } else {
