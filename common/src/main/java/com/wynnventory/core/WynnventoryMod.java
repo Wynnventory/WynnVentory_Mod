@@ -3,12 +3,11 @@ package com.wynnventory.core;
 import com.wynnventory.config.ModConfig;
 import com.wynnventory.feature.LootRewardHandler;
 import com.wynnventory.core.event.EventBusWrapper;
+import com.wynnventory.queue.QueueScheduler;
 import com.wynnventory.util.IconManager;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.bus.api.IEventBus;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,16 +36,19 @@ public final class WynnventoryMod {
 
         ModConfig.init();
         IconManager.fetchAll();
+        QueueScheduler.startScheduledTask();
 
         eventBus.register(new LootRewardHandler());
     }
 
-    public static <T extends Event> boolean postEvent(T event) {
+    public static <T extends Event> void postEvent(T event) {
         try {
             eventBus.post(event);
-            return event instanceof ICancellableEvent cancellableEvent && cancellableEvent.isCanceled();
+            if (event instanceof ICancellableEvent cancellableEvent) {
+                cancellableEvent.isCanceled();
+            }
         } catch (Exception e) {
-            return false;
+            logError("Error while posting event...");
         }
     }
 
