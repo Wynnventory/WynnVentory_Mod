@@ -12,6 +12,7 @@ configurations {
         canBeResolved = true
         canBeConsumed = false
     }
+    shadowCommon
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentFabric.extendsFrom common
@@ -31,26 +32,42 @@ dependencies {
     
     modImplementation "maven.modrinth:wynntils:${project.wynntils_version}-fabric"
 
+    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+
     shadowImplementation("net.neoforged:bus:${neoforge_eventbus_version}") {
         exclude group: "org.ow2.asm"
         exclude group: "org.apache.logging.log4j"
         exclude group: "cpw.mods", module: "modlauncher"
     }
+    shadowImplementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
+    shadowImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.20.1")
+    shadowImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1")
+
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
 }
 
 processResources {
-    inputs.property 'version', project.version
+    var replaceProperties = [
+            mod_version                : rootProject.version,
+            minecraft_version          : minecraft_version,
+            fabric_loader_version      : fabric_loader_version,
+            wynntils_version           : wynntils_version
+    ]
+    inputs.properties replaceProperties
 
-    filesMatching('fabric.mod.json') {
-        expand version: inputs.properties.version
+    filesMatching("fabric.mod.json") {
+        expand replaceProperties
     }
 }
 
 shadowJar {
-    configurations = [project.configurations.shadowBundle]
+    configurations = [
+            project.configurations.shadowCommon,
+            project.configurations.shadowImplementation
+    ]
+
     archiveClassifier = 'dev-shadow'
 }
 

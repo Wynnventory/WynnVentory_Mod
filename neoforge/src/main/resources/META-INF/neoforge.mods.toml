@@ -5,7 +5,7 @@ license = "MIT"
 
 [[mods]]
 modId = "wynnventory"
-version = "${version}"
+version = "${mod_version}"
 displayName = "wynnventory"
 authors = "Aruloci, SiropBVST"
 description = '''
@@ -16,16 +16,25 @@ logoFile = "assets/wynnventory/icon.png"
 [[dependencies.wynnventory]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.11.0-beta,)"
+versionRange = "[{$neoforge_loader_version},)"
 ordering = "NONE"
 side = "CLIENT"
 
 [[dependencies.wynnventory]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.11,)"
+versionRange = "[{$minecraft_version},)"
 ordering = "NONE"
 side = "CLIENT"
+
+[[dependencies.wynnventory]]
+modId = "wynntils"
+type = "required"
+reason="integration"
+versionRange = "[${wynntils_version},)"
+ordering = "NONE"
+side = "CLIENT"
+referralUrl = "https://modrinth.com/mod/wynntils"
 
 [[mixins]]
 config = "wynnventory.mixins.json"

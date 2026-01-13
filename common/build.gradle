@@ -9,5 +9,10 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
 
     modImplementation "maven.modrinth:wynntils:${project.wynntils_version}-fabric"
+
     compileOnly "net.neoforged:bus:${neoforge_eventbus_version}"
+
+    compileOnly "com.fasterxml.jackson.core:jackson-databind:2.20.1"
+    compileOnly "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.20.1"
+    compileOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1"
 }
