@@ -1,4 +1,4 @@
-package com.wynnventory.model.item;
+package com.wynnventory.model.item.simplified;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,6 +6,7 @@ import com.wynntils.models.items.items.game.DungeonKeyItem;
 import com.wynntils.models.items.items.game.InsulatorItem;
 import com.wynntils.models.items.items.game.RuneItem;
 import com.wynntils.models.items.items.game.SimulatorItem;
+import com.wynnventory.model.item.Icon;
 import com.wynnventory.util.IconManager;
 import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.StringUtils;
@@ -13,20 +14,20 @@ import com.wynnventory.util.StringUtils;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SimplifiedItem {
+public class SimpleItem {
     protected String name;
     protected String rarity;
     protected String itemType;
     protected String type;
     protected Icon icon;
 
-    public SimplifiedItem() {}
+    public SimpleItem() {}
 
-    public SimplifiedItem(String name, String rarity, String itemType, String type) {
+    public SimpleItem(String name, String rarity, String itemType, String type) {
         this(name, rarity, itemType, type, null);
     }
 
-    public SimplifiedItem(String name, String rarity, String itemType, String type, Icon icon) {
+    public SimpleItem(String name, String rarity, String itemType, String type, Icon icon) {
         this.name = name;
         this.rarity = rarity;
         this.itemType = itemType;
@@ -34,7 +35,7 @@ public class SimplifiedItem {
         this.icon = icon;
     }
 
-    public SimplifiedItem(SimulatorItem simulatorItem) {
+    public SimpleItem(SimulatorItem simulatorItem) {
         this.name = ItemStackUtils.getWynntilsOriginalNameAsString(simulatorItem);
         this.rarity = simulatorItem.getGearTier().getName();
         this.itemType = "SimulatorItem";
@@ -42,7 +43,7 @@ public class SimplifiedItem {
         this.icon = IconManager.getIcon(this.name);
     }
 
-    public SimplifiedItem(InsulatorItem insulatorItem) {
+    public SimpleItem(InsulatorItem insulatorItem) {
         this.name = ItemStackUtils.getWynntilsOriginalNameAsString(insulatorItem);
         this.rarity = insulatorItem.getGearTier().getName();
         this.itemType = "InsulatorItem";
@@ -50,7 +51,7 @@ public class SimplifiedItem {
         this.icon = IconManager.getIcon(this.name);
     }
 
-    public SimplifiedItem(RuneItem runeItem) {
+    public SimpleItem(RuneItem runeItem) {
         this.name = ItemStackUtils.getWynntilsOriginalNameAsString(runeItem);
         this.rarity = "Normal";
         this.itemType = "RuneItem";
@@ -58,7 +59,7 @@ public class SimplifiedItem {
         this.icon = IconManager.getIcon(this.name);
     }
 
-    public SimplifiedItem(DungeonKeyItem dungeonKeyItem) {
+    public SimpleItem(DungeonKeyItem dungeonKeyItem) {
         this.name = ItemStackUtils.getWynntilsOriginalNameAsString(dungeonKeyItem);
         this.rarity = "Normal";
         this.itemType = "DungeonKeyItem";
@@ -108,7 +109,7 @@ public class SimplifiedItem {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o instanceof SimplifiedItem other) {
+        if (o instanceof SimpleItem other) {
             return Objects.equals(name, other.name) &&
                     Objects.equals(rarity, other.rarity) &&
                     Objects.equals(itemType, other.itemType) &&
