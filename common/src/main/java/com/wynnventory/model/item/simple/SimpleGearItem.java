@@ -26,13 +26,14 @@ public class SimpleGearItem extends SimpleItem {
     private final List<ItemStat> actualStatsWithPercentage = new ArrayList<>();
 
     public SimpleGearItem(GearItem item) {
-        super();
+        super(item.getName(),
+                item.getGearTier().getName(),
+                "GearItem",
+                item.getGearType().name(),
+                IconManager.getIcon(item.getName()),
+                ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount()
+        );
 
-        this.name = item.getName();
-        this.rarity = item.getGearTier().getName();
-        this.itemType = "GearItem";
-        this.type = item.getGearType().name();
-        this.icon = IconManager.getIcon(item.getName());
         this.unidentified = item.isUnidentified();
         this.rerollCount = item.getRerollCount();
         this.overallRollPercentage = item.getOverallPercentage();

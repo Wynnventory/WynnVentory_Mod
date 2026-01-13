@@ -2,6 +2,7 @@ package com.wynnventory.queue;
 
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
+import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Collection;
@@ -18,11 +19,11 @@ public final class RewardPoolQueue {
 
         for (ItemStack stack : items) {
             if (stack == null || stack.isEmpty()) continue;
-            poolItems.add(SimpleItem.fromItemStack(stack));
+            poolItems.add(ItemStackUtils.toSimpleItem(stack));
         }
 
         for (SimpleItem simpleItem : poolItems) {
-            System.out.println("Item collected: " + simpleItem.getName());
+            System.out.println("Item collected: " + simpleItem.getName() + " | " + simpleItem.getAmount());
         }
     }
 }

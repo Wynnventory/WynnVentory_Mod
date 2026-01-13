@@ -1,15 +1,16 @@
 package com.wynnventory.util;
 
+import com.wynntils.core.components.Models;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.handlers.item.ItemAnnotation;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
-import com.wynntils.models.items.items.game.AmplifierItem;
-import com.wynntils.models.items.items.game.HorseItem;
-import com.wynntils.models.items.items.game.MaterialItem;
-import com.wynntils.models.items.items.game.PowderItem;
+import com.wynntils.models.items.items.game.*;
 import com.wynnventory.core.WynnventoryMod;
+import com.wynnventory.model.item.simple.SimpleGearItem;
+import com.wynnventory.model.item.simple.SimpleItem;
+import com.wynnventory.model.item.simple.SimpleTierItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.ItemStack;
 
@@ -18,6 +19,44 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class ItemStackUtils {
+
+    public static SimpleItem toSimpleItem(ItemStack itemStack) {
+        return toSimpleItem(Models.Item.getWynnItem(itemStack).get());
+    }
+
+    public static SimpleItem toSimpleItem(WynnItem item) {
+
+        switch (item) {
+            case SimulatorItem simulatorItem -> {
+                return SimpleItem.fromSimulatorItem(simulatorItem);
+            } case InsulatorItem insulatorItem -> {
+                return SimpleItem.fromInsulatorItem(insulatorItem);
+            } case RuneItem runeItem -> {
+                return SimpleItem.fromRuneItem(runeItem);
+            } case DungeonKeyItem dungeonKeyItem -> {
+                return SimpleItem.fromDungeonKeyItem(dungeonKeyItem);
+            } case GearItem gearItem -> {
+                return new SimpleGearItem(gearItem);
+            } case IngredientItem ingredientItem -> {
+                return SimpleTierItem.fromIngredientItem(ingredientItem);
+            } case MaterialItem materialItem -> {
+                return SimpleTierItem.fromMaterialItem(materialItem);
+            } case PowderItem powderItem -> {
+                return SimpleTierItem.fromPowderItem(powderItem);
+            } case AmplifierItem amplifierItem -> {
+                return SimpleTierItem.fromAmplifierItem(amplifierItem);
+            } case HorseItem horseItem -> {
+                return SimpleTierItem.fromHorseItem(horseItem);
+            } case EmeraldPouchItem emeraldPouchItem -> {
+                return SimpleTierItem.fromEmeraldPouchItem(emeraldPouchItem);
+            }
+
+            default -> {
+                WynnventoryMod.logWarn("Unknown item type: " + item.getClass().getSimpleName());
+                return new SimpleItem();
+            }
+        }
+    }
 
     public static StyledText getWynntilsOriginalName(ItemStack itemStack) {
         try {

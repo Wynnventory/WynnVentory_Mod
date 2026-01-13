@@ -20,12 +20,16 @@ public class SimpleItem {
     protected String itemType;
     protected String type;
     protected Icon icon;
-    protected int amount = 1;
+    protected int amount;
 
     public SimpleItem() {}
 
     public SimpleItem(String name, String rarity, String itemType, String type) {
-        this(name, rarity, itemType, type, null, 1);
+        this(name, rarity, itemType, type, null);
+    }
+
+    public SimpleItem(String name, String rarity, String itemType, String type, Icon icon) {
+        this(name, rarity, itemType, type, icon, 1);
     }
 
     public SimpleItem(String name, String rarity, String itemType, String type, Icon icon, int amount) {
@@ -35,25 +39,6 @@ public class SimpleItem {
         this.type = type;
         this.icon = icon;
         this.amount = amount;
-    }
-
-    public static SimpleItem fromWynnItem(WynnItem item) {
-
-        switch (item) {
-            case SimulatorItem simulatorItem -> {
-                return fromSimulatorItem(simulatorItem);
-            } case InsulatorItem insulatorItem -> {
-                return fromInsulatorItem(insulatorItem);
-            } case RuneItem runeItem -> {
-                return fromRuneItem(runeItem);
-            } case DungeonKeyItem dungeonKeyItem -> {
-                return fromDungeonKeyItem(dungeonKeyItem);
-            } case GearItem gearItem -> {
-                return fromGearItem(gearItem);
-            }
-
-            default -> throw new IllegalStateException("Unexpected value: " + item);
-        }
     }
 
     public static SimpleItem fromSimulatorItem(SimulatorItem item) {
@@ -102,10 +87,6 @@ public class SimpleItem {
                 ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount());
     }
 
-    public static SimpleItem fromGearItem(GearItem item) {
-        return new SimpleGearItem(item);
-    }
-
     public String getName() {
         return name;
     }
@@ -145,6 +126,14 @@ public class SimpleItem {
         this.icon = icon;
     }
 
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -152,7 +141,8 @@ public class SimpleItem {
             return Objects.equals(name, other.name) &&
                     Objects.equals(rarity, other.rarity) &&
                     Objects.equals(itemType, other.itemType) &&
-                    Objects.equals(type, other.type);
+                    Objects.equals(type, other.type) &&
+                    amount == other.amount;
         }
 
         return false;
@@ -160,6 +150,6 @@ public class SimpleItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, rarity, itemType, type);
+        return Objects.hash(name, rarity, itemType, type, amount);
     }
 }
