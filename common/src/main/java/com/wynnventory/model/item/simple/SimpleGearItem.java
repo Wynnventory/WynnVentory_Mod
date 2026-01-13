@@ -1,4 +1,4 @@
-package com.wynnventory.model.item.simplified;
+package com.wynnventory.model.item.simple;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wynntils.models.gear.GearModel;

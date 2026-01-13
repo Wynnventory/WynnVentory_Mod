@@ -1,4 +1,4 @@
-package com.wynnventory.model.item.simplified;
+package com.wynnventory.model.item.simple;
 
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.items.items.gui.GambitItem;

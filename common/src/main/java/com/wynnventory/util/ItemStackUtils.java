@@ -1,6 +1,7 @@
 package com.wynnventory.util;
 
 import com.wynntils.core.text.StyledText;
+import com.wynntils.handlers.item.ItemAnnotation;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
@@ -28,6 +29,7 @@ public class ItemStackUtils {
             return null;
         }
     }
+
     public static String getWynntilsOriginalNameAsString(WynnItem item) {
         return Objects.requireNonNull(ItemStackUtils.getWynntilsOriginalName(item.getData().get(WynnItemData.ITEMSTACK_KEY))).getLastPart().getComponent().getString();
     }
