@@ -3,6 +3,7 @@ package com.wynnventory.core;
 import com.wynnventory.config.ModConfig;
 import com.wynnventory.feature.LootRewardHandler;
 import com.wynnventory.core.event.EventBusWrapper;
+import com.wynnventory.util.IconManager;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.bus.api.IEventBus;
@@ -35,6 +36,7 @@ public final class WynnventoryMod {
         WynnventoryMod.logInfo("Initializing Wynnventory mod v{} ({}), from file {}", version, loader.name(), modFile.getAbsolutePath());
 
         ModConfig.init();
+        IconManager.fetchAll();
 
         eventBus.register(new LootRewardHandler());
     }
