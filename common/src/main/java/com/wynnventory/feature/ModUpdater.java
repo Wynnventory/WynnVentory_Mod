@@ -1,6 +1,8 @@
 package com.wynnventory.feature;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonParseException;
 import com.wynntils.utils.FileUtils;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.WynnventoryMod;
@@ -15,17 +17,17 @@ import net.minecraft.network.chat.Style;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.concurrent.CompletableFuture;
 
 
 public class ModUpdater {
     private static final String LATEST_RELEASE_URL = "https://api.github.com/repos/Wynnventory/Wynnventory_Mod/releases/latest";
     private static boolean alreadyChecked = false;
 
-    private ModUpdater() { }
+    private ModUpdater() {}
 
     public static void checkForUpdates() {
         if (alreadyChecked) {
@@ -45,7 +47,7 @@ public class ModUpdater {
     private static void initiateUpdateCheck(String currentVersion) {
         new Thread(() -> {
             try {
-                Release latestRelease = fetchLatestRelease();
+                Release latestRelease = fetchLatestRelease().join();
                 String latestVersion = sanitizeVersion(latestRelease.getTagName());
 
                 if (!isUpToDate(currentVersion, latestVersion)) {
@@ -57,10 +59,22 @@ public class ModUpdater {
         }).start();
     }
 
-    private static Release fetchLatestRelease() throws Exception {
+    private static CompletableFuture<Release> fetchLatestRelease() throws Exception {
         URI uri = new URI(LATEST_RELEASE_URL);
-        HttpResponse<String> response = HttpUtils.sendHttpGetRequest(uri);
-        return new ObjectMapper().readValue(response.body(), Release.class);
+        ObjectMapper mapper = new ObjectMapper();
+
+        return HttpUtils.sendGetRequest(uri)
+                .thenApply(resp -> {
+                    int code = resp.statusCode();
+                    if (code < 200 || code >= 300) {
+                        WynnventoryMod.logError("Failed to GET latest Wynnventory release. Code '{}', Reason '{}'", code, resp.body());
+                    }
+                    try {
+                        return mapper.readValue(resp.body(), Release.class);
+                    } catch (JsonProcessingException e) {
+                        throw new JsonParseException("Failed to parse release JSON", e);
+                    }
+                });
     }
 
     private static String sanitizeVersion(String versionTag) {
