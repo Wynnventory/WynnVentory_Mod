@@ -101,7 +101,6 @@ public class ItemStackUtils {
     }
 
     public static String getHorseName(HorseItem item) {
-        // manually building the name as item.getName() would return the nickname if present
         return StringUtils.toCamelCase(item.getTier().name()) + " Horse";
     }
 
@@ -114,11 +113,11 @@ public class ItemStackUtils {
     }
 
     private static SimpleItem fromRuneItem(RuneItem item) {
-        return createSimpleItem(item, "Normal", "RuneItem");
+        return createSimpleItem(item, "Common", "RuneItem");
     }
 
     private static SimpleItem fromDungeonKeyItem(DungeonKeyItem item) {
-        return createSimpleItem(item, "Normal", "DungeonKeyItem");
+        return createSimpleItem(item, "Common", "DungeonKeyItem");
     }
 
     private static SimpleItem createSimpleItem(WynnItem item, String rarity, String itemType) {
@@ -145,11 +144,11 @@ public class ItemStackUtils {
     }
 
     private static SimpleTierItem fromHorseItem(HorseItem horseItem) {
-        return createTierItem(horseItem, ItemStackUtils.getHorseName(horseItem), "Normal", "HorseItem", horseItem.getTier().getNumeral());
+        return createTierItem(horseItem, ItemStackUtils.getHorseName(horseItem), "", "HorseItem", horseItem.getTier().getNumeral());
     }
 
     private static SimpleTierItem fromEmeraldPouchItem(EmeraldPouchItem emeraldPouchItem) {
-        return createTierItem(emeraldPouchItem, "Emerald Pouch", "Normal", "EmeraldPouchItem", emeraldPouchItem.getTier());
+        return createTierItem(emeraldPouchItem, "Emerald Pouch", "", "EmeraldPouchItem", emeraldPouchItem.getTier());
     }
 
     private static SimpleTierItem createTierItem(WynnItem item, String name, String rarity, String itemType, int tier) {

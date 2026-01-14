@@ -17,6 +17,7 @@ public class SimpleGearItem extends SimpleItem {
     private final Optional<ShinyStat> shinyStat;
     private final float overallRollPercentage;
     private final List<ItemStat> actualStatsWithPercentage = new ArrayList<>();
+    private final boolean shiny;
 
     public SimpleGearItem(String name, String rarity, String itemType, String type, Icon icon, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
         this(name, rarity, itemType, type, icon, 1, unidentified, rerollCount, shinyStat, overallRollPercentage, actualStatsWithPercentage);
@@ -29,6 +30,7 @@ public class SimpleGearItem extends SimpleItem {
         this.shinyStat = shinyStat;
         this.overallRollPercentage = overallRollPercentage;
         this.actualStatsWithPercentage.addAll(actualStatsWithPercentage);
+        this.shiny = shinyStat.isPresent();
     }
 
     public boolean isUnidentified() {
@@ -50,6 +52,8 @@ public class SimpleGearItem extends SimpleItem {
     public List<ItemStat> getActualStatsWithPercentage() {
         return actualStatsWithPercentage;
     }
+
+    public boolean isShiny() { return shiny; }
 
     @Override
     public boolean equals(Object o) {

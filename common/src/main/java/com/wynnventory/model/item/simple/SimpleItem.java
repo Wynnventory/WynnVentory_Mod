@@ -2,12 +2,13 @@ package com.wynnventory.model.item.simple;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wynnventory.data.TimestampedObject;
 import com.wynnventory.model.item.Icon;
 
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SimpleItem {
+public class SimpleItem extends TimestampedObject {
     protected String name;
     protected String rarity;
     protected String itemType;
