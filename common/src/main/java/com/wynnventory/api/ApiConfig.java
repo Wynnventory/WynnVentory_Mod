@@ -1,11 +1,12 @@
 package com.wynnventory.api;
 
+import com.wynnventory.api.exception.ApiKeyException;
 import com.wynnventory.core.WynnventoryMod;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Base64;
 
 public final class ApiConfig {
@@ -29,16 +30,10 @@ public final class ApiConfig {
         if (apiKey != null) return apiKey;
 
         try (InputStream in = ApiConfig.class.getResourceAsStream("/key.dat")) {
-            if (in == null) throw new IllegalStateException("Missing key.dat!");
+            if (in == null) throw new ApiKeyException("Missing key.dat. For local development create the file and paste your API key");
 
-            byte[] b64 = in.readAllBytes();
-            byte[] defaultC = "${api_key}".getBytes(StandardCharsets.UTF_8);
-
-            if(Arrays.equals(defaultC, b64)) {
-                b64 = System.getenv("API_KEY").getBytes(StandardCharsets.UTF_8);
-            }
-
-            byte[] ob  = Base64.getDecoder().decode(b64);
+            String raw = new String(in.readAllBytes(), StandardCharsets.UTF_8).trim();
+            byte[] ob = Base64.getDecoder().decode(raw);
 
             for (int i = 0; i < ob.length; i++) {
                 ob[i] ^= MASK;
@@ -47,8 +42,8 @@ public final class ApiConfig {
             apiKey = new String(ob, StandardCharsets.UTF_8);
 
             return apiKey;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load API key", e);
+        } catch (IOException e) {
+            throw new ApiKeyException("Failed to read key.dat", e);
         }
     }
 }

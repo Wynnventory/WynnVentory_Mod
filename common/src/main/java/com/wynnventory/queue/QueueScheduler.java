@@ -2,7 +2,12 @@ package com.wynnventory.queue;
 
 import com.wynnventory.api.WynnventoryApi;
 import com.wynnventory.core.WynnventoryMod;
+import com.wynnventory.model.item.simple.SimpleItem;
+import com.wynnventory.model.reward.RewardPool;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -13,11 +18,19 @@ public class QueueScheduler {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final int SEND_DELAY_MINS = 1;
 
-    private QueueScheduler() {}
+    private QueueScheduler() {
+    }
 
     public static void startScheduledTask() {
         WynnventoryMod.logDebug("Starting queue scheduler with {} mins delay", SEND_DELAY_MINS);
-        scheduler.scheduleAtFixedRate(QueueScheduler::processQueuedItems, 1, SEND_DELAY_MINS, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                processQueuedItems();
+            } catch (Exception t) {
+                WynnventoryMod.logError("QueueScheduler crashed!", t);
+                throw t;
+            }
+        }, 1, SEND_DELAY_MINS, TimeUnit.MINUTES);
         addShutdownHook();
     }
 
@@ -36,8 +49,9 @@ public class QueueScheduler {
     }
 
     private static void processQueuedItems() {
-        WynnventoryMod.logDebug("Processing queued items");
-        // TODO: Process lootpool items
+        Map<RewardPool, Set<SimpleItem>> lootrunItems = QueueManager.lootrun().drainAll();
+        WynnventoryMod.logDebug("Processing {} reward pools", lootrunItems.size());
+        if (!lootrunItems.isEmpty()) API.sendRewardPoolData(lootrunItems);
     }
 
     private static void addShutdownHook() {
