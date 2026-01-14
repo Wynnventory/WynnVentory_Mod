@@ -1,16 +1,9 @@
 package com.wynnventory.model.item.simple;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.wynntils.models.gear.GearModel;
-import com.wynntils.models.gear.type.GearInstance;
-import com.wynntils.models.items.WynnItemData;
-import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.stats.type.ShinyStat;
-import com.wynntils.models.stats.type.StatActualValue;
-import com.wynntils.models.stats.type.StatPossibleValues;
+import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.ItemStat;
-import com.wynnventory.util.IconManager;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,31 +18,17 @@ public class SimpleGearItem extends SimpleItem {
     private final float overallRollPercentage;
     private final List<ItemStat> actualStatsWithPercentage = new ArrayList<>();
 
-    public SimpleGearItem(GearItem item) {
-        super(item.getName(),
-                item.getGearTier().getName(),
-                "GearItem",
-                item.getGearType().name(),
-                IconManager.getIcon(item.getName()),
-                ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount()
-        );
+    public SimpleGearItem(String name, String rarity, String itemType, String type, Icon icon, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
+        this(name, rarity, itemType, type, icon, 1, unidentified, rerollCount, shinyStat, overallRollPercentage, actualStatsWithPercentage);
+    }
 
-        this.unidentified = item.isUnidentified();
-        this.rerollCount = item.getRerollCount();
-        this.overallRollPercentage = item.getOverallPercentage();
-
-        GearInstance gearInstance = new GearModel().parseInstance(item.getItemInfo(), (ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY));
-        this.shinyStat = gearInstance.shinyStat();
-
-        final List<StatActualValue> actualValues = item.getIdentifications();
-        final List<StatPossibleValues> possibleValues = item.getPossibleValues();
-
-        for (StatActualValue actual : actualValues) {
-            StatPossibleValues possibleValue = possibleValues.stream().filter(p -> p.statType().getKey().equals(actual.statType().getKey())).findFirst().orElse(null);
-            if(possibleValue != null) {
-                actualStatsWithPercentage.add(new ItemStat(actual, possibleValue));
-            }
-        }
+    public SimpleGearItem(String name, String rarity, String itemType, String type, Icon icon, int amount, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
+        super(name, rarity, itemType, type, icon, amount);
+        this.unidentified = unidentified;
+        this.rerollCount = rerollCount;
+        this.shinyStat = shinyStat;
+        this.overallRollPercentage = overallRollPercentage;
+        this.actualStatsWithPercentage.addAll(actualStatsWithPercentage);
     }
 
     public boolean isUnidentified() {

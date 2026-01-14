@@ -2,14 +2,7 @@ package com.wynnventory.model.item.simple;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wynntils.models.items.WynnItem;
-import com.wynntils.models.items.WynnItemData;
-import com.wynntils.models.items.items.game.*;
 import com.wynnventory.model.item.Icon;
-import com.wynnventory.util.IconManager;
-import com.wynnventory.util.ItemStackUtils;
-import com.wynnventory.util.StringUtils;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.Objects;
 
@@ -39,52 +32,6 @@ public class SimpleItem {
         this.type = type;
         this.icon = icon;
         this.amount = amount;
-    }
-
-    public static SimpleItem fromSimulatorItem(SimulatorItem item) {
-        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
-
-        return new SimpleItem(name,
-                item.getGearTier().getName(),
-                "SimulatorItem",
-                StringUtils.toCamelCase(name),
-                IconManager.getIcon(name),
-                ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount()
-        );
-    }
-
-    public static SimpleItem fromInsulatorItem(InsulatorItem item) {
-        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
-
-        return new SimpleItem(name,
-                item.getGearTier().getName(),
-                "InsulatorItem",
-                StringUtils.toCamelCase(name),
-                IconManager.getIcon(name),
-                ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount()
-        );
-    }
-
-    public static SimpleItem fromRuneItem(RuneItem item) {
-        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
-
-        return new SimpleItem(name,
-                "Normal",
-                "RuneItem",
-                StringUtils.toCamelCase(name),
-                IconManager.getIcon(name),
-                ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount());
-    }
-
-    public static SimpleItem fromDungeonKeyItem(DungeonKeyItem item) {
-        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
-
-        return new SimpleItem(name,
-                "Normal",
-                "DungeonKeyItem",
-                StringUtils.toCamelCase(name),
-                IconManager.getIcon(name),
-                ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount());
     }
 
     public String getName() {
