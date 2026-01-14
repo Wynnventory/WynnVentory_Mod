@@ -40,4 +40,5 @@ replay_*.log
 *.jfr
 
 # custom
-/src/main/resources/api_key.dat
+fabric/src/main/resources/key.dat
+neoforge/src/main/resources/key.dat
