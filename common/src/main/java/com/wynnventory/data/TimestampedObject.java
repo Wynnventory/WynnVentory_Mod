@@ -3,8 +3,6 @@ package com.wynnventory.data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.wynntils.utils.mc.McUtils;
-import com.wynnventory.core.ModInfo;
 
 import java.time.Instant;
 
