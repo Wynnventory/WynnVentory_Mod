@@ -3,16 +3,13 @@ package com.wynnventory.util;
 import com.wynntils.core.components.Models;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.gear.GearModel;
-import com.wynntils.models.gear.type.GearInstance;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
-import com.wynntils.models.stats.type.ShinyStat;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynnventory.core.WynnventoryMod;
-import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.ItemStat;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
@@ -21,7 +18,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.ItemStack;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -90,7 +86,7 @@ public class ItemStackUtils {
     }
 
     public static String getAmplifierName(AmplifierItem item) {
-        String name = ""; //getWynntilsOriginalNameAsString(item);
+        String name = getWynntilsOriginalNameAsString(item);
         String[] nameParts = name.split(" ");
 
         if (nameParts.length > 1) {
@@ -166,30 +162,35 @@ public class ItemStackUtils {
     }
 
     private static SimpleGearItem fromGearItem(GearItem item) {
-        String  name = item.getName();
-        String  rarity = item.getGearTier().getName();
-        String  itemType = "GearItem";
-        String  type = item.getGearType().name();
-        Icon    icon = IconManager.getIcon(name);
-        int     amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        boolean unidentified = item.isUnidentified();
-        int     rerollCount = item.getRerollCount();
-        float   overallRollPercentage = item.getOverallPercentage();
+        String name = item.getName();
+        ItemStack itemStack = item.getData().get(WynnItemData.ITEMSTACK_KEY);
 
-        GearInstance gearInstance = new GearModel().parseInstance(item.getItemInfo(), (ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY));
-        Optional<ShinyStat> shinyStat = gearInstance.shinyStat();
+        return new SimpleGearItem(
+                name,
+                item.getGearTier().getName(),
+                "GearItem",
+                item.getGearType().name(),
+                IconManager.getIcon(name),
+                itemStack.getCount(),
+                item.isUnidentified(),
+                item.getRerollCount(),
+                new GearModel().parseInstance(item.getItemInfo(), itemStack).shinyStat(),
+                item.getOverallPercentage(),
+                getActualStats(item)
+        );
+    }
 
+    private static List<ItemStat> getActualStats(GearItem item) {
         final List<StatActualValue> actualValues = item.getIdentifications();
         final List<StatPossibleValues> possibleValues = item.getPossibleValues();
 
-        List<ItemStat> actualStatsWithPercentage = new ArrayList<>();
-        for (StatActualValue actual : actualValues) {
-            StatPossibleValues possibleValue = possibleValues.stream().filter(p -> p.statType().getKey().equals(actual.statType().getKey())).findFirst().orElse(null);
-            if(possibleValue != null) {
-                actualStatsWithPercentage.add(new ItemStat(actual, possibleValue));
-            }
-        }
-
-        return new SimpleGearItem(name, rarity, itemType, type, icon, amount, unidentified, rerollCount, shinyStat, overallRollPercentage, actualStatsWithPercentage);
+        return actualValues.stream()
+                .map(actual -> possibleValues.stream()
+                        .filter(p -> p.statType().getKey().equals(actual.statType().getKey()))
+                        .findFirst()
+                        .map(possible -> new ItemStat(actual, possible))
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .toList();
     }
 }
