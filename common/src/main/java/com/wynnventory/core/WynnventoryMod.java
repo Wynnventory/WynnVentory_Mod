@@ -64,9 +64,9 @@ public final class WynnventoryMod {
         LOGGER.warn(msg);
     }
 
-    public static void logDebug(String msg) {
-        LOGGER.debug(msg);
-    }
+    public static void logDebug(String msg) { LOGGER.debug(msg); }
+
+    public static void logDebug(String msg, Object... args) { LOGGER.debug(msg, args); }
 
     public static void logError(String msg) {
         LOGGER.error(msg);

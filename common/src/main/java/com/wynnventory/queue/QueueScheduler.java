@@ -11,11 +11,12 @@ public class QueueScheduler {
 
     private static final WynnventoryApi API = new WynnventoryApi();
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private static final int SEND_DELAY_MINS = 5;
+    private static final int SEND_DELAY_MINS = 1;
 
     private QueueScheduler() {}
 
     public static void startScheduledTask() {
+        WynnventoryMod.logDebug("Starting queue scheduler with {} mins delay", SEND_DELAY_MINS);
         scheduler.scheduleAtFixedRate(QueueScheduler::processQueuedItems, 1, SEND_DELAY_MINS, TimeUnit.MINUTES);
         addShutdownHook();
     }
@@ -35,6 +36,7 @@ public class QueueScheduler {
     }
 
     private static void processQueuedItems() {
+        WynnventoryMod.logDebug("Processing queued items");
         // TODO: Process lootpool items
     }
 
