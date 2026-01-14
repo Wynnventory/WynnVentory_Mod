@@ -43,7 +43,6 @@ public class SimpleItem extends TimestampedObject {
         return rarity;
     }
 
-    @JsonProperty("item_type")
     public String getItemType() {
         return itemType;
     }

@@ -5,7 +5,6 @@ import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -18,8 +17,7 @@ public class QueueScheduler {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final int SEND_DELAY_MINS = 1;
 
-    private QueueScheduler() {
-    }
+    private QueueScheduler() {}
 
     public static void startScheduledTask() {
         WynnventoryMod.logDebug("Starting queue scheduler with {} mins delay", SEND_DELAY_MINS);

@@ -6,10 +6,11 @@ import com.wynnventory.queue.QueueManager;
 import net.neoforged.bus.api.SubscribeEvent;
 
 public class LootRewardHandler {
+    private static final int REWARD_CONTAINER_SLOTS = 54; // TODO: Rework to use bounds
 
     @SubscribeEvent
     public void onHandleContainerContent(LootrunPreviewOpenedEvent event) {
         RewardPool pool = RewardPool.fromTitle(event.getScreenTitle());
-        QueueManager.lootrun().addItems(pool, event.getItems());
+        QueueManager.lootrun().addItems(pool, event.getItems().subList(0, REWARD_CONTAINER_SLOTS));
     }
 }

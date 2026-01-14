@@ -1,5 +1,6 @@
 package com.wynnventory.mixin;
 
+import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.event.LootrunPreviewOpenedEvent;
 import com.wynnventory.model.reward.RewardPool;
@@ -11,12 +12,18 @@ import net.minecraft.client.multiplayer.CommonListenerCookie;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl {
+
+    @Unique
+    private static boolean isRenderThread() {
+        return McUtils.mc().isSameThread();
+    }
 
     protected ClientPacketListenerMixin(
             Minecraft minecraft, Connection connection, CommonListenerCookie commonListenerCookie) {
@@ -28,13 +35,13 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                     "handleContainerContent(Lnet/minecraft/network/protocol/game/ClientboundContainerSetContentPacket;)V",
             at = @At("RETURN"))
     private void handleContainerContentPost(ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
-//        if (!isRenderThread()) return;
+        if (!isRenderThread()) return;
         Screen screen = Minecraft.getInstance().screen;
-        if (screen == null) return;
+        if (screen == null || packet.containerId() == McUtils.inventoryMenu().containerId) return;
 
         if (RewardPool.isLootrunTitle(screen.getTitle().getString())) {
             WynnventoryMod.postEvent(new LootrunPreviewOpenedEvent(packet.items(), packet.carriedItem(), packet.containerId(), packet.stateId(), screen.getTitle().getString()));
         }
         // TODO else if isRaidTitle
-        }
+    }
 }

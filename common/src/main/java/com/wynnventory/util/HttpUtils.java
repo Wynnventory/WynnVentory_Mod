@@ -14,13 +14,13 @@ public class HttpUtils {
 
     private HttpUtils() {}
 
-    public static CompletableFuture<Void> sendPostRequest(URI uri, String jsonPayload) {
+    public static void sendPostRequest(URI uri, String jsonPayload) {
         HttpRequest request = baseRequest(uri)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                 .build();
 
-        return send(request)
+        send(request)
                 .thenAccept(resp -> {
                     int code = resp.statusCode();
                     if (code < 200 || code >= 300) {

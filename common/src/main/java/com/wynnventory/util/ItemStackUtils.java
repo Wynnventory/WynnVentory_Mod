@@ -105,11 +105,11 @@ public class ItemStackUtils {
     }
 
     private static SimpleItem fromSimulatorItem(SimulatorItem item) {
-        return createSimpleItem(item, item.getGearTier().getName(), "SimulatorItem");
+        return createSimpleItem(item, item.getGearTier().getName(), "SimulatorItem", "Simulator");
     }
 
     private static SimpleItem fromInsulatorItem(InsulatorItem item) {
-        return createSimpleItem(item, item.getGearTier().getName(), "InsulatorItem");
+        return createSimpleItem(item, item.getGearTier().getName(), "InsulatorItem", "Insulator");
     }
 
     private static SimpleItem fromRuneItem(RuneItem item) {
@@ -122,8 +122,13 @@ public class ItemStackUtils {
 
     private static SimpleItem createSimpleItem(WynnItem item, String rarity, String itemType) {
         String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
+        return createSimpleItem(item, rarity, itemType, StringUtils.toCamelCase(name));
+    }
+
+    private static SimpleItem createSimpleItem(WynnItem item, String rarity, String itemType, String type) {
+        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
         int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        return new SimpleItem(name, rarity, itemType, StringUtils.toCamelCase(name), IconManager.getIcon(name), amount);
+        return new SimpleItem(name, rarity, itemType, type, IconManager.getIcon(name), amount);
     }
 
     private static SimpleTierItem fromIngredientItem(IngredientItem item) {
