@@ -163,7 +163,7 @@ public class ItemStackUtils {
     }
 
     private static SimpleItem fromTomeItem(TomeItem tomeItem) {
-        return createSimpleItem(tomeItem, tomeItem.getGearTier().getName(), "TomeItem", tomeItem.getItemInfo().type().name());
+        return new SimpleItem(tomeItem.getName().replace("Unidentified ", ""), tomeItem.getGearTier().getName(), "TomeItem", tomeItem.getItemInfo().type().name());
     }
 
     private static SimpleItem fromAspectItem(AspectItem aspectItem) {
