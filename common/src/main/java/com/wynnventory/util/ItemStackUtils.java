@@ -45,9 +45,9 @@ public class ItemStackUtils {
             case EmeraldPouchItem emeraldPouchItem -> fromEmeraldPouchItem(emeraldPouchItem);
             case EmeraldItem emeraldItem        -> fromEmeraldItem(emeraldItem);
             case TomeItem tomeItem              -> fromTomeItem(tomeItem);
+            case AspectItem aspectItem          -> fromAspectItem(aspectItem);
             default -> {
-                WynnventoryMod.logWarn("Unknown item type: " + item.getClass().getSimpleName());
-                yield new SimpleItem();
+                yield null;
             }
         };
     }
@@ -164,6 +164,10 @@ public class ItemStackUtils {
 
     private static SimpleItem fromTomeItem(TomeItem tomeItem) {
         return createSimpleItem(tomeItem, tomeItem.getGearTier().getName(), "TomeItem", tomeItem.getItemInfo().type().name());
+    }
+
+    private static SimpleItem fromAspectItem(AspectItem aspectItem) {
+        return createSimpleItem(aspectItem, aspectItem.getGearTier().getName(), "AspectItem", aspectItem.getRequiredClass().getName() + "Aspect");
     }
 
     private static SimpleTierItem createTierItem(WynnItem item, String name, String rarity, String itemType, int tier) {
