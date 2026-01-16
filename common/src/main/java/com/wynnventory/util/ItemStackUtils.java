@@ -43,6 +43,8 @@ public class ItemStackUtils {
             case AmplifierItem amplifierItem    -> fromAmplifierItem(amplifierItem);
             case HorseItem horseItem            -> fromHorseItem(horseItem);
             case EmeraldPouchItem emeraldPouchItem -> fromEmeraldPouchItem(emeraldPouchItem);
+            case EmeraldItem emeraldItem        -> fromEmeraldItem(emeraldItem);
+            case TomeItem tomeItem              -> fromTomeItem(tomeItem);
             default -> {
                 WynnventoryMod.logWarn("Unknown item type: " + item.getClass().getSimpleName());
                 yield new SimpleItem();
@@ -154,6 +156,14 @@ public class ItemStackUtils {
 
     private static SimpleTierItem fromEmeraldPouchItem(EmeraldPouchItem emeraldPouchItem) {
         return createTierItem(emeraldPouchItem, "Emerald Pouch", "", "EmeraldPouchItem", emeraldPouchItem.getTier());
+    }
+
+    private static SimpleItem fromEmeraldItem(EmeraldItem emeraldItem) {
+        return createSimpleItem(emeraldItem, "Common", "EmeraldItem", emeraldItem.getUnit().name());
+    }
+
+    private static SimpleItem fromTomeItem(TomeItem tomeItem) {
+        return createSimpleItem(tomeItem, tomeItem.getGearTier().getName(), "TomeItem", tomeItem.getItemInfo().type().name());
     }
 
     private static SimpleTierItem createTierItem(WynnItem item, String name, String rarity, String itemType, int tier) {
