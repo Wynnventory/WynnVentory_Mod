@@ -28,7 +28,13 @@ public class SimpleItem extends TimestampedObject {
 
     public SimpleItem(String name, String rarity, String itemType, String type, Icon icon, int amount) {
         this.name = name;
-        this.rarity = rarity;
+
+        if(rarity == null || rarity.isBlank()) {
+            this.rarity = "Common";
+        } else {
+            this.rarity = rarity;
+        }
+
         this.itemType = itemType;
         this.type = type;
         this.icon = icon;

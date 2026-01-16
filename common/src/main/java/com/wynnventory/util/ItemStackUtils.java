@@ -115,16 +115,16 @@ public class ItemStackUtils {
     }
 
     private static SimpleItem fromRuneItem(RuneItem item) {
-        return createSimpleItem(item, "Common", "RuneItem");
+        return createSimpleItem(item, "RuneItem");
     }
 
     private static SimpleItem fromDungeonKeyItem(DungeonKeyItem item) {
-        return createSimpleItem(item, "Common", "DungeonKeyItem");
+        return createSimpleItem(item,"DungeonKeyItem");
     }
 
-    private static SimpleItem createSimpleItem(WynnItem item, String rarity, String itemType) {
+    private static SimpleItem createSimpleItem(WynnItem item, String itemType) {
         String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
-        return createSimpleItem(item, rarity, itemType, StringUtils.toCamelCase(name));
+        return createSimpleItem(item, "Common", itemType, StringUtils.toCamelCase(name));
     }
 
     private static SimpleItem createSimpleItem(WynnItem item, String rarity, String itemType, String type) {
@@ -134,16 +134,16 @@ public class ItemStackUtils {
     }
 
     private static SimpleTierItem fromIngredientItem(IngredientItem item) {
-        return createTierItem(item, item.getName(), null, "IngredientItem", item.getIngredientInfo().professions().toString(), item.getQualityTier());
+        return createTierItem(item, item.getName(), "Common", "IngredientItem", item.getIngredientInfo().professions().toString(), item.getQualityTier());
     }
 
     private static SimpleTierItem fromMaterialItem(MaterialItem materialItem) {
-        return createTierItem(materialItem, ItemStackUtils.getMaterialName(materialItem), null, "MaterialItem", materialItem.getProfessionTypes().toString(), materialItem.getQualityTier());
+        return createTierItem(materialItem, ItemStackUtils.getMaterialName(materialItem), "Common", "MaterialItem", materialItem.getProfessionTypes().toString(), materialItem.getQualityTier());
     }
 
     private static SimpleTierItem fromPowderItem(PowderItem powderItem) {
         String type = powderItem.getPowderProfile().element().getName() + "Powder";
-        return createTierItem(powderItem, ItemStackUtils.getPowderName(powderItem), null, "PowderItem", type, powderItem.getTier());
+        return createTierItem(powderItem, ItemStackUtils.getPowderName(powderItem), "Common", "PowderItem", type, powderItem.getTier());
     }
 
     private static SimpleTierItem fromAmplifierItem(AmplifierItem amplifierItem) {
@@ -151,11 +151,11 @@ public class ItemStackUtils {
     }
 
     private static SimpleTierItem fromHorseItem(HorseItem horseItem) {
-        return createTierItem(horseItem, ItemStackUtils.getHorseName(horseItem), "", "HorseItem", horseItem.getTier().getNumeral());
+        return createTierItem(horseItem, ItemStackUtils.getHorseName(horseItem), "Common", "HorseItem", horseItem.getTier().getNumeral());
     }
 
     private static SimpleTierItem fromEmeraldPouchItem(EmeraldPouchItem emeraldPouchItem) {
-        return createTierItem(emeraldPouchItem, "Emerald Pouch", "", "EmeraldPouchItem", emeraldPouchItem.getTier());
+        return createTierItem(emeraldPouchItem, "Emerald Pouch", "Common", "EmeraldPouchItem", emeraldPouchItem.getTier());
     }
 
     private static SimpleItem fromEmeraldItem(EmeraldItem emeraldItem) {
