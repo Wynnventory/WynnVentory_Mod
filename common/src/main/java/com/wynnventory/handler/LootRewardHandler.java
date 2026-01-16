@@ -17,15 +17,10 @@ public final class LootRewardHandler {
 
     @SubscribeEvent
     public void onHandleContainerContent(LootrunPreviewOpenedEvent event) {
-        // skip if wynncraft sent the container twice
-        int containerId = event.getContainerId();
-        if (event.getContainerId() == lastHandledContentId && ItemUtils.isItemListsEqual(event.getItems(), lastHandledItems)) return;
-        lastHandledContentId = containerId;
-        lastHandledItems = event.getItems();
+        if (isDuplicate(event)) return;
 
         RewardPool pool = RewardPool.fromTitle(event.getScreenTitle());
         List<ItemStack> rewardStacks = getStacksInBounds(event.getItems());
-        if (rewardStacks.isEmpty()) return;
 
         QueueManager.lootrun().addItems(pool, rewardStacks);
     }
@@ -39,6 +34,19 @@ public final class LootRewardHandler {
             containerItems.add(s);
         }
         return containerItems;
+    }
+
+    private boolean isDuplicate(LootrunPreviewOpenedEvent event) {
+        int containerId = event.getContainerId();
+        var items = event.getItems();
+
+        if (containerId == lastHandledContentId && ItemUtils.isItemListsEqual(items, lastHandledItems)) {
+            return true;
+        }
+
+        lastHandledContentId = containerId;
+        lastHandledItems = items;
+        return false;
     }
 
 }

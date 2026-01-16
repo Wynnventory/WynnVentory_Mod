@@ -6,6 +6,7 @@ import com.wynnventory.event.LootrunPreviewOpenedEvent;
 import com.wynnventory.model.reward.RewardPool;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.CommonListenerCookie;
@@ -38,12 +39,12 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         if (!isRenderThread()) return;
 
         Screen screen = Minecraft.getInstance().screen;
-        if (screen == null) return;
+        if (!(screen instanceof AbstractContainerScreen<?> containerScreen)) return;
 
-        String title = screen.getTitle().getString();
-        if (RewardPool.isLootrunTitle(title)) {
-            WynnventoryMod.postEvent(new LootrunPreviewOpenedEvent(packet.items(), packet.containerId(), title));
-        }
-        // TODO else if isRaidTitle
+        if (containerScreen.getMenu().containerId != packet.containerId()) return;
+
+        String title = containerScreen.getTitle().getString();
+        if (RewardPool.isLootrunTitle(title)) WynnventoryMod.postEvent(new LootrunPreviewOpenedEvent(packet.items(), packet.containerId(), title));
+//        if (RewardPool.isRaidTitle(title)) WynnventoryMod.postEvent(new LootrunPreviewOpenedEvent(packet.items(), packet.containerId(), title)); TODO: Finish implementation
     }
 }
