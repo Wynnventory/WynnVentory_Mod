@@ -1,7 +1,7 @@
 package com.wynnventory.core;
 
 import com.wynnventory.config.ModConfig;
-import com.wynnventory.feature.LootRewardHandler;
+import com.wynnventory.handler.LootRewardHandler;
 import com.wynnventory.core.event.EventBusWrapper;
 import com.wynnventory.queue.QueueScheduler;
 import com.wynnventory.util.IconManager;

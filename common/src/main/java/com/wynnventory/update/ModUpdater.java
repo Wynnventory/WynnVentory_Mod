@@ -1,4 +1,4 @@
-package com.wynnventory.feature;
+package com.wynnventory.update;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
