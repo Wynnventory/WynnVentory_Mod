@@ -1,5 +1,6 @@
 package com.wynnventory.queue;
 
+import com.wynnventory.api.Endpoint;
 import com.wynnventory.api.WynnventoryApi;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleItem;
@@ -47,9 +48,11 @@ public class QueueScheduler {
     }
 
     private static void processQueuedItems() {
-        Map<RewardPool, Set<SimpleItem>> lootrunItems = QueueManager.lootrun().drainAll();
-        WynnventoryMod.logDebug("Processing {} reward pools", lootrunItems.size());
-        if (!lootrunItems.isEmpty()) API.sendRewardPoolData(lootrunItems);
+        Map<RewardPool, Set<SimpleItem>> lootrunItems = QueueManager.LOOTRUN_QUEUE.drainAll();
+        Map<RewardPool, Set<SimpleItem>> raidItems = QueueManager.RAID_QUEUE.drainAll();
+        WynnventoryMod.logDebug("Processing {} lootrun and {} raid reward pools", lootrunItems.size(), raidItems.size());
+        if (!lootrunItems.isEmpty()) API.sendRewardPoolData(lootrunItems, Endpoint.LOOTPOOL_ITEMS);
+        if (!raidItems.isEmpty()) API.sendRewardPoolData(raidItems, Endpoint.RAIDPOOL_ITEMS);
     }
 
     private static void addShutdownHook() {

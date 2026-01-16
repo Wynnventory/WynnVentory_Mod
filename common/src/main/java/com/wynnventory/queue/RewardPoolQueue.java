@@ -3,8 +3,6 @@ package com.wynnventory.queue;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
-import com.wynnventory.util.ItemStackUtils;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,12 +11,10 @@ public final class RewardPoolQueue {
 
     private final Map<RewardPool, Set<SimpleItem>> pools = new ConcurrentHashMap<>();
 
-    public void addItems(RewardPool pool, Collection<ItemStack> items) {
+    public void addItems(RewardPool pool, Collection<SimpleItem> items) {
         Set<SimpleItem> poolItems = pools.computeIfAbsent(pool, k -> ConcurrentHashMap.newKeySet());
 
-        for (ItemStack stack : items) {
-            poolItems.add(ItemStackUtils.toSimpleItem(stack));
-        }
+        poolItems.addAll(items);
         WynnventoryMod.logInfo("Collected {} items for RewardPool {}", poolItems.size(), pool.getShortName());
     }
 

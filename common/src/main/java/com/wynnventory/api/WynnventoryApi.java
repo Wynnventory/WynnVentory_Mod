@@ -26,8 +26,8 @@ public class WynnventoryApi  {
 
     // TODO: sendGambitItems
 
-    public void sendRewardPoolData(Map<RewardPool, Set<SimpleItem>> drainedPools) {
-        URI uri = Endpoint.LOOTPOOL_ITEMS.uri();
+    public void sendRewardPoolData(Map<RewardPool, Set<SimpleItem>> drainedPools, Endpoint endpoint) {
+        URI uri = endpoint.uri();
 
         for (Map.Entry<RewardPool, Set<SimpleItem>> entry : drainedPools.entrySet()) {
             RewardPool pool = entry.getKey();

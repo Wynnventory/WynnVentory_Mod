@@ -2,7 +2,8 @@ package com.wynnventory.model.reward;
 
 public enum RewardType {
 
-    LOOTRUN();
+    LOOTRUN(),
+    RAID();
 
     RewardType() {}
 }

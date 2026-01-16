@@ -1,10 +1,14 @@
 package com.wynnventory.handler;
 
+import com.wynntils.models.containers.type.ContainerBounds;
 import com.wynntils.utils.wynn.ItemUtils;
-import com.wynnventory.event.LootrunPreviewOpenedEvent;
+import com.wynnventory.event.RewardPreviewOpenedEvent;
 import com.wynnventory.model.container.LootrunRewardPreviewLayout;
+import com.wynnventory.model.container.RaidRewardPreviewLayout;
+import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.queue.QueueManager;
+import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 
@@ -16,27 +20,31 @@ public final class LootRewardHandler {
     private List<ItemStack> lastHandledItems = List.of();
 
     @SubscribeEvent
-    public void onHandleContainerContent(LootrunPreviewOpenedEvent event) {
+    public void onLootrunPreviewOpened(RewardPreviewOpenedEvent.Lootrun event) {
         if (isDuplicate(event)) return;
 
-        RewardPool pool = RewardPool.fromTitle(event.getScreenTitle());
-        List<ItemStack> rewardStacks = getStacksInBounds(event.getItems());
-
-        QueueManager.lootrun().addItems(pool, rewardStacks);
+        QueueManager.LOOTRUN_QUEUE.addItems(RewardPool.fromTitle(event.getScreenTitle()), getStacksInBounds(event.getItems(), LootrunRewardPreviewLayout.BOUNDS));
     }
 
-    private static List<ItemStack> getStacksInBounds(List<ItemStack> items) {
-        List<ItemStack> containerItems = new ArrayList<>();
-        for (int slot : LootrunRewardPreviewLayout.BOUNDS.getSlots()) {
-            if (slot < 0 || slot >= items.size()) continue;
-            ItemStack s = items.get(slot);
-            if (s == null || s.isEmpty()) continue;
-            containerItems.add(s);
+    @SubscribeEvent
+    public void onRaidPreviewOpened(RewardPreviewOpenedEvent.Raid event) {
+        if (isDuplicate(event)) return;
+
+        QueueManager.RAID_QUEUE.addItems(RewardPool.fromTitle(event.getScreenTitle()), getStacksInBounds(event.getItems(), RaidRewardPreviewLayout.BOUNDS));
+    }
+
+    private static List<SimpleItem> getStacksInBounds(List<ItemStack> packetItems, ContainerBounds bounds) {
+        List<SimpleItem> containerItems = new ArrayList<>();
+        for (int slot : bounds.getSlots()) {
+            if (slot < 0 || slot >= packetItems.size()) continue;
+            SimpleItem simpleItem = ItemStackUtils.toSimpleItem(packetItems.get(slot));
+            if (simpleItem == null) continue;
+            containerItems.add(simpleItem);
         }
         return containerItems;
     }
 
-    private boolean isDuplicate(LootrunPreviewOpenedEvent event) {
+    private boolean isDuplicate(RewardPreviewOpenedEvent event) {
         int containerId = event.getContainerId();
         var items = event.getItems();
 
