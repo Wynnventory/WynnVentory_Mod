@@ -17,7 +17,6 @@ public final class RewardPoolQueue {
         Set<SimpleItem> poolItems = pools.computeIfAbsent(pool, k -> ConcurrentHashMap.newKeySet());
 
         for (ItemStack stack : items) {
-            if (stack == null || stack.isEmpty()) continue;
             poolItems.add(ItemStackUtils.toSimpleItem(stack));
         }
         WynnventoryMod.logInfo("Collected {} items for RewardPool {}", poolItems.size(), pool.getShortName());

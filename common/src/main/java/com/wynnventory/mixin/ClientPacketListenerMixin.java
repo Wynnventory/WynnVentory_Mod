@@ -36,11 +36,13 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
             at = @At("RETURN"))
     private void handleContainerContentPost(ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
         if (!isRenderThread()) return;
-        Screen screen = Minecraft.getInstance().screen;
-        if (screen == null || packet.containerId() == McUtils.inventoryMenu().containerId) return;
 
-        if (RewardPool.isLootrunTitle(screen.getTitle().getString())) {
-            WynnventoryMod.postEvent(new LootrunPreviewOpenedEvent(packet.items(), packet.carriedItem(), packet.containerId(), packet.stateId(), screen.getTitle().getString()));
+        Screen screen = Minecraft.getInstance().screen;
+        if (screen == null) return;
+
+        String title = screen.getTitle().getString();
+        if (RewardPool.isLootrunTitle(title)) {
+            WynnventoryMod.postEvent(new LootrunPreviewOpenedEvent(packet.items(), packet.containerId(), title));
         }
         // TODO else if isRaidTitle
     }
