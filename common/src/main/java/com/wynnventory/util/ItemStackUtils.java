@@ -32,20 +32,20 @@ public class ItemStackUtils {
 
     public static SimpleItem toSimpleItem(WynnItem item) {
         return switch (item) {
-            case SimulatorItem simulatorItem    -> fromSimulatorItem(simulatorItem);
-            case InsulatorItem insulatorItem    -> fromInsulatorItem(insulatorItem);
-            case RuneItem runeItem              -> fromRuneItem(runeItem);
+            case AmplifierItem amplifierItem    -> fromAmplifierItem(amplifierItem);
+            case AspectItem aspectItem          -> fromAspectItem(aspectItem);
             case DungeonKeyItem dungeonKeyItem  -> fromDungeonKeyItem(dungeonKeyItem);
+            case EmeraldItem emeraldItem        -> fromEmeraldItem(emeraldItem);
+            case EmeraldPouchItem emeraldPouchItem -> fromEmeraldPouchItem(emeraldPouchItem);
             case GearItem gearItem              -> fromGearItem(gearItem);
+            case HorseItem horseItem            -> fromHorseItem(horseItem);
             case IngredientItem ingredientItem  -> fromIngredientItem(ingredientItem);
+            case InsulatorItem insulatorItem    -> fromInsulatorItem(insulatorItem);
             case MaterialItem materialItem      -> fromMaterialItem(materialItem);
             case PowderItem powderItem          -> fromPowderItem(powderItem);
-            case AmplifierItem amplifierItem    -> fromAmplifierItem(amplifierItem);
-            case HorseItem horseItem            -> fromHorseItem(horseItem);
-            case EmeraldPouchItem emeraldPouchItem -> fromEmeraldPouchItem(emeraldPouchItem);
-            case EmeraldItem emeraldItem        -> fromEmeraldItem(emeraldItem);
+            case RuneItem runeItem              -> fromRuneItem(runeItem);
+            case SimulatorItem simulatorItem    -> fromSimulatorItem(simulatorItem);
             case TomeItem tomeItem              -> fromTomeItem(tomeItem);
-            case AspectItem aspectItem          -> fromAspectItem(aspectItem);
             default -> {
                 yield null;
             }
