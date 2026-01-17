@@ -3,6 +3,7 @@ package com.wynnventory.core;
 import com.wynnventory.config.ModConfig;
 import com.wynnventory.handler.LootRewardHandler;
 import com.wynnventory.core.event.EventBusWrapper;
+import com.wynnventory.handler.TrademarketItemHandler;
 import com.wynnventory.queue.QueueScheduler;
 import com.wynnventory.util.IconManager;
 import net.neoforged.bus.api.Event;
@@ -39,6 +40,7 @@ public final class WynnventoryMod {
         QueueScheduler.startScheduledTask();
 
         eventBus.register(new LootRewardHandler());
+        eventBus.register(new TrademarketItemHandler());
     }
 
     public static <T extends Event> void postEvent(T event) {

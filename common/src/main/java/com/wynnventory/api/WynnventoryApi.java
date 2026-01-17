@@ -22,7 +22,6 @@ public class WynnventoryApi  {
             .registerModule(new Jdk8Module())
             .registerModule(new JavaTimeModule());
 
-    // TODO: sendTradeMarketResults
 
     // TODO: sendGambitItems
 
@@ -39,6 +38,12 @@ public class WynnventoryApi  {
 
             HttpUtils.sendPostRequest(uri, serialize(doc));
         }
+    }
+
+    public void sendTradeMarketData(Set<SimpleItem> trademarketItems) {
+        URI uri = Endpoint.TRADE_MARKET_ITEMS.uri();
+        HttpUtils.sendPostRequest(uri, serialize(trademarketItems));
+        WynnventoryMod.logDebug("Trying to send {} trademarket items", trademarketItems.size());
     }
 
     // TODO: sendRaidpoolData

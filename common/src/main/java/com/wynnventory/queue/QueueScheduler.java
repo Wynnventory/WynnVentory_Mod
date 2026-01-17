@@ -50,9 +50,11 @@ public class QueueScheduler {
     private static void processQueuedItems() {
         Map<RewardPool, Set<SimpleItem>> lootrunItems = QueueManager.LOOTRUN_QUEUE.drainAll();
         Map<RewardPool, Set<SimpleItem>> raidItems = QueueManager.RAID_QUEUE.drainAll();
-        WynnventoryMod.logDebug("Processing {} lootrun and {} raid reward pools", lootrunItems.size(), raidItems.size());
+        Set<SimpleItem> trademarketItems = QueueManager.TRADEMARKET_QUEUE.drainAll();
+        WynnventoryMod.logDebug("Processing {} lootrun pool, {} raid reward pools, {} trademarket items", lootrunItems.size(), raidItems.size(), trademarketItems.size());
         if (!lootrunItems.isEmpty()) API.sendRewardPoolData(lootrunItems, Endpoint.LOOTPOOL_ITEMS);
         if (!raidItems.isEmpty()) API.sendRewardPoolData(raidItems, Endpoint.RAIDPOOL_ITEMS);
+        if (!trademarketItems.isEmpty()) API.sendTradeMarketData(trademarketItems);
     }
 
     private static void addShutdownHook() {
