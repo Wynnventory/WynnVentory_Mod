@@ -2,13 +2,14 @@ package com.wynnventory.model.item.trademarket;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
+import com.wynnventory.data.ModInfoProvider;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Objects;
 
-public class TradeMarketListing {
+public class TradeMarketListing extends ModInfoProvider {
     private SimpleItem item;
     private int price;
     private int quantity;
