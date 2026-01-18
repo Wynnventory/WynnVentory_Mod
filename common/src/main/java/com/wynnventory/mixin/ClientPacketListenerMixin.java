@@ -2,7 +2,9 @@ package com.wynnventory.mixin;
 
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.WynnventoryMod;
+import com.wynnventory.data.ContainerType;
 import com.wynnventory.event.RewardPreviewOpenedEvent;
+import com.wynnventory.event.TrademarketOpenedEvent;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.util.ContainerUtil;
 import net.minecraft.client.Minecraft;
@@ -46,5 +48,6 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         String title = container.title;
         if (RewardPool.isLootrunTitle(title))  WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Lootrun(packet.items(), packet.containerId(), title));
         if (RewardPool.isRaidTitle(title)) WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Raid(packet.items(), packet.containerId(), title));
+        if (ContainerType.isTrademarket(title)) WynnventoryMod.postEvent(new TrademarketOpenedEvent(packet.items(), packet.containerId(), title));
     }
 }

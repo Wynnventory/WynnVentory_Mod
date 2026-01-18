@@ -1,21 +1,23 @@
 package com.wynnventory.model.reward;
 
+import com.wynnventory.data.ContainerType;
+
 import java.util.regex.Pattern;
 
 public enum RewardPool {
 
     // --- Lootruns ---
-    CANYON_OF_THE_LOST(RewardType.LOOTRUN, "COTL", "Canyon of the Lost", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF006")),
-    CORKUS(RewardType.LOOTRUN, "Corkus", "Corkus", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF007")),
-    MOLTEN_HEIGHTS(RewardType.LOOTRUN, "Molten Heights", "Molten Heights", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF008")),
-    SKY_ISLANDS(RewardType.LOOTRUN, "Sky Islands", "Sky Islands", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF009")),
-    SILENT_EXPANSE(RewardType.LOOTRUN, "Silent Expanse", "Silent Expanse", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF00A")),
+    CANYON_OF_THE_LOST(RewardType.LOOTRUN, "COTL", "Canyon of the Lost", ContainerType.CANYON_OF_THE_LOST.getPattern()),
+    CORKUS(RewardType.LOOTRUN, "Corkus", "Corkus", ContainerType.CORKUS.getPattern()),
+    MOLTEN_HEIGHTS(RewardType.LOOTRUN, "Molten Heights", "Molten Heights", ContainerType.MOLTEN_HEIGHTS.getPattern()),
+    SKY_ISLANDS(RewardType.LOOTRUN, "Sky Islands", "Sky Islands", ContainerType.SKY_ISLANDS.getPattern()),
+    SILENT_EXPANSE(RewardType.LOOTRUN, "Silent Expanse", "Silent Expanse", ContainerType.SILENT_EXPANSE.getPattern()),
 
     // --- Raids ---
-    NEST_OF_GROOTSLANGS(RewardType.RAID, "NOTG", "Nest of the Grootslangs", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00B")),
-    NEXUS_OF_LIGHT(RewardType.RAID, "NOL", "Orphion's Nexus of Light", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00C")),
-    CANYON_COLOSSUS(RewardType.RAID, "TCC", "The Canyon Colossus", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00D")),
-    NAMELESS_ANOMALY(RewardType.RAID, "TNA", "The Nameless Anomaly", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00E"));
+    NEST_OF_GROOTSLANGS(RewardType.RAID, "NOTG", "Nest of the Grootslangs", ContainerType.NEST_OF_GROOTSLANGS.getPattern()),
+    NEXUS_OF_LIGHT(RewardType.RAID, "NOL", "Orphion's Nexus of Light", ContainerType.NEXUS_OF_LIGHT.getPattern()),
+    CANYON_COLOSSUS(RewardType.RAID, "TCC", "The Canyon Colossus", ContainerType.CANYON_COLOSSUS.getPattern()),
+    NAMELESS_ANOMALY(RewardType.RAID, "TNA", "The Nameless Anomaly", ContainerType.NAMELESS_ANOMALY.getPattern());
 
     private final RewardType type;
     private final String shortName;
