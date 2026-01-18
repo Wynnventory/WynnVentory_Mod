@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleItem;
+import com.wynnventory.model.item.trademarket.TradeMarketListing;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.util.HttpUtils;
@@ -40,7 +41,7 @@ public class WynnventoryApi  {
         }
     }
 
-    public void sendTradeMarketData(Set<SimpleItem> trademarketItems) {
+    public void sendTradeMarketData(Set<TradeMarketListing> trademarketItems) {
         URI uri = Endpoint.TRADE_MARKET_ITEMS.uri();
         HttpUtils.sendPostRequest(uri, serialize(trademarketItems));
         WynnventoryMod.logDebug("Trying to send {} trademarket items", trademarketItems.size());

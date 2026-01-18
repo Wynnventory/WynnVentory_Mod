@@ -1,7 +1,8 @@
-package com.wynnventory.model.item.simple;
+package com.wynnventory.model.item.trademarket;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
+import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.world.item.ItemStack;
 
