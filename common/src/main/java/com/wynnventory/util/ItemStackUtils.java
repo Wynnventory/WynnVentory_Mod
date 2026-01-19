@@ -12,6 +12,7 @@ import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynntils.utils.mc.LoreUtils;
 import com.wynnventory.core.WynnventoryMod;
+import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.ItemStat;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
@@ -205,7 +206,13 @@ public class ItemStackUtils {
 
     private static SimpleTierItem createTierItem(WynnItem item, String name, String rarity, String itemType, String type, int tier) {
         int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        return new SimpleTierItem(name, rarity, itemType, type, IconManager.getIcon(name, tier), amount, tier);
+        Icon icon = IconManager.getIcon(name);
+
+        if(icon == null) {
+            icon = IconManager.getIcon(name, tier);
+        }
+
+        return new SimpleTierItem(name, rarity, itemType, type, icon, amount, tier);
     }
 
     private static SimpleGearItem fromGearItem(GearItem item) {
