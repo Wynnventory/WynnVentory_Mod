@@ -4,7 +4,7 @@ import com.wynnventory.config.ModConfig;
 import com.wynnventory.handler.LootRewardHandler;
 import com.wynnventory.core.event.EventBusWrapper;
 import com.wynnventory.handler.RaidWindowHandler;
-import com.wynnventory.handler.TrademarketItemHandler;
+import com.wynnventory.handler.TooltipRenderHandler;
 import com.wynnventory.queue.QueueScheduler;
 import com.wynnventory.util.IconManager;
 import net.neoforged.bus.api.Event;
@@ -41,7 +41,7 @@ public final class WynnventoryMod {
         QueueScheduler.startScheduledTask();
 
         eventBus.register(new LootRewardHandler());
-        eventBus.register(new TrademarketItemHandler());
+        eventBus.register(new TooltipRenderHandler());
         eventBus.register(new RaidWindowHandler());
     }
 

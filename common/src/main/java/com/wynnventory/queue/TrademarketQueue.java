@@ -14,7 +14,7 @@ public final class TrademarketQueue {
     public void addItem(TradeMarketListing listing) {
         boolean added = items.add(listing);
 
-        if (added) WynnventoryMod.logInfo("Collected TM Listing for item: {} | price: {} | quantity: {}. New queued size: {}", listing.getItem().getName(), listing.getListingPrice(), listing.getQuantity(), items.size());
+        if (added) WynnventoryMod.logDebug("Collected TM Listing for item: {} | price: {} | quantity: {}. New queued size: {}", listing.getItem().getName(), listing.getListingPrice(), listing.getQuantity(), items.size());
     }
 
     public Set<TradeMarketListing> drainAll() {
