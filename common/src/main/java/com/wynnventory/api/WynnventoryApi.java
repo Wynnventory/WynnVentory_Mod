@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.wynnventory.core.WynnventoryMod;
+import com.wynnventory.model.item.simple.SimpleGambitItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.trademarket.TradeMarketListing;
 import com.wynnventory.model.reward.RewardPool;
@@ -24,7 +25,14 @@ public class WynnventoryApi  {
             .registerModule(new JavaTimeModule());
 
 
-    // TODO: sendGambitItems
+    public void sendGambitData(Set<SimpleGambitItem> gambits) {
+        if (gambits.isEmpty()) return;
+
+        WynnventoryMod.logDebug("Sending gambit data to {} endpoint.", WynnventoryMod.isDev() ? "DEV" : "PROD");
+        URI uri = Endpoint.RAIDPOOL_GAMBITS.uri();
+        post(uri, gambits);
+        WynnventoryMod.logDebug("Submitted {} gambit items to API: {}", gambits.size(), uri);
+    }
 
     public void sendRewardPoolData(Map<RewardPool, Set<SimpleItem>> drainedPools, Endpoint endpoint) {
         URI uri = endpoint.uri();

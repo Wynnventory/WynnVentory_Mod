@@ -3,12 +3,13 @@ package com.wynnventory.model.item.simple;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.items.items.gui.GambitItem;
 import com.wynntils.utils.colors.CustomColor;
+import com.wynnventory.data.ModInfoProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class SimpleGambitItem {
+public class SimpleGambitItem extends ModInfoProvider {
     private String name;
     private List<String> description = new ArrayList<>();
     private CustomColor color;

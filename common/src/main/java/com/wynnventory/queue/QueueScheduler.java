@@ -3,6 +3,7 @@ package com.wynnventory.queue;
 import com.wynnventory.api.Endpoint;
 import com.wynnventory.api.WynnventoryApi;
 import com.wynnventory.core.WynnventoryMod;
+import com.wynnventory.model.item.simple.SimpleGambitItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.trademarket.TradeMarketListing;
 import com.wynnventory.model.reward.RewardPool;
@@ -52,10 +53,12 @@ public class QueueScheduler {
         Map<RewardPool, Set<SimpleItem>> lootrunItems = QueueManager.LOOTRUN_QUEUE.drainAll();
         Map<RewardPool, Set<SimpleItem>> raidItems = QueueManager.RAID_QUEUE.drainAll();
         Set<TradeMarketListing> trademarketItems = QueueManager.TRADEMARKET_QUEUE.drainAll();
-        WynnventoryMod.logDebug("Processing {} lootrun pool, {} raid reward pools, {} trademarket items", lootrunItems.size(), raidItems.size(), trademarketItems.size());
+        Set<SimpleGambitItem> gambitItems = QueueManager.GAMBIT_QUEUE.drainAll();
+        WynnventoryMod.logDebug("Processing {} lootrun pool, {} raid reward pools, {} trademarket items, {} gambit items", lootrunItems.size(), raidItems.size(), trademarketItems.size(), gambitItems.size());
         if (!lootrunItems.isEmpty()) API.sendRewardPoolData(lootrunItems, Endpoint.LOOTPOOL_ITEMS);
         if (!raidItems.isEmpty()) API.sendRewardPoolData(raidItems, Endpoint.RAIDPOOL_ITEMS);
         if (!trademarketItems.isEmpty()) API.sendTradeMarketData(trademarketItems);
+        if (!gambitItems.isEmpty()) API.sendGambitData(gambitItems);
     }
 
     private static void addShutdownHook() {
