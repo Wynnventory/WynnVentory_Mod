@@ -1,4 +1,4 @@
-package com.wynnventory.event;
+package com.wynnventory.events;
 
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.Event;

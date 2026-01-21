@@ -1,4 +1,4 @@
-package com.wynnventory.event;
+package com.wynnventory.events;
 
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.bus.api.Event;

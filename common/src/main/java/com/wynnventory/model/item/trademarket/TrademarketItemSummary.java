@@ -2,7 +2,7 @@ package com.wynnventory.model.item.trademarket;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wynnventory.data.TimestampedObject;
+import com.wynnventory.model.item.TimestampedObject;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.simple.SimpleItem;
 
@@ -11,9 +11,9 @@ import java.time.Instant;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CalculatedPriceItem extends TimestampedObject {
+public class TrademarketItemSummary extends TimestampedObject {
     private final SimpleItem item = new SimpleItem();
-    private final CalculatedPriceInfo calculatedPriceInfo = new CalculatedPriceInfo();
+    private final TrademarketPriceSummary calculatedPriceInfo = new TrademarketPriceSummary();
     private static final Duration DATA_LIFESPAN = Duration.ofMinutes(5);
 
     private boolean shiny;
@@ -23,7 +23,7 @@ public class CalculatedPriceItem extends TimestampedObject {
         return item;
     }
 
-    public CalculatedPriceInfo getPriceInfo() {
+    public TrademarketPriceSummary getPriceInfo() {
         return calculatedPriceInfo;
     }
 
@@ -143,16 +143,6 @@ public class CalculatedPriceItem extends TimestampedObject {
         calculatedPriceInfo.setLowestPrice(value);
     }
 
-    @JsonProperty("total_count")
-    public Integer getTotalCount() {
-        return calculatedPriceInfo.getTotalCount();
-    }
-
-    @JsonProperty("total_count")
-    public void setTotalCount(Integer value) {
-        calculatedPriceInfo.setTotalCount(value);
-    }
-
     @JsonProperty("unidentified_average_mid_80_percent_price")
     public Double getUnidentifiedAverageMid80PercentPrice() {
         return calculatedPriceInfo.getUnidentifiedAverageMid80PercentPrice();
@@ -173,16 +163,6 @@ public class CalculatedPriceItem extends TimestampedObject {
         calculatedPriceInfo.setUnidentifiedAveragePrice(value);
     }
 
-    @JsonProperty("unidentified_count")
-    public Integer getUnidentifiedCount() {
-        return calculatedPriceInfo.getUnidentifiedCount();
-    }
-
-    @JsonProperty("unidentified_count")
-    public void setUnidentifiedCount(Integer value) {
-        calculatedPriceInfo.setUnidentifiedCount(value);
-    }
-
     public boolean isTimeValid() {
         return timestamp.isAfter(Instant.now().minus(DATA_LIFESPAN));
     }
@@ -190,7 +170,7 @@ public class CalculatedPriceItem extends TimestampedObject {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o instanceof CalculatedPriceItem other) {
+        if (o instanceof TrademarketItemSummary other) {
             return shiny == other.shiny &&
                     Objects.equals(item, other.item) &&
                     Objects.equals(calculatedPriceInfo, other.calculatedPriceInfo) &&

@@ -2,12 +2,12 @@ package com.wynnventory.handler;
 
 import com.wynntils.models.containers.type.ContainerBounds;
 import com.wynntils.utils.wynn.ItemUtils;
-import com.wynnventory.event.RewardPreviewOpenedEvent;
+import com.wynnventory.events.RewardPreviewOpenedEvent;
 import com.wynnventory.model.container.LootrunRewardPreviewLayout;
 import com.wynnventory.model.container.RaidRewardPreviewLayout;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
-import com.wynnventory.queue.QueueManager;
+import com.wynnventory.core.queue.QueueManager;
 import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;

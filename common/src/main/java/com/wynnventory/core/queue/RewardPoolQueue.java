@@ -1,4 +1,4 @@
-package com.wynnventory.queue;
+package com.wynnventory.core.queue;
 
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleItem;

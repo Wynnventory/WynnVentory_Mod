@@ -1,11 +1,10 @@
-package com.wynnventory.update;
+package com.wynnventory.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonParseException;
 import com.wynntils.utils.FileUtils;
 import com.wynntils.utils.mc.McUtils;
-import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.github.Asset;
 import com.wynnventory.model.github.Release;
 import com.wynnventory.util.HttpUtils;

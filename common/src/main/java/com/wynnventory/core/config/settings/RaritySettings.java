@@ -1,4 +1,4 @@
-package com.wynnventory.config.settings;
+package com.wynnventory.core.config.settings;
 
 public class RaritySettings {
     private boolean showMythic = true;

@@ -1,10 +1,14 @@
-package com.wynnventory.config;
+package com.wynnventory.core.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.wynnventory.config.settings.*;
 import com.wynnventory.core.WynnventoryMod;
+import com.wynnventory.core.config.settings.ColorSettings;
+import com.wynnventory.core.config.settings.FavouriteNotifierSettings;
+import com.wynnventory.core.config.settings.RaritySettings;
+import com.wynnventory.core.config.settings.TooltipSettings;
 
 import java.io.IOException;
 import java.io.InputStream;

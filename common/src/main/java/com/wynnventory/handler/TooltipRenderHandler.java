@@ -2,13 +2,13 @@ package com.wynnventory.handler;
 
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
 import com.wynnventory.core.WynnventoryMod;
-import com.wynnventory.data.CalculatedItemPriceDictionary;
-import com.wynnventory.event.TrademarketTooltipRenderedEvent;
+import com.wynnventory.api.TrademarketPriceDictionary;
+import com.wynnventory.events.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;
-import com.wynnventory.model.item.trademarket.TradeMarketListing;
-import com.wynnventory.queue.QueueManager;
+import com.wynnventory.model.item.trademarket.TrademarketListing;
+import com.wynnventory.core.queue.QueueManager;
 import com.wynnventory.util.FixedTooltipPositioner;
 import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.ChatFormatting;
@@ -45,7 +45,7 @@ public final class TooltipRenderHandler {
         if (lastItem == hoveredItem) return;
         lastItem = hoveredItem;
 
-        TradeMarketListing listing = TradeMarketListing.from(hoveredItem);
+        TrademarketListing listing = TrademarketListing.from(hoveredItem);
         if (listing == null) return;
 
         QueueManager.TRADEMARKET_QUEUE.addItem(listing);
@@ -58,9 +58,9 @@ public final class TooltipRenderHandler {
 
         //TODO: Refactor this (new class?)
         switch (simpleItem) {
-            case SimpleGearItem gearItem -> CalculatedItemPriceDictionary.INSTANCE.getItem(gearItem.getName(), gearItem.isShiny());
-            case SimpleTierItem tierItem -> CalculatedItemPriceDictionary.INSTANCE.getItem(tierItem.getName(), tierItem.getTier());
-            case SimpleItem item -> CalculatedItemPriceDictionary.INSTANCE.getItem(item.getName());
+            case SimpleGearItem gearItem -> TrademarketPriceDictionary.INSTANCE.getItem(gearItem.getName(), gearItem.isShiny());
+            case SimpleTierItem tierItem -> TrademarketPriceDictionary.INSTANCE.getItem(tierItem.getName(), tierItem.getTier());
+            case SimpleItem item -> TrademarketPriceDictionary.INSTANCE.getItem(item.getName());
             case null -> WynnventoryMod.logError("Wait a minute... Who are you!?");
         }
 

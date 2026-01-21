@@ -7,8 +7,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleGambitItem;
 import com.wynnventory.model.item.simple.SimpleItem;
-import com.wynnventory.model.item.trademarket.CalculatedPriceItem;
-import com.wynnventory.model.item.trademarket.TradeMarketListing;
+import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
+import com.wynnventory.model.item.trademarket.TrademarketListing;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.util.HttpUtils;
@@ -51,18 +51,18 @@ public class WynnventoryApi  {
         }
     }
 
-    public void sendTradeMarketData(Set<TradeMarketListing> trademarketItems) {
+    public void sendTradeMarketData(Set<TrademarketListing> trademarketItems) {
         URI uri = Endpoint.TRADE_MARKET_ITEMS.uri();
         HttpUtils.sendPostRequest(uri, serialize(trademarketItems));
         WynnventoryMod.logDebug("Trying to send {} trademarket items", trademarketItems.size());
     }
 
     // TODO: fetchItemPrice (by name)
-    public CompletableFuture<CalculatedPriceItem> fetchItemPrice(String name) {
+    public CompletableFuture<TrademarketItemSummary> fetchItemPrice(String name) {
         return fetchItemPrice(name, null);
     }
 
-    public CompletableFuture<CalculatedPriceItem> fetchItemPrice(String name, Integer tier) {
+    public CompletableFuture<TrademarketItemSummary> fetchItemPrice(String name, Integer tier) {
         if (name == null || name.isBlank()) return null;
 
         URI uri;
@@ -114,9 +114,9 @@ public class WynnventoryApi  {
         }
     }
 
-    private CalculatedPriceItem parsePriceInfoResponse(String responseBody) {
+    private TrademarketItemSummary parsePriceInfoResponse(String responseBody) {
         try {
-            return MAPPER.readValue(responseBody, CalculatedPriceItem.class);
+            return MAPPER.readValue(responseBody, TrademarketItemSummary.class);
         } catch (JsonProcessingException e) {
             WynnventoryMod.logError("Failed to parse item price response {}", responseBody, e);
         }

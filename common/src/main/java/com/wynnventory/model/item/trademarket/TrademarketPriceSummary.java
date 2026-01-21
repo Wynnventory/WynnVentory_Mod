@@ -4,15 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CalculatedPriceInfo {
+public class TrademarketPriceSummary {
     private Double averageMid80PercentPrice;
     private Double averagePrice;
     private Integer highestPrice;
     private Integer lowestPrice;
-    private Integer totalCount;
     private Double unidentifiedAverageMid80PercentPrice;
     private Double unidentifiedAveragePrice;
-    private Integer unidentifiedCount;
 
     public Double getAverageMid80PercentPrice() {
         return averageMid80PercentPrice;
@@ -46,14 +44,6 @@ public class CalculatedPriceInfo {
         this.lowestPrice = lowestPrice;
     }
 
-    public Integer getTotalCount() {
-        return totalCount;
-    }
-
-    public void setTotalCount(Integer totalCount) {
-        this.totalCount = totalCount;
-    }
-
     public Double getUnidentifiedAverageMid80PercentPrice() {
         return unidentifiedAverageMid80PercentPrice;
     }
@@ -70,26 +60,16 @@ public class CalculatedPriceInfo {
         this.unidentifiedAveragePrice = unidentifiedAveragePrice;
     }
 
-    public Integer getUnidentifiedCount() {
-        return unidentifiedCount;
-    }
-
-    public void setUnidentifiedCount(Integer unidentifiedCount) {
-        this.unidentifiedCount = unidentifiedCount;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o instanceof CalculatedPriceInfo other) {
+        if (o instanceof TrademarketPriceSummary other) {
             return Objects.equals(averageMid80PercentPrice, other.averageMid80PercentPrice) &&
                     Objects.equals(averagePrice, other.averagePrice) &&
                     Objects.equals(highestPrice, other.highestPrice) &&
                     Objects.equals(lowestPrice, other.lowestPrice) &&
-                    Objects.equals(totalCount, other.totalCount) &&
                     Objects.equals(unidentifiedAverageMid80PercentPrice, other.unidentifiedAverageMid80PercentPrice) &&
-                    Objects.equals(unidentifiedAveragePrice, other.unidentifiedAveragePrice) &&
-                    Objects.equals(unidentifiedCount, other.unidentifiedCount);
+                    Objects.equals(unidentifiedAveragePrice, other.unidentifiedAveragePrice);
         }
         return false;
     }
@@ -101,10 +81,8 @@ public class CalculatedPriceInfo {
                 averagePrice,
                 highestPrice,
                 lowestPrice,
-                totalCount,
                 unidentifiedAverageMid80PercentPrice,
-                unidentifiedAveragePrice,
-                unidentifiedCount
+                unidentifiedAveragePrice
         );
     }
 
@@ -115,10 +93,7 @@ public class CalculatedPriceInfo {
                 ", averagePrice=" + averagePrice +
                 ", highestPrice=" + highestPrice +
                 ", lowestPrice=" + lowestPrice +
-                ", totalCount=" + totalCount +
                 ", unidentifiedAverageMid80PercentPrice=" + unidentifiedAverageMid80PercentPrice +
-                ", unidentifiedAveragePrice=" + unidentifiedAveragePrice +
-                ", unidentifiedCount=" + unidentifiedCount +
-                '}';
+                ", unidentifiedAveragePrice=" + unidentifiedAveragePrice + '}';
     }
 }
