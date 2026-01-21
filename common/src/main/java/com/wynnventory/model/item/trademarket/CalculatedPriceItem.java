@@ -183,7 +183,7 @@ public class CalculatedPriceItem extends TimestampedObject {
     }
 
     public boolean isTimeValid() {
-        return timestamp.isBefore(Instant.now().minus(Duration.ofMinutes(5)));
+        return timestamp.isAfter(Instant.now().minus(Duration.ofMinutes(5)));
     }
 
     @Override

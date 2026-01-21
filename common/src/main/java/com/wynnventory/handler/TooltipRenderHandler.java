@@ -3,6 +3,7 @@ package com.wynnventory.handler;
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
 import com.wynnventory.api.WynnventoryApi;
 import com.wynnventory.core.WynnventoryMod;
+import com.wynnventory.data.CalculatedItemPriceDictionary;
 import com.wynnventory.event.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.trademarket.CalculatedPriceItem;
@@ -55,9 +56,7 @@ public final class TooltipRenderHandler {
         SimpleItem simpleItem = ItemStackUtils.toSimpleItem(event.getItemStack());
         if (simpleItem == null) return;
 
-        CalculatedPriceItem item = new WynnventoryApi().fetchItemPrice(simpleItem.getName());
-
-        WynnventoryMod.logDebug("Got Data: {}", item);
+        CalculatedItemPriceDictionary.get().getItem(simpleItem.getName());
 
         renderTooltip(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getItemStack(), event.getTooltips());
     }
