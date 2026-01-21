@@ -1,7 +1,7 @@
 package com.wynnventory.mixin;
 
 import com.wynnventory.core.WynnventoryMod;
-import com.wynnventory.event.TooltipRenderedEvent;
+import com.wynnventory.event.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.container.TrademarketContainer;
 import com.wynnventory.util.ContainerUtil;
 import net.minecraft.client.gui.GuiGraphics;
@@ -35,8 +35,6 @@ public abstract class AbstractContainerScreenMixin extends Screen {
         ContainerUtil container = ContainerUtil.current();
         if (container == null) return;
 
-        WynnventoryMod.postEvent(new TooltipRenderedEvent.Any(hoveredSlot, guiGraphics, mouseX, mouseY));
-
-        if(TrademarketContainer.matchesTitle(container.title)) WynnventoryMod.postEvent(new TooltipRenderedEvent.Trademarket(hoveredSlot));
+        if(TrademarketContainer.matchesTitle(container.title)) WynnventoryMod.postEvent(new TrademarketTooltipRenderedEvent(hoveredSlot));
     }
 }
