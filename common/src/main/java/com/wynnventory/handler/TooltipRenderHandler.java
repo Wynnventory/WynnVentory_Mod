@@ -1,12 +1,12 @@
 package com.wynnventory.handler;
 
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
-import com.wynnventory.api.WynnventoryApi;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.data.CalculatedItemPriceDictionary;
 import com.wynnventory.event.TrademarketTooltipRenderedEvent;
+import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
-import com.wynnventory.model.item.trademarket.CalculatedPriceItem;
+import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.model.item.trademarket.TradeMarketListing;
 import com.wynnventory.queue.QueueManager;
 import com.wynnventory.util.FixedTooltipPositioner;
@@ -54,9 +54,15 @@ public final class TooltipRenderHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onTooltipRendered(ItemTooltipRenderEvent.Pre event) {
         SimpleItem simpleItem = ItemStackUtils.toSimpleItem(event.getItemStack());
-        if (simpleItem == null) return;
 
-        CalculatedItemPriceDictionary.get().getItem(simpleItem.getName());
+
+        //TODO: Refactor this (new class?)
+        switch (simpleItem) {
+            case SimpleGearItem gearItem -> CalculatedItemPriceDictionary.INSTANCE.getItem(gearItem.getName(), gearItem.isShiny());
+            case SimpleTierItem tierItem -> CalculatedItemPriceDictionary.INSTANCE.getItem(tierItem.getName(), tierItem.getTier());
+            case SimpleItem item -> CalculatedItemPriceDictionary.INSTANCE.getItem(item.getName());
+            case null -> WynnventoryMod.logError("Wait a minute... Who are you!?");
+        }
 
         renderTooltip(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getItemStack(), event.getTooltips());
     }

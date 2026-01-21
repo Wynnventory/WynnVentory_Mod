@@ -9,10 +9,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class HttpUtils {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
+    private static final Duration TIMEOUT = Duration.ofSeconds(5);
 
     private HttpUtils() {}
 
@@ -56,6 +58,7 @@ public class HttpUtils {
         String key = ApiConfig.getApiKey();
         return HttpRequest.newBuilder()
                 .uri(uri)
+                .timeout(TIMEOUT)
                 .header("Authorization", "Api-Key " + key);
     }
 

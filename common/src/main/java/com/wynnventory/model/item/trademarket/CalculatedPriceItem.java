@@ -14,6 +14,7 @@ import java.util.Objects;
 public class CalculatedPriceItem extends TimestampedObject {
     private final SimpleItem item = new SimpleItem();
     private final CalculatedPriceInfo calculatedPriceInfo = new CalculatedPriceInfo();
+    private static final Duration DATA_LIFESPAN = Duration.ofMinutes(5);
 
     private boolean shiny;
     private Integer tier;
@@ -183,7 +184,7 @@ public class CalculatedPriceItem extends TimestampedObject {
     }
 
     public boolean isTimeValid() {
-        return timestamp.isAfter(Instant.now().minus(Duration.ofMinutes(5)));
+        return timestamp.isAfter(Instant.now().minus(DATA_LIFESPAN));
     }
 
     @Override

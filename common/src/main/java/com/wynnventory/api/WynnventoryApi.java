@@ -58,35 +58,26 @@ public class WynnventoryApi  {
     }
 
     // TODO: fetchItemPrice (by name)
-    public CalculatedPriceItem fetchItemPrice(String name) {
+    public CompletableFuture<CalculatedPriceItem> fetchItemPrice(String name) {
         return fetchItemPrice(name, null);
     }
 
-    public CalculatedPriceItem fetchItemPrice(String name, Integer tier) {
+    public CompletableFuture<CalculatedPriceItem> fetchItemPrice(String name, Integer tier) {
         if (name == null || name.isBlank()) return null;
 
-        try {
-            URI uri;
-            if (tier == null) {
-                uri = Endpoint.TRADE_MARKET_PRICE.uri(HttpUtils.encodeName(name));
-            } else {
-                uri = Endpoint.TRADE_MARKET_PRICE_TIERED.uri(HttpUtils.encodeName(name));
-            }
-
-            WynnventoryMod.logInfo("Fetching market data from {} endpoint.", WynnventoryMod.isDev() ? "DEV" : "PROD");
-            CompletableFuture<CalculatedPriceItem> future =
-                    HttpUtils.sendGetRequest(uri)
-                            .thenApply(resp -> handleResponse(resp, this::parsePriceInfoResponse))
-                            .exceptionally(ex -> {
-                                WynnventoryMod.logError("Failed to fetch item price", ex);
-                                return null;
-                            });
-
-            return future.join();
-        } catch (Exception e) {
-            WynnventoryMod.logError("Failed to fetch item price", e);
-            return null;
+        URI uri;
+        if (tier == null) {
+            uri = Endpoint.TRADE_MARKET_PRICE.uri(HttpUtils.encodeName(name));
+        } else {
+            uri = Endpoint.TRADE_MARKET_PRICE_TIERED.uri(HttpUtils.encodeName(name), tier);
         }
+
+        return HttpUtils.sendGetRequest(uri)
+                .thenApply(resp -> handleResponse(resp, this::parsePriceInfoResponse))
+                .exceptionally(ex -> {
+                    WynnventoryMod.logError("Failed to fetch item price", ex);
+                    return null;
+                });
     }
 
     // TODO: fetchLootpools (RAID or LOOTPOOL)

@@ -3,81 +3,56 @@ package com.wynnventory.data;
 import com.wynnventory.api.WynnventoryApi;
 import com.wynnventory.model.item.trademarket.CalculatedPriceItem;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
-public class CalculatedItemPriceDictionary {
-    private static CalculatedItemPriceDictionary instance;
+public final class CalculatedItemPriceDictionary {
+    public static final CalculatedItemPriceDictionary INSTANCE =  new CalculatedItemPriceDictionary();
 
-    private final WynnventoryApi api = new WynnventoryApi();
-    private final Set<CalculatedPriceItem> prices = new HashSet<>();
+    private static final WynnventoryApi API = new WynnventoryApi();
+    private final ConcurrentHashMap<Integer, CalculatedPriceItem> prices = new ConcurrentHashMap<>();
+    private final ConcurrentLinkedDeque<Integer> fetching = new ConcurrentLinkedDeque<>();
 
     private CalculatedItemPriceDictionary() {}
 
-    public static CalculatedItemPriceDictionary get() {
-        synchronized (CalculatedItemPriceDictionary.class) {
-            if (instance == null) {
-                instance = new CalculatedItemPriceDictionary();
-            }
-        }
-
-        return instance;
-    }
-
     public CalculatedPriceItem getItem(String name) {
-        return getItemInternal(name, null);
+        return getOrFetch(name, null, false);
     }
 
     public CalculatedPriceItem getItem(String name, int tier) {
-        return getItemInternal(name, tier);
+        return getOrFetch(name, tier, false);
     }
 
-    private CalculatedPriceItem getItemInternal(String name, Integer tier) {
-        if (prices.isEmpty()) {
-            CalculatedPriceItem fetched = (tier == null)
-                    ? api.fetchItemPrice(name)
-                    : api.fetchItemPrice(name, tier);
+    public CalculatedPriceItem getItem(String name, boolean shiny) {
+        return getOrFetch(name, null, shiny);
+    }
 
-            if (fetched != null) {
-                prices.add(fetched);
-            }
+    private CalculatedPriceItem getOrFetch(String name, Integer tier, boolean shiny) {
+        if (name == null || name.isBlank()) return null;
 
-            return fetched;
+        int key = generateHash(name, tier, shiny);
+        if (fetching.contains(key)) return null;
+
+        CalculatedPriceItem cached = prices.get(key);
+        if (cached != null && cached.isTimeValid()) {
+            return cached;
         }
 
-        Iterator<CalculatedPriceItem> it = prices.iterator();
-        while (it.hasNext()) {
-            CalculatedPriceItem data = it.next();
-
-            if (!matchesNameAndTier(data, name, tier)) {
-                continue;
-            }
-
-            if (data.isTimeValid()) {
-                return data;
-            }
-
-            CalculatedPriceItem newData = (tier == null)
-                    ? api.fetchItemPrice(name)
-                    : api.fetchItemPrice(name, tier);
-
-            if (newData == null) {
+        fetching.push(key);
+        API.fetchItemPrice(name, tier).thenAccept(fetched -> {
+            if (fetched == null) return;
+            prices.put(key, fetched);
+            fetching.remove(key);
+        }).exceptionally( ex -> {
+                fetching.remove(key);
                 return null;
-            }
+        });
 
-            it.remove();
-            prices.add(newData);
-            return newData;
-        }
-
-        return null;
+        return cached;
     }
 
-    private boolean matchesNameAndTier(CalculatedPriceItem data, String name, Integer tier) {
-        if (!data.getItem().getName().equals(name)) {
-            return false;
-        }
-        return (tier == null) ? data.getTier() == null : tier.equals(data.getTier());
+    public int generateHash(String name, Integer tier,  boolean shiny) {
+        return Objects.hash(name, tier, shiny);
     }
 }
