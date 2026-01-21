@@ -1,7 +1,7 @@
 package com.wynnventory.model.item.simple;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.wynnventory.data.TimestampedObject;
+import com.wynnventory.model.item.TimestampedObject;
 import com.wynnventory.model.item.Icon;
 
 import java.util.Objects;

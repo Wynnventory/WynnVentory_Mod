@@ -1,7 +1,7 @@
 package com.wynnventory.mixin;
 
 import com.wynnventory.core.WynnventoryMod;
-import com.wynnventory.event.TrademarketTooltipRenderedEvent;
+import com.wynnventory.events.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.container.TrademarketContainer;
 import com.wynnventory.util.ContainerUtil;
 import net.minecraft.client.gui.GuiGraphics;

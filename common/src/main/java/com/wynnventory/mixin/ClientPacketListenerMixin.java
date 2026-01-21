@@ -2,8 +2,8 @@ package com.wynnventory.mixin;
 
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.WynnventoryMod;
-import com.wynnventory.event.RaidWindowOpenedEvent;
-import com.wynnventory.event.RewardPreviewOpenedEvent;
+import com.wynnventory.events.RaidWindowOpenedEvent;
+import com.wynnventory.events.RewardPreviewOpenedEvent;
 import com.wynnventory.model.container.RaidWindowContainer;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.util.ContainerUtil;
