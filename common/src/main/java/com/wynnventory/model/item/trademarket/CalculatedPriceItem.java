@@ -6,6 +6,8 @@ import com.wynnventory.data.TimestampedObject;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.simple.SimpleItem;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -178,6 +180,10 @@ public class CalculatedPriceItem extends TimestampedObject {
     @JsonProperty("unidentified_count")
     public void setUnidentifiedCount(Integer value) {
         calculatedPriceInfo.setUnidentifiedCount(value);
+    }
+
+    public boolean isTimeValid() {
+        return timestamp.isBefore(Instant.now().minus(Duration.ofMinutes(5)));
     }
 
     @Override
