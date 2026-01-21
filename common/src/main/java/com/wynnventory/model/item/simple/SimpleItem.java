@@ -104,4 +104,16 @@ public class SimpleItem extends TimestampedObject {
     public int hashCode() {
         return Objects.hash(name, rarity, itemType, type, amount);
     }
+
+    @Override
+    public String toString() {
+        return "SimpleItem{" +
+                "name='" + name + '\'' +
+                ", rarity='" + rarity + '\'' +
+                ", itemType='" + itemType + '\'' +
+                ", type='" + type + '\'' +
+                ", icon=" + icon +
+                ", amount=" + amount +
+                '}';
+    }
 }

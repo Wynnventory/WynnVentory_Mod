@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PriceInfo {
+public class CalculatedPriceInfo {
     private Double averageMid80PercentPrice;
     private Double averagePrice;
     private Integer highestPrice;
@@ -81,7 +81,7 @@ public class PriceInfo {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o instanceof PriceInfo other) {
+        if (o instanceof CalculatedPriceInfo other) {
             return Objects.equals(averageMid80PercentPrice, other.averageMid80PercentPrice) &&
                     Objects.equals(averagePrice, other.averagePrice) &&
                     Objects.equals(highestPrice, other.highestPrice) &&
@@ -106,5 +106,19 @@ public class PriceInfo {
                 unidentifiedAveragePrice,
                 unidentifiedCount
         );
+    }
+
+    @Override
+    public String toString() {
+        return "CalculatedPriceInfo{" +
+                "averageMid80PercentPrice=" + averageMid80PercentPrice +
+                ", averagePrice=" + averagePrice +
+                ", highestPrice=" + highestPrice +
+                ", lowestPrice=" + lowestPrice +
+                ", totalCount=" + totalCount +
+                ", unidentifiedAverageMid80PercentPrice=" + unidentifiedAverageMid80PercentPrice +
+                ", unidentifiedAveragePrice=" + unidentifiedAveragePrice +
+                ", unidentifiedCount=" + unidentifiedCount +
+                '}';
     }
 }

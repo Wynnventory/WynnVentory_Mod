@@ -4,9 +4,11 @@ import com.wynnventory.api.ApiConfig;
 import com.wynnventory.core.WynnventoryMod;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
 public class HttpUtils {
@@ -44,6 +46,10 @@ public class HttpUtils {
                         WynnventoryMod.logError("Failed to GET from endpoint '{}'. Code '{}', Reason '{}'", uri, code, resp.body());
                     }
                 });
+    }
+
+    public static String encodeName(String name) {
+        return URLEncoder.encode(name, StandardCharsets.UTF_8).replace("+", "%20");
     }
 
     private static HttpRequest.Builder baseRequest(URI uri) {

@@ -1,11 +1,15 @@
 package com.wynnventory.handler;
 
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
+import com.wynnventory.api.WynnventoryApi;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.event.TrademarketTooltipRenderedEvent;
+import com.wynnventory.model.item.simple.SimpleItem;
+import com.wynnventory.model.item.trademarket.CalculatedPriceItem;
 import com.wynnventory.model.item.trademarket.TradeMarketListing;
 import com.wynnventory.queue.QueueManager;
 import com.wynnventory.util.FixedTooltipPositioner;
+import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -48,7 +52,13 @@ public final class TooltipRenderHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onTooltipRendered(ItemTooltipRenderEvent.Pre event) {
-        WynnventoryMod.logError("RECEIVED WYNNTILS EVENT");
+        SimpleItem simpleItem = ItemStackUtils.toSimpleItem(event.getItemStack());
+        if (simpleItem == null) return;
+
+        CalculatedPriceItem item = new WynnventoryApi().fetchItemPrice(simpleItem.getName());
+
+        WynnventoryMod.logDebug("Got Data: {}", item);
+
         renderTooltip(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getItemStack(), event.getTooltips());
     }
 

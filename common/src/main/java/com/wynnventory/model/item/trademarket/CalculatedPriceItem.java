@@ -2,20 +2,16 @@ package com.wynnventory.model.item.trademarket;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.wynnventory.data.TimestampedObject;
-import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.Icon;
+import com.wynnventory.model.item.simple.SimpleItem;
 
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SimpleItemWithPriceInfo extends TimestampedObject {
-    @JsonUnwrapped
+public class CalculatedPriceItem extends TimestampedObject {
     private final SimpleItem item = new SimpleItem();
-
-    @JsonUnwrapped
-    private final PriceInfo priceInfo = new PriceInfo();
+    private final CalculatedPriceInfo calculatedPriceInfo = new CalculatedPriceInfo();
 
     private boolean shiny;
     private Integer tier;
@@ -24,8 +20,8 @@ public class SimpleItemWithPriceInfo extends TimestampedObject {
         return item;
     }
 
-    public PriceInfo getPriceInfo() {
-        return priceInfo;
+    public CalculatedPriceInfo getPriceInfo() {
+        return calculatedPriceInfo;
     }
 
     public boolean isShiny() {
@@ -106,91 +102,91 @@ public class SimpleItemWithPriceInfo extends TimestampedObject {
 
     @JsonProperty("average_mid_80_percent_price")
     public Double getAverageMid80PercentPrice() {
-        return priceInfo.getAverageMid80PercentPrice();
+        return calculatedPriceInfo.getAverageMid80PercentPrice();
     }
 
     @JsonProperty("average_mid_80_percent_price")
     public void setAverageMid80PercentPrice(Double value) {
-        priceInfo.setAverageMid80PercentPrice(value);
+        calculatedPriceInfo.setAverageMid80PercentPrice(value);
     }
 
     @JsonProperty("average_price")
     public Double getAveragePrice() {
-        return priceInfo.getAveragePrice();
+        return calculatedPriceInfo.getAveragePrice();
     }
 
     @JsonProperty("average_price")
     public void setAveragePrice(Double value) {
-        priceInfo.setAveragePrice(value);
+        calculatedPriceInfo.setAveragePrice(value);
     }
 
     @JsonProperty("highest_price")
     public Integer getHighestPrice() {
-        return priceInfo.getHighestPrice();
+        return calculatedPriceInfo.getHighestPrice();
     }
 
     @JsonProperty("highest_price")
     public void setHighestPrice(Integer value) {
-        priceInfo.setHighestPrice(value);
+        calculatedPriceInfo.setHighestPrice(value);
     }
 
     @JsonProperty("lowest_price")
     public Integer getLowestPrice() {
-        return priceInfo.getLowestPrice();
+        return calculatedPriceInfo.getLowestPrice();
     }
 
     @JsonProperty("lowest_price")
     public void setLowestPrice(Integer value) {
-        priceInfo.setLowestPrice(value);
+        calculatedPriceInfo.setLowestPrice(value);
     }
 
     @JsonProperty("total_count")
     public Integer getTotalCount() {
-        return priceInfo.getTotalCount();
+        return calculatedPriceInfo.getTotalCount();
     }
 
     @JsonProperty("total_count")
     public void setTotalCount(Integer value) {
-        priceInfo.setTotalCount(value);
+        calculatedPriceInfo.setTotalCount(value);
     }
 
     @JsonProperty("unidentified_average_mid_80_percent_price")
     public Double getUnidentifiedAverageMid80PercentPrice() {
-        return priceInfo.getUnidentifiedAverageMid80PercentPrice();
+        return calculatedPriceInfo.getUnidentifiedAverageMid80PercentPrice();
     }
 
     @JsonProperty("unidentified_average_mid_80_percent_price")
     public void setUnidentifiedAverageMid80PercentPrice(Double value) {
-        priceInfo.setUnidentifiedAverageMid80PercentPrice(value);
+        calculatedPriceInfo.setUnidentifiedAverageMid80PercentPrice(value);
     }
 
     @JsonProperty("unidentified_average_price")
     public Double getUnidentifiedAveragePrice() {
-        return priceInfo.getUnidentifiedAveragePrice();
+        return calculatedPriceInfo.getUnidentifiedAveragePrice();
     }
 
     @JsonProperty("unidentified_average_price")
     public void setUnidentifiedAveragePrice(Double value) {
-        priceInfo.setUnidentifiedAveragePrice(value);
+        calculatedPriceInfo.setUnidentifiedAveragePrice(value);
     }
 
     @JsonProperty("unidentified_count")
     public Integer getUnidentifiedCount() {
-        return priceInfo.getUnidentifiedCount();
+        return calculatedPriceInfo.getUnidentifiedCount();
     }
 
     @JsonProperty("unidentified_count")
     public void setUnidentifiedCount(Integer value) {
-        priceInfo.setUnidentifiedCount(value);
+        calculatedPriceInfo.setUnidentifiedCount(value);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o instanceof SimpleItemWithPriceInfo other) {
+        if (o instanceof CalculatedPriceItem other) {
             return shiny == other.shiny &&
                     Objects.equals(item, other.item) &&
-                    Objects.equals(priceInfo, other.priceInfo) &&
+                    Objects.equals(calculatedPriceInfo, other.calculatedPriceInfo) &&
                     Objects.equals(tier, other.tier);
         }
         return false;
@@ -198,6 +194,17 @@ public class SimpleItemWithPriceInfo extends TimestampedObject {
 
     @Override
     public int hashCode() {
-        return Objects.hash(item, priceInfo, shiny, tier);
+        return Objects.hash(item, calculatedPriceInfo, shiny, tier);
+    }
+
+    @Override
+    public String toString() {
+        return "CalculatedPriceItem{" +
+                "item=" + item +
+                ", calculatedPriceInfo=" + calculatedPriceInfo +
+                ", shiny=" + shiny +
+                ", tier=" + tier +
+                ", timestamp=" + timestamp +
+                '}';
     }
 }
