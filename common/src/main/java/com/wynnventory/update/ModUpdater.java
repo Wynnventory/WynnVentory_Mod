@@ -4,15 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonParseException;
 import com.wynntils.utils.FileUtils;
-import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.github.Asset;
 import com.wynnventory.model.github.Release;
+import com.wynnventory.util.ChatUtils;
 import com.wynnventory.util.HttpUtils;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,9 +92,7 @@ public class ModUpdater {
     }
 
     private static void notifyUserOfUpdate(String latestVersion) {
-        Component message = Component.literal("[Wynnventory] New version available: " + latestVersion + ". Attempting to auto-update...")
-                .withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW));
-        McUtils.sendMessageToClient(message);
+        ChatUtils.info(Component.literal("New version available: " + latestVersion + ". Attempting to auto-update..."));
     }
 
     private static void downloadAndApplyUpdate(Asset asset) {
@@ -125,9 +121,7 @@ public class ModUpdater {
     }
 
     private static void notifyUserOfDownloadCompletion() {
-        Component message = Component.literal("[Wynnventory] Download completed! Restart Minecraft to apply the update.")
-                .withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
-        McUtils.sendMessageToClient(message);
+        ChatUtils.info(Component.literal("Download completed! Restart Minecraft to apply the update."));
     }
 
     private static void scheduleFileReplacementOnShutdown(File oldJar, File newJar) {
