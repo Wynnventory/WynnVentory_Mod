@@ -1,46 +1,74 @@
 package com.wynnventory.core.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.ParseResults;
-import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.wynnventory.core.WynnventoryMod;
+import com.mojang.brigadier.tree.CommandNode;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mojang.brigadier.tree.RootCommandNode;
 import com.wynnventory.queue.QueueScheduler;
+import com.wynnventory.util.ChatUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.SharedSuggestionProvider;
 
 public final class WynnventoryCommands {
-    private static final CommandDispatcher<Minecraft> DISPATCHER = new CommandDispatcher<>();
-    private static final String PREFIX = "wynnventory";
+    public static final String PREFIX = "wynnventory";
 
-    public static void init() {
-        DISPATCHER.register(
-                literal(PREFIX)
-                        .then(literal("send")
-                                .executes(c -> {
-                                    QueueScheduler.processQueuedItems();
-                                    return 1;
-                                })
-                        )
+    private WynnventoryCommands() {}
+
+    public static void registerClientCommands(CommandDispatcher<Minecraft> dispatcher) {
+        LiteralArgumentBuilder<Minecraft> root = LiteralArgumentBuilder.literal(PREFIX);
+
+        root.then(literalClient("send")
+                .executes(ctx -> {
+                    sendCollectedData();
+                    return 1;
+                })
         );
+        root.then(literalClient("ping")
+                .executes(ctx -> {
+                    pong();
+                    return 1;
+                })
+        );
+
+        dispatcher.register(root);
     }
 
-    public static boolean handleCommand(String command) {
-        if (!command.startsWith(PREFIX)) return false; // not our command
+    public static void registerSuggestions(RootCommandNode<SharedSuggestionProvider> root, CommandBuildContext context) {
+        LiteralCommandNode<SharedSuggestionProvider> node = literalSuggestion(PREFIX)
+                .then(literalSuggestion("send").executes(ctx -> 1))
+                .then(literalSuggestion("ping").executes(ctx -> 1))
+                .build();
 
-        Minecraft mc = Minecraft.getInstance();
-        ParseResults<Minecraft> parse = DISPATCHER.parse(new StringReader(command), mc);
-
-        try {
-            DISPATCHER.execute(parse);
-            return true;
-        } catch (CommandSyntaxException e) {
-            WynnventoryMod.logError("Unable to execute command '{}'. Error: {}", command, e.getMessage());
-            return true;
-        }
+        addNode(root, node);
     }
 
-    private static LiteralArgumentBuilder<Minecraft> literal(String name) {
+    private static void sendCollectedData() {
+        QueueScheduler.sendQueuedItems();
+        ChatUtils.info("Sent all collected items to the Wynnventory API.");
+    }
+
+    private static void pong() {
+        ChatUtils.info("PONG");
+    }
+
+    private static LiteralArgumentBuilder<Minecraft> literalClient(String name) {
         return LiteralArgumentBuilder.literal(name);
+    }
+
+    private static LiteralArgumentBuilder<SharedSuggestionProvider> literalSuggestion(String name) {
+        return LiteralArgumentBuilder.literal(name);
+    }
+
+    private static <S> void addNode(CommandNode<S> root, CommandNode<S> node) {
+        CommandNode<S> existing = root.getChild(node.getName());
+        if (existing == null) {
+            root.addChild(node);
+            return;
+        }
+        for (CommandNode<S> child : node.getChildren()) {
+            addNode(existing, child);
+        }
     }
 }

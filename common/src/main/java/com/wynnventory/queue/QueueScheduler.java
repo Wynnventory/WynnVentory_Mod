@@ -26,7 +26,7 @@ public class QueueScheduler {
         WynnventoryMod.logDebug("Starting queue scheduler with {} mins delay", SEND_DELAY_MINS);
         scheduler.scheduleAtFixedRate(() -> {
             try {
-                processQueuedItems();
+                sendQueuedItems();
             } catch (Exception t) {
                 WynnventoryMod.logError("QueueScheduler crashed!", t);
                 throw t;
@@ -37,7 +37,7 @@ public class QueueScheduler {
 
     private static void stopScheduledTask() {
         WynnventoryMod.logInfo("Shutdown detected...");
-        processQueuedItems();
+        sendQueuedItems();
         scheduler.shutdown();
 
         try {
@@ -49,7 +49,7 @@ public class QueueScheduler {
         }
     }
 
-    public static void processQueuedItems() {
+    public static void sendQueuedItems() {
         Map<RewardPool, Set<SimpleItem>> lootrunItems = QueueManager.LOOTRUN_QUEUE.drainAll();
         Map<RewardPool, Set<SimpleItem>> raidItems = QueueManager.RAID_QUEUE.drainAll();
         Set<TradeMarketListing> trademarketItems = QueueManager.TRADEMARKET_QUEUE.drainAll();

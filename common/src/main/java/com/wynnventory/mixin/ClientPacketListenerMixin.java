@@ -1,8 +1,10 @@
 package com.wynnventory.mixin;
 
-import com.wynntils.core.events.MixinHelper;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.tree.RootCommandNode;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.WynnventoryMod;
+import com.wynnventory.event.CommandAddedEvent;
 import com.wynnventory.event.CommandSentEvent;
 import com.wynnventory.event.RaidWindowOpenedEvent;
 import com.wynnventory.event.RewardPreviewOpenedEvent;
@@ -13,9 +15,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.CommonListenerCookie;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
+import net.minecraft.world.flag.FeatureFlagSet;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,6 +32,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl {
+
+    @Shadow
+    private CommandDispatcher<SharedSuggestionProvider> commands;
+    @Shadow
+    private RegistryAccess.Frozen registryAccess;
+    @Shadow
+    @Final
+    private FeatureFlagSet enabledFeatures;
 
     protected ClientPacketListenerMixin(
             Minecraft minecraft, Connection connection, CommonListenerCookie commonListenerCookie) {
@@ -60,5 +77,16 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         WynnventoryMod.postEvent(event);
 
         if (event.isCanceled()) ci.cancel();
+    }
+
+    @Inject(
+            method = "handleCommands(Lnet/minecraft/network/protocol/game/ClientboundCommandsPacket;)V",
+            at = @At("RETURN"))
+    private void handleCommands(ClientboundCommandsPacket packet, CallbackInfo ci) {
+        if (!isRenderThread()) return;
+
+        RootCommandNode<SharedSuggestionProvider> root = this.commands.getRoot();
+
+        WynnventoryMod.postEvent(new CommandAddedEvent(root, CommandBuildContext.simple(this.registryAccess, this.enabledFeatures)));
     }
 }

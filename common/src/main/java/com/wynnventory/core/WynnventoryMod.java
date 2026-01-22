@@ -1,7 +1,7 @@
 package com.wynnventory.core;
 
 import com.wynnventory.config.ModConfig;
-import com.wynnventory.core.command.WynnventoryCommands;
+import com.wynnventory.core.command.WynnventoryCommandManager;
 import com.wynnventory.handler.CommandHandler;
 import com.wynnventory.handler.LootRewardHandler;
 import com.wynnventory.core.event.EventBusWrapper;
@@ -38,7 +38,7 @@ public final class WynnventoryMod {
         WynnventoryMod.logInfo("Initializing Wynnventory mod v{} ({}), from file {}", version, loader.name(), modFile.getAbsolutePath());
 
         ModConfig.init();
-        WynnventoryCommands.init();
+//        WynnventoryCommandManager.init();
         IconManager.fetchAll();
         QueueScheduler.startScheduledTask();
 
