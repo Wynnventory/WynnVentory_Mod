@@ -49,7 +49,7 @@ public class QueueScheduler {
         }
     }
 
-    private static void processQueuedItems() {
+    public static void processQueuedItems() {
         Map<RewardPool, Set<SimpleItem>> lootrunItems = QueueManager.LOOTRUN_QUEUE.drainAll();
         Map<RewardPool, Set<SimpleItem>> raidItems = QueueManager.RAID_QUEUE.drainAll();
         Set<TradeMarketListing> trademarketItems = QueueManager.TRADEMARKET_QUEUE.drainAll();

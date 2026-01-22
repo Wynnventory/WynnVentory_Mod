@@ -1,7 +1,9 @@
 package com.wynnventory.mixin;
 
+import com.wynntils.core.events.MixinHelper;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.WynnventoryMod;
+import com.wynnventory.event.CommandSentEvent;
 import com.wynnventory.event.RaidWindowOpenedEvent;
 import com.wynnventory.event.RewardPreviewOpenedEvent;
 import com.wynnventory.model.container.RaidWindowContainer;
@@ -22,14 +24,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl {
 
-    @Unique
-    private static boolean isRenderThread() {
-        return McUtils.mc().isSameThread();
-    }
-
     protected ClientPacketListenerMixin(
             Minecraft minecraft, Connection connection, CommonListenerCookie commonListenerCookie) {
         super(minecraft, connection, commonListenerCookie);
+    }
+
+    @Unique
+    private static boolean isRenderThread() {
+        return McUtils.mc().isSameThread();
     }
 
     @Inject(
@@ -47,5 +49,16 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         if (RewardPool.isLootrunTitle(title))  WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Lootrun(packet.items(), packet.containerId(), title));
         if (RewardPool.isRaidTitle(title)) WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Raid(packet.items(), packet.containerId(), title));
         if (RaidWindowContainer.matchesTitle(title)) WynnventoryMod.postEvent(new RaidWindowOpenedEvent(packet.items(), packet.containerId(), title));
+    }
+
+    @Inject(method =
+                    "sendCommand(Ljava/lang/String;)V",
+            at = @At("HEAD"),
+            cancellable = true)
+    private void sendCommand(String string, CallbackInfo ci) {
+        CommandSentEvent event = new CommandSentEvent(string);
+        WynnventoryMod.postEvent(event);
+
+        if (event.isCanceled()) ci.cancel();
     }
 }

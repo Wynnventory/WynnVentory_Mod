@@ -1,6 +1,8 @@
 package com.wynnventory.core;
 
 import com.wynnventory.config.ModConfig;
+import com.wynnventory.core.command.WynnventoryCommands;
+import com.wynnventory.handler.CommandHandler;
 import com.wynnventory.handler.LootRewardHandler;
 import com.wynnventory.core.event.EventBusWrapper;
 import com.wynnventory.handler.RaidWindowHandler;
@@ -8,7 +10,6 @@ import com.wynnventory.handler.TooltipRenderHandler;
 import com.wynnventory.queue.QueueScheduler;
 import com.wynnventory.util.IconManager;
 import net.neoforged.bus.api.Event;
-import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.bus.api.IEventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,22 +38,23 @@ public final class WynnventoryMod {
         WynnventoryMod.logInfo("Initializing Wynnventory mod v{} ({}), from file {}", version, loader.name(), modFile.getAbsolutePath());
 
         ModConfig.init();
+        WynnventoryCommands.init();
         IconManager.fetchAll();
         QueueScheduler.startScheduledTask();
 
         eventBus.register(new LootRewardHandler());
         eventBus.register(new TooltipRenderHandler());
         eventBus.register(new RaidWindowHandler());
+        eventBus.register(new CommandHandler());
+
+        WynnventoryMod.logInfo("Wynnventory mod successfully initialized");
     }
 
     public static <T extends Event> void postEvent(T event) {
         try {
             eventBus.post(event);
-            if (event instanceof ICancellableEvent cancellableEvent) {
-                cancellableEvent.isCanceled();
-            }
         } catch (Exception e) {
-            logError("Error while posting event...");
+            logError("Error while posting event...", e);
         }
     }
 
