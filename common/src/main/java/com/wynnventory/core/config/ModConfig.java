@@ -3,7 +3,6 @@ package com.wynnventory.core.config;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.wynnventory.config.settings.*;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.core.config.settings.ColorSettings;
 import com.wynnventory.core.config.settings.FavouriteNotifierSettings;
@@ -16,10 +15,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public final class ModConfig {
+    private static ModConfig instance;
+
     private static final Path CFG_PATH = Path.of("config", "wynnventory.json");
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).enable(SerializationFeature.INDENT_OUTPUT);
-
-    private static ModConfig instance;
 
     private TooltipSettings tooltipSettings = new TooltipSettings();
     private ColorSettings colorSettings = new ColorSettings();
@@ -27,20 +26,13 @@ public final class ModConfig {
     private RaritySettings raritySettings = new RaritySettings();
 
     public static ModConfig get() {
-        if (instance == null) {
-            throw new IllegalStateException("ModConfig not initialized. Call ModConfig.init() first.");
-        }
-        return instance;
-    }
-
-    public static void init() {
-        if (instance != null) return;
-
         synchronized (ModConfig.class) {
             if (instance == null) {
                 instance = loadOrCreate();
             }
         }
+
+        return instance;
     }
 
     /** Reloads config from disk */
