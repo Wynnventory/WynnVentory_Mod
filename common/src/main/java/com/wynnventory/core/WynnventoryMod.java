@@ -38,7 +38,6 @@ public final class WynnventoryMod {
         WynnventoryMod.logInfo("Initializing Wynnventory mod v{} ({}), from file {}", version, loader.name(), modFile.getAbsolutePath());
 
         ModConfig.init();
-//        WynnventoryCommandManager.init();
         IconManager.fetchAll();
         QueueScheduler.startScheduledTask();
 
