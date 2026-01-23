@@ -2,18 +2,13 @@ package com.wynnventory.util;
 
 import com.wynntils.core.components.Models;
 import com.wynntils.core.text.StyledText;
-import com.wynntils.models.gear.GearModel;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
-import com.wynntils.models.stats.type.StatActualValue;
-import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynntils.utils.mc.LoreUtils;
 import com.wynnventory.core.WynnventoryMod;
-import com.wynnventory.model.item.Icon;
-import com.wynnventory.model.item.ItemStat;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;
@@ -34,27 +29,27 @@ public class ItemStackUtils {
 
     private ItemStackUtils() { }
 
-    public static SimpleItem toSimpleItem(ItemStack itemStack) {
-        return toSimpleItem(Models.Item.getWynnItem(itemStack).get());
+    public static SimpleItem toSimpleItem(ItemStack stack) {
+        return Models.Item.getWynnItem(stack).map(ItemStackUtils::toSimpleItem).orElse(null);
     }
 
     public static SimpleItem toSimpleItem(WynnItem item) {
         return switch (item) {
-            case AmplifierItem amplifierItem        -> fromAmplifierItem(amplifierItem);
-            case AspectItem aspectItem              -> fromAspectItem(aspectItem);
-            case DungeonKeyItem dungeonKeyItem      -> fromDungeonKeyItem(dungeonKeyItem);
-            case EmeraldItem emeraldItem            -> fromEmeraldItem(emeraldItem);
-            case EmeraldPouchItem emeraldPouchItem  -> fromEmeraldPouchItem(emeraldPouchItem);
-            case GearItem gearItem                  -> fromGearItem(gearItem);
-            case HorseItem horseItem                -> fromHorseItem(horseItem);
-            case IngredientItem ingredientItem      -> fromIngredientItem(ingredientItem);
-            case InsulatorItem insulatorItem        -> fromInsulatorItem(insulatorItem);
-            case MaterialItem materialItem          -> fromMaterialItem(materialItem);
-            case PowderItem powderItem              -> fromPowderItem(powderItem);
-            case RuneItem runeItem                  -> fromRuneItem(runeItem);
-            case SimulatorItem simulatorItem        -> fromSimulatorItem(simulatorItem);
-            case TomeItem tomeItem                  -> fromTomeItem(tomeItem);
-            default -> null;
+            case AmplifierItem amplifierItem        -> SimpleTierItem.from(amplifierItem);
+            case AspectItem aspectItem              -> SimpleItem.from(aspectItem);
+            case DungeonKeyItem dungeonKeyItem      -> SimpleItem.from(dungeonKeyItem);
+            case EmeraldItem emeraldItem            -> SimpleItem.from(emeraldItem);
+            case EmeraldPouchItem emeraldPouchItem  -> SimpleTierItem.from(emeraldPouchItem);
+            case GearItem gearItem                  -> SimpleGearItem.from(gearItem);
+            case HorseItem horseItem                -> SimpleTierItem.from(horseItem);
+            case IngredientItem ingredientItem      -> SimpleTierItem.from(ingredientItem);
+            case InsulatorItem insulatorItem        -> SimpleItem.from(insulatorItem);
+            case MaterialItem materialItem          -> SimpleTierItem.from(materialItem);
+            case PowderItem powderItem              -> SimpleTierItem.from(powderItem);
+            case RuneItem runeItem                  -> SimpleItem.from(runeItem);
+            case SimulatorItem simulatorItem        -> SimpleItem.from(simulatorItem);
+            case TomeItem tomeItem                  -> SimpleTierItem.from(tomeItem);
+            case null, default -> null;
         };
     }
 
@@ -134,117 +129,5 @@ public class ItemStackUtils {
 
     public static String getHorseName(HorseItem item) {
         return StringUtils.toCamelCase(item.getTier().name()) + " Horse";
-    }
-
-    private static SimpleItem fromSimulatorItem(SimulatorItem item) {
-        return createSimpleItem(item, item.getGearTier().getName(), "SimulatorItem", "Simulator");
-    }
-
-    private static SimpleItem fromInsulatorItem(InsulatorItem item) {
-        return createSimpleItem(item, item.getGearTier().getName(), "InsulatorItem", "Insulator");
-    }
-
-    private static SimpleItem fromRuneItem(RuneItem item) {
-        return createSimpleItem(item, "RuneItem");
-    }
-
-    private static SimpleItem fromDungeonKeyItem(DungeonKeyItem item) {
-        return createSimpleItem(item,"DungeonKeyItem");
-    }
-
-    private static SimpleItem createSimpleItem(WynnItem item, String itemType) {
-        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
-        return createSimpleItem(item, "Common", itemType, StringUtils.toCamelCase(name));
-    }
-
-    private static SimpleItem createSimpleItem(WynnItem item, String rarity, String itemType, String type) {
-        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
-        int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        return new SimpleItem(name, rarity, itemType, type, IconManager.getIcon(name), amount);
-    }
-
-    private static SimpleTierItem fromIngredientItem(IngredientItem item) {
-        return createTierItem(item, item.getName(), "Common", "IngredientItem", item.getIngredientInfo().professions().toString(), item.getQualityTier());
-    }
-
-    private static SimpleTierItem fromMaterialItem(MaterialItem materialItem) {
-        return createTierItem(materialItem, ItemStackUtils.getMaterialName(materialItem), "Common", "MaterialItem", materialItem.getProfessionTypes().toString(), materialItem.getQualityTier());
-    }
-
-    private static SimpleTierItem fromPowderItem(PowderItem powderItem) {
-        String type = powderItem.getPowderProfile().element().getName() + "Powder";
-        return createTierItem(powderItem, ItemStackUtils.getPowderName(powderItem), "Common", "PowderItem", type, powderItem.getTier());
-    }
-
-    private static SimpleTierItem fromAmplifierItem(AmplifierItem amplifierItem) {
-        return createTierItem(amplifierItem, ItemStackUtils.getAmplifierName(amplifierItem), amplifierItem.getGearTier().getName(), "AmplifierItem", amplifierItem.getTier());
-    }
-
-    private static SimpleTierItem fromHorseItem(HorseItem horseItem) {
-        return createTierItem(horseItem, ItemStackUtils.getHorseName(horseItem), "Common", "HorseItem", horseItem.getTier().getNumeral());
-    }
-
-    private static SimpleTierItem fromEmeraldPouchItem(EmeraldPouchItem emeraldPouchItem) {
-        return createTierItem(emeraldPouchItem, "Emerald Pouch", "Common", "EmeraldPouchItem", emeraldPouchItem.getTier());
-    }
-
-    private static SimpleItem fromEmeraldItem(EmeraldItem emeraldItem) {
-        return createSimpleItem(emeraldItem, "Common", "EmeraldItem", emeraldItem.getUnit().name());
-    }
-
-    private static SimpleItem fromTomeItem(TomeItem tomeItem) {
-        return new SimpleItem(tomeItem.getName().replace("Unidentified ", ""), tomeItem.getGearTier().getName(), "TomeItem", tomeItem.getItemInfo().type().name());
-    }
-
-    private static SimpleItem fromAspectItem(AspectItem aspectItem) {
-        return createSimpleItem(aspectItem, aspectItem.getGearTier().getName(), "AspectItem", aspectItem.getRequiredClass().getName() + "Aspect");
-    }
-
-    private static SimpleTierItem createTierItem(WynnItem item, String name, String rarity, String itemType, int tier) {
-        return createTierItem(item, name, rarity, itemType, StringUtils.toCamelCase(name), tier);
-    }
-
-    private static SimpleTierItem createTierItem(WynnItem item, String name, String rarity, String itemType, String type, int tier) {
-        int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        Icon icon = IconManager.getIcon(name);
-
-        if(icon == null) {
-            icon = IconManager.getIcon(name, tier);
-        }
-
-        return new SimpleTierItem(name, rarity, itemType, type, icon, amount, tier);
-    }
-
-    private static SimpleGearItem fromGearItem(GearItem item) {
-        String name = item.getName();
-        ItemStack itemStack = item.getData().get(WynnItemData.ITEMSTACK_KEY);
-
-        return new SimpleGearItem(
-                name,
-                item.getGearTier().getName(),
-                "GearItem",
-                item.getGearType().name(),
-                IconManager.getIcon(name),
-                itemStack.getCount(),
-                item.isUnidentified(),
-                item.getRerollCount(),
-                new GearModel().parseInstance(item.getItemInfo(), itemStack).shinyStat(),
-                item.getOverallPercentage(),
-                getActualStats(item)
-        );
-    }
-
-    private static List<ItemStat> getActualStats(GearItem item) {
-        final List<StatActualValue> actualValues = item.getIdentifications();
-        final List<StatPossibleValues> possibleValues = item.getPossibleValues();
-
-        return actualValues.stream()
-                .map(actual -> possibleValues.stream()
-                        .filter(p -> p.statType().getKey().equals(actual.statType().getKey()))
-                        .findFirst()
-                        .map(possible -> new ItemStat(actual, possible))
-                        .orElse(null))
-                .filter(Objects::nonNull)
-                .toList();
     }
 }

@@ -1,9 +1,16 @@
 package com.wynnventory.model.item.simple;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wynntils.models.gear.GearModel;
+import com.wynntils.models.items.WynnItemData;
+import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.stats.type.ShinyStat;
+import com.wynntils.models.stats.type.StatActualValue;
+import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.ItemStat;
+import com.wynnventory.util.IconManager;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +38,39 @@ public class SimpleGearItem extends SimpleItem {
         this.overallRollPercentage = overallRollPercentage;
         this.actualStatsWithPercentage.addAll(actualStatsWithPercentage);
         this.shiny = shinyStat.isPresent();
+    }
+
+    private static SimpleGearItem from(GearItem item) {
+        String name = item.getName();
+        ItemStack itemStack = item.getData().get(WynnItemData.ITEMSTACK_KEY);
+
+        return new SimpleGearItem(
+                name,
+                item.getGearTier().getName(),
+                "GearItem",
+                item.getGearType().name(),
+                IconManager.getIcon(name),
+                itemStack.getCount(),
+                item.isUnidentified(),
+                item.getRerollCount(),
+                new GearModel().parseInstance(item.getItemInfo(), itemStack).shinyStat(),
+                item.getOverallPercentage(),
+                getActualStats(item)
+        );
+    }
+
+    private static List<ItemStat> getActualStats(GearItem item) {
+        final List<StatActualValue> actualValues = item.getIdentifications();
+        final List<StatPossibleValues> possibleValues = item.getPossibleValues();
+
+        return actualValues.stream()
+                .map(actual -> possibleValues.stream()
+                        .filter(p -> p.statType().getKey().equals(actual.statType().getKey()))
+                        .findFirst()
+                        .map(possible -> new ItemStat(actual, possible))
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     public boolean isUnidentified() {
