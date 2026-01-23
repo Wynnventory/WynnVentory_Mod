@@ -39,7 +39,7 @@ public final class TrademarketPriceDictionary {
         }
 
         fetching.push(key);
-        API.fetchItemPrice(name, tier).thenAccept(fetched -> {
+        API.fetchItemPrice(name, tier, shiny).thenAccept(fetched -> {
             if (fetched == null) return;
             prices.put(key, fetched);
             fetching.remove(key);

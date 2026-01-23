@@ -16,6 +16,7 @@ import com.wynnventory.util.HttpUtils;
 import java.net.URI;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -57,20 +58,18 @@ public class WynnventoryApi  {
         WynnventoryMod.logDebug("Trying to send {} trademarket items", trademarketItems.size());
     }
 
-    // TODO: fetchItemPrice (by name)
-    public CompletableFuture<TrademarketItemSummary> fetchItemPrice(String name) {
-        return fetchItemPrice(name, null);
-    }
-
-    public CompletableFuture<TrademarketItemSummary> fetchItemPrice(String name, Integer tier) {
-        if (name == null || name.isBlank()) return null;
-
-        URI uri;
-        if (tier == null) {
-            uri = Endpoint.TRADE_MARKET_PRICE.uri(HttpUtils.encodeName(name));
-        } else {
-            uri = Endpoint.TRADE_MARKET_PRICE_TIERED.uri(HttpUtils.encodeName(name), tier);
+    public CompletableFuture<TrademarketItemSummary> fetchItemPrice(String name, Integer tier, Boolean shiny) {
+        if (name == null || name.isBlank()) {
+            return CompletableFuture.completedFuture(null);
         }
+
+        URI baseUri = Endpoint.TRADE_MARKET_PRICE.uri(HttpUtils.encode(name));
+
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("tier", tier);
+        params.put("shiny", shiny);
+
+        URI uri = HttpUtils.withQueryParams(baseUri, params);
 
         return HttpUtils.sendGetRequest(uri)
                 .thenApply(resp -> handleResponse(resp, this::parsePriceInfoResponse))

@@ -10,7 +10,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class HttpUtils {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
@@ -19,7 +21,7 @@ public class HttpUtils {
     private HttpUtils() {}
 
     public static void sendPostRequest(URI uri, String jsonPayload) {
-        WynnventoryMod.logDebug("Sending data to {} endpoint.", WynnventoryMod.isDev() ? "DEV" : "PROD");
+        WynnventoryMod.logDebug("Sending data to {} endpoint: {}", WynnventoryMod.isDev() ? "DEV" : "PROD", uri);
         HttpRequest request = baseRequest(uri)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
@@ -35,7 +37,7 @@ public class HttpUtils {
     }
 
     public static CompletableFuture<HttpResponse<String>> sendGetRequest(URI uri) {
-        WynnventoryMod.logDebug("Fetching data from {} endpoint.", WynnventoryMod.isDev() ? "DEV" : "PROD");
+        WynnventoryMod.logDebug("Fetching data from {} endpoint: {}", WynnventoryMod.isDev() ? "DEV" : "PROD", uri);
         HttpRequest request = baseRequest(uri)
                 .header("Accept", "application/json")
                 .GET()
@@ -50,8 +52,26 @@ public class HttpUtils {
                 });
     }
 
-    public static String encodeName(String name) {
+    public static String encode(String name) {
         return URLEncoder.encode(name, StandardCharsets.UTF_8).replace("+", "%20");
+    }
+
+    public static URI withQueryParams(URI baseUri, Map<String, ?> params) {
+        if (params == null || params.isEmpty()) {
+            return baseUri;
+        }
+
+        String query = params.entrySet().stream()
+                .filter(e -> e.getValue() != null)
+                .map(e -> encode(e.getKey()) + "=" + encode(String.valueOf(e.getValue())))
+                .collect(Collectors.joining("&"));
+
+        if (query.isEmpty()) {
+            return baseUri;
+        }
+
+        String base = baseUri.toString();
+        return URI.create(base + (base.contains("?") ? "&" : "?") + query);
     }
 
     private static HttpRequest.Builder baseRequest(URI uri) {
