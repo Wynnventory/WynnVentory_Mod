@@ -5,7 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
-import com.wynnventory.queue.QueueScheduler;
+import com.wynnventory.core.queue.QueueScheduler;
 import com.wynnventory.util.ChatUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandBuildContext;

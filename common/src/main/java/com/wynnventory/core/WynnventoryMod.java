@@ -1,11 +1,12 @@
 package com.wynnventory.core;
 
-import com.wynnventory.core.config.ModConfig;
-import com.wynnventory.handler.LootRewardHandler;
 import com.wynnventory.core.event.EventBusWrapper;
+import com.wynnventory.core.queue.QueueScheduler;
+import com.wynnventory.event.CommandAddedEvent;
+import com.wynnventory.handler.CommandHandler;
+import com.wynnventory.handler.LootRewardHandler;
 import com.wynnventory.handler.RaidWindowHandler;
 import com.wynnventory.handler.TooltipRenderHandler;
-import com.wynnventory.core.queue.QueueScheduler;
 import com.wynnventory.util.IconManager;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
@@ -42,6 +43,7 @@ public final class WynnventoryMod {
         eventBus.register(new LootRewardHandler());
         eventBus.register(new TooltipRenderHandler());
         eventBus.register(new RaidWindowHandler());
+        eventBus.register(new CommandHandler());
     }
 
     public static <T extends Event> void postEvent(T event) {
