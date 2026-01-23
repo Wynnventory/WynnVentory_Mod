@@ -6,7 +6,7 @@ import com.wynnventory.events.RaidWindowOpenedEvent;
 import com.wynnventory.events.RewardPreviewOpenedEvent;
 import com.wynnventory.model.container.RaidWindowContainer;
 import com.wynnventory.model.reward.RewardPool;
-import com.wynnventory.util.ContainerUtil;
+import com.wynnventory.model.container.Container;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -39,11 +39,11 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     private void handleContainerContentPost(ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
         if (!isRenderThread()) return;
 
-        ContainerUtil container = ContainerUtil.current();
+        Container container = Container.current();
         if (container == null) return;
         if (!container.matchesContainer(packet.containerId())) return;
 
-        String title = container.title;
+        String title = container.title();
         if (RewardPool.isLootrunTitle(title))  WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Lootrun(packet.items(), packet.containerId(), title));
         if (RewardPool.isRaidTitle(title)) WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Raid(packet.items(), packet.containerId(), title));
         if (RaidWindowContainer.matchesTitle(title)) WynnventoryMod.postEvent(new RaidWindowOpenedEvent(packet.items(), packet.containerId(), title));
