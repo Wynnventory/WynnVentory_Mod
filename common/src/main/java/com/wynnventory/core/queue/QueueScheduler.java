@@ -1,11 +1,11 @@
-package com.wynnventory.queue;
+package com.wynnventory.core.queue;
 
 import com.wynnventory.api.Endpoint;
 import com.wynnventory.api.WynnventoryApi;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleGambitItem;
 import com.wynnventory.model.item.simple.SimpleItem;
-import com.wynnventory.model.item.trademarket.TradeMarketListing;
+import com.wynnventory.model.item.trademarket.TrademarketListing;
 import com.wynnventory.model.reward.RewardPool;
 
 import java.util.Map;
@@ -52,7 +52,7 @@ public class QueueScheduler {
     public static void sendQueuedItems() {
         Map<RewardPool, Set<SimpleItem>> lootrunItems = QueueManager.LOOTRUN_QUEUE.drainAll();
         Map<RewardPool, Set<SimpleItem>> raidItems = QueueManager.RAID_QUEUE.drainAll();
-        Set<TradeMarketListing> trademarketItems = QueueManager.TRADEMARKET_QUEUE.drainAll();
+        Set<TrademarketListing> trademarketItems = QueueManager.TRADEMARKET_QUEUE.drainAll();
         Set<SimpleGambitItem> gambitItems = QueueManager.GAMBIT_QUEUE.drainAll();
         WynnventoryMod.logDebug("Processing {} lootrun pool, {} raid reward pools, {} trademarket items, {} gambit items", lootrunItems.size(), raidItems.size(), trademarketItems.size(), gambitItems.size());
         if (!lootrunItems.isEmpty()) API.sendRewardPoolData(lootrunItems, Endpoint.LOOTPOOL_ITEMS);

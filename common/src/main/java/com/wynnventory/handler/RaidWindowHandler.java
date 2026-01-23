@@ -3,9 +3,9 @@ package com.wynnventory.handler;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.items.gui.GambitItem;
-import com.wynnventory.event.RaidWindowOpenedEvent;
+import com.wynnventory.events.RaidWindowOpenedEvent;
 import com.wynnventory.model.item.simple.SimpleGambitItem;
-import com.wynnventory.queue.QueueManager;
+import com.wynnventory.core.queue.QueueManager;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 

@@ -1,6 +1,6 @@
 package com.wynnventory.model.reward;
 
-import com.wynnventory.data.ModInfoProvider;
+import com.wynnventory.model.item.ModInfoProvider;
 import com.wynnventory.model.item.simple.SimpleItem;
 
 import java.util.List;

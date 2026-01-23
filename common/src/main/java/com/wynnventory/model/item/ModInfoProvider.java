@@ -1,4 +1,4 @@
-package com.wynnventory.data;
+package com.wynnventory.model.item;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;

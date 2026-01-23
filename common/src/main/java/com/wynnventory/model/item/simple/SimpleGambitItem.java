@@ -3,7 +3,7 @@ package com.wynnventory.model.item.simple;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.items.items.gui.GambitItem;
 import com.wynntils.utils.colors.CustomColor;
-import com.wynnventory.data.ModInfoProvider;
+import com.wynnventory.model.item.ModInfoProvider;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.wynnventory.queue;
+package com.wynnventory.core.queue;
 
 public final class QueueManager {
 

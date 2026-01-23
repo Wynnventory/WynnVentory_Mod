@@ -1,7 +1,7 @@
-package com.wynnventory.queue;
+package com.wynnventory.core.queue;
 
 import com.wynnventory.core.WynnventoryMod;
-import com.wynnventory.model.item.trademarket.TradeMarketListing;
+import com.wynnventory.model.item.trademarket.TrademarketListing;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,18 +9,18 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class TrademarketQueue {
 
-    private final Set<TradeMarketListing> items = ConcurrentHashMap.newKeySet();
+    private final Set<TrademarketListing> items = ConcurrentHashMap.newKeySet();
 
-    public void addItem(TradeMarketListing listing) {
+    public void addItem(TrademarketListing listing) {
         boolean added = items.add(listing);
 
         if (added) WynnventoryMod.logDebug("Collected TM Listing for item: {} | price: {} | quantity: {}. New queued size: {}", listing.getItem().getName(), listing.getListingPrice(), listing.getQuantity(), items.size());
     }
 
-    public Set<TradeMarketListing> drainAll() {
+    public Set<TrademarketListing> drainAll() {
         if (items.isEmpty()) return Set.of();
 
-        Set<TradeMarketListing> out = new HashSet<>(items);
+        Set<TrademarketListing> out = new HashSet<>(items);
         items.clear();
         return out;
     }

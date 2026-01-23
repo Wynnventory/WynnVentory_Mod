@@ -1,4 +1,4 @@
-package com.wynnventory.config.settings;
+package com.wynnventory.core.config.settings;
 
 public class TooltipSettings {
     private boolean showTooltips = true;

@@ -7,7 +7,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleGambitItem;
 import com.wynnventory.model.item.simple.SimpleItem;
-import com.wynnventory.model.item.trademarket.TradeMarketListing;
+import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
+import com.wynnventory.model.item.trademarket.TrademarketListing;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.util.HttpUtils;
@@ -15,8 +16,10 @@ import com.wynnventory.util.HttpUtils;
 import java.net.URI;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public class WynnventoryApi  {
@@ -49,17 +52,32 @@ public class WynnventoryApi  {
         }
     }
 
-    public void sendTradeMarketData(Set<TradeMarketListing> trademarketItems) {
+    public void sendTradeMarketData(Set<TrademarketListing> trademarketItems) {
         URI uri = Endpoint.TRADE_MARKET_ITEMS.uri();
         HttpUtils.sendPostRequest(uri, serialize(trademarketItems));
         WynnventoryMod.logDebug("Trying to send {} trademarket items", trademarketItems.size());
     }
 
-    // TODO: sendRaidpoolData
+    public CompletableFuture<TrademarketItemSummary> fetchItemPrice(String name, Integer tier, Boolean shiny) {
+        if (name == null || name.isBlank()) {
+            return CompletableFuture.completedFuture(null);
+        }
 
-    // TODO: fetchItemPrice (by name)
+        URI baseUri = Endpoint.TRADE_MARKET_PRICE.uri(HttpUtils.encode(name));
 
-    // TODO: fetchItemPrice (by name and tier)
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("tier", tier);
+        params.put("shiny", shiny);
+
+        URI uri = HttpUtils.withQueryParams(baseUri, params);
+
+        return HttpUtils.sendGetRequest(uri)
+                .thenApply(resp -> handleResponse(resp, this::parsePriceInfoResponse))
+                .exceptionally(ex -> {
+                    WynnventoryMod.logError("Failed to fetch item price", ex);
+                    return null;
+                });
+    }
 
     // TODO: fetchLootpools (RAID or LOOTPOOL)
 
@@ -73,6 +91,7 @@ public class WynnventoryApi  {
 
     private <T> T handleResponse(HttpResponse<String> resp, Function<String, T> on200) {
         if (resp.statusCode() == 200) {
+            WynnventoryMod.logDebug("API response: {}", resp.body());
             return on200.apply(resp.body());
         } else {
             WynnventoryMod.logError("API error ({}): {}", resp.statusCode(), resp.body());
@@ -94,5 +113,13 @@ public class WynnventoryApi  {
         }
     }
 
+    private TrademarketItemSummary parsePriceInfoResponse(String responseBody) {
+        try {
+            return MAPPER.readValue(responseBody, TrademarketItemSummary.class);
+        } catch (JsonProcessingException e) {
+            WynnventoryMod.logError("Failed to parse item price response {}", responseBody, e);
+        }
 
+        return null;
+    }
 }

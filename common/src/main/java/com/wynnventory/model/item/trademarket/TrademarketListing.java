@@ -2,25 +2,25 @@ package com.wynnventory.model.item.trademarket;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
-import com.wynnventory.data.ModInfoProvider;
+import com.wynnventory.model.item.ModInfoProvider;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Objects;
 
-public class TradeMarketListing extends ModInfoProvider {
+public class TrademarketListing extends ModInfoProvider {
     private SimpleItem item;
     private int price;
     private int quantity;
 
-    protected TradeMarketListing(SimpleItem item, int price, int quantity) {
+    protected TrademarketListing(SimpleItem item, int price, int quantity) {
         this.item = item;
         this.price = price;
         this.quantity = quantity;
     }
 
-    public static TradeMarketListing from(ItemStack itemStack) {
+    public static TrademarketListing from(ItemStack itemStack) {
         SimpleItem item = ItemStackUtils.toSimpleItem(itemStack);
 
         if(item == null) return null;
@@ -29,7 +29,7 @@ public class TradeMarketListing extends ModInfoProvider {
 
         if (priceInfo == null) return null;
 
-        return new TradeMarketListing(item, priceInfo.price(), priceInfo.amount());
+        return new TrademarketListing(item, priceInfo.price(), priceInfo.amount());
     }
 
     @JsonProperty("listingPrice")
@@ -54,7 +54,7 @@ public class TradeMarketListing extends ModInfoProvider {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o instanceof TradeMarketListing other) {
+        if (o instanceof TrademarketListing other) {
             return price == other.price &&
                     quantity == other.quantity &&
                     Objects.equals(item, other.item);
