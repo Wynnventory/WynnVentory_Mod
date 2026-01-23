@@ -18,7 +18,7 @@ public class QueueScheduler {
 
     private static final WynnventoryApi API = new WynnventoryApi();
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private static final int SEND_DELAY_MINS = 1;
+    private static final int SEND_DELAY_MINS = 5;
 
     private QueueScheduler() {}
 
