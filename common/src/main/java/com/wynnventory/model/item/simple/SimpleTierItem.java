@@ -25,19 +25,41 @@ public class SimpleTierItem extends SimpleItem {
         this.tier = tier;
     }
 
+    public int getTier() {
+        return tier;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o instanceof SimpleTierItem other) {
+            return tier == other.getTier() &&
+                    Objects.equals(name, other.name) &&
+                    Objects.equals(itemType, other.itemType) &&
+                    Objects.equals(type, other.type);
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tier, name, itemType, type);
+    }
+
     public static SimpleTierItem from(ItemStack stack) {
         return Models.Item.getWynnItem(stack).map(SimpleTierItem::from).orElse(null);
     }
 
     public static SimpleTierItem from(WynnItem item) {
-       return switch (item) {
-           case IngredientItem ingredientItem -> fromIngredientItem(ingredientItem);
-           case MaterialItem materialItem -> fromMaterialItem(materialItem);
-           case PowderItem powderItem -> fromPowderItem(powderItem);
-           case AmplifierItem amplifierItem -> fromAmplifierItem(amplifierItem);
-           case HorseItem horseItem -> fromHorseItem(horseItem);
-           case EmeraldPouchItem emeraldPouchItem -> fromEmeraldPouchItem(emeraldPouchItem);
-           case null, default -> null;
+        return switch (item) {
+            case IngredientItem ingredientItem -> fromIngredientItem(ingredientItem);
+            case MaterialItem materialItem -> fromMaterialItem(materialItem);
+            case PowderItem powderItem -> fromPowderItem(powderItem);
+            case AmplifierItem amplifierItem -> fromAmplifierItem(amplifierItem);
+            case HorseItem horseItem -> fromHorseItem(horseItem);
+            case EmeraldPouchItem emeraldPouchItem -> fromEmeraldPouchItem(emeraldPouchItem);
+            case null, default -> null;
         };
     }
 
@@ -79,27 +101,5 @@ public class SimpleTierItem extends SimpleItem {
         }
 
         return new SimpleTierItem(name, rarity, itemType, type, icon, amount, tier);
-    }
-
-    public int getTier() {
-        return tier;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o instanceof SimpleTierItem other) {
-            return tier == other.getTier() &&
-                    Objects.equals(name, other.name) &&
-                    Objects.equals(itemType, other.itemType) &&
-                    Objects.equals(type, other.type);
-        }
-
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(tier, name, itemType, type);
     }
 }

@@ -48,62 +48,6 @@ public class SimpleItem extends TimestampedObject {
         this.amount = amount;
     }
 
-    public static SimpleItem from(ItemStack stack) {
-        return Models.Item.getWynnItem(stack).map(SimpleItem::from).orElse(null);
-    }
-
-    public static SimpleItem from(WynnItem item) {
-        return switch (item) {
-            case SimulatorItem simItem -> fromSimulatorItem(simItem);
-            case InsulatorItem insItem -> fromInsulatorItem(insItem);
-            case RuneItem runeItem -> fromRuneItem(runeItem);
-            case DungeonKeyItem dungeonKeyItem -> fromDungeonKeyItem(dungeonKeyItem);
-            case EmeraldItem emeraldItem -> fromEmeraldItem(emeraldItem);
-            case AspectItem aspectItem -> fromAspectItem(aspectItem);
-            case TomeItem tomeItem -> fromTomeItem(tomeItem);
-            case null, default -> null;
-        };
-    }
-
-    private static SimpleItem fromSimulatorItem(SimulatorItem item) {
-        return createSimpleItem(item, item.getGearTier().getName(), "SimulatorItem", "Simulator");
-    }
-
-    private static SimpleItem fromInsulatorItem(InsulatorItem item) {
-        return createSimpleItem(item, item.getGearTier().getName(), "InsulatorItem", "Insulator");
-    }
-
-    private static SimpleItem fromRuneItem(RuneItem item) {
-        return createSimpleItem(item, "RuneItem");
-    }
-
-    private static SimpleItem fromDungeonKeyItem(DungeonKeyItem item) {
-        return createSimpleItem(item,"DungeonKeyItem");
-    }
-
-    private static SimpleItem fromEmeraldItem(EmeraldItem emeraldItem) {
-        return createSimpleItem(emeraldItem, "Common", "EmeraldItem", emeraldItem.getUnit().name());
-    }
-
-    private static SimpleItem fromAspectItem(AspectItem aspectItem) {
-        return createSimpleItem(aspectItem, aspectItem.getGearTier().getName(), "AspectItem", aspectItem.getRequiredClass().getName() + "Aspect");
-    }
-
-    private static SimpleItem fromTomeItem(TomeItem tomeItem) {
-        return new SimpleItem(tomeItem.getName().replace("Unidentified ", ""), tomeItem.getGearTier().getName(), "TomeItem", tomeItem.getItemInfo().type().name());
-    }
-
-    private static SimpleItem createSimpleItem(WynnItem item, String itemType) {
-        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
-        return createSimpleItem(item, "Common", itemType, StringUtils.toCamelCase(name));
-    }
-
-    private static SimpleItem createSimpleItem(WynnItem item, String rarity, String itemType, String type) {
-        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
-        int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        return new SimpleItem(name, rarity, itemType, type, IconManager.getIcon(name), amount);
-    }
-
     public String getName() {
         return name;
     }
@@ -179,5 +123,61 @@ public class SimpleItem extends TimestampedObject {
                 ", icon=" + icon +
                 ", amount=" + amount +
                 '}';
+    }
+
+    public static SimpleItem from(ItemStack stack) {
+        return Models.Item.getWynnItem(stack).map(SimpleItem::from).orElse(null);
+    }
+
+    public static SimpleItem from(WynnItem item) {
+        return switch (item) {
+            case SimulatorItem simItem -> fromSimulatorItem(simItem);
+            case InsulatorItem insItem -> fromInsulatorItem(insItem);
+            case RuneItem runeItem -> fromRuneItem(runeItem);
+            case DungeonKeyItem dungeonKeyItem -> fromDungeonKeyItem(dungeonKeyItem);
+            case EmeraldItem emeraldItem -> fromEmeraldItem(emeraldItem);
+            case AspectItem aspectItem -> fromAspectItem(aspectItem);
+            case TomeItem tomeItem -> fromTomeItem(tomeItem);
+            case null, default -> null;
+        };
+    }
+
+    private static SimpleItem fromSimulatorItem(SimulatorItem item) {
+        return createSimpleItem(item, item.getGearTier().getName(), "SimulatorItem", "Simulator");
+    }
+
+    private static SimpleItem fromInsulatorItem(InsulatorItem item) {
+        return createSimpleItem(item, item.getGearTier().getName(), "InsulatorItem", "Insulator");
+    }
+
+    private static SimpleItem fromRuneItem(RuneItem item) {
+        return createSimpleItem(item, "RuneItem");
+    }
+
+    private static SimpleItem fromDungeonKeyItem(DungeonKeyItem item) {
+        return createSimpleItem(item,"DungeonKeyItem");
+    }
+
+    private static SimpleItem fromEmeraldItem(EmeraldItem emeraldItem) {
+        return createSimpleItem(emeraldItem, "Common", "EmeraldItem", emeraldItem.getUnit().name());
+    }
+
+    private static SimpleItem fromAspectItem(AspectItem aspectItem) {
+        return createSimpleItem(aspectItem, aspectItem.getGearTier().getName(), "AspectItem", aspectItem.getRequiredClass().getName() + "Aspect");
+    }
+
+    private static SimpleItem fromTomeItem(TomeItem tomeItem) {
+        return new SimpleItem(tomeItem.getName().replace("Unidentified ", ""), tomeItem.getGearTier().getName(), "TomeItem", tomeItem.getItemInfo().type().name());
+    }
+
+    private static SimpleItem createSimpleItem(WynnItem item, String itemType) {
+        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
+        return createSimpleItem(item, "Common", itemType, StringUtils.toCamelCase(name));
+    }
+
+    private static SimpleItem createSimpleItem(WynnItem item, String rarity, String itemType, String type) {
+        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
+        int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
+        return new SimpleItem(name, rarity, itemType, type, IconManager.getIcon(name), amount);
     }
 }
