@@ -40,7 +40,7 @@ public class SimpleGearItem extends SimpleItem {
         this.shiny = shinyStat.isPresent();
     }
 
-    private static SimpleGearItem from(GearItem item) {
+    public static SimpleGearItem from(GearItem item) {
         String name = item.getName();
         ItemStack itemStack = item.getData().get(WynnItemData.ITEMSTACK_KEY);
 
