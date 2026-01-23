@@ -167,6 +167,10 @@ public class TrademarketItemSummary extends TimestampedObject {
         return timestamp.isAfter(Instant.now().minus(DATA_LIFESPAN));
     }
 
+    public boolean isEmpty() {
+        return item.getName() == null || item.getName().isBlank();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

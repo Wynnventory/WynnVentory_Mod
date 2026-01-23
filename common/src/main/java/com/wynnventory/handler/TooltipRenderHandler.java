@@ -7,6 +7,7 @@ import com.wynnventory.events.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;
+import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
 import com.wynnventory.model.item.trademarket.TrademarketListing;
 import com.wynnventory.core.queue.QueueManager;
 import com.wynnventory.util.FixedTooltipPositioner;
@@ -20,6 +21,8 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositione
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
@@ -55,19 +58,48 @@ public final class TooltipRenderHandler {
     public void onTooltipRendered(ItemTooltipRenderEvent.Pre event) {
         SimpleItem simpleItem = ItemStackUtils.toSimpleItem(event.getItemStack());
 
-
         //TODO: Refactor this (new class?)
-        switch (simpleItem) {
-            case SimpleGearItem gearItem -> TrademarketPriceDictionary.INSTANCE.getItem(gearItem.getName(), gearItem.isShiny());
-            case SimpleTierItem tierItem -> TrademarketPriceDictionary.INSTANCE.getItem(tierItem.getName(), tierItem.getTier());
-            case SimpleItem item -> TrademarketPriceDictionary.INSTANCE.getItem(item.getName());
-            case null -> WynnventoryMod.logError("Wait a minute... Who are you!?");
-        }
+        TrademarketItemSummary summary =
+                switch (simpleItem) {
+                    case SimpleGearItem gearItem -> TrademarketPriceDictionary.INSTANCE.getItem(gearItem.getName(), gearItem.isShiny());
+                    case SimpleTierItem tierItem -> TrademarketPriceDictionary.INSTANCE.getItem(tierItem.getName(), tierItem.getTier());
+                    case SimpleItem item -> TrademarketPriceDictionary.INSTANCE.getItem(item.getName());
+                    case null -> null;
+                };
 
-        renderTooltip(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getItemStack(), event.getTooltips());
+        if(summary == null) return;
+
+        renderTooltip(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getItemStack(), event.getTooltips(), summary);
     }
 
-    private void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY, ItemStack itemStack, List<Component> tooltipLines) {
+    public List<Component> getTooltips(TrademarketItemSummary summary) {
+        List<Component> tooltips = new java.util.ArrayList<>(List.of());
+
+        if(summary.isEmpty()) {
+            tooltips.add(Component.literal("No price data available for this item.").withStyle(ChatFormatting.RED));
+            return tooltips;
+        }
+
+        tooltips.add(Component.literal(summary.getName()).withStyle(ChatFormatting.GOLD));
+        if(summary.getAverageMid80PercentPrice() != null) tooltips.add(createPriceLine("80% avg", summary.getAverageMid80PercentPrice().toString()));
+        if(summary.getUnidentifiedAverageMid80PercentPrice() != null) tooltips.add(createPriceLine("Unid 80% avg", summary.getUnidentifiedAverageMid80PercentPrice().toString()));
+        if(summary.getAveragePrice() != null) tooltips.add(createPriceLine("Avg", summary.getAveragePrice().toString()));
+        if(summary.getUnidentifiedAveragePrice() != null) tooltips.add(createPriceLine("Unid Avg", summary.getUnidentifiedAveragePrice().toString()));
+        if(summary.getHighestPrice() != null) tooltips.add(createPriceLine("Highest", summary.getHighestPrice().toString()));
+        if(summary.getLowestPrice() != null) tooltips.add(createPriceLine("Lowest", summary.getLowestPrice().toString()));
+
+        return tooltips;
+    }
+
+    private Component createPriceLine(String name, String price) {
+        MutableComponent line = Component.literal(name + ": ").withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
+        line.append(Component.literal(price)
+                .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+
+        return line;
+    }
+
+    private void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY, ItemStack itemStack, List<Component> tooltipLines, TrademarketItemSummary summary) {
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
         Optional<TooltipComponent> tooltipImage = itemStack.getTooltipImage();
@@ -96,10 +128,8 @@ public final class TooltipRenderHandler {
         // ----------------------------
         // 2) Create your "price tooltip"
         // ----------------------------
-        List<Component> priceLines = List.of(
-                Component.literal("Trade Market Price Info").withStyle(ChatFormatting.GOLD),
-                Component.literal("Price: 1eb")
-        );
+
+        List<Component> priceLines = getTooltips(summary);
         List<ClientTooltipComponent> priceComponents = toClientComponents(priceLines, Optional.empty());
 
         int priceW = tooltipWidth(priceComponents, font);

@@ -4,9 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
-/**
- * A record representing the state of the currently open container screen.
- */
 public record Container(AbstractContainerScreen<?> screen, int containerId, String title) {
     public static Container current() {
         Screen screen = Minecraft.getInstance().screen;
