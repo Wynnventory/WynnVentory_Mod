@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
+import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.queue.QueueScheduler;
 import com.wynnventory.util.ChatUtils;
 import net.minecraft.client.Minecraft;
@@ -32,6 +33,13 @@ public final class WynnventoryCommands {
                 })
         );
 
+        root.then(literalClient("reloadConfig")
+                .executes(ctx -> {
+                    ModConfig.reload();
+                    return 1;
+                })
+        );
+
         dispatcher.register(root);
     }
 
@@ -39,6 +47,7 @@ public final class WynnventoryCommands {
         LiteralCommandNode<SharedSuggestionProvider> node = literalSuggestion(PREFIX)
                 .then(literalSuggestion("send").executes(ctx -> 1))
                 .then(literalSuggestion("ping").executes(ctx -> 1))
+                .then(literalSuggestion("reloadConfig").executes(ctx -> 1))
                 .build();
 
         addNode(root, node);
