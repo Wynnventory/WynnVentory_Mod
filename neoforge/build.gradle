@@ -33,7 +33,6 @@ dependencies {
     modRuntimeOnly "me.djtheredstoner:DevAuth-neoforge:${devauth_version}"
 
     modImplementation "maven.modrinth:wynntils:v${project.wynntils_version}-neoforge"
-    modRuntimeOnly "maven.modrinth:wynntils:v${project.wynntils_version}-neoforge"
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
