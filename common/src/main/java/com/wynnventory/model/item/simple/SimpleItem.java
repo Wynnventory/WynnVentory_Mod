@@ -10,12 +10,15 @@ import com.wynnventory.model.item.TimestampedObject;
 import com.wynnventory.util.IconManager;
 import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.StringUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SimpleItem extends TimestampedObject {
+    protected Component displayName;
     protected String name;
     protected String rarity;
     protected String itemType;
@@ -25,15 +28,16 @@ public class SimpleItem extends TimestampedObject {
 
     public SimpleItem() {}
 
-    public SimpleItem(String name, String rarity, String itemType, String type) {
-        this(name, rarity, itemType, type, null);
+    public SimpleItem(Component displayName, String name, String rarity, String itemType, String type) {
+        this(displayName, name, rarity, itemType, type, null);
     }
 
-    public SimpleItem(String name, String rarity, String itemType, String type, Icon icon) {
-        this(name, rarity, itemType, type, icon, 1);
+    public SimpleItem(Component displayName, String name, String rarity, String itemType, String type, Icon icon) {
+        this(displayName, name, rarity, itemType, type, icon, 1);
     }
 
-    public SimpleItem(String name, String rarity, String itemType, String type, Icon icon, int amount) {
+    public SimpleItem(Component displayName, String name, String rarity, String itemType, String type, Icon icon, int amount) {
+        this.displayName = displayName;
         this.name = name;
 
         if(rarity == null || rarity.isBlank()) {
@@ -92,6 +96,14 @@ public class SimpleItem extends TimestampedObject {
 
     public void setAmount(int amount) {
         this.amount = amount;
+    }
+
+    public Component getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(MutableComponent displayName) {
+        this.displayName = displayName;
     }
 
     @Override
@@ -167,7 +179,8 @@ public class SimpleItem extends TimestampedObject {
     }
 
     private static SimpleItem fromTomeItem(TomeItem tomeItem) {
-        return new SimpleItem(tomeItem.getName().replace("Unidentified ", ""), tomeItem.getGearTier().getName(), "TomeItem", tomeItem.getItemInfo().type().name());
+        Component displayName = ItemStackUtils.getWynntilsOriginalNameAsComponent(tomeItem);
+        return new SimpleItem(displayName, tomeItem.getName().replace("Unidentified ", ""), tomeItem.getGearTier().getName(), "TomeItem", tomeItem.getItemInfo().type().name());
     }
 
     private static SimpleItem createSimpleItem(WynnItem item, String itemType) {
@@ -178,6 +191,8 @@ public class SimpleItem extends TimestampedObject {
     private static SimpleItem createSimpleItem(WynnItem item, String rarity, String itemType, String type) {
         String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
         int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        return new SimpleItem(name, rarity, itemType, type, IconManager.getIcon(name), amount);
+        Component displayName = ItemStackUtils.getWynntilsOriginalNameAsComponent(item);
+
+        return new SimpleItem(displayName, name, rarity, itemType, type, IconManager.getIcon(name), amount);
     }
 }

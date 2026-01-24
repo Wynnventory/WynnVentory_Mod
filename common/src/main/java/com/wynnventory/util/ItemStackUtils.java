@@ -13,6 +13,7 @@ import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import java.lang.reflect.Field;
@@ -62,6 +63,11 @@ public class ItemStackUtils {
             WynnventoryMod.logError("Error retrieving original name", e);
             return null;
         }
+    }
+
+    public static Component getWynntilsOriginalNameAsComponent(WynnItem item) {
+        return item.getData().get(WynnItemData.ITEMSTACK_KEY);
+
     }
 
     public static String getWynntilsOriginalNameAsString(WynnItem item) {
