@@ -30,7 +30,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
     modRuntimeOnly "me.djtheredstoner:DevAuth-fabric:${devauth_version}"
     
-    modImplementation "maven.modrinth:wynntils:${project.wynntils_version}-fabric"
+    modImplementation "maven.modrinth:wynntils:v${project.wynntils_version}-fabric"
 
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 

@@ -8,7 +8,7 @@ dependencies {
     // Do NOT use other classes from Fabric Loader.
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
 
-    modImplementation "maven.modrinth:wynntils:${project.wynntils_version}-fabric"
+    modImplementation "maven.modrinth:wynntils:v${project.wynntils_version}-fabric"
 
     compileOnly "net.neoforged:bus:${neoforge_eventbus_version}"
 
