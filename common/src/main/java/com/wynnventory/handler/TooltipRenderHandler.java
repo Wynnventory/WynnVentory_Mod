@@ -70,20 +70,20 @@ public final class TooltipRenderHandler {
                     case null -> null;
                 };
 
-        if(summary == null) return;
+        if(summary == null || summary.live() == null) return;
 
         renderTooltip(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getItemStack(), event.getTooltips(), summary);
     }
 
-    public List<Component> getTooltips(TrademarketItemSummary summary) {
+    public List<Component> getTooltips(TrademarketItemSummary summary, Component customName) {
         List<Component> tooltips = new java.util.ArrayList<>(List.of());
 
-        if(summary.isEmpty()) {
-            tooltips.add(Component.literal("No price data available for this item.").withStyle(ChatFormatting.RED));
+        tooltips.add(customName);
+        if(summary == null ||summary.isEmpty()) {
+            tooltips.add(Component.literal("No data yet.").withStyle(ChatFormatting.RED));
             return tooltips;
         }
 
-        tooltips.add(Component.literal(summary.getName()).withStyle(ChatFormatting.GOLD));
         if(summary.getAverageMid80PercentPrice() != null) tooltips.add(createPriceLine("80% avg", summary.getAverageMid80PercentPrice().toString()));
         if(summary.getUnidentifiedAverageMid80PercentPrice() != null) tooltips.add(createPriceLine("Unid 80% avg", summary.getUnidentifiedAverageMid80PercentPrice().toString()));
         if(summary.getAveragePrice() != null) tooltips.add(createPriceLine("Avg", summary.getAveragePrice().toString()));
@@ -131,7 +131,7 @@ public final class TooltipRenderHandler {
         // ----------------------------
         // 2) Create your "price tooltip"
         // ----------------------------
-        List<Component> priceLines = getTooltips(snapshot.live());
+        List<Component> priceLines = getTooltips(snapshot.live(), itemStack.getCustomName());
         List<ClientTooltipComponent> priceComponents = toClientComponents(priceLines, Optional.empty());
 
         int priceW = tooltipWidth(priceComponents, font);
