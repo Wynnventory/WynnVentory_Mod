@@ -156,7 +156,6 @@ public final class TooltipRenderHandler {
 
             if (scale != 1f) {
                 priceX = (int) (vanillaX + Math.floor(vanillaW * scale) + gap);
-//                priceY = (int) (priceY + (2 * (gap * scale)));
             }
         }
 
