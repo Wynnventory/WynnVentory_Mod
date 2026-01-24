@@ -1,7 +1,8 @@
 package com.wynnventory.handler;
 
+import com.wynntils.core.components.Managers;
+import com.wynntils.features.tooltips.TooltipFittingFeature;
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
-import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.api.TrademarketPriceDictionary;
 import com.wynnventory.events.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.item.simple.SimpleGearItem;
@@ -10,6 +11,7 @@ import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
 import com.wynnventory.model.item.trademarket.TrademarketListing;
 import com.wynnventory.core.queue.QueueManager;
+import com.wynnventory.util.ChatUtils;
 import com.wynnventory.util.FixedTooltipPositioner;
 import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.ChatFormatting;
@@ -138,10 +140,25 @@ public final class TooltipRenderHandler {
         // ----------------------------
         // 3) Position to the right of the vanilla tooltip (+gap), flip/clamp if needed
         // ----------------------------
-        final int gap = 6;
+        final int gap = 7;
 
         int priceX = vanillaX + vanillaW + gap;
         int priceY = vanillaY;
+
+        TooltipFittingFeature feature = Managers.Feature.getFeatureInstance(TooltipFittingFeature.class);
+        boolean isFittingEnabled = feature.isEnabled();
+        float scale = feature.universalScale.get(); //1f
+        if (isFittingEnabled) {
+            int scaledTooltipHeight = vanillaH + 10;
+            if (scaledTooltipHeight > screenH) {
+                scale = screenH / (float) scaledTooltipHeight;
+            }
+
+            if (scale != 1f) {
+                priceX = (int) (vanillaX + Math.floor(vanillaW * scale) + gap);
+//                priceY = (int) (priceY + (2 * (gap * scale)));
+            }
+        }
 
         // Flip to left if overflowing right edge
         if (priceX + priceW > screenW - 4) {
@@ -150,7 +167,7 @@ public final class TooltipRenderHandler {
 
         // Clamp inside screen bounds
         priceX = clamp(priceX, 4, screenW - priceW - 4);
-        priceY = clamp(priceY, 4, screenH - priceH - 4);
+        priceY = clamp(priceY, 6, screenH - priceH - 4);
 
         // ----------------------------
         // 4) Render our tooltip at a fixed position
