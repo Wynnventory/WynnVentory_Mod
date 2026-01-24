@@ -10,7 +10,7 @@ public enum Endpoint {
     RAIDPOOL_CURRENT           ("raidpool/current"),
     RAIDPOOL_GAMBITS           ("raidpool/gambits"),
     TRADE_MARKET_PRICE         ("trademarket/item/%s/price"),
-    TRADE_MARKET_HISTORY_LATEST("trademarket/history/%s/price?tier=%d");
+    TRADE_MARKET_HISTORIC_PRICE("trademarket/history/%s/price");
 
     private final String template;
     Endpoint(String template) { this.template = template; }

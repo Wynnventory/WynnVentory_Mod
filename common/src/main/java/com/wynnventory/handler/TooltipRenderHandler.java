@@ -8,6 +8,7 @@ import com.wynnventory.events.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;
+import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
 import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
 import com.wynnventory.model.item.trademarket.TrademarketListing;
 import com.wynnventory.core.queue.QueueManager;
@@ -61,7 +62,7 @@ public final class TooltipRenderHandler {
         SimpleItem simpleItem = ItemStackUtils.toSimpleItem(event.getItemStack());
 
         //TODO: Refactor this (new class?)
-        TrademarketItemSummary summary =
+        TrademarketItemSnapshot summary =
                 switch (simpleItem) {
                     case SimpleGearItem gearItem -> TrademarketPriceDictionary.INSTANCE.getItem(gearItem.getName(), gearItem.isShiny());
                     case SimpleTierItem tierItem -> TrademarketPriceDictionary.INSTANCE.getItem(tierItem.getName(), tierItem.getTier());
@@ -101,7 +102,7 @@ public final class TooltipRenderHandler {
         return line;
     }
 
-    private void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY, ItemStack itemStack, List<Component> tooltipLines, TrademarketItemSummary summary) {
+    private void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY, ItemStack itemStack, List<Component> tooltipLines, TrademarketItemSnapshot snapshot) {
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
         Optional<TooltipComponent> tooltipImage = itemStack.getTooltipImage();
@@ -130,8 +131,7 @@ public final class TooltipRenderHandler {
         // ----------------------------
         // 2) Create your "price tooltip"
         // ----------------------------
-
-        List<Component> priceLines = getTooltips(summary);
+        List<Component> priceLines = getTooltips(snapshot.live());
         List<ClientTooltipComponent> priceComponents = toClientComponents(priceLines, Optional.empty());
 
         int priceW = tooltipWidth(priceComponents, font);

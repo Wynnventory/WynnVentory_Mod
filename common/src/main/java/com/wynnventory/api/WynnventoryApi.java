@@ -79,15 +79,32 @@ public class WynnventoryApi  {
                 });
     }
 
-    // TODO: fetchLootpools (RAID or LOOTPOOL)
+    public CompletableFuture<TrademarketItemSummary> fetchHistoricItemPrice(String name, Integer tier, Boolean shiny) {
+        if (name == null || name.isBlank()) {
+            return CompletableFuture.completedFuture(null);
+        }
 
-    // TODO: fetchLatestHistoricItemPrice (by name)
+        URI baseUri = Endpoint.TRADE_MARKET_HISTORIC_PRICE.uri(HttpUtils.encode(name));
 
-    // TODO: fetchLatestHistoricItemPrice (by name and tier)
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("tier", tier);
+        params.put("shiny", shiny);
+
+        URI uri = HttpUtils.withQueryParams(baseUri, params);
+
+        return HttpUtils.sendGetRequest(uri)
+                .thenApply(resp -> handleResponse(resp, this::parsePriceInfoResponse))
+                .exceptionally(ex -> {
+                    WynnventoryMod.logError("Failed to fetch item price", ex);
+                    return null;
+                });
+    }
 
     // TODO: parsePriceInfoResponse
 
     // TODO: parseLootpoolResponse
+
+    // TODO: fetchLootpools (RAID or LOOTPOOL)
 
     private <T> T handleResponse(HttpResponse<String> resp, Function<String, T> on200) {
         if (resp.statusCode() == 200) {

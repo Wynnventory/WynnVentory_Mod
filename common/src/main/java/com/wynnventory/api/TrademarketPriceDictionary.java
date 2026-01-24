@@ -1,54 +1,71 @@
 package com.wynnventory.api;
 
-import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
+import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 public final class TrademarketPriceDictionary {
     public static final TrademarketPriceDictionary INSTANCE =  new TrademarketPriceDictionary();
 
     private static final WynnventoryApi API = new WynnventoryApi();
-    private final ConcurrentHashMap<Integer, TrademarketItemSummary> prices = new ConcurrentHashMap<>();
-    private final ConcurrentLinkedDeque<Integer> fetching = new ConcurrentLinkedDeque<>();
+    private final ConcurrentHashMap<Integer, TrademarketItemSnapshot> prices = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, CompletableFuture<TrademarketItemSnapshot>> inFlight = new ConcurrentHashMap<>();
 
     private TrademarketPriceDictionary() {}
 
-    public TrademarketItemSummary getItem(String name) {
+    public TrademarketItemSnapshot getItem(String name) {
         return getOrFetch(name, null, false);
     }
 
-    public TrademarketItemSummary getItem(String name, int tier) {
+    public TrademarketItemSnapshot getItem(String name, int tier) {
         return getOrFetch(name, tier, false);
     }
 
-    public TrademarketItemSummary getItem(String name, boolean shiny) {
+    public TrademarketItemSnapshot getItem(String name, boolean shiny) {
         return getOrFetch(name, null, shiny);
     }
 
-    private TrademarketItemSummary getOrFetch(String name, Integer tier, boolean shiny) {
+    private TrademarketItemSnapshot getOrFetch(String name, Integer tier, boolean shiny) {
         if (name == null || name.isBlank()) return null;
 
         int key = generateHash(name, tier, shiny);
-        if (fetching.contains(key)) return null;
 
-        TrademarketItemSummary cached = prices.get(key);
-        if (cached != null && cached.isTimeValid()) {
+        TrademarketItemSnapshot cached = prices.get(key);
+        if (cached != null && !cached.isExpired()) {
             return cached;
         }
 
-        fetching.push(key);
-        API.fetchItemPrice(name, tier, shiny).thenAccept(fetched -> {
-            if (fetched == null) return;
-            prices.put(key, fetched);
-            fetching.remove(key);
-        }).exceptionally( ex -> {
-                fetching.remove(key);
-                return null;
-        });
+        inFlight.computeIfAbsent(key, k ->
+                fetchSnapshot(name, tier, shiny)
+                        .whenComplete((snapshot, ex) -> cacheAndCleanup(k, snapshot))
+        );
 
         return cached;
+    }
+
+    private void cacheAndCleanup(int key, TrademarketItemSnapshot snapshot) {
+        if (snapshot != null) {
+            prices.put(key, snapshot);
+        }
+        inFlight.remove(key);
+    }
+
+
+    private CompletableFuture<TrademarketItemSnapshot> fetchSnapshot(String name, Integer tier, boolean shiny) {
+        var liveF = API.fetchItemPrice(name, tier, shiny);
+        var histF = API.fetchHistoricItemPrice(name, tier, shiny);
+
+        return liveF.thenCombine(histF, TrademarketItemSnapshot::new)
+                .thenApply(snapshot -> {
+                    if (snapshot != null) {
+                        int key = generateHash(name, tier, shiny);
+                        prices.put(key, snapshot);
+                    }
+                    return snapshot;
+                })
+                .exceptionally(ex -> null);
     }
 
     public int generateHash(String name, Integer tier,  boolean shiny) {
