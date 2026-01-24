@@ -66,8 +66,7 @@ public class ItemStackUtils {
     }
 
     public static Component getWynntilsOriginalNameAsComponent(WynnItem item) {
-        return item.getData().get(WynnItemData.ITEMSTACK_KEY);
-
+        return ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCustomName();
     }
 
     public static String getWynntilsOriginalNameAsString(WynnItem item) {
