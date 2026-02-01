@@ -16,9 +16,13 @@
 	"icon": "assets/wynnventory/icon-compressed.png",
 	"environment": "*",
 	"entrypoints": {
+		"preLaunch": [
+			"com.wynnventory.bootstrap.WynnventoryPreLaunch"
+		],
 		"client": [
 			"com.wynnventory.WynnventoryMod"
-		], "modmenu": [
+		],
+		"modmenu": [
 			"com.wynnventory.config.WynnventoryModMenu"
 		]
 	},
@@ -31,9 +35,6 @@
 		"modmenu": ">=${modmenu_version}",
 		"cloth-config": ">=${clothconfig_version}"
 	},
-	"mixins": [
-		"wynnventory.mixins.json"
-	],
 	"custom": {
 		"modmenu": {
 			"links": {
