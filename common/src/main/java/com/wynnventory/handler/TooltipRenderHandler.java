@@ -1,11 +1,14 @@
 package com.wynnventory.handler;
 
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
+import com.wynnventory.core.config.ModConfig;
+import com.wynnventory.core.config.settings.DisplayOptions;
 import com.wynnventory.core.queue.QueueManager;
 import com.wynnventory.events.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
 import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
 import com.wynnventory.model.item.trademarket.TrademarketListing;
+import com.wynnventory.util.EmeraldUtils;
 import com.wynnventory.util.RenderUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -72,12 +75,12 @@ public final class TooltipRenderHandler {
             return tooltips;
         }
 
-        tooltips.add(createPriceLine("80% avg",      summary.getAverageMid80PercentPrice()));
-        tooltips.add(createPriceLine("Unid 80% avg", summary.getUnidentifiedAverageMid80PercentPrice()));
-        tooltips.add(createPriceLine("Avg",          summary.getAveragePrice()));
-        tooltips.add(createPriceLine("Unid Avg",     summary.getUnidentifiedAveragePrice()));
-        tooltips.add(createPriceLine("Highest",      summary.getHighestPrice()));
-        tooltips.add(createPriceLine("Lowest",       summary.getLowestPrice()));
+        if(ModConfig.get().getTooltipSettings().isShowAverage80Price())     tooltips.add(createPriceLine("80% avg",      summary.getAverageMid80PercentPrice()));
+        if(ModConfig.get().getTooltipSettings().isShowUnidAverage80Price()) tooltips.add(createPriceLine("Unid 80% avg", summary.getUnidentifiedAverageMid80PercentPrice()));
+        if(ModConfig.get().getTooltipSettings().isShowAveragePrice())       tooltips.add(createPriceLine("Avg",          summary.getAveragePrice()));
+        if(ModConfig.get().getTooltipSettings().isShowUnidAveragePrice())   tooltips.add(createPriceLine("Unid Avg",     summary.getUnidentifiedAveragePrice()));
+        if(ModConfig.get().getTooltipSettings().isShowMaxPrice())           tooltips.add(createPriceLine("Highest",      summary.getHighestPrice()));
+        if(ModConfig.get().getTooltipSettings().isShowMinPrice())           tooltips.add(createPriceLine("Lowest",       summary.getLowestPrice()));
 
         tooltips.removeIf(Objects::isNull);
         return tooltips;
@@ -86,9 +89,12 @@ public final class TooltipRenderHandler {
     private Component createPriceLine(String name, Integer value) {
         if(value == null) return null;
 
+        String price = ModConfig.get().getTooltipSettings().getDisplayFormat().equals(DisplayOptions.FORMATTED) ? EmeraldUtils.getFormattedString(value, false) : value.toString();
+        int priceColor = ModConfig.get().getColorSettings().isShowColors() && value >= ModConfig.get().getColorSettings().getColorMinPrice() ? ModConfig.get().getColorSettings().getHighlightColor() : ChatFormatting.GRAY.getColor();
+
         MutableComponent line = Component.literal(name + ": ").withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
-        line.append(Component.literal(value.toString())
-                .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+        line.append(Component.literal(price)
+                .withStyle(Style.EMPTY.withColor(priceColor)));
 
         return line;
     }

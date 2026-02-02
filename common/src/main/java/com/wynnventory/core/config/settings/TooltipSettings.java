@@ -47,11 +47,11 @@ public class TooltipSettings {
         this.showPriceFluctuation = showPriceFluctuation;
     }
 
-    public DisplayOptions getDisplayDropdown() {
+    public DisplayOptions getDisplayFormat() {
         return displayFormat;
     }
 
-    public void setDisplayDropdown(DisplayOptions displayFormat) {
+    public void setDisplayFormat(DisplayOptions displayFormat) {
         this.displayFormat = displayFormat;
     }
 
