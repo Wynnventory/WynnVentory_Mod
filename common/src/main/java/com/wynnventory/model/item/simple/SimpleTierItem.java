@@ -8,7 +8,6 @@ import com.wynnventory.model.item.Icon;
 import com.wynnventory.util.IconManager;
 import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.StringUtils;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Objects;
@@ -16,13 +15,13 @@ import java.util.Objects;
 public class SimpleTierItem extends SimpleItem {
     protected final int tier;
 
-    public SimpleTierItem(Component displayName, String name, String rarity, String itemType, String type, Icon icon, int tier) {
-        super(displayName, name, rarity, itemType, type, icon);
+    public SimpleTierItem(String name, String rarity, String itemType, String type, Icon icon, int tier) {
+        super(name, rarity, itemType, type, icon);
         this.tier = tier;
     }
 
-    public SimpleTierItem(Component displayName, String name, String rarity, String itemType, String type, Icon icon, int amount, int tier) {
-        super(displayName, name, rarity, itemType, type, icon, amount);
+    public SimpleTierItem(String name, String rarity, String itemType, String type, Icon icon, int amount, int tier) {
+        super(name, rarity, itemType, type, icon, amount);
         this.tier = tier;
     }
 
@@ -95,14 +94,12 @@ public class SimpleTierItem extends SimpleItem {
 
     private static SimpleTierItem createTierItem(WynnItem item, String name, String rarity, String itemType, String type, int tier) {
         int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        ItemStackUtils.getWynntilsOriginalNameAsComponent(item);
         Icon icon = IconManager.getIcon(name);
-        Component displayName = ItemStackUtils.getWynntilsOriginalNameAsComponent(item);
 
         if(icon == null) {
             icon = IconManager.getIcon(name, tier);
         }
 
-        return new SimpleTierItem(displayName, name, rarity, itemType, type, icon, amount, tier);
+        return new SimpleTierItem(name, rarity, itemType, type, icon, amount, tier);
     }
 }

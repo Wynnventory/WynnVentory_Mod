@@ -10,8 +10,6 @@ import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.ItemStat;
 import com.wynnventory.util.IconManager;
-import com.wynnventory.util.ItemStackUtils;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -28,12 +26,12 @@ public class SimpleGearItem extends SimpleItem {
     private final List<ItemStat> actualStatsWithPercentage = new ArrayList<>();
     private final boolean shiny;
 
-    public SimpleGearItem(Component displayName, String name, String rarity, String itemType, String type, Icon icon, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
-        this(displayName, name, rarity, itemType, type, icon, 1, unidentified, rerollCount, shinyStat, overallRollPercentage, actualStatsWithPercentage);
+    public SimpleGearItem(String name, String rarity, String itemType, String type, Icon icon, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
+        this(name, rarity, itemType, type, icon, 1, unidentified, rerollCount, shinyStat, overallRollPercentage, actualStatsWithPercentage);
     }
 
-    public SimpleGearItem(Component displayName, String name, String rarity, String itemType, String type, Icon icon, int amount, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
-        super(displayName, name, rarity, itemType, type, icon, amount);
+    public SimpleGearItem(String name, String rarity, String itemType, String type, Icon icon, int amount, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
+        super(name, rarity, itemType, type, icon, amount);
         this.unidentified = unidentified;
         this.rerollCount = rerollCount;
         this.shinyStat = shinyStat;
@@ -101,10 +99,8 @@ public class SimpleGearItem extends SimpleItem {
     public static SimpleGearItem from(GearItem item) {
         String name = item.getName();
         ItemStack itemStack = item.getData().get(WynnItemData.ITEMSTACK_KEY);
-        Component displayName = ItemStackUtils.getWynntilsOriginalNameAsComponent(item);
 
         return new SimpleGearItem(
-                displayName,
                 name,
                 item.getGearTier().getName(),
                 "GearItem",
