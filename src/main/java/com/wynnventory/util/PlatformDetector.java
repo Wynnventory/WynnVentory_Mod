@@ -57,10 +57,8 @@ public final class PlatformDetector {
      * @return true if any Lunar-specific class is found
      */
     private static boolean detectLunarClient() {
-        ClassLoader classLoader = PlatformDetector.class.getClassLoader();
-
         for (String className : LUNAR_CLASS_SIGNATURES) {
-            if (classExists(className, classLoader)) {
+            if (classExists(className)) {
                 ModInfo.logDebug("Detected Lunar class: " + className);
                 return true;
             }
@@ -72,13 +70,12 @@ public final class PlatformDetector {
     /**
      * Safely checks if a class exists without causing initialization or linkage errors
      *
-     * @param className   fully qualified class name
-     * @param classLoader the class loader to use
+     * @param className fully qualified class name
      * @return true if the class exists and can be loaded
      */
-    private static boolean classExists(String className, ClassLoader classLoader) {
+    private static boolean classExists(String className) {
         try {
-            Class.forName(className, false, classLoader);
+            Class.forName(className, false, PlatformDetector.class.getClassLoader());
             return true;
         } catch (ClassNotFoundException e) {
             return false;
