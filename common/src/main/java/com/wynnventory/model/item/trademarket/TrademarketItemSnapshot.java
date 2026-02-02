@@ -20,17 +20,11 @@ public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketIt
     public static TrademarketItemSnapshot resolveSnapshot(ItemStack itemStack) {
         SimpleItem simpleItem = ItemStackUtils.toSimpleItem(itemStack);
 
-        if (simpleItem == null) {
-            return null;
-        }
-
         return switch (simpleItem) {
-            case SimpleGearItem gearItem ->
-                    TrademarketPriceDictionary.INSTANCE.getItem(gearItem.getName(), gearItem.isShiny());
-            case SimpleTierItem tierItem ->
-                    TrademarketPriceDictionary.INSTANCE.getItem(tierItem.getName(), tierItem.getTier());
-            default ->
-                    TrademarketPriceDictionary.INSTANCE.getItem(simpleItem.getName());
+            case SimpleGearItem gearItem    -> TrademarketPriceDictionary.INSTANCE.getItem(gearItem.getName(), gearItem.isShiny());
+            case SimpleTierItem tierItem    -> TrademarketPriceDictionary.INSTANCE.getItem(tierItem.getName(), tierItem.getTier());
+            case SimpleItem item            -> TrademarketPriceDictionary.INSTANCE.getItem(item.getName());
+            case null                       -> null;
         };
     }
 }
