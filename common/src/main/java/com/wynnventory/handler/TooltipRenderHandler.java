@@ -64,9 +64,9 @@ public final class TooltipRenderHandler {
 
         if(wynnItem instanceof GearBoxItem gearboxItem) {
             Map<GearInfo, TrademarketItemSnapshot> snapshots = TrademarketItemSnapshot.resolveGearBoxItem(gearboxItem);
-
             for(Map.Entry<GearInfo, TrademarketItemSnapshot> entry : snapshots.entrySet()) {
                 priceLines.addAll(getTooltips(entry.getValue().live(), Component.literal(entry.getKey().name()).withStyle(entry.getKey().tier().getChatFormatting())));
+                priceLines.add(Component.literal(""));
             }
         } else {
             TrademarketItemSnapshot snapshot = TrademarketItemSnapshot.resolveSnapshot(itemStack);
