@@ -2,22 +2,29 @@ package com.wynnventory.util;
 
 import com.wynntils.core.components.Managers;
 import com.wynntils.features.tooltips.TooltipFittingFeature;
-import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
+import com.wynnventory.core.config.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Util;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import org.joml.Vector2i;
 import org.joml.Vector2ic;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class RenderUtils {
-    private static final int GAP = 7;
+    private static final int TOOLTIP_GAP = 7;
     private static final TooltipFittingFeature FITTING_FEATURE = Managers.Feature.getFeatureInstance(TooltipFittingFeature.class);
 
+    private RenderUtils() {}
 
     public static Vector2i calculateTooltipCoords(int mouseX, int mouseY, List<ClientTooltipComponent> vanillaComponents, List<ClientTooltipComponent> priceComponents) {
+        if(ModConfig.get().getTooltipSettings().isAnchorTooltips()) return new Vector2i(TOOLTIP_GAP, mouseY);
+
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
 
@@ -49,7 +56,7 @@ public abstract class RenderUtils {
 
         // Flip to left if overflowing right edge
         if (priceX + priceW > screenW - 4) {
-            priceX = vanillaX - GAP - priceW;
+            priceX = vanillaX - TOOLTIP_GAP - priceW;
         }
 
         // Clamp inside screen bounds
@@ -57,6 +64,19 @@ public abstract class RenderUtils {
         priceY = clamp(priceY, 6, screenH - priceH - 4);
 
         return new Vector2i(priceX, priceY);
+    }
+
+    public static List<ClientTooltipComponent> toClientComponents(List<Component> lines, Optional<TooltipComponent> tooltipImage) {
+        List<ClientTooltipComponent> list = lines.stream()
+                .map(Component::getVisualOrderText)
+                .map(ClientTooltipComponent::create)
+                .collect(Util.toMutableList());
+
+        tooltipImage.ifPresent(img ->
+                list.add(list.isEmpty() ? 0 : 1, ClientTooltipComponent.create(img))
+        );
+
+        return list;
     }
 
     private static int getScaledXCoordinate(int vanillaX, int vanillaW, int vanillaH, int screenH) {
@@ -71,11 +91,11 @@ public abstract class RenderUtils {
             }
 
             if (scale != universalScale) {
-                return (int) (vanillaX + Math.floor(vanillaW * scale) + GAP);
+                return (int) (vanillaX + Math.floor(vanillaW * scale) + TOOLTIP_GAP);
             }
         }
 
-        return vanillaX + vanillaW + GAP;
+        return vanillaX + vanillaW + TOOLTIP_GAP;
     }
 
     private static int tooltipWidth(List<ClientTooltipComponent> comps, Font font) {

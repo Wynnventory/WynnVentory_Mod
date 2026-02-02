@@ -1,6 +1,7 @@
 package com.wynnventory.handler;
 
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
+import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.queue.QueueManager;
 import com.wynnventory.events.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
@@ -54,24 +55,20 @@ public final class TooltipRenderHandler {
         TrademarketItemSnapshot snapshot = TrademarketItemSnapshot.resolveSnapshot(itemStack);
         if(snapshot == null || snapshot.live() == null) return;
 
-        Minecraft mc = Minecraft.getInstance();
-        Font font = mc.font;
-        Optional<TooltipComponent> tooltipImage = itemStack.getTooltipImage();
-        Identifier background = itemStack.get(DataComponents.TOOLTIP_STYLE);
-
         List<Component> tooltipLines = event.getTooltips();
         if (tooltipLines == null || tooltipLines.isEmpty()) return;
-        List<ClientTooltipComponent> vanillaComponents = toClientComponents(tooltipLines, tooltipImage);
-        List<Component> priceLines = getTooltips(snapshot.live(), itemStack.getCustomName()); //TODO: move somewhere?
-        List<ClientTooltipComponent> priceComponents = toClientComponents(priceLines, Optional.empty());
 
+        List<Component> priceLines = getTooltips(snapshot.live(), itemStack.getCustomName()); //TODO: move somewhere?
+        List<ClientTooltipComponent> priceComponents = RenderUtils.toClientComponents(priceLines, Optional.empty());
+        List<ClientTooltipComponent> vanillaComponents = RenderUtils.toClientComponents(tooltipLines, itemStack.getTooltipImage());
 
         Vector2i tooltipCoords = RenderUtils.calculateTooltipCoords(event.getMouseX(), event.getMouseY(), vanillaComponents, priceComponents);
         ClientTooltipPositioner fixed = new FixedTooltipPositioner(tooltipCoords.x, tooltipCoords.y);
-        event.getGuiGraphics().renderTooltip(font, priceComponents, event.getMouseX(), event.getMouseY(),fixed, background);
+
+        event.getGuiGraphics().renderTooltip(Minecraft.getInstance().font, priceComponents, event.getMouseX(), event.getMouseY(), fixed, itemStack.get(DataComponents.TOOLTIP_STYLE));
     }
 
-    public static List<Component> getTooltips(TrademarketItemSummary summary, Component customName) {
+    private List<Component> getTooltips(TrademarketItemSummary summary, Component customName) {
         List<Component> tooltips = new java.util.ArrayList<>(List.of());
 
         tooltips.add(customName);
@@ -80,34 +77,27 @@ public final class TooltipRenderHandler {
             return tooltips;
         }
 
-        if(summary.getAverageMid80PercentPrice() != null) tooltips.add(createPriceLine("80% avg", summary.getAverageMid80PercentPrice().toString()));
-        if(summary.getUnidentifiedAverageMid80PercentPrice() != null) tooltips.add(createPriceLine("Unid 80% avg", summary.getUnidentifiedAverageMid80PercentPrice().toString()));
-        if(summary.getAveragePrice() != null) tooltips.add(createPriceLine("Avg", summary.getAveragePrice().toString()));
-        if(summary.getUnidentifiedAveragePrice() != null) tooltips.add(createPriceLine("Unid Avg", summary.getUnidentifiedAveragePrice().toString()));
-        if(summary.getHighestPrice() != null) tooltips.add(createPriceLine("Highest", summary.getHighestPrice().toString()));
-        if(summary.getLowestPrice() != null) tooltips.add(createPriceLine("Lowest", summary.getLowestPrice().toString()));
-
+        tooltips.add(createPriceLine("80% avg",      summary.getAverageMid80PercentPrice()));
+        tooltips.add(createPriceLine("Unid 80% avg", summary.getUnidentifiedAverageMid80PercentPrice().toString()));
+        tooltips.add(createPriceLine("Avg",          summary.getAveragePrice().toString()));
+        tooltips.add(createPriceLine("Unid Avg",     summary.getUnidentifiedAveragePrice().toString()));
+        tooltips.add(createPriceLine("Highest",      summary.getHighestPrice().toString()));
+        tooltips.add(createPriceLine("Lowest",       summary.getLowestPrice().toString()));
+        
         return tooltips;
     }
 
-    private static Component createPriceLine(String name, String price) {
+    private Component createPriceLine(String name, Integer value) {
+        if(value == null) return null;
+
         MutableComponent line = Component.literal(name + ": ").withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
-        line.append(Component.literal(price)
+        line.append(Component.literal(value.toString())
                 .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
 
         return line;
     }
 
-    private static List<ClientTooltipComponent> toClientComponents(List<Component> lines, Optional<TooltipComponent> tooltipImage) {
-        List<ClientTooltipComponent> list = lines.stream()
-                .map(Component::getVisualOrderText)
-                .map(ClientTooltipComponent::create)
-                .collect(Util.toMutableList());
-
-        tooltipImage.ifPresent(img ->
-                list.add(list.isEmpty() ? 0 : 1, ClientTooltipComponent.create(img))
-        );
-
-        return list;
+    private Component createPriceLine(String name, Double value) {
+        createPriceLine(name, value.intValue());
     }
 }
