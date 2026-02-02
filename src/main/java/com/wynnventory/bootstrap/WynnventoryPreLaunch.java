@@ -16,16 +16,10 @@ public class WynnventoryPreLaunch implements PreLaunchEntrypoint {
     private static final String STANDARD_MIXIN_CONFIG = "wynnventory.mixins.json";
     private static final String LUNAR_MIXIN_CONFIG = "wynnventory.lunar.mixins.json";
 
-    private static volatile boolean mixinsLoaded = false;
     private static volatile String loadedConfig = null;
 
     @Override
     public void onPreLaunch() {
-        if (mixinsLoaded) {
-            LOGGER.warn("[Wynnventory] Mixin configuration already loaded ({}), skipping duplicate load", loadedConfig);
-            return;
-        }
-
         try {
             loadMixinConfiguration();
         } catch (Exception e) {
@@ -47,7 +41,6 @@ public class WynnventoryPreLaunch implements PreLaunchEntrypoint {
 
         // here we register the mixin configuration
         Mixins.addConfiguration(selectedConfig);
-        mixinsLoaded = true;
         loadedConfig = selectedConfig;
 
         LOGGER.info("[Wynnventory] Successfully registered mixin configuration: {}", selectedConfig);
@@ -57,28 +50,14 @@ public class WynnventoryPreLaunch implements PreLaunchEntrypoint {
      * Attempts to load the standard config as a fallback if detection fails
      */
     private void attemptFallbackLoad() {
-        if (mixinsLoaded) {
-            return;
-        }
-
         LOGGER.warn("[Wynnventory] Attempting fallback to standard mixin configuration");
         try {
             Mixins.addConfiguration(STANDARD_MIXIN_CONFIG);
-            mixinsLoaded = true;
             loadedConfig = STANDARD_MIXIN_CONFIG + " (fallback)";
             LOGGER.info("[Wynnventory] Fallback mixin configuration loaded successfully");
         } catch (Exception e) {
             LOGGER.error("[Wynnventory] Fallback mixin loading also failed - mod may not function correctly", e);
         }
-    }
-
-    /**
-     * Returns whether mixins have been loaded by this bootstrap
-     *
-     * @return true if mixins were loaded
-     */
-    public static boolean areMixinsLoaded() {
-        return mixinsLoaded;
     }
 
     /**
@@ -127,13 +106,6 @@ public class WynnventoryPreLaunch implements PreLaunchEntrypoint {
                     LOGGER.debug("[Wynnventory] Detected Lunar class: {}", className);
                     return true;
                 }
-            }
-
-            // look for Lunar-specific system properties
-            String lunarVersion = System.getProperty("lunar.version");
-            if (lunarVersion != null && !lunarVersion.isEmpty()) {
-                LOGGER.debug("[Wynnventory] Detected Lunar via system property: lunar.version={}", lunarVersion);
-                return true;
             }
 
             return false;

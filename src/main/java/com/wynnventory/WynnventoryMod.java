@@ -16,8 +16,9 @@ public class WynnventoryMod implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		// Verify mixins were loaded during pre-launch (diagnostic logging)
-		if (WynnventoryPreLaunch.areMixinsLoaded()) {
-			ModInfo.LOGGER.debug("Mixins loaded via pre-launch: {}", WynnventoryPreLaunch.getLoadedConfigName());
+		String loadedConfig = WynnventoryPreLaunch.getLoadedConfigName();
+		if (loadedConfig != null) {
+			ModInfo.LOGGER.debug("Mixins loaded via pre-launch: {}", loadedConfig);
 		} else {
 			ModInfo.LOGGER.warn("Mixins may not have been loaded during pre-launch phase!");
 		}
