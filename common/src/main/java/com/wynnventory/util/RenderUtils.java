@@ -6,6 +6,7 @@ import com.wynnventory.core.config.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
@@ -116,5 +117,25 @@ public abstract class RenderUtils {
 
     private static int clamp(int v, int min, int max) {
         return Math.max(min, Math.min(max, v));
+    }
+
+    public static final class FixedTooltipPositioner implements ClientTooltipPositioner {
+        private final Vector2i pos;
+
+        public FixedTooltipPositioner(int x, int y) {
+            this.pos = new Vector2i(x, y);
+        }
+
+        @Override
+        public Vector2ic positionTooltip(
+                int screenWidth,
+                int screenHeight,
+                int mouseX,
+                int mouseY,
+                int tooltipWidth,
+                int tooltipHeight
+        ) {
+            return pos;
+        }
     }
 }

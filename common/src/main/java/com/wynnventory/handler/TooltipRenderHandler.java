@@ -1,34 +1,29 @@
 package com.wynnventory.handler;
 
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
-import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.queue.QueueManager;
 import com.wynnventory.events.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
 import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
 import com.wynnventory.model.item.trademarket.TrademarketListing;
-import com.wynnventory.util.FixedTooltipPositioner;
 import com.wynnventory.util.RenderUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import org.joml.Vector2i;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public final class TooltipRenderHandler {
@@ -63,7 +58,7 @@ public final class TooltipRenderHandler {
         List<ClientTooltipComponent> vanillaComponents = RenderUtils.toClientComponents(tooltipLines, itemStack.getTooltipImage());
 
         Vector2i tooltipCoords = RenderUtils.calculateTooltipCoords(event.getMouseX(), event.getMouseY(), vanillaComponents, priceComponents);
-        ClientTooltipPositioner fixed = new FixedTooltipPositioner(tooltipCoords.x, tooltipCoords.y);
+        ClientTooltipPositioner fixed = new RenderUtils.FixedTooltipPositioner(tooltipCoords.x, tooltipCoords.y);
 
         event.getGuiGraphics().renderTooltip(Minecraft.getInstance().font, priceComponents, event.getMouseX(), event.getMouseY(), fixed, itemStack.get(DataComponents.TOOLTIP_STYLE));
     }
@@ -78,12 +73,13 @@ public final class TooltipRenderHandler {
         }
 
         tooltips.add(createPriceLine("80% avg",      summary.getAverageMid80PercentPrice()));
-        tooltips.add(createPriceLine("Unid 80% avg", summary.getUnidentifiedAverageMid80PercentPrice().toString()));
-        tooltips.add(createPriceLine("Avg",          summary.getAveragePrice().toString()));
-        tooltips.add(createPriceLine("Unid Avg",     summary.getUnidentifiedAveragePrice().toString()));
-        tooltips.add(createPriceLine("Highest",      summary.getHighestPrice().toString()));
-        tooltips.add(createPriceLine("Lowest",       summary.getLowestPrice().toString()));
-        
+        tooltips.add(createPriceLine("Unid 80% avg", summary.getUnidentifiedAverageMid80PercentPrice()));
+        tooltips.add(createPriceLine("Avg",          summary.getAveragePrice()));
+        tooltips.add(createPriceLine("Unid Avg",     summary.getUnidentifiedAveragePrice()));
+        tooltips.add(createPriceLine("Highest",      summary.getHighestPrice()));
+        tooltips.add(createPriceLine("Lowest",       summary.getLowestPrice()));
+
+        tooltips.removeIf(Objects::isNull);
         return tooltips;
     }
 
@@ -98,6 +94,8 @@ public final class TooltipRenderHandler {
     }
 
     private Component createPriceLine(String name, Double value) {
-        createPriceLine(name, value.intValue());
+        if (value == null) return null;
+
+        return createPriceLine(name, value.intValue());
     }
 }
