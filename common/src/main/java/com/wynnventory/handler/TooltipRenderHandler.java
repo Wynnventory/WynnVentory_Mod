@@ -1,6 +1,10 @@
 package com.wynnventory.handler;
 
+import com.wynntils.core.components.Models;
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
+import com.wynntils.models.gear.type.GearInfo;
+import com.wynntils.models.items.WynnItem;
+import com.wynntils.models.items.items.game.GearBoxItem;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.config.settings.DisplayOptions;
 import com.wynnventory.core.queue.QueueManager;
@@ -25,9 +29,7 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import org.joml.Vector2i;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public final class TooltipRenderHandler {
     private ItemStack lastItem;
@@ -50,13 +52,30 @@ public final class TooltipRenderHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onTooltipRendered(ItemTooltipRenderEvent.Pre event) {
         ItemStack itemStack = event.getItemStack();
-        TrademarketItemSnapshot snapshot = TrademarketItemSnapshot.resolveSnapshot(itemStack);
-        if(snapshot == null || snapshot.live() == null) return;
-
         List<Component> tooltipLines = event.getTooltips();
         if (tooltipLines == null || tooltipLines.isEmpty()) return;
 
-        List<Component> priceLines = getTooltips(snapshot.live(), itemStack.getCustomName()); //TODO: move somewhere?
+        Optional<WynnItem> optionalWynnItem = Models.Item.getWynnItem(itemStack);
+        if(!optionalWynnItem.isPresent()) return;
+
+        WynnItem wynnItem = optionalWynnItem.get();
+
+        List<Component> priceLines = new ArrayList<>();
+
+        if(wynnItem instanceof GearBoxItem gearboxItem) {
+            Map<GearInfo, TrademarketItemSnapshot> snapshots = TrademarketItemSnapshot.resolveGearBoxItem(gearboxItem);
+
+            for(Map.Entry<GearInfo, TrademarketItemSnapshot> entry : snapshots.entrySet()) {
+                priceLines.addAll(getTooltips(entry.getValue().live(), Component.literal(entry.getKey().name()).withStyle(entry.getKey().tier().getChatFormatting())));
+            }
+        } else {
+            TrademarketItemSnapshot snapshot = TrademarketItemSnapshot.resolveSnapshot(itemStack);
+            if(snapshot == null || snapshot.live() == null) return;
+
+            priceLines.addAll(getTooltips(snapshot.live(), itemStack.getCustomName())); //TODO: move somewhere?
+        }
+
+
         List<ClientTooltipComponent> priceComponents = RenderUtils.toClientComponents(priceLines, Optional.empty());
         List<ClientTooltipComponent> vanillaComponents = RenderUtils.toClientComponents(tooltipLines, itemStack.getTooltipImage());
 
@@ -70,7 +89,7 @@ public final class TooltipRenderHandler {
         List<Component> tooltips = new java.util.ArrayList<>(List.of());
 
         tooltips.add(customName);
-        if(summary == null ||summary.isEmpty()) {
+        if(summary == null || summary.isEmpty()) {
             tooltips.add(Component.literal("No data yet.").withStyle(ChatFormatting.RED));
             return tooltips;
         }
