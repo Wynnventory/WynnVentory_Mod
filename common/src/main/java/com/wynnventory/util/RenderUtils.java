@@ -13,9 +13,11 @@ import org.joml.Vector2ic;
 import java.util.List;
 
 public abstract class RenderUtils {
+    private static final int GAP = 7;
+    private static final TooltipFittingFeature FITTING_FEATURE = Managers.Feature.getFeatureInstance(TooltipFittingFeature.class);
 
 
-    public static Vector2i calculateTooltipCoords(int mouseX, int mouseY, List<ClientTooltipComponent> vanillaComponents, List<ClientTooltipComponent> priceComponents, TrademarketItemSnapshot snapshot) {
+    public static Vector2i calculateTooltipCoords(int mouseX, int mouseY, List<ClientTooltipComponent> vanillaComponents, List<ClientTooltipComponent> priceComponents) {
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
 
@@ -39,38 +41,41 @@ public abstract class RenderUtils {
         int priceH = tooltipHeight(priceComponents, font);
 
         // ----------------------------
-        // 3) Position to the right of the vanilla tooltip (+gap), flip/clamp if needed
+        // 3) Position to the right of the vanilla tooltip (+GAP), flip/clamp if needed
         // ----------------------------
-        final int gap = 7;
 
-        int priceX = vanillaX + vanillaW + gap;
+        int priceX = getScaledXCoordinate(vanillaX, vanillaW, vanillaH, screenH);
         int priceY = vanillaY;
-
-        TooltipFittingFeature feature = Managers.Feature.getFeatureInstance(TooltipFittingFeature.class);
-        boolean isFittingEnabled = feature.isEnabled();
-        float scale = feature.universalScale.get(); //1f
-        if (isFittingEnabled) {
-            int scaledTooltipHeight = vanillaH + 10;
-            if (scaledTooltipHeight > screenH) {
-                scale = screenH / (float) scaledTooltipHeight;
-            }
-
-            if (scale != 1f) {
-                priceX = (int) (vanillaX + Math.floor(vanillaW * scale) + gap);
-            }
-        }
 
         // Flip to left if overflowing right edge
         if (priceX + priceW > screenW - 4) {
-            priceX = vanillaX - gap - priceW;
+            priceX = vanillaX - GAP - priceW;
         }
 
         // Clamp inside screen bounds
         priceX = clamp(priceX, 4, screenW - priceW - 4);
         priceY = clamp(priceY, 6, screenH - priceH - 4);
 
-
         return new Vector2i(priceX, priceY);
+    }
+
+    private static int getScaledXCoordinate(int vanillaX, int vanillaW, int vanillaH, int screenH) {
+        boolean isFittingEnabled = FITTING_FEATURE.isEnabled();
+        float universalScale = FITTING_FEATURE.universalScale.get();
+        float scale = universalScale; //1f
+
+        if (isFittingEnabled) {
+            int scaledTooltipHeight = vanillaH + 10;
+            if (scaledTooltipHeight > screenH) {
+                scale = screenH / (float) scaledTooltipHeight;
+            }
+
+            if (scale != universalScale) {
+                return (int) (vanillaX + Math.floor(vanillaW * scale) + GAP);
+            }
+        }
+
+        return vanillaX + vanillaW + GAP;
     }
 
     private static int tooltipWidth(List<ClientTooltipComponent> comps, Font font) {

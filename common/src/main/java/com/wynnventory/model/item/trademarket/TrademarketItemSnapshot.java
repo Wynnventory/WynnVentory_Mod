@@ -20,6 +20,10 @@ public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketIt
     public static TrademarketItemSnapshot resolveSnapshot(ItemStack itemStack) {
         SimpleItem simpleItem = ItemStackUtils.toSimpleItem(itemStack);
 
+        if (simpleItem == null) {
+            return null;
+        }
+
         return switch (simpleItem) {
             case SimpleGearItem gearItem ->
                     TrademarketPriceDictionary.INSTANCE.getItem(gearItem.getName(), gearItem.isShiny());

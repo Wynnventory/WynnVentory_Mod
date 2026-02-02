@@ -66,7 +66,7 @@ public final class TooltipRenderHandler {
         List<ClientTooltipComponent> priceComponents = toClientComponents(priceLines, Optional.empty());
 
 
-        Vector2i tooltipCoords = RenderUtils.calculateTooltipCoords(event.getMouseX(), event.getMouseY(), vanillaComponents, priceComponents, snapshot);
+        Vector2i tooltipCoords = RenderUtils.calculateTooltipCoords(event.getMouseX(), event.getMouseY(), vanillaComponents, priceComponents);
         ClientTooltipPositioner fixed = new FixedTooltipPositioner(tooltipCoords.x, tooltipCoords.y);
         event.getGuiGraphics().renderTooltip(font, priceComponents, event.getMouseX(), event.getMouseY(),fixed, background);
     }
