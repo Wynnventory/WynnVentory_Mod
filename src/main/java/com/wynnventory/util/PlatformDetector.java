@@ -66,13 +66,6 @@ public final class PlatformDetector {
             }
         }
 
-        // lunar-specific system properties
-        String lunarVersion = System.getProperty("lunar.version");
-        if (lunarVersion != null && !lunarVersion.isEmpty()) {
-            ModInfo.logDebug("Detected Lunar via system property: lunar.version=" + lunarVersion);
-            return true;
-        }
-
         return false;
     }
 
