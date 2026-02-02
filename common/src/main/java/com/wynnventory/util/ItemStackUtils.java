@@ -65,10 +65,6 @@ public class ItemStackUtils {
         }
     }
 
-    public static Component getWynntilsOriginalNameAsComponent(WynnItem item) {
-        return ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCustomName();
-    }
-
     public static String getWynntilsOriginalNameAsString(WynnItem item) {
         return Objects.requireNonNull(ItemStackUtils.getWynntilsOriginalName(item.getData().get(WynnItemData.ITEMSTACK_KEY))).getLastPart().getComponent().getString();
     }
