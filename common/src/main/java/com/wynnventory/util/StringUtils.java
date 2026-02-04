@@ -10,8 +10,6 @@ public class StringUtils {
 
     private StringUtils() {}
 
-    private static final EmeraldModel EMERALD_MODEL = new EmeraldModel();
-
     public static String toCamelCase(String input) {
         return toCamelCase(input, "");
     }
