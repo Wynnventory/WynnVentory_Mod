@@ -40,19 +40,18 @@ public abstract class RenderUtils {
         int vanillaX = vanillaPos.x();
         int vanillaY = vanillaPos.y();
 
-        // ----------------------------
-        // 2) Create your "price tooltip"
-        // ----------------------------
-        int priceW = tooltipWidth(priceComponents, font);
-        int priceH = tooltipHeight(priceComponents, font);
+        float priceScale = getScaleFactor(priceComponents);
+        int priceW = (int) (tooltipWidth(priceComponents, font) * priceScale);
+        int priceH = (int) (tooltipHeight(priceComponents, font) * priceScale);
 
-        if(ModConfig.get().getTooltipSettings().isAnchorTooltips()) return new Vector2i(TOOLTIP_GAP, screenH / 2 - priceH / 2);
+        if(ModConfig.get().getTooltipSettings().isAnchorTooltips()) {
+            return new Vector2i(TOOLTIP_GAP, screenH / 2 - priceH / 2);
+        }
 
         // ----------------------------
         // 3) Position to the right of the vanilla tooltip (+GAP), flip/clamp if needed
         // ----------------------------
-
-        int priceX = getScaledXCoordinate(vanillaX, vanillaW, vanillaH, screenH);
+        int priceX = getScaledXCoordinate(vanillaX, vanillaW, vanillaH);
         int priceY = vanillaY;
 
         // Flip to left if overflowing right edge
@@ -64,7 +63,7 @@ public abstract class RenderUtils {
         priceX = clamp(priceX, 4, screenW - priceW - 4);
         priceY = clamp(priceY, 6, screenH - priceH - 4);
 
-        return new Vector2i(priceX, priceY);
+        return new Vector2i((int) (priceX / priceScale), priceY);
     }
 
     public static List<ClientTooltipComponent> toClientComponents(List<Component> lines, Optional<TooltipComponent> tooltipImage) {
@@ -80,26 +79,38 @@ public abstract class RenderUtils {
         return list;
     }
 
-    private static int getScaledXCoordinate(int vanillaX, int vanillaW, int vanillaH, int screenH) {
+    public static int getScaledXCoordinate(int tooltipX, int tooltipWidth, int tooltipHeight) {
         boolean isFittingEnabled = FITTING_FEATURE.isEnabled();
         float universalScale = FITTING_FEATURE.universalScale.get();
-        float scale = universalScale; //1f
 
         if (isFittingEnabled) {
-            int scaledTooltipHeight = vanillaH + 10;
-            if (scaledTooltipHeight > screenH) {
-                scale = screenH / (float) scaledTooltipHeight;
-            }
+            float scale = getScaleFactor(tooltipHeight);
 
             if (scale != universalScale) {
-                return (int) (vanillaX + Math.floor(vanillaW * scale) + TOOLTIP_GAP);
+                return (int) (tooltipX + Math.floor(tooltipWidth * scale) + TOOLTIP_GAP);
             }
         }
 
-        return vanillaX + vanillaW + TOOLTIP_GAP;
+        return tooltipX + tooltipWidth + TOOLTIP_GAP;
     }
 
-    private static int tooltipWidth(List<ClientTooltipComponent> comps, Font font) {
+    private static float getScaleFactor(int tooltipHeight) {
+        int screenH = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+        int paddedTooltipHeight = tooltipHeight + 10;
+        if (paddedTooltipHeight > screenH) {
+            return screenH / (float) paddedTooltipHeight;
+        }
+
+        return 1f;
+    }
+
+    public static float getScaleFactor(List<ClientTooltipComponent> tooltips) {
+        int height = tooltipHeight(tooltips, Minecraft.getInstance().font);
+
+        return getScaleFactor(height);
+    }
+
+    public static int tooltipWidth(List<ClientTooltipComponent> comps, Font font) {
         int w = 0;
         for (ClientTooltipComponent c : comps) {
             w = Math.max(w, c.getWidth(font));

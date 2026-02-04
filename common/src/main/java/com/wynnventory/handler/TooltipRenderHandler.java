@@ -18,6 +18,7 @@ import com.wynnventory.util.RenderUtils;
 import com.wynnventory.util.StringUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.core.component.DataComponents;
@@ -85,7 +86,14 @@ public final class TooltipRenderHandler {
         Vector2i tooltipCoords = RenderUtils.calculateTooltipCoords(event.getMouseX(), event.getMouseY(), vanillaComponents, priceComponents);
         ClientTooltipPositioner fixed = new RenderUtils.FixedTooltipPositioner(tooltipCoords.x, tooltipCoords.y);
 
-        event.getGuiGraphics().renderTooltip(Minecraft.getInstance().font, priceComponents, event.getMouseX(), event.getMouseY(), fixed, itemStack.get(DataComponents.TOOLTIP_STYLE));
+        GuiGraphics guiGraphics = event.getGuiGraphics();
+        guiGraphics.pose().pushMatrix();
+
+        float scale = RenderUtils.getScaleFactor(priceComponents);
+        guiGraphics.pose().scale(scale, scale);
+
+        guiGraphics.renderTooltip(Minecraft.getInstance().font, priceComponents, event.getMouseX(), event.getMouseY(), fixed, itemStack.get(DataComponents.TOOLTIP_STYLE));
+        guiGraphics.pose().popMatrix();
     }
 
     private List<Component> getTooltips(TrademarketItemSummary summary, Component customName) {

@@ -10,9 +10,7 @@ import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -37,7 +35,6 @@ public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketIt
         };
     }
 
-    // ... existing code ...
     public static Map<GearInfo, TrademarketItemSnapshot> resolveGearBoxItem(GearBoxItem item) {
         Map<GearInfo, TrademarketItemSnapshot> snapshots = new HashMap<>();
         for(GearInfo info : Models.Gear.getPossibleGears(item)) {
@@ -46,6 +43,7 @@ public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketIt
         }
 
         return snapshots.entrySet().stream()
+                .filter(e -> e.getKey() != null && e.getValue() != null)
                 .sorted(java.util.Comparator
                         .comparing((Map.Entry<GearInfo, TrademarketItemSnapshot> e) -> getAvg80(e.getValue()))
                         .reversed()
