@@ -15,6 +15,7 @@ import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
 import com.wynnventory.model.item.trademarket.TrademarketListing;
 import com.wynnventory.util.EmeraldUtils;
 import com.wynnventory.util.RenderUtils;
+import com.wynnventory.util.StringUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -110,7 +111,7 @@ public final class TooltipRenderHandler {
     private Component createPriceLine(String name, Integer value) {
         if(value == null) return null;
 
-        String price = ModConfig.get().getTooltipSettings().getDisplayFormat().equals(DisplayOptions.FORMATTED) ? EmeraldUtils.getFormattedString(value, false) : value + EmeraldUnits.EMERALD.getSymbol();
+        String price = ModConfig.get().getTooltipSettings().getDisplayFormat().equals(DisplayOptions.FORMATTED) ? EmeraldUtils.getFormattedString(value, false) : StringUtils.formatNumber(value) + EmeraldUnits.EMERALD.getSymbol();
         int priceColor = ModConfig.get().getColorSettings().isShowColors() && value >= ModConfig.get().getColorSettings().getColorMinPrice() ? ModConfig.get().getColorSettings().getHighlightColor() : ChatFormatting.GRAY.getColor();
 
         MutableComponent line = Component.literal(name + ": ").withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));

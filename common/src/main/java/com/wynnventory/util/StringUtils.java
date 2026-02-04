@@ -1,14 +1,17 @@
 package com.wynnventory.util;
 
-import com.wynntils.models.emeralds.EmeraldModel;
-import com.wynntils.models.emeralds.type.EmeraldUnits;
-
+import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class StringUtils {
 
     private StringUtils() {}
+
+    public static String formatNumber(Integer number) {
+        return NumberFormat.getInstance(Locale.getDefault()).format(number);
+    }
 
     public static String toCamelCase(String input) {
         return toCamelCase(input, "");
