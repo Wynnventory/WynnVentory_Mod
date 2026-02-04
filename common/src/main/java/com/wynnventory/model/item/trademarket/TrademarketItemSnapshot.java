@@ -24,8 +24,8 @@ public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketIt
         return live != null && live.isExpired();
     }
 
-    public static TrademarketItemSnapshot resolveSnapshot(ItemStack itemStack) {
-        SimpleItem simpleItem = ItemStackUtils.toSimpleItem(itemStack);
+    public static TrademarketItemSnapshot resolveSnapshot(ItemStack stack) {
+        SimpleItem simpleItem = ItemStackUtils.toSimpleItem(stack);
 
         return switch (simpleItem) {
             case SimpleGearItem gearItem    -> TrademarketPriceDictionary.INSTANCE.getItem(gearItem.getName(), gearItem.isShiny());

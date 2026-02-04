@@ -1,6 +1,5 @@
 package com.wynnventory.model.item.simple;
 
-import com.wynntils.core.components.Models;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
@@ -48,7 +47,7 @@ public class SimpleTierItem extends SimpleItem {
     }
 
     public static SimpleTierItem from(ItemStack stack) {
-        return Models.Item.getWynnItem(stack).map(SimpleTierItem::from).orElse(null);
+        return from(ItemStackUtils.getWynnItem(stack));
     }
 
     public static SimpleTierItem from(WynnItem item) {

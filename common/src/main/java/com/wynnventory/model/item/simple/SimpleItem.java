@@ -1,7 +1,6 @@
 package com.wynnventory.model.item.simple;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.wynntils.core.components.Models;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
@@ -126,7 +125,7 @@ public class SimpleItem extends TimestampedObject {
     }
 
     public static SimpleItem from(ItemStack stack) {
-        return Models.Item.getWynnItem(stack).map(SimpleItem::from).orElse(null);
+        return from(ItemStackUtils.getWynnItem(stack));
     }
 
     public static SimpleItem from(WynnItem item) {

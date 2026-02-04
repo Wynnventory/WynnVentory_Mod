@@ -98,7 +98,7 @@ public class SimpleGearItem extends SimpleItem {
 
     public static SimpleGearItem from(GearItem item) {
         String name = item.getName();
-        ItemStack itemStack = item.getData().get(WynnItemData.ITEMSTACK_KEY);
+        ItemStack stack = item.getData().get(WynnItemData.ITEMSTACK_KEY);
 
         return new SimpleGearItem(
                 name,
@@ -106,10 +106,10 @@ public class SimpleGearItem extends SimpleItem {
                 "GearItem",
                 item.getGearType().name(),
                 IconManager.getIcon(name),
-                itemStack.getCount(),
+                stack.getCount(),
                 item.isUnidentified(),
                 item.getRerollCount(),
-                new GearModel().parseInstance(item.getItemInfo(), itemStack).shinyStat(),
+                new GearModel().parseInstance(item.getItemInfo(), stack).shinyStat(),
                 item.getOverallPercentage(),
                 getActualStats(item)
         );

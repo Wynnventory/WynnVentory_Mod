@@ -20,12 +20,12 @@ public class TrademarketListing extends ModInfoProvider {
         this.quantity = quantity;
     }
 
-    public static TrademarketListing from(ItemStack itemStack) {
-        SimpleItem item = ItemStackUtils.toSimpleItem(itemStack);
+    public static TrademarketListing from(ItemStack stack) {
+        SimpleItem item = ItemStackUtils.toSimpleItem(stack);
 
         if(item == null) return null;
 
-        TradeMarketPriceInfo priceInfo = ItemStackUtils.calculateItemPriceInfo(itemStack);
+        TradeMarketPriceInfo priceInfo = ItemStackUtils.calculateItemPriceInfo(stack);
 
         if (priceInfo == null) return null;
 
