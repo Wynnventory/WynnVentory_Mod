@@ -24,8 +24,6 @@ public abstract class RenderUtils {
     private RenderUtils() {}
 
     public static Vector2i calculateTooltipCoords(int mouseX, int mouseY, List<ClientTooltipComponent> vanillaComponents, List<ClientTooltipComponent> priceComponents) {
-        if(ModConfig.get().getTooltipSettings().isAnchorTooltips()) return new Vector2i(TOOLTIP_GAP, mouseY);
-
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
 
@@ -47,6 +45,8 @@ public abstract class RenderUtils {
         // ----------------------------
         int priceW = tooltipWidth(priceComponents, font);
         int priceH = tooltipHeight(priceComponents, font);
+
+        if(ModConfig.get().getTooltipSettings().isAnchorTooltips()) return new Vector2i(TOOLTIP_GAP, screenH / 2 - priceH / 2);
 
         // ----------------------------
         // 3) Position to the right of the vanilla tooltip (+GAP), flip/clamp if needed

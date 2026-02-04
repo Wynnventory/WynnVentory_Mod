@@ -2,6 +2,7 @@ package com.wynnventory.handler;
 
 import com.wynntils.core.components.Models;
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
+import com.wynntils.models.emeralds.type.EmeraldUnits;
 import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.items.game.GearBoxItem;
@@ -109,7 +110,7 @@ public final class TooltipRenderHandler {
     private Component createPriceLine(String name, Integer value) {
         if(value == null) return null;
 
-        String price = ModConfig.get().getTooltipSettings().getDisplayFormat().equals(DisplayOptions.FORMATTED) ? EmeraldUtils.getFormattedString(value, false) : value.toString();
+        String price = ModConfig.get().getTooltipSettings().getDisplayFormat().equals(DisplayOptions.FORMATTED) ? EmeraldUtils.getFormattedString(value, false) : value + EmeraldUnits.EMERALD.getSymbol();
         int priceColor = ModConfig.get().getColorSettings().isShowColors() && value >= ModConfig.get().getColorSettings().getColorMinPrice() ? ModConfig.get().getColorSettings().getHighlightColor() : ChatFormatting.GRAY.getColor();
 
         MutableComponent line = Component.literal(name + ": ").withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
