@@ -45,9 +45,8 @@ public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketIt
         return snapshots.entrySet().stream()
                 .filter(e -> e.getKey() != null && e.getValue() != null)
                 .sorted(java.util.Comparator
-                        .comparing((Map.Entry<GearInfo, TrademarketItemSnapshot> e) -> getAvg80(e.getValue()))
-                        .reversed()
-                        .thenComparing(e -> getUnidAvg80(e.getValue()), java.util.Comparator.reverseOrder())
+                        .comparing((Map.Entry<GearInfo, TrademarketItemSnapshot> e) -> PriceType.AVG_80.getValue(e.getValue().live()), java.util.Comparator.nullsFirst(Double::compareTo)).reversed()
+                        .thenComparing(e -> PriceType.UNID_AVG_80.getValue(e.getValue().live()), java.util.Comparator.nullsFirst(Double::compareTo).reversed())
                         .thenComparing(e -> e.getKey().name(), java.util.Comparator.nullsLast(String::compareToIgnoreCase))
                 )
                 .collect(java.util.stream.Collectors.toMap(
@@ -58,20 +57,12 @@ public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketIt
                 ));
     }
 
-    private static Double getAvg80(TrademarketItemSnapshot snapshot) {
-        return getPriceOrNegativeInfinity(snapshot, TrademarketPriceSummary::getAverageMid80PercentPrice);
+    public PriceData getPriceData(PriceType type) {
+        return new PriceData(
+                type.getValue(live),
+                type.getValue(historic)
+        );
     }
 
-    private static Double getUnidAvg80(TrademarketItemSnapshot snapshot) {
-        return getPriceOrNegativeInfinity(snapshot, TrademarketPriceSummary::getUnidentifiedAverageMid80PercentPrice);
-    }
-
-    private static Double getPriceOrNegativeInfinity(TrademarketItemSnapshot snapshot, Function<TrademarketPriceSummary, Double> extractor) {
-        if (snapshot == null || snapshot.live() == null || snapshot.live().getPriceInfo() == null) {
-            return Double.NEGATIVE_INFINITY;
-        }
-
-        Double value = extractor.apply(snapshot.live().getPriceInfo());
-        return value != null ? value : Double.NEGATIVE_INFINITY;
-    }
+    public record PriceData(Double live, Double historic) {}
 }
