@@ -26,33 +26,30 @@ public final class PriceTooltipBuilder {
             return out;
         }
 
-        ModConfig cfg = ModConfig.get();
-        TooltipSettings ts = cfg.getTooltipSettings();
-        ColorSettings cs = cfg.getColorSettings();
-        DisplayOptions fmt = ts.getDisplayFormat();
-
-        add(out, ts.isShowAverage80Price(),     "80% avg",      summary.getAverageMid80PercentPrice(), fmt, cs);
-        add(out, ts.isShowUnidAverage80Price(), "Unid 80% avg", summary.getUnidentifiedAverageMid80PercentPrice(), fmt, cs);
-        add(out, ts.isShowAveragePrice(),       "Avg",          summary.getAveragePrice(), fmt, cs);
-        add(out, ts.isShowUnidAveragePrice(),   "Unid Avg",     summary.getUnidentifiedAveragePrice(), fmt, cs);
-        add(out, ts.isShowMaxPrice(),           "Highest",      summary.getHighestPrice(), fmt, cs);
-        add(out, ts.isShowMinPrice(),           "Lowest",       summary.getLowestPrice(), fmt, cs);
+        TooltipSettings ts = ModConfig.getInstance().getTooltipSettings();
+        add(out, ts.isShowAverage80Price(),     "80% avg",      summary.getAverageMid80PercentPrice());
+        add(out, ts.isShowUnidAverage80Price(), "Unid 80% avg", summary.getUnidentifiedAverageMid80PercentPrice());
+        add(out, ts.isShowAveragePrice(),       "Avg",          summary.getAveragePrice());
+        add(out, ts.isShowUnidAveragePrice(),   "Unid Avg",     summary.getUnidentifiedAveragePrice());
+        add(out, ts.isShowMaxPrice(),           "Highest",      summary.getHighestPrice());
+        add(out, ts.isShowMinPrice(),           "Lowest",       summary.getLowestPrice());
 
         return out;
     }
 
-    private static void add(List<Component> out, boolean enabled, String label, Integer value, DisplayOptions displayOptions, ColorSettings colorSettings) {
+    private static void add(List<Component> out, boolean enabled, String label, Integer value) {
         if (!enabled || value == null) return;
-        out.add(priceLine(label, value, displayOptions, colorSettings));
+        out.add(priceLine(label, value));
     }
 
-    private static void add(List<Component> out, boolean enabled, String label, Double value, DisplayOptions displayOptions, ColorSettings colorSettings) {
+    private static void add(List<Component> out, boolean enabled, String label, Double value) {
         if (!enabled || value == null) return;
-        out.add(priceLine(label, value.intValue(), displayOptions, colorSettings));
+        out.add(priceLine(label, value.intValue()));
     }
 
-    private static Component priceLine(String label, int value, DisplayOptions displayOptions, ColorSettings colors) {
-        String price = (displayOptions == DisplayOptions.FORMATTED)
+    private static Component priceLine(String label, int value) {
+        ColorSettings colors = ModConfig.getInstance().getColorSettings();
+        String price = (ModConfig.getInstance().getTooltipSettings().getDisplayFormat() == DisplayOptions.FORMATTED)
                 ? EmeraldUtils.getFormattedString(value, false)
                 : Integer.toString(value);
 

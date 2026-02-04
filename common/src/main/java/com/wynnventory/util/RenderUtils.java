@@ -44,7 +44,7 @@ public abstract class RenderUtils {
         int priceW = (int) (tooltipWidth(priceComponents, font) * priceScale);
         int priceH = (int) (tooltipHeight(priceComponents, font) * priceScale);
 
-        if(ModConfig.get().getTooltipSettings().isAnchorTooltips()) {
+        if(ModConfig.getInstance().getTooltipSettings().isAnchorTooltips()) {
             return new Vector2i(TOOLTIP_GAP, screenH / 2 - priceH / 2);
         }
 

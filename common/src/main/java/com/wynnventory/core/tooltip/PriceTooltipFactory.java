@@ -3,6 +3,7 @@ package com.wynnventory.core.tooltip;
 import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.items.game.GearBoxItem;
+import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
 import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
 import com.wynnventory.util.ItemStackUtils;
@@ -33,7 +34,11 @@ public final class PriceTooltipFactory {
     private List<PriceSection> resolveSections(ItemStack stack) {
         WynnItem wynnItem = ItemStackUtils.getWynnItem(stack);
         if (wynnItem instanceof GearBoxItem gearBox) {
-            return resolveGearBoxSections(gearBox);
+            if(ModConfig.getInstance().getTooltipSettings().isShowBoxedItemTooltips()) {
+                return resolveGearBoxSections(gearBox);
+            }
+
+            return List.of();
         }
 
         TrademarketItemSnapshot snap = TrademarketItemSnapshot.resolveSnapshot(stack);

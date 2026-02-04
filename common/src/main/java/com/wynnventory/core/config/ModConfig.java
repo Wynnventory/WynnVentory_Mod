@@ -25,7 +25,7 @@ public final class ModConfig {
     private FavouriteNotifierSettings favouriteNotifierSettings = new FavouriteNotifierSettings();
     private RaritySettings raritySettings = new RaritySettings();
 
-    public static ModConfig get() {
+    public static ModConfig getInstance() {
         synchronized (ModConfig.class) {
             if (instance == null) {
                 instance = loadOrCreate();
@@ -85,10 +85,6 @@ public final class ModConfig {
         Files.move(tmp, CFG_PATH,
                 java.nio.file.StandardCopyOption.REPLACE_EXISTING,
                 java.nio.file.StandardCopyOption.ATOMIC_MOVE);
-    }
-
-    public static ModConfig getInstance() {
-        return instance;
     }
 
     public static void setInstance(ModConfig instance) {

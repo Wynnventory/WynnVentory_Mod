@@ -1,6 +1,7 @@
 package com.wynnventory.handler;
 
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
+import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.queue.QueueManager;
 import com.wynnventory.core.tooltip.PriceTooltipBuilder;
 import com.wynnventory.core.tooltip.PriceTooltipFactory;
@@ -44,6 +45,8 @@ public final class TooltipRenderHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onTooltipRendered(ItemTooltipRenderEvent.Pre event) {
+        if(!ModConfig.getInstance().getTooltipSettings().isShowTooltips()) return;
+
         ItemStack stack = event.getItemStack();
         List<Component> vanillaLines = event.getTooltips();
         if (vanillaLines == null || vanillaLines.isEmpty()) return;
