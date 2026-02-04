@@ -5,7 +5,6 @@ import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.items.game.GearBoxItem;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
-import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
 import com.wynnventory.util.ItemStackUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -44,7 +43,7 @@ public final class PriceTooltipFactory {
         TrademarketItemSnapshot snap = TrademarketItemSnapshot.resolveSnapshot(stack);
         if (snap == null || snap.live() == null) return List.of();
 
-        return List.of(new PriceSection(stack.getCustomName(), snap.live()));
+        return List.of(new PriceSection(stack.getCustomName(), snap));
     }
 
     private List<PriceSection> resolveGearBoxSections(GearBoxItem gearBox) {
@@ -61,7 +60,7 @@ public final class PriceTooltipFactory {
             Component title = Component.literal(info.name())
                     .withStyle(info.tier().getChatFormatting());
 
-            out.add(new PriceSection(title, snap.live()));
+            out.add(new PriceSection(title, snap));
         }
 
         return out;
@@ -73,7 +72,7 @@ public final class PriceTooltipFactory {
         for (int i = 0; i < sections.size(); i++) {
             PriceSection s = sections.get(i);
 
-            lines.addAll(builder.buildPriceTooltip(s.summary(), s.title()));
+            lines.addAll(builder.buildPriceTooltip(s.snapshot(), s.title()));
 
             // separator between sections (empty line)
             if (i < sections.size() - 1) {
@@ -84,5 +83,5 @@ public final class PriceTooltipFactory {
         return lines;
     }
 
-    private record PriceSection(Component title, TrademarketItemSummary summary) {}
+    private record PriceSection(Component title, TrademarketItemSnapshot snapshot) {}
 }
