@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketItemSummary historic) {
 
@@ -36,6 +37,7 @@ public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketIt
         };
     }
 
+    // ... existing code ...
     public static Map<GearInfo, TrademarketItemSnapshot> resolveGearBoxItem(GearBoxItem item) {
         Map<GearInfo, TrademarketItemSnapshot> snapshots = new HashMap<>();
         for(GearInfo info : Models.Gear.getPossibleGears(item)) {
@@ -43,6 +45,35 @@ public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketIt
             snapshots.put(info, snapshot);
         }
 
-        return snapshots;
+        return snapshots.entrySet().stream()
+                .sorted(java.util.Comparator
+                        .comparing((Map.Entry<GearInfo, TrademarketItemSnapshot> e) -> getAvg80(e.getValue()))
+                        .reversed()
+                        .thenComparing(e -> getUnidAvg80(e.getValue()), java.util.Comparator.reverseOrder())
+                        .thenComparing(e -> e.getKey().name(), java.util.Comparator.nullsLast(String::compareToIgnoreCase))
+                )
+                .collect(java.util.stream.Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (a, b) -> a,
+                        java.util.LinkedHashMap::new
+                ));
+    }
+
+    private static Double getAvg80(TrademarketItemSnapshot snapshot) {
+        return getPriceOrNegativeInfinity(snapshot, TrademarketPriceSummary::getAverageMid80PercentPrice);
+    }
+
+    private static Double getUnidAvg80(TrademarketItemSnapshot snapshot) {
+        return getPriceOrNegativeInfinity(snapshot, TrademarketPriceSummary::getUnidentifiedAverageMid80PercentPrice);
+    }
+
+    private static Double getPriceOrNegativeInfinity(TrademarketItemSnapshot snapshot, Function<TrademarketPriceSummary, Double> extractor) {
+        if (snapshot == null || snapshot.live() == null || snapshot.live().getPriceInfo() == null) {
+            return Double.NEGATIVE_INFINITY;
+        }
+
+        Double value = extractor.apply(snapshot.live().getPriceInfo());
+        return value != null ? value : Double.NEGATIVE_INFINITY;
     }
 }

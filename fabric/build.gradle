@@ -27,11 +27,13 @@ configurations {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
-    modRuntimeOnly "me.djtheredstoner:DevAuth-fabric:${devauth_version}"
-    
-    modImplementation "maven.modrinth:wynntils:v${project.wynntils_version}-fabric"
+    modImplementation("net.fabricmc:fabric-loader:$fabric_loader_version")
+    modImplementation("maven.modrinth:wynntils:v${project.wynntils_version}-fabric")
 
+    modRuntimeOnly(fabricApi.module("fabric-api-base", fabric_api_version))
+    modRuntimeOnly(fabricApi.module("fabric-resource-loader-v1", fabric_api_version))
+    modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:${devauth_version}")
+    
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
     shadowImplementation("net.neoforged:bus:${neoforge_eventbus_version}") {
@@ -42,7 +44,6 @@ dependencies {
     shadowImplementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
     shadowImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.20.1")
     shadowImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1")
-
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
