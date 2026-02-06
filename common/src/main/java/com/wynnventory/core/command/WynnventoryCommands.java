@@ -27,12 +27,6 @@ public final class WynnventoryCommands {
                     return 1;
                 })
         );
-        root.then(literalClient("ping")
-                .executes(ctx -> {
-                    pong();
-                    return 1;
-                })
-        );
 
         root.then(literalClient("reloadConfig")
                 .executes(ctx -> {
@@ -57,10 +51,6 @@ public final class WynnventoryCommands {
     private static void sendCollectedData() {
         QueueScheduler.sendQueuedItems();
         ChatUtils.info(Component.translatable("command.wynnventory.send.sendCollectedData"));
-    }
-
-    private static void pong() {
-        ChatUtils.info("PONG");
     }
 
     private static LiteralArgumentBuilder<Minecraft> literalClient(String name) {
