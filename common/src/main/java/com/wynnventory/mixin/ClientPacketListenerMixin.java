@@ -51,9 +51,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         return McUtils.mc().isSameThread();
     }
 
-    @Inject(
-            method =
-                    "handleContainerContent(Lnet/minecraft/network/protocol/game/ClientboundContainerSetContentPacket;)V",
+    @Inject(method = "handleContainerContent(Lnet/minecraft/network/protocol/game/ClientboundContainerSetContentPacket;)V",
             at = @At("RETURN"))
     private void handleContainerContentPost(ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
         if (!isRenderThread()) return;
@@ -68,8 +66,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         if (RaidWindowContainer.matchesTitle(title)) WynnventoryMod.postEvent(new RaidWindowOpenedEvent(packet.items(), packet.containerId(), title));
     }
 
-    @Inject(method =
-                    "sendCommand(Ljava/lang/String;)V",
+    @Inject(method = "sendCommand(Ljava/lang/String;)V",
             at = @At("HEAD"),
             cancellable = true)
     private void sendCommand(String string, CallbackInfo ci) {
@@ -79,8 +76,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         if (event.isCanceled()) ci.cancel();
     }
 
-    @Inject(
-            method = "handleCommands(Lnet/minecraft/network/protocol/game/ClientboundCommandsPacket;)V",
+    @Inject(method = "handleCommands(Lnet/minecraft/network/protocol/game/ClientboundCommandsPacket;)V",
             at = @At("RETURN"))
     private void handleCommands(ClientboundCommandsPacket packet, CallbackInfo ci) {
         if (!isRenderThread()) return;

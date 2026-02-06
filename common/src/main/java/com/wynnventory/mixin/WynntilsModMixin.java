@@ -12,10 +12,7 @@ import java.io.File;
 @Mixin(WynntilsMod.class)
 public abstract class WynntilsModMixin {
 
-
-    @Inject(
-            method =
-                    "init",
+    @Inject(method = "init",
             at = @At("RETURN"))
     private static void init(WynntilsMod.ModLoader loader, String modVersion, boolean isDevelopmentEnvironment, File modFile, CallbackInfo ci) {
         WynntilsMod.registerEventListener(new TooltipRenderHandler());
