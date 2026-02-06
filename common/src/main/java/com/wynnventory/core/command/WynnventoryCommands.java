@@ -11,6 +11,7 @@ import com.wynnventory.util.ChatUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.Component;
 
 public final class WynnventoryCommands {
     public static final String PREFIX = "wynnventory";
@@ -55,7 +56,7 @@ public final class WynnventoryCommands {
 
     private static void sendCollectedData() {
         QueueScheduler.sendQueuedItems();
-        ChatUtils.info("Sent all collected items to the Wynnventory API.");
+        ChatUtils.info(Component.translatable("command.wynnventory.send.sendCollectedData"));
     }
 
     private static void pong() {

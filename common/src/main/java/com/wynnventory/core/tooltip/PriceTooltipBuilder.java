@@ -56,7 +56,7 @@ public final class PriceTooltipBuilder {
             priceColor = colors.getHighlightColor();
         }
 
-        MutableComponent line = Component.literal(label + ": ").withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
+        MutableComponent line = Component.translatable(label).withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
         line.append(Component.literal(price).withStyle(Style.EMPTY.withColor(priceColor)));
 
         if (ModConfig.getInstance().getTooltipSettings().isShowPriceFluctuation() && history > 0) {

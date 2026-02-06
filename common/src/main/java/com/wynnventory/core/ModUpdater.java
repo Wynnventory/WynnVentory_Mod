@@ -1,10 +1,9 @@
-package com.wynnventory.update;
+package com.wynnventory.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonParseException;
 import com.wynntils.utils.FileUtils;
-import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.github.Asset;
 import com.wynnventory.model.github.Release;
 import com.wynnventory.util.ChatUtils;
@@ -25,7 +24,8 @@ public class ModUpdater {
     private static final String LATEST_RELEASE_URL = "https://api.github.com/repos/Wynnventory/Wynnventory_Mod/releases/latest";
     private static boolean alreadyChecked = false;
 
-    private ModUpdater() {}
+    private ModUpdater() {
+    }
 
     public static void checkForUpdates() {
         if (alreadyChecked) {
@@ -92,7 +92,7 @@ public class ModUpdater {
     }
 
     private static void notifyUserOfUpdate(String latestVersion) {
-        ChatUtils.info(Component.literal("New version available: " + latestVersion + ". Attempting to auto-update..."));
+        ChatUtils.info(Component.translatable("feature.wynnventory.update.notifyUserOfUpdate", latestVersion));
     }
 
     private static void downloadAndApplyUpdate(Asset asset) {
@@ -121,7 +121,7 @@ public class ModUpdater {
     }
 
     private static void notifyUserOfDownloadCompletion() {
-        ChatUtils.info(Component.literal("Download completed! Restart Minecraft to apply the update."));
+        ChatUtils.info(Component.translatable("feature.wynnventory.update.notifyUserOfDownloadCompletion"));
     }
 
     private static void scheduleFileReplacementOnShutdown(File oldJar, File newJar) {
