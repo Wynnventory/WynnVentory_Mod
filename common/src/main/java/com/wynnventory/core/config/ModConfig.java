@@ -94,9 +94,9 @@ public final class ModConfig {
         ModConfig.getInstance().getTooltipSettings().setShowTooltips(!previousState);
 
         if(previousState) {
-            ChatUtils.info(Component.translatable("key.wynnventory.settings.toggleTooltips.message.disabled"));
+            ChatUtils.info(Component.translatable("feature.wynnventory.toggleTooltips.disabled"));
         } else {
-            ChatUtils.info(Component.translatable("key.wynnventory.settings.toggleTooltips.message.enabled"));
+            ChatUtils.info(Component.translatable("feature.wynnventory.toggleTooltips.enabled"));
         }
     }
 
@@ -105,9 +105,9 @@ public final class ModConfig {
         ModConfig.getInstance().getTooltipSettings().setShowBoxedItemTooltips(!previousState);
 
         if(previousState) {
-            ChatUtils.info(Component.translatable("key.wynnventory.settings.toggleBoxedTooltips.message.disabled"));
+            ChatUtils.info(Component.translatable("feature.wynnventory.toggleBoxedTooltips.disabled"));
         } else {
-            ChatUtils.info(Component.translatable("key.wynnventory.settings.toggleBoxedTooltips.message.enabled"));
+            ChatUtils.info(Component.translatable("feature.wynnventory.toggleBoxedTooltips.enabled"));
         }
     }
 
