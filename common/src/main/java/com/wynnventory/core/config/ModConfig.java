@@ -8,6 +8,8 @@ import com.wynnventory.core.config.settings.ColorSettings;
 import com.wynnventory.core.config.settings.FavouriteNotifierSettings;
 import com.wynnventory.core.config.settings.RaritySettings;
 import com.wynnventory.core.config.settings.TooltipSettings;
+import com.wynnventory.util.ChatUtils;
+import net.minecraft.network.chat.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -85,6 +87,28 @@ public final class ModConfig {
         Files.move(tmp, CFG_PATH,
                 java.nio.file.StandardCopyOption.REPLACE_EXISTING,
                 java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+    }
+
+    public static void toggleTooltips() {
+        boolean previousState = ModConfig.getInstance().getTooltipSettings().isShowTooltips();
+        ModConfig.getInstance().getTooltipSettings().setShowTooltips(!previousState);
+
+        if(previousState) {
+            ChatUtils.info(Component.translatable("key.wynnventory.settings.toggleTooltips.message.disabled"));
+        } else {
+            ChatUtils.info(Component.translatable("key.wynnventory.settings.toggleTooltips.message.enabled"));
+        }
+    }
+
+    public static void toggleBoxedTooltips() {
+        boolean previousState = ModConfig.getInstance().getTooltipSettings().isShowBoxedItemTooltips();
+        ModConfig.getInstance().getTooltipSettings().setShowBoxedItemTooltips(!previousState);
+
+        if(previousState) {
+            ChatUtils.info(Component.translatable("key.wynnventory.settings.toggleBoxedTooltips.message.disabled"));
+        } else {
+            ChatUtils.info(Component.translatable("key.wynnventory.settings.toggleBoxedTooltips.message.enabled"));
+        }
     }
 
     public static void setInstance(ModConfig instance) {

@@ -1,17 +1,13 @@
 package com.wynnventory.handler;
 
-import com.wynnventory.core.WynnventoryMod;
-import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.input.KeyBindManager;
 import com.wynnventory.core.input.KeyBinds;
 import com.wynnventory.events.ClientTickEvent;
 import com.wynnventory.events.InventoryKeyPressEvent;
-import com.wynnventory.util.ChatUtils;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.SubscribeEvent;
 
 import java.util.Map;
@@ -42,27 +38,8 @@ public final class KeyBindHandler {
     }
 
     private void handle(KeyBinds key) {
-        if (key == KeyBinds.OPEN_REWARD_POOL) {
-            WynnventoryMod.logInfo("N pressed");
-        } else if (key == KeyBinds.SETTINGS_TOGGLE_TOOLTIPS) {
-            boolean previousState = ModConfig.getInstance().getTooltipSettings().isShowTooltips();
-            ModConfig.getInstance().getTooltipSettings().setShowTooltips(!previousState);
-
-            if(previousState) {
-                ChatUtils.info(Component.translatable("key.wynnventory.settings.toggleTooltips.message.disabled"));
-            } else {
-                ChatUtils.info(Component.translatable("key.wynnventory.settings.toggleTooltips.message.enabled"));
-            }
-
-        } else if (key == KeyBinds.SETTINGS_TOGGLE_BOXED_TOOLTIPS) {
-            boolean previousState = ModConfig.getInstance().getTooltipSettings().isShowBoxedItemTooltips();
-            ModConfig.getInstance().getTooltipSettings().setShowBoxedItemTooltips(!previousState);
-
-            if(previousState) {
-                ChatUtils.info(Component.translatable("key.wynnventory.settings.toggleBoxedTooltips.message.disabled"));
-            } else {
-                ChatUtils.info(Component.translatable("key.wynnventory.settings.toggleBoxedTooltips.message.enabled"));
-            }
+        if (key.callback != null) {
+            key.callback.run();
         }
     }
 }
