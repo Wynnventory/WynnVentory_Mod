@@ -2,35 +2,23 @@ package com.wynnventory.gui.screen.settings;
 
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.config.settings.RaritySettings;
-import com.wynnventory.gui.screen.SettingsScreen;
-import net.minecraft.client.gui.components.CycleButton;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.OptionInstance;
+
+import java.util.List;
 
 public class RaritySettingsTab implements SettingsTab {
     @Override
-    public void init(SettingsScreen screen, int x1, int x2, int y, int w, int h) {
+    public List<OptionInstance<?>> getOptions() {
         RaritySettings s = ModConfig.getInstance().getRaritySettings();
-        screen.addPublic(CycleButton.onOffBuilder(s.isShowMythic())
-                .create(x1, y, w, 20, Component.translatable("gui.wynnventory.settings.rarity.showMythic"), (btn, val) -> s.setShowMythic(val)));
-        screen.addPublic(CycleButton.onOffBuilder(s.isShowFabled())
-                .create(x2, y, w, 20, Component.translatable("gui.wynnventory.settings.rarity.showFabled"), (btn, val) -> s.setShowFabled(val)));
-
-        y += h;
-        screen.addPublic(CycleButton.onOffBuilder(s.isShowLegendary())
-                .create(x1, y, w, 20, Component.translatable("gui.wynnventory.settings.rarity.showLegendary"), (btn, val) -> s.setShowLegendary(val)));
-        screen.addPublic(CycleButton.onOffBuilder(s.isShowRare())
-                .create(x2, y, w, 20, Component.translatable("gui.wynnventory.settings.rarity.showRare"), (btn, val) -> s.setShowRare(val)));
-
-        y += h;
-        screen.addPublic(CycleButton.onOffBuilder(s.isShowUnique())
-                .create(x1, y, w, 20, Component.translatable("gui.wynnventory.settings.rarity.showUnique"), (btn, val) -> s.setShowUnique(val)));
-        screen.addPublic(CycleButton.onOffBuilder(s.isShowCommon())
-                .create(x2, y, w, 20, Component.translatable("gui.wynnventory.settings.rarity.showCommon"), (btn, val) -> s.setShowCommon(val)));
-
-        y += h;
-        screen.addPublic(CycleButton.onOffBuilder(s.isShowSet())
-                .create(x1, y, w, 20, Component.translatable("gui.wynnventory.settings.rarity.showSet"), (btn, val) -> s.setShowSet(val)));
-        screen.addPublic(CycleButton.onOffBuilder(s.isShowUnusable())
-                .create(x2, y, w, 20, Component.translatable("gui.wynnventory.settings.rarity.showUnusable"), (btn, val) -> s.setShowUnusable(val)));
+        return List.of(
+                OptionInstance.createBoolean("gui.wynnventory.settings.rarity.showMythic", s.isShowMythic(), s::setShowMythic),
+                OptionInstance.createBoolean("gui.wynnventory.settings.rarity.showFabled", s.isShowFabled(), s::setShowFabled),
+                OptionInstance.createBoolean("gui.wynnventory.settings.rarity.showLegendary", s.isShowLegendary(), s::setShowLegendary),
+                OptionInstance.createBoolean("gui.wynnventory.settings.rarity.showRare", s.isShowRare(), s::setShowRare),
+                OptionInstance.createBoolean("gui.wynnventory.settings.rarity.showUnique", s.isShowUnique(), s::setShowUnique),
+                OptionInstance.createBoolean("gui.wynnventory.settings.rarity.showCommon", s.isShowCommon(), s::setShowCommon),
+                OptionInstance.createBoolean("gui.wynnventory.settings.rarity.showSet", s.isShowSet(), s::setShowSet),
+                OptionInstance.createBoolean("gui.wynnventory.settings.rarity.showUnusable", s.isShowUnusable(), s::setShowUnusable)
+        );
     }
 }
