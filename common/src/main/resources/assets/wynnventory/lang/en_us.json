@@ -1,6 +1,12 @@
 {
   "key.category.wynnventory.root": "Wynnventory",
   "key.wynnventory.openRewardScreen": "Open Reward Screen",
+  "key.wynnventory.settings.toggleTooltips": "Toggle Tooltips",
+  "key.wynnventory.settings.toggleTooltips.message.enabled": "Tooltips are now enabled",
+  "key.wynnventory.settings.toggleTooltips.message.disabled": "Tooltips are now disabled",
+  "key.wynnventory.settings.toggleBoxedTooltips": "Toggle Boxed Tooltips",
+  "key.wynnventory.settings.toggleBoxedTooltips.message.enabled": "Boxed Item Tooltips are now enabled",
+  "key.wynnventory.settings.toggleBoxedTooltips.message.disabled": "Boxed Item Tooltips are now disabled",
   "command.wynnventory.send.sendCollectedData":  "Sent all collected items to the Wynnventory API.",
   "feature.wynnventory.update.notifyUserOfUpdate": "New version available: %s. Attempting to auto-update...",
   "feature.wynnventory.update.notifyUserOfDownloadCompletion": "Download completed! Restart Minecraft to apply the update.",

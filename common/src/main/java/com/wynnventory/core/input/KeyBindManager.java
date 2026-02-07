@@ -10,13 +10,11 @@ import java.util.*;
 
 public final class KeyBindManager {
     private static final EnumMap<KeyBinds, KeyMapping> mappings = new EnumMap<>(KeyBinds.class);
-    private static boolean registered = false;
 
     private KeyBindManager() {}
 
     public static void registerKeybinds(Options options) {
-        if (registered || options == null) return;
-        registered = true;
+        if (options == null) return;
 
         OptionsAccessor acc = (OptionsAccessor) options;
         List<KeyMapping> list = new ArrayList<>(Arrays.asList(acc.getKeyMappings()));
