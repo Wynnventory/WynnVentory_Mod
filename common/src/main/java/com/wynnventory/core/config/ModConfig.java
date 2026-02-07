@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.wynnventory.core.WynnventoryMod;
-import com.wynnventory.core.config.settings.ColorSettings;
+import com.wynnventory.core.config.settings.PriceHighlightSettings;
 import com.wynnventory.core.config.settings.FavouriteNotifierSettings;
 import com.wynnventory.core.config.settings.RaritySettings;
 import com.wynnventory.core.config.settings.TooltipSettings;
@@ -23,7 +23,7 @@ public final class ModConfig {
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).enable(SerializationFeature.INDENT_OUTPUT);
 
     private TooltipSettings tooltipSettings = new TooltipSettings();
-    private ColorSettings colorSettings = new ColorSettings();
+    private PriceHighlightSettings priceHighlightSettings = new PriceHighlightSettings();
     private FavouriteNotifierSettings favouriteNotifierSettings = new FavouriteNotifierSettings();
     private RaritySettings raritySettings = new RaritySettings();
 
@@ -123,12 +123,12 @@ public final class ModConfig {
         this.tooltipSettings = tooltipSettings;
     }
 
-    public ColorSettings getColorSettings() {
-        return colorSettings;
+    public PriceHighlightSettings getPriceHighlightSettings() {
+        return priceHighlightSettings;
     }
 
-    public void setColorSettings(ColorSettings colorSettings) {
-        this.colorSettings = colorSettings;
+    public void setPriceHighlightSettings(PriceHighlightSettings priceHighlightSettings) {
+        this.priceHighlightSettings = priceHighlightSettings;
     }
 
     public FavouriteNotifierSettings getFavouriteNotifierSettings() {

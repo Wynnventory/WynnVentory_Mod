@@ -1,12 +1,11 @@
 package com.wynnventory.core.tooltip;
 
 import com.wynnventory.core.config.ModConfig;
-import com.wynnventory.core.config.settings.ColorSettings;
+import com.wynnventory.core.config.settings.PriceHighlightSettings;
 import com.wynnventory.core.config.settings.DisplayOptions;
 import com.wynnventory.core.config.settings.TooltipSettings;
 import com.wynnventory.model.item.trademarket.PriceType;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
-import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
 import com.wynnventory.util.EmeraldUtils;
 import com.wynnventory.util.StringUtils;
 import net.minecraft.ChatFormatting;
@@ -46,7 +45,7 @@ public final class PriceTooltipBuilder {
     }
 
     private static Component priceLine(String label, int live, int history) {
-        ColorSettings colors = ModConfig.getInstance().getColorSettings();
+        PriceHighlightSettings colors = ModConfig.getInstance().getPriceHighlightSettings();
         String price = (ModConfig.getInstance().getTooltipSettings().getDisplayFormat() == DisplayOptions.FORMATTED)
                 ? EmeraldUtils.getFormattedString(live, false)
                 : StringUtils.formatNumber(live);

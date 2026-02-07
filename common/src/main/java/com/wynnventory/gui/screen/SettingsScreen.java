@@ -93,7 +93,7 @@ public class SettingsScreen extends Screen {
 
     private enum Tab {
         TOOLTIP("gui.wynnventory.settings.tab.tooltip", new TooltipSettingsTab()),
-        COLORS("gui.wynnventory.settings.tab.colors", new ColorSettingsTab()),
+        PRICE_HIGHLIGHT("gui.wynnventory.settings.tab.highlighting", new PriceHighlightSettingsTab()),
         NOTIFICATIONS("gui.wynnventory.settings.tab.notifications", new NotificationSettingsTab()),
         RARITY("gui.wynnventory.settings.tab.rarity", new RaritySettingsTab());
 

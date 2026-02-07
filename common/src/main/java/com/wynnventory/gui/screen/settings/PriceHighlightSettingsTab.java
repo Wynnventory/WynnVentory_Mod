@@ -1,7 +1,7 @@
 package com.wynnventory.gui.screen.settings;
 
 import com.wynnventory.core.config.ModConfig;
-import com.wynnventory.core.config.settings.ColorSettings;
+import com.wynnventory.core.config.settings.PriceHighlightSettings;
 import com.wynnventory.gui.screen.SettingsScreen;
 import com.wynnventory.util.EmeraldUtils;
 import net.minecraft.client.Minecraft;
@@ -12,17 +12,17 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
-public class ColorSettingsTab implements SettingsTab {
+public class PriceHighlightSettingsTab implements SettingsTab {
     @Override
     public void init(SettingsScreen screen, int x1, int x2, int y, int w, int h) {
-        ColorSettings s = ModConfig.getInstance().getColorSettings();
+        PriceHighlightSettings s = ModConfig.getInstance().getPriceHighlightSettings();
         Minecraft mc = Minecraft.getInstance();
 
         screen.addPublic(CycleButton.onOffBuilder(s.isShowColors())
-                .create(x1, y, w, 20, Component.translatable("gui.wynnventory.settings.colors.showColors"), (btn, val) -> s.setShowColors(val)));
+                .create(x1, y, w, 20, Component.translatable("gui.wynnventory.settings.highlighting.showColors"), (btn, val) -> s.setShowColors(val)));
 
         int currentY = y + h + 15;
-        EditBox minPriceBox = new EditBox(mc.font, x1, currentY, w, 20, Component.translatable("gui.wynnventory.settings.colors.colorMinPrice"));
+        EditBox minPriceBox = new EditBox(mc.font, x1, currentY, w, 20, Component.translatable("gui.wynnventory.settings.highlighting.colorMinPrice"));
         minPriceBox.setValue(String.valueOf(s.getColorMinPrice()));
         minPriceBox.setFilter(val -> val.matches("\\d*"));
         minPriceBox.setResponder(val -> {
@@ -36,14 +36,14 @@ public class ColorSettingsTab implements SettingsTab {
 
         currentY += h + 15;
         final EditBox[] hexBoxArr = new EditBox[1];
-        EditBox hexBox = new EditBox(mc.font, x1, currentY, w, 20, Component.translatable("gui.wynnventory.settings.colors.hexCode"));
+        EditBox hexBox = new EditBox(mc.font, x1, currentY, w, 20, Component.translatable("gui.wynnventory.settings.highlighting.hexCode"));
         hexBox.setValue(String.format("#%06X", s.getHighlightColor()));
         hexBox.setFilter(val -> val.matches("^#?[0-9a-fA-F]{0,6}$"));
         hexBoxArr[0] = hexBox;
         screen.addPublic(hexBox);
 
         currentY += h + 15;
-        ColorSlider slider = new ColorSlider(x1, currentY, w - 30, 20, Component.translatable("gui.wynnventory.settings.colors.highlightColor"), getHue(s.getHighlightColor()), s, hexBoxArr);
+        ColorSlider slider = new ColorSlider(x1, currentY, w - 30, 20, Component.translatable("gui.wynnventory.settings.highlighting.highlightColor"), getHue(s.getHighlightColor()), s, hexBoxArr);
 
         hexBox.setResponder(val -> {
             String hex = val.startsWith("#") ? val.substring(1) : val;
@@ -60,20 +60,20 @@ public class ColorSettingsTab implements SettingsTab {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta, int x1, int x2, int y, int w, int h) {
-        ColorSettings s = ModConfig.getInstance().getColorSettings();
+        PriceHighlightSettings s = ModConfig.getInstance().getPriceHighlightSettings();
         Minecraft mc = Minecraft.getInstance();
 
-        graphics.drawString(mc.font, Component.translatable("gui.wynnventory.settings.colors.colorMinPrice"), x1, y + h + 4, 0xFFAAAAAA);
+        graphics.drawString(mc.font, Component.translatable("gui.wynnventory.settings.highlighting.colorMinPrice"), x1, y + h + 4, 0xFFAAAAAA);
 
         // Emerald formatted string next to the input box
         String formattedEmeralds = EmeraldUtils.getFormattedString(s.getColorMinPrice(), false);
         graphics.drawString(mc.font, Component.literal(formattedEmeralds), x1 + 150 + 10, y + h + 15 + 6, 0xFF55FF55);
         
         int hexLabelY = y + (h + 15) + h + 4;
-        graphics.drawString(mc.font, Component.translatable("gui.wynnventory.settings.colors.hexCode"), x1, hexLabelY, 0xFFAAAAAA);
+        graphics.drawString(mc.font, Component.translatable("gui.wynnventory.settings.highlighting.hexCode"), x1, hexLabelY, 0xFFAAAAAA);
         
         int sliderLabelY = y + 2 * (h + 15) + h + 4;
-        graphics.drawString(mc.font, Component.translatable("gui.wynnventory.settings.colors.highlightColor"), x1, sliderLabelY, 0xFFAAAAAA);
+        graphics.drawString(mc.font, Component.translatable("gui.wynnventory.settings.highlighting.highlightColor"), x1, sliderLabelY, 0xFFAAAAAA);
         
         // Preview box for highlight color
         int previewX = x1 + 150 - 20;
@@ -99,11 +99,11 @@ public class ColorSettingsTab implements SettingsTab {
     }
 
     private static class ColorSlider extends AbstractSliderButton {
-        private final ColorSettings settings;
+        private final PriceHighlightSettings settings;
         private final EditBox[] hexBoxArr;
         private boolean isUpdating = false;
 
-        public ColorSlider(int x, int y, int width, int height, Component message, double value, ColorSettings settings, EditBox[] hexBoxArr) {
+        public ColorSlider(int x, int y, int width, int height, Component message, double value, PriceHighlightSettings settings, EditBox[] hexBoxArr) {
             super(x, y, width, height, message, value);
             this.settings = settings;
             this.hexBoxArr = hexBoxArr;
@@ -112,7 +112,7 @@ public class ColorSettingsTab implements SettingsTab {
 
         @Override
         protected void updateMessage() {
-            this.setMessage(Component.translatable("gui.wynnventory.settings.colors.highlightColor"));
+            this.setMessage(Component.translatable("gui.wynnventory.settings.highlighting.highlightColor"));
         }
 
         @Override
