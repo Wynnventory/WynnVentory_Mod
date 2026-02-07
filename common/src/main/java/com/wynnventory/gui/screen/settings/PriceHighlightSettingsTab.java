@@ -91,7 +91,7 @@ public class PriceHighlightSettingsTab implements SettingsTab {
         dummy.visible = false;
         dummy.active = false;
         int width = 150;
-        int x = screen.width / 2 - 40;
+        int x = screen.width / 2 + 5;
         minPriceBox = new EditBox(mc.font, x, dummy.getY(), width, 20, dummy.getMessage());
         minPriceBox.setValue(String.valueOf(s.getColorMinPrice()));
         minPriceBox.setFilter(val -> val.matches("\\d*"));
@@ -109,7 +109,7 @@ public class PriceHighlightSettingsTab implements SettingsTab {
         dummy.visible = false;
         dummy.active = false;
         int width = 150;
-        int x = screen.width / 2 - 40;
+        int x = screen.width / 2 + 5;
         hexBox = new EditBox(mc.font, x, dummy.getY(), width, 20, dummy.getMessage());
         hexBox.setValue(String.format("#%06X", s.getHighlightColor()));
         hexBox.setFilter(val -> val.matches("^#?[0-9a-fA-F]{0,6}$"));
@@ -120,7 +120,7 @@ public class PriceHighlightSettingsTab implements SettingsTab {
         dummy.visible = false;
         dummy.active = false;
         int width = 150;
-        int x = screen.width / 2 - 40;
+        int x = screen.width / 2 + 5;
         slider = new ColorSlider(x, dummy.getY(), width, 20, dummy.getMessage(), getHue(s.getHighlightColor()), s, new EditBox[1]);
         screen.addPublic(slider);
     }
@@ -143,7 +143,7 @@ public class PriceHighlightSettingsTab implements SettingsTab {
                     for (GuiEventListener entryChild : ceh.children()) {
                         if (entryChild instanceof AbstractWidget dummy) {
                             String msg = dummy.getMessage().getString();
-                            int widgetX = center - 40;
+                            int widgetX = center + 5;
                             int widgetY = dummy.getY();
                             boolean isVisible = widgetY >= listTop && (widgetY + 20) <= listBottom;
 
@@ -166,27 +166,28 @@ public class PriceHighlightSettingsTab implements SettingsTab {
             }
 
             // Draw labels and other elements only if their respective widgets are visible
-            int labelX = center - 60;
+            int labelX = center - 155;
             
             if (minPriceBox.visible) {
                 Component minPriceLabel = Component.translatable("gui.wynnventory.settings.highlighting.colorMinPrice");
-                graphics.drawString(mc.font, minPriceLabel, labelX - mc.font.width(minPriceLabel), minPriceBox.getY() + 6, 0xFFFFFFFF);
+                graphics.drawString(mc.font, minPriceLabel, labelX, minPriceBox.getY() + 6, 0xFFFFFFFF);
                 
                 String formattedEmeralds = EmeraldUtils.getFormattedString(s.getColorMinPrice(), false);
-                graphics.drawString(mc.font, Component.literal(formattedEmeralds), minPriceBox.getX() + minPriceBox.getWidth() + 5, minPriceBox.getY() + 6, 0xFF55FF55);
+                int textWidth = mc.font.width(formattedEmeralds);
+                graphics.drawString(mc.font, Component.literal(formattedEmeralds), minPriceBox.getX() - textWidth - 5, minPriceBox.getY() + 6, 0xFF55FF55);
             }
 
             if (hexBox.visible) {
                 Component hexCodeLabel = Component.translatable("gui.wynnventory.settings.highlighting.hexCode");
-                graphics.drawString(mc.font, hexCodeLabel, labelX - mc.font.width(hexCodeLabel), hexBox.getY() + 6, 0xFFFFFFFF);
+                graphics.drawString(mc.font, hexCodeLabel, labelX, hexBox.getY() + 6, 0xFFFFFFFF);
             }
 
             if (slider.visible) {
                 Component highlightColorLabel = Component.translatable("gui.wynnventory.settings.highlighting.highlightColor");
-                graphics.drawString(mc.font, highlightColorLabel, labelX - mc.font.width(highlightColorLabel), slider.getY() + 6, 0xFFFFFFFF);
+                graphics.drawString(mc.font, highlightColorLabel, labelX, slider.getY() + 6, 0xFFFFFFFF);
 
-                // Preview box for highlight color
-                int previewX = slider.getX() + slider.getWidth() + 5;
+                // Preview box for highlight color - placed to the left of the slider
+                int previewX = slider.getX() - 25;
                 int previewY = slider.getY();
                 graphics.fill(previewX, previewY, previewX + 20, previewY + 20, 0xFF000000 | s.getHighlightColor());
             }
