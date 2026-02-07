@@ -12,7 +12,7 @@
   "feature.wynnventory.update.notifyUserOfDownloadCompletion": "Download completed! Restart Minecraft to apply the update.",
   "feature.wynnventory.tooltip.avg80": "80% avg: ",
   "feature.wynnventory.tooltip.unidAvg80": "Unid 80% avg: ",
-  "feature.wynnventory.tooltip.avg": "Avg; ",
+  "feature.wynnventory.tooltip.avg": "Avg: ",
   "feature.wynnventory.tooltip.unidAvg": "Unid Avg: ",
   "feature.wynnventory.tooltip.highest": "Highest: ",
   "feature.wynnventory.tooltip.lowest": "Lowest: "
