@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.core.config.settings.PriceHighlightSettings;
 import com.wynnventory.core.config.settings.FavouriteNotifierSettings;
-import com.wynnventory.core.config.settings.RaritySettings;
+import com.wynnventory.core.config.settings.RewardScreenSettings;
 import com.wynnventory.core.config.settings.TooltipSettings;
 import com.wynnventory.util.ChatUtils;
 import net.minecraft.network.chat.Component;
@@ -25,7 +25,7 @@ public final class ModConfig {
     private TooltipSettings tooltipSettings = new TooltipSettings();
     private PriceHighlightSettings priceHighlightSettings = new PriceHighlightSettings();
     private FavouriteNotifierSettings favouriteNotifierSettings = new FavouriteNotifierSettings();
-    private RaritySettings raritySettings = new RaritySettings();
+    private RewardScreenSettings raritySettings = new RewardScreenSettings();
 
     public static ModConfig getInstance() {
         synchronized (ModConfig.class) {
@@ -139,11 +139,11 @@ public final class ModConfig {
         this.favouriteNotifierSettings = favouriteNotifierSettings;
     }
 
-    public RaritySettings getRaritySettings() {
+    public RewardScreenSettings getRaritySettings() {
         return raritySettings;
     }
 
-    public void setRaritySettings(RaritySettings raritySettings) {
+    public void setRaritySettings(RewardScreenSettings raritySettings) {
         this.raritySettings = raritySettings;
     }
 }

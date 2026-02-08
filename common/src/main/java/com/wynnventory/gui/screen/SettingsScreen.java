@@ -1,11 +1,9 @@
 package com.wynnventory.gui.screen;
 
-import com.mojang.serialization.Codec;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.gui.screen.settings.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.OptionInstance;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
@@ -13,7 +11,6 @@ import net.minecraft.client.gui.screens.options.OptionsSubScreen;
 import net.minecraft.network.chat.Component;
 
 import java.io.IOException;
-import java.util.List;
 
 public class SettingsScreen extends OptionsSubScreen {
 
@@ -69,7 +66,7 @@ public class SettingsScreen extends OptionsSubScreen {
         TOOLTIP("gui.wynnventory.settings.section.tooltip", new TooltipSettingsTab()),
         PRICE_HIGHLIGHT("gui.wynnventory.settings.section.highlighting", new PriceHighlightSettingsTab()),
         NOTIFICATIONS("gui.wynnventory.settings.section.notifications", new NotificationSettingsTab()),
-        RARITY("gui.wynnventory.settings.section.rarity", new RaritySettingsTab());
+        RARITY("gui.wynnventory.settings.section.rewardScreen", new RewardScreenSettingsTab());
 
         private final String translationKey;
         private final SettingsTab tab;

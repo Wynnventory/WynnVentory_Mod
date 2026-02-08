@@ -1,6 +1,6 @@
 package com.wynnventory.core.config.settings;
 
-public class RaritySettings {
+public class RewardScreenSettings {
     private boolean showMythic = true;
     private boolean showFabled = true;
     private boolean showLegendary = true;
@@ -9,6 +9,8 @@ public class RaritySettings {
     private boolean showCommon = true;
     private boolean showSet = true;
     private boolean showUnusable = true;
+    private int lootrunColumns = 5;
+    private int raidColumns = 3;
 
     public boolean isShowMythic() {
         return showMythic;
@@ -72,6 +74,22 @@ public class RaritySettings {
 
     public void setShowUnusable(boolean showUnusable) {
         this.showUnusable = showUnusable;
+    }
+
+    public int getLootrunColumns() {
+        return lootrunColumns;
+    }
+
+    public void setLootrunColumns(int lootrunColumns) {
+        this.lootrunColumns = lootrunColumns;
+    }
+
+    public int getRaidColumns() {
+        return raidColumns;
+    }
+
+    public void setRaidColumns(int raidColumns) {
+        this.raidColumns = raidColumns;
     }
 
     @Override
