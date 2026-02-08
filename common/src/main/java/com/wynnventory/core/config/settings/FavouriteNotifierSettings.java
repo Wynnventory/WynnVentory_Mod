@@ -28,13 +28,4 @@ public class FavouriteNotifierSettings {
     public void setMythicsOnly(boolean mythicsOnly) {
         this.mythicsOnly = mythicsOnly;
     }
-
-    @Override
-    public String toString() {
-        return "FavouriteNotifierSettings{" +
-                "enableNotifier=" + enableNotifier +
-                ", maxToasts=" + maxToasts +
-                ", mythicsOnly=" + mythicsOnly +
-                '}';
-    }
 }

@@ -28,13 +28,4 @@ public  final class PriceHighlightSettings {
     public void setHighlightColor(int highlightColor) {
         this.highlightColor = highlightColor;
     }
-
-    @Override
-    public String toString() {
-        return "ColorSettings{" +
-                "showColors=" + showColors +
-                ", colorMinPrice=" + colorMinPrice +
-                ", highlightColor=" + highlightColor +
-                '}';
-    }
 }

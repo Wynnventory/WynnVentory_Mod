@@ -10,7 +10,7 @@ public class RewardScreenSettings {
     private boolean showSet = true;
     private boolean showUnusable = true;
     private int lootrunColumns = 5;
-    private int raidColumns = 3;
+    private int raidColumns = 4;
 
     public boolean isShowMythic() {
         return showMythic;
@@ -90,19 +90,5 @@ public class RewardScreenSettings {
 
     public void setRaidColumns(int raidColumns) {
         this.raidColumns = raidColumns;
-    }
-
-    @Override
-    public String toString() {
-        return "RarityConfig{" +
-                "showMythic=" + showMythic +
-                ", showFabled=" + showFabled +
-                ", showLegendary=" + showLegendary +
-                ", showRare=" + showRare +
-                ", showUnique=" + showUnique +
-                ", showCommon=" + showCommon +
-                ", showSet=" + showSet +
-                ", showUnusable=" + showUnusable +
-                '}';
     }
 }
