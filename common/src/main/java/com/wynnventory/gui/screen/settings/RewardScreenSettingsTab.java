@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import java.util.List;
 
 public class RewardScreenSettingsTab implements SettingsTab {
+
     @Override
     public List<OptionInstance<?>> getOptions() {
         RewardScreenSettings s = ModConfig.getInstance().getRewardScreenSettings();
