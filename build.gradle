@@ -115,31 +115,36 @@ java {
 	targetCompatibility = JavaVersion.VERSION_21
 }
 
+loom {
+	mixin {
+		defaultRefmapName = "wynnventory.refmap.json"
+	}
+}
+
 jar {
 	from("LICENSE") {
 		rename { "${it}_${project.base.archivesName.get()}"}
 	}
 }
 
-remapJar {
-	dependsOn jar
-
-	archiveClassifier.set('remapped')
-	inputFile = jar.archiveFile.get().asFile
-	sourceNamespace = "named"
-	targetNamespace = "intermediary"
+// Shadow dependencies into the jar BEFORE remapping, also include relocated dependencies
+shadowJar {
+	archiveClassifier.set('shadow')
+	configurations = [project.configurations.resolvableImplementation]
 }
 
-shadowJar {
-	dependsOn remapJar
+// Remap the shadowed jar to intermediary mappings (because Fabric Loader uses those)
+remapJar {
+	dependsOn shadowJar
+	
+	inputFile = shadowJar.archiveFile
+	
+	sourceNamespace = "named"
+	targetNamespace = "intermediary"
+	
+	archiveClassifier.set('')
 
-	from {
-		zipTree(remapJar.archiveFile.get().asFile)
-	}
-
-	archiveClassifier.set('shadow')
-	//relocate 'com.fasterxml.jackson', 'com.wynnventory.shadow.jackson'
-	configurations = [project.configurations.resolvableImplementation]
+	addNestedDependencies = false
 }
 
 publishing {
@@ -147,7 +152,6 @@ publishing {
 		create("mavenJava", MavenPublication) {
 			artifactId = project.archives_base_name
 			from components.java
-			artifact shadowJar.archiveFile.get()
 		}
 	}
 
@@ -159,5 +163,5 @@ publishing {
 }
 
 build {
-	dependsOn shadowJar
+	dependsOn remapJar
 }
