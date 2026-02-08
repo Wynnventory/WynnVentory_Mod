@@ -30,12 +30,11 @@ public class SimpleTierItem extends SimpleItem {
 
     @Override
     public boolean equals(Object o) {
+        if(!super.equals(o)) return false;
         if (this == o) return true;
+
         if (o instanceof SimpleTierItem other) {
-            return tier == other.getTier() &&
-                    Objects.equals(name, other.name) &&
-                    Objects.equals(itemType, other.itemType) &&
-                    Objects.equals(type, other.type);
+            return tier == other.getTier();
         }
 
         return false;

@@ -46,7 +46,7 @@ public class ItemStackUtils {
             case PowderItem powderItem              -> SimpleTierItem.from(powderItem);
             case RuneItem runeItem                  -> SimpleItem.from(runeItem);
             case SimulatorItem simulatorItem        -> SimpleItem.from(simulatorItem);
-            case TomeItem tomeItem                  -> SimpleTierItem.from(tomeItem);
+            case TomeItem tomeItem                  -> SimpleItem.from(tomeItem);
             case null, default -> null;
         };
     }

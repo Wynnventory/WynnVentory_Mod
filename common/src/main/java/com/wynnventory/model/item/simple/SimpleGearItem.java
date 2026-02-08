@@ -64,16 +64,14 @@ public class SimpleGearItem extends SimpleItem {
 
     @Override
     public boolean equals(Object o) {
+        if(!super.equals(o)) return false;
         if (this == o) return true;
 
         if (o instanceof SimpleGearItem other) {
             return unidentified == other.unidentified &&
-                    Objects.equals(name, other.name) &&
                     Objects.equals(rarity, other.rarity) &&
                     Objects.equals(rerollCount, other.rerollCount) &&
                     Objects.equals(actualStatsWithPercentage, other.actualStatsWithPercentage) &&
-                    Objects.equals(itemType, other.itemType) &&
-                    Objects.equals(type, other.type) &&
                     Objects.equals(
                             shinyStat.map(s -> s.statType().key() + ":" + s.value()),
                             other.shinyStat.map(s -> s.statType().key() + ":" + s.value())
