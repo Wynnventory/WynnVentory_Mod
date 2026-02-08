@@ -42,4 +42,3 @@ replay_*.log
 # custom
 fabric/src/main/resources/key.dat
 neoforge/src/main/resources/key.dat
-log4j.xml
