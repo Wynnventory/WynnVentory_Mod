@@ -2,6 +2,7 @@ package com.wynnventory.mixin;
 
 import com.wynntils.core.WynntilsMod;
 import com.wynnventory.handler.TooltipRenderHandler;
+import com.wynnventory.handler.WorldStateHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,6 +17,7 @@ public abstract class WynntilsModMixin {
             at = @At("RETURN"))
     private static void init(WynntilsMod.ModLoader loader, String modVersion, boolean isDevelopmentEnvironment, File modFile, CallbackInfo ci) {
         WynntilsMod.registerEventListener(new TooltipRenderHandler());
+        WynntilsMod.registerEventListener(new WorldStateHandler());
     }
 
 }

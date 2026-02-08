@@ -22,33 +22,21 @@ import java.util.concurrent.CompletableFuture;
 
 public class ModUpdater {
     private static final String LATEST_RELEASE_URL = "https://api.github.com/repos/Wynnventory/Wynnventory_Mod/releases/latest";
-    private static boolean alreadyChecked = false;
 
-    private ModUpdater() {
-    }
+    private ModUpdater() {}
 
     public static void checkForUpdates() {
-        if (alreadyChecked) {
+        if (WynnventoryMod.isDev()) {
+            ChatUtils.info("This is a dev build. Skipping auto update...");
             return;
         }
 
-        alreadyChecked = true;
-
-        if (WynnventoryMod.isDev()) {
-            WynnventoryMod.logInfo("This is a dev build. Skipping auto update...");
-        } else {
-            String currentVersion = WynnventoryMod.getVersion();
-            initiateUpdateCheck(currentVersion);
-        }
-    }
-
-    private static void initiateUpdateCheck(String currentVersion) {
         new Thread(() -> {
             try {
                 Release latestRelease = fetchLatestRelease().join();
                 String latestVersion = sanitizeVersion(latestRelease.getTagName());
 
-                if (!isUpToDate(currentVersion, latestVersion)) {
+                if (!isUpToDate(WynnventoryMod.getVersion(), latestVersion)) {
                     handleNewVersionFound(latestRelease, latestVersion);
                 }
             } catch (Exception e) {
@@ -84,22 +72,18 @@ public class ModUpdater {
     }
 
     private static void handleNewVersionFound(Release latestRelease, String latestVersion) {
-        notifyUserOfUpdate(latestVersion);
+        ChatUtils.info(Component.translatable("feature.wynnventory.update.notifyUserOfUpdate", latestVersion));
 
         latestRelease.getAssets().stream()
                 .filter(asset -> asset.getName().toLowerCase().startsWith("wynnventory") && asset.getName().endsWith(".jar"))
                 .forEach(ModUpdater::downloadAndApplyUpdate);
     }
 
-    private static void notifyUserOfUpdate(String latestVersion) {
-        ChatUtils.info(Component.translatable("feature.wynnventory.update.notifyUserOfUpdate", latestVersion));
-    }
-
     private static void downloadAndApplyUpdate(Asset asset) {
         new Thread(() -> {
             try {
                 Path newFilePath = downloadAsset(asset);
-                notifyUserOfDownloadCompletion();
+                ChatUtils.info(Component.translatable("feature.wynnventory.update.notifyUserOfDownloadCompletion"));
 
                 File oldFile = WynnventoryMod.getModFile();
                 scheduleFileReplacementOnShutdown(oldFile, newFilePath.toFile());
@@ -118,10 +102,6 @@ public class ModUpdater {
 
     private static Path getModFilePath(String fileName) {
         return new File(Minecraft.getInstance().gameDirectory, "mods/" + fileName).toPath();
-    }
-
-    private static void notifyUserOfDownloadCompletion() {
-        ChatUtils.info(Component.translatable("feature.wynnventory.update.notifyUserOfDownloadCompletion"));
     }
 
     private static void scheduleFileReplacementOnShutdown(File oldJar, File newJar) {

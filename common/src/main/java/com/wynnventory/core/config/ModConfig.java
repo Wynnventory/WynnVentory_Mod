@@ -25,7 +25,7 @@ public final class ModConfig {
     private TooltipSettings tooltipSettings = new TooltipSettings();
     private PriceHighlightSettings priceHighlightSettings = new PriceHighlightSettings();
     private FavouriteNotifierSettings favouriteNotifierSettings = new FavouriteNotifierSettings();
-    private RewardScreenSettings raritySettings = new RewardScreenSettings();
+    private RewardScreenSettings rewardScreenSettings = new RewardScreenSettings();
 
     public static ModConfig getInstance() {
         synchronized (ModConfig.class) {
@@ -139,11 +139,11 @@ public final class ModConfig {
         this.favouriteNotifierSettings = favouriteNotifierSettings;
     }
 
-    public RewardScreenSettings getRaritySettings() {
-        return raritySettings;
+    public RewardScreenSettings getRewardScreenSettings() {
+        return rewardScreenSettings;
     }
 
-    public void setRaritySettings(RewardScreenSettings raritySettings) {
-        this.raritySettings = raritySettings;
+    public void setRewardScreenSettings(RewardScreenSettings rewardScreenSettings) {
+        this.rewardScreenSettings = rewardScreenSettings;
     }
 }
