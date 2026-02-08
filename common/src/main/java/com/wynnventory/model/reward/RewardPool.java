@@ -44,11 +44,23 @@ public enum RewardPool {
     public static RewardPool fromTitle(String title) {
         if (title == null) return null;
 
-        for (RewardPool screen : values()) {
-            if (screen.screenTitle.matcher(title).find()) {
-                return screen;
+        for (RewardPool pool : values()) {
+            if (pool.screenTitle.matcher(title).find()) {
+                return pool;
             }
         }
+        return null;
+    }
+
+    public static RewardPool fromFullName(String name) {
+        if (name == null) return null;
+
+        for (RewardPool pool : values()) {
+            if (pool.fullName.equals(name)) {
+                return pool;
+            }
+        }
+
         return null;
     }
 

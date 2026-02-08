@@ -1,6 +1,7 @@
 package com.wynnventory.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -11,12 +12,15 @@ import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
 import com.wynnventory.model.item.trademarket.TrademarketListing;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;
+import com.wynnventory.model.reward.RewardType;
 import com.wynnventory.util.HttpUtils;
 
 import java.net.URI;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -45,7 +49,7 @@ public class WynnventoryApi  {
             Set<SimpleItem> itemsSet = entry.getValue();
             if (pool == null || itemsSet == null || itemsSet.isEmpty()) continue;
 
-            RewardPoolDocument doc = new RewardPoolDocument(new ArrayList<>(itemsSet), pool.getFullName(), pool.getType().name());
+            RewardPoolDocument doc = new RewardPoolDocument(new ArrayList<>(itemsSet), pool);
             WynnventoryMod.logDebug("Trying to send {} items for RewardPool {}", itemsSet.size(), pool.getShortName());
 
             HttpUtils.sendPostRequest(uri, serialize(doc));
@@ -100,11 +104,34 @@ public class WynnventoryApi  {
                 });
     }
 
-    // TODO: parsePriceInfoResponse
+    public CompletableFuture<List<RewardPoolDocument>> fetchRewardPools(RewardType type) {
+        URI uri = type == RewardType.LOOTRUN ? Endpoint.LOOTPOOL_CURRENT.uri() : Endpoint.RAIDPOOL_CURRENT.uri();
 
-    // TODO: parseLootpoolResponse
+        return HttpUtils.sendGetRequest(uri)
+                .thenApply(resp -> handleResponse(resp, this::parseRewardPoolResponse))
+                .exceptionally(ex -> {
+                    WynnventoryMod.logError("Failed to fetch reward pools for type " + type, ex);
+                    return null;
+                });
+    }
 
-    // TODO: fetchLootpools (RAID or LOOTPOOL)
+    private List<RewardPoolDocument> parseRewardPoolResponse(String responseBody) {
+        if (responseBody == null || responseBody.isBlank()) return Collections.emptyList();
+        try {
+            JsonNode node = MAPPER.readTree(responseBody);
+            if (node != null && node.isObject() && node.has("regions")) {
+                node = node.get("regions");
+            }
+
+            if (node == null || node.isNull()) return Collections.emptyList();
+
+            return MAPPER.readValue(node.traverse(), MAPPER.getTypeFactory().constructCollectionType(List.class, RewardPoolDocument.class));
+        } catch (Exception e) {
+            WynnventoryMod.logError("Failed to parse reward pool response {}", responseBody, e);
+        }
+
+        return Collections.emptyList();
+    }
 
     private <T> T handleResponse(HttpResponse<String> resp, Function<String, T> on200) {
         if (resp.statusCode() == 200) {

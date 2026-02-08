@@ -1,24 +1,41 @@
 package com.wynnventory.model.reward;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wynnventory.model.item.ModInfoProvider;
 import com.wynnventory.model.item.simple.SimpleItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class RewardPoolDocument extends ModInfoProvider {
+    private List<SimpleItem> items = new ArrayList<>();
+    private RewardPool rewardPool;
 
-    private final List<SimpleItem> items;
-    private final String region;
-    private final String type;
+    public RewardPoolDocument() {
+        super();
+    }
 
-    public RewardPoolDocument(List<SimpleItem> items, String region, String type) {
+    public RewardPoolDocument(List<SimpleItem> items, RewardPool rewardPool) {
         super();
         this.items = items;
-        this.region = region;
-        this.type = type;
+        this.rewardPool = rewardPool;
     }
 
     public List<SimpleItem> getItems() { return items; }
-    public String getRegion() { return region; }
-    public String getType() { return type; }
+    public String getRegion() { return rewardPool.getFullName(); }
+    public String getType() { return rewardPool.getType().name(); }
+
+    public void setItems(List<SimpleItem> items) { this.items = items; }
+    public void setRewardPool(RewardPool rewardPool) { this.rewardPool = rewardPool; }
+
+    @JsonAlias("region")
+    public void setRegion(String region) {
+        this.rewardPool = RewardPool.fromFullName(region);
+    }
+
+    @JsonIgnore
+    public RewardPool getRewardPool() { return rewardPool; }
 }
