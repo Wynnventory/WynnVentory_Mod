@@ -9,26 +9,31 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class RewardPoolQueue {
 
-    private final Map<RewardPool, Set<SimpleItem>> pools = new ConcurrentHashMap<>();
+    private final Map<RewardPool, Set<SimpleItem>> pools = new EnumMap<>(RewardPool.class);
+
+    public RewardPoolQueue() {
+        for (RewardPool pool : RewardPool.values()) {
+            pools.put(pool, ConcurrentHashMap.newKeySet());
+        }
+    }
 
     public void addItems(RewardPool pool, Collection<SimpleItem> items) {
-        Set<SimpleItem> poolItems = pools.computeIfAbsent(pool, k -> ConcurrentHashMap.newKeySet());
+        Set<SimpleItem> poolItems = pools.get(pool);
+        if (poolItems == null) return;
 
         poolItems.addAll(items);
         WynnventoryMod.logInfo("Collected {} items for RewardPool {}", poolItems.size(), pool.getShortName());
     }
 
     public Map<RewardPool, Set<SimpleItem>> drainAll() {
-        if (pools.isEmpty()) return Map.of();
-
-        Map<RewardPool, Set<SimpleItem>> out = new HashMap<>();
+        Map<RewardPool, Set<SimpleItem>> out = new EnumMap<>(RewardPool.class);
         for (Map.Entry<RewardPool, Set<SimpleItem>> e : pools.entrySet()) {
             Set<SimpleItem> set = e.getValue();
-            if (set == null || set.isEmpty()) continue;
+            if (set.isEmpty()) continue;
             out.put(e.getKey(), new HashSet<>(set));
+            set.clear();
         }
 
-        pools.clear();
         return out;
     }
 }

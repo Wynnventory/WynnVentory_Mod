@@ -2,6 +2,7 @@ package com.wynnventory.util;
 
 import com.wynntils.core.components.Models;
 import com.wynntils.core.text.StyledText;
+import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
@@ -11,6 +12,7 @@ import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.ItemStack;
 
 import java.lang.reflect.Field;
@@ -118,5 +120,11 @@ public class ItemStackUtils {
 
     public static String getHorseName(HorseItem item) {
         return StringUtils.toCamelCase(item.getTier().name()) + " Horse";
+    }
+
+    public static ChatFormatting getRarityChatFormattingByName(String rarity) {
+        return Optional.ofNullable(GearTier.fromString(rarity))
+                .map(GearTier::getChatFormatting)
+                .orElse(ChatFormatting.WHITE);
     }
 }

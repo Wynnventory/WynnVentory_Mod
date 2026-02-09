@@ -17,16 +17,15 @@ public final class RewardManager {
     private RewardManager() {}
 
     public static void reloadAllPools() {
+        rewardData.clear();
+
         refresh(RewardType.LOOTRUN);
         refresh(RewardType.RAID);
     }
 
     public static void refresh(RewardType type) {
         API.fetchRewardPools(type)
-                .thenAccept(documents -> {
-                    rewardData.clear();
-                    rewardData.addAll(documents);
-                });
+                .thenAccept(rewardData::addAll);
     }
 
     public static List<SimpleItem> getItems(RewardPool pool) {
@@ -41,6 +40,10 @@ public final class RewardManager {
                 .thenComparing(SimpleItem::getName, String.CASE_INSENSITIVE_ORDER)
         );
         return items;
+    }
+
+    public static List<RewardPoolDocument> getPools() {
+        return rewardData.stream().toList();
     }
 
     private static int getRarityRank(SimpleItem i) {
