@@ -14,11 +14,6 @@ import java.util.Objects;
 public class SimpleTierItem extends SimpleItem {
     protected final int tier;
 
-    public SimpleTierItem(String name, String rarity, String itemType, String type, Icon icon, int tier) {
-        super(name, rarity, itemType, type, icon);
-        this.tier = tier;
-    }
-
     public SimpleTierItem(String name, String rarity, String itemType, String type, Icon icon, int amount, int tier) {
         super(name, rarity, itemType, type, icon, amount);
         this.tier = tier;
