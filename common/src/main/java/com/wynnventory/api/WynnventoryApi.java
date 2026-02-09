@@ -14,6 +14,7 @@ import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.model.reward.RewardType;
 import com.wynnventory.util.HttpUtils;
+import org.jspecify.annotations.NonNull;
 
 import java.net.URI;
 import java.net.http.HttpResponse;
@@ -69,18 +70,7 @@ public class WynnventoryApi  {
 
         URI baseUri = Endpoint.TRADE_MARKET_PRICE.uri(HttpUtils.encode(name));
 
-        Map<String, Object> params = new LinkedHashMap<>();
-        params.put("tier", tier);
-        params.put("shiny", shiny);
-
-        URI uri = HttpUtils.withQueryParams(baseUri, params);
-
-        return HttpUtils.sendGetRequest(uri)
-                .thenApply(resp -> handleResponse(resp, this::parsePriceInfoResponse))
-                .exceptionally(ex -> {
-                    WynnventoryMod.logError("Failed to fetch item price", ex);
-                    return null;
-                });
+        return getTrademarketItemSummaryCompletableFuture(tier, shiny, baseUri);
     }
 
     public CompletableFuture<TrademarketItemSummary> fetchHistoricItemPrice(String name, Integer tier, Boolean shiny) {
@@ -90,6 +80,10 @@ public class WynnventoryApi  {
 
         URI baseUri = Endpoint.TRADE_MARKET_HISTORIC_PRICE.uri(HttpUtils.encode(name));
 
+        return getTrademarketItemSummaryCompletableFuture(tier, shiny, baseUri);
+    }
+
+    private CompletableFuture<TrademarketItemSummary> getTrademarketItemSummaryCompletableFuture(Integer tier, Boolean shiny, URI baseUri) {
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("tier", tier);
         params.put("shiny", shiny);
