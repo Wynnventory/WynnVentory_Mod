@@ -1,9 +1,9 @@
 package com.wynnventory.core;
 
-import com.wynnventory.core.event.EventBusWrapper;
 import com.wynnventory.core.queue.QueueScheduler;
 import com.wynnventory.handler.*;
 import com.wynnventory.util.IconManager;
+import net.neoforged.bus.api.BusBuilder;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.bus.api.IEventBus;
@@ -15,7 +15,7 @@ import java.io.File;
 public final class WynnventoryMod {
     public static final String  MOD_ID = "wynnventory";
 
-    private static final IEventBus eventBus = EventBusWrapper.createEventBus();
+    private static final IEventBus eventBus = BusBuilder.builder().build();
     private static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     private static ModLoader loader;
