@@ -44,10 +44,8 @@ public class IconManager {
     }
 
     private static Map<String, JsonObject> fetchJson(String url) {
-        try {
-            HttpResponse<String> resp = HttpClient.newHttpClient()
-                    .send(HttpRequest.newBuilder(URI.create(url)).GET().build(),
-                            HttpResponse.BodyHandlers.ofString());
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            HttpResponse<String> resp = client.send(HttpRequest.newBuilder(URI.create(url)).GET().build(),HttpResponse.BodyHandlers.ofString());
 
             if (resp.statusCode() != 200) {
                 throw new IOException("Unexpected response code: " + resp.statusCode());
