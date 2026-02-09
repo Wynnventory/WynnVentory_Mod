@@ -1,4 +1,4 @@
-package com.wynnventory.event;
+package com.wynnventory.events;
 
 import com.mojang.brigadier.tree.RootCommandNode;
 import net.minecraft.commands.CommandBuildContext;

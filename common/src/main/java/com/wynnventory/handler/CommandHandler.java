@@ -1,8 +1,8 @@
 package com.wynnventory.handler;
 
 import com.wynnventory.core.command.WynnventoryCommandManager;
-import com.wynnventory.event.CommandAddedEvent;
-import com.wynnventory.event.CommandSentEvent;
+import com.wynnventory.events.CommandAddedEvent;
+import com.wynnventory.events.CommandSentEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 
 public final class CommandHandler {
