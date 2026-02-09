@@ -10,9 +10,9 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Objects;
 
 public class TrademarketListing extends ModInfoProvider {
-    private SimpleItem item;
-    private int price;
-    private int quantity;
+    private final SimpleItem item;
+    private final int price;
+    private final int quantity;
 
     protected TrademarketListing(SimpleItem item, int price, int quantity) {
         this.item = item;
