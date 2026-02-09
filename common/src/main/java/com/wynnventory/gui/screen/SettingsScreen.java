@@ -40,11 +40,6 @@ public class SettingsScreen extends OptionsSubScreen {
     }
 
     @Override
-    protected void init() {
-        super.init();
-    }
-
-    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         super.render(graphics, mouseX, mouseY, delta);
         for (Section section : Section.values()) {
