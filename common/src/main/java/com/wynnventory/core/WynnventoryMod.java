@@ -2,7 +2,7 @@ package com.wynnventory.core;
 
 import com.wynnventory.core.queue.QueueScheduler;
 import com.wynnventory.handler.*;
-import com.wynnventory.api.IconService;
+import com.wynnventory.api.service.IconService;
 import net.neoforged.bus.api.BusBuilder;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
@@ -33,7 +33,7 @@ public final class WynnventoryMod {
 
         WynnventoryMod.logInfo("Initializing Wynnventory mod v{} ({}), from file {}", version, loader.name(), modFile.getAbsolutePath());
 
-        IconService.fetchAll();
+        IconService.INSTANCE.fetchAll();
         QueueScheduler.startScheduledTask();
 
         eventBus.register(new LootRewardHandler());

@@ -1,5 +1,6 @@
-package com.wynnventory.api;
+package com.wynnventory.api.service;
 
+import com.wynnventory.api.WynnventoryApi;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;

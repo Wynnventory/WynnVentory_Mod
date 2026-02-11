@@ -1,4 +1,4 @@
-package com.wynnventory.api;
+package com.wynnventory.api.service;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -16,52 +16,39 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class IconService {
-    public static final String GEAR_URL = "https://raw.githubusercontent.com/Wynntils/Static-Storage/main/Reference/gear.json";
-    public static final String MATERIALS_URL = "https://raw.githubusercontent.com/Wynntils/Static-Storage/main/Reference/materials.json";
-    public static final String INGREDIENTS_URL = "https://raw.githubusercontent.com/Wynntils/Static-Storage/main/Reference/ingredients.json";
-    public static final String ASPECTS_URL = "https://raw.githubusercontent.com/Wynntils/Static-Storage/refs/heads/main/Reference/aspects.json";
-    public static final String TOMES_URL = "https://raw.githubusercontent.com/Wynntils/Static-Storage/refs/heads/main/Reference/tomes.json";
+public enum IconService {
+    INSTANCE;
 
-    private static final Gson GSON = new Gson();
-    private static Map<String, JsonObject> allEntries;
+    private static final String GEAR_URL = "https://raw.githubusercontent.com/Wynntils/Static-Storage/main/Reference/gear.json";
+    private static final String MATERIALS_URL = "https://raw.githubusercontent.com/Wynntils/Static-Storage/main/Reference/materials.json";
+    private static final String INGREDIENTS_URL = "https://raw.githubusercontent.com/Wynntils/Static-Storage/main/Reference/ingredients.json";
+    private static final String ASPECTS_URL = "https://raw.githubusercontent.com/Wynntils/Static-Storage/refs/heads/main/Reference/aspects.json";
+    private static final String TOMES_URL = "https://raw.githubusercontent.com/Wynntils/Static-Storage/refs/heads/main/Reference/tomes.json";
 
-    private IconService() {}
+    private final Gson GSON = new Gson();
+    private final Map<String, JsonObject> allEntries = new HashMap<>();
 
-    public static void fetchAll() {
+    IconService() {}
+
+    public void fetchAll() {
         Map<String, JsonObject> gearMap = fetchJson(GEAR_URL);
         Map<String, JsonObject> materialsMap = fetchJson(MATERIALS_URL);
         Map<String, JsonObject> ingredientsMap = fetchJson(INGREDIENTS_URL);
         Map<String, JsonObject> aspectsMap = fetchJson(ASPECTS_URL);
         Map<String, JsonObject> tomesMap = fetchJson(TOMES_URL);
 
-        allEntries = new HashMap<>(gearMap);
+        allEntries.putAll(gearMap);
         allEntries.putAll(materialsMap);
         allEntries.putAll(ingredientsMap);
         allEntries.putAll(flattenAspects(aspectsMap));
         allEntries.putAll(tomesMap);
     }
 
-    private static Map<String, JsonObject> fetchJson(String url) {
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            HttpResponse<String> resp = client.send(HttpRequest.newBuilder(URI.create(url)).GET().build(),HttpResponse.BodyHandlers.ofString());
-
-            if (resp.statusCode() != 200) {
-                throw new IOException("Unexpected response code: " + resp.statusCode());
-            }
-
-            return parseAndStripUnicodeKeys(resp.body());
-        } catch (InterruptedException | IOException e) {
-            WynnventoryMod.logError("Could not fetch JSON from " + url, e);
-            return Map.of();
-        }
-    }
-
-    public static Icon getIcon(String name, int tier) {
+    public Icon getIcon(String name, int tier) {
         return getIcon(name + " " + tier);
     }
 
-    public static Icon getIcon(String name) {
+    public Icon getIcon(String name) {
         JsonObject entry = allEntries.get(name.replaceFirst("^Shiny ", ""));
         if (entry == null) {
             WynnventoryMod.logDebug("No JSON entry for key: " + name);
@@ -86,7 +73,22 @@ public class IconService {
         return extractIcon(entry);
     }
 
-    private static Icon extractIcon(JsonObject entry) {
+    private Map<String, JsonObject> fetchJson(String url) {
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            HttpResponse<String> resp = client.send(HttpRequest.newBuilder(URI.create(url)).GET().build(),HttpResponse.BodyHandlers.ofString());
+
+            if (resp.statusCode() != 200) {
+                throw new IOException("Unexpected response code: " + resp.statusCode());
+            }
+
+            return parseAndStripUnicodeKeys(resp.body());
+        } catch (InterruptedException | IOException e) {
+            WynnventoryMod.logError("Could not fetch JSON from " + url, e);
+            return Map.of();
+        }
+    }
+
+    private Icon extractIcon(JsonObject entry) {
         if (!entry.has("icon")) {
             WynnventoryMod.logError("Missing icon for entry: " + entry);
             return null;
@@ -109,7 +111,7 @@ public class IconService {
         return new Icon(format, value.replaceAll(":", "_"));
     }
 
-    private static Map<String, JsonObject> flattenAspects(Map<String, JsonObject> aspectsMap) {
+    private Map<String, JsonObject> flattenAspects(Map<String, JsonObject> aspectsMap) {
         Map<String, JsonObject> flattenedMap = new HashMap<>();
         for (Map.Entry<String, JsonObject> classEntry : aspectsMap.entrySet()) {
             JsonObject classAspects = classEntry.getValue();
@@ -131,7 +133,7 @@ public class IconService {
         return flattenedMap;
     }
 
-    public static Map<String, JsonObject> parseAndStripUnicodeKeys(String jsonBody) {
+    private Map<String, JsonObject> parseAndStripUnicodeKeys(String jsonBody) {
         Type mapType = new TypeToken<Map<String, JsonObject>>() {}.getType();
         Map<String, JsonObject> original = GSON.fromJson(jsonBody, mapType);
 

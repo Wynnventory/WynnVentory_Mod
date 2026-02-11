@@ -3,7 +3,7 @@ package com.wynnventory.model.item.trademarket;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.items.items.game.GearBoxItem;
-import com.wynnventory.api.TrademarketService;
+import com.wynnventory.api.service.TrademarketService;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;

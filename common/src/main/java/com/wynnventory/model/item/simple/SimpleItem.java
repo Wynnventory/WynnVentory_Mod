@@ -6,7 +6,7 @@ import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.TimestampedObject;
-import com.wynnventory.api.IconService;
+import com.wynnventory.api.service.IconService;
 import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.StringUtils;
 import net.minecraft.world.item.ItemStack;
@@ -177,6 +177,6 @@ public class SimpleItem extends TimestampedObject {
     private static SimpleItem createSimpleItem(WynnItem item, String rarity, String itemType, String type) {
         String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
         int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        return new SimpleItem(name, rarity, itemType, type, IconService.getIcon(name), amount);
+        return new SimpleItem(name, rarity, itemType, type, IconService.INSTANCE.getIcon(name), amount);
     }
 }

@@ -9,7 +9,7 @@ import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.ItemStat;
-import com.wynnventory.api.IconService;
+import com.wynnventory.api.service.IconService;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -103,7 +103,7 @@ public class SimpleGearItem extends SimpleItem {
                 item.getGearTier().getName(),
                 "GearItem",
                 item.getGearType().name(),
-                IconService.getIcon(name),
+                IconService.INSTANCE.getIcon(name),
                 stack.getCount(),
                 item.isUnidentified(),
                 item.getRerollCount(),

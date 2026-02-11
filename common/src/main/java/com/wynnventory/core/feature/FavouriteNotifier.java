@@ -2,7 +2,7 @@ package com.wynnventory.core.feature;
 
 import com.wynntils.core.components.Services;
 import com.wynntils.utils.mc.McUtils;
-import com.wynnventory.api.RewardService;
+import com.wynnventory.api.service.RewardService;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;

@@ -4,7 +4,7 @@ import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
 import com.wynnventory.model.item.Icon;
-import com.wynnventory.api.IconService;
+import com.wynnventory.api.service.IconService;
 import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.StringUtils;
 import net.minecraft.world.item.ItemStack;
@@ -87,10 +87,10 @@ public class SimpleTierItem extends SimpleItem {
 
     private static SimpleTierItem createTierItem(WynnItem item, String name, String rarity, String itemType, String type, int tier) {
         int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        Icon icon = IconService.getIcon(name);
+        Icon icon = IconService.INSTANCE.getIcon(name);
 
         if(icon == null) {
-            icon = IconService.getIcon(name, tier);
+            icon = IconService.INSTANCE.getIcon(name, tier);
         }
 
         return new SimpleTierItem(name, rarity, itemType, type, icon, amount, tier);
