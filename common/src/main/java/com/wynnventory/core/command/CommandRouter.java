@@ -1,6 +1,7 @@
 package com.wynnventory.core.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -11,7 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
 
-public final class WynnventoryCommandManager {
+public final class CommandRouter {
     private static final CommandDispatcher<Minecraft> DISPATCHER = buildDispatcher();
 
     public static void onCommandsRebuilt(RootCommandNode<SharedSuggestionProvider> root, CommandBuildContext context) {

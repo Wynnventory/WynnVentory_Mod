@@ -6,14 +6,14 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-public enum TrademarketPriceDictionary {
+public enum TrademarketService {
     INSTANCE;
 
     private final WynnventoryApi api = new WynnventoryApi();
     private final ConcurrentHashMap<Integer, TrademarketItemSnapshot> prices = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer, CompletableFuture<TrademarketItemSnapshot>> inFlight = new ConcurrentHashMap<>();
 
-    TrademarketPriceDictionary() {}
+    TrademarketService() {}
 
     public TrademarketItemSnapshot getItem(String name) {
         return getOrFetch(name, null, false);

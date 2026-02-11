@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public enum RewardManager {
+public enum RewardService {
     INSTANCE;
 
     private final WynnventoryApi api = new WynnventoryApi();
     private final List<RewardPoolDocument> rewardData = new CopyOnWriteArrayList<>();
 
-    RewardManager() {}
+    RewardService() {}
 
     public CompletableFuture<List<SimpleItem>> getItems(RewardPool pool) {
         return getPools().thenApply(pools -> {

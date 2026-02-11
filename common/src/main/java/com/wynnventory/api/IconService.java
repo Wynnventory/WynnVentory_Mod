@@ -1,4 +1,4 @@
-package com.wynnventory.util;
+package com.wynnventory.api;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -16,7 +16,7 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class IconManager {
+public class IconService {
     public static final String GEAR_URL = "https://raw.githubusercontent.com/Wynntils/Static-Storage/main/Reference/gear.json";
     public static final String MATERIALS_URL = "https://raw.githubusercontent.com/Wynntils/Static-Storage/main/Reference/materials.json";
     public static final String INGREDIENTS_URL = "https://raw.githubusercontent.com/Wynntils/Static-Storage/main/Reference/ingredients.json";
@@ -26,8 +26,7 @@ public class IconManager {
     private static final Gson GSON = new Gson();
     private static Map<String, JsonObject> allEntries;
 
-    private IconManager() {
-    }
+    private IconService() {}
 
     public static void fetchAll() {
         Map<String, JsonObject> gearMap = fetchJson(GEAR_URL);

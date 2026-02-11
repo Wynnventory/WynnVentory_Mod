@@ -2,7 +2,7 @@ package com.wynnventory.core.feature;
 
 import com.wynntils.core.components.Services;
 import com.wynntils.utils.mc.McUtils;
-import com.wynnventory.api.RewardManager;
+import com.wynnventory.api.RewardService;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
@@ -25,7 +25,7 @@ public class FavouriteNotifier {
         Set<String> favourites = Services.Favorites.getFavoriteItems();
         if (favourites.isEmpty()) return;
 
-        RewardManager.INSTANCE.getPools().thenAccept(pools -> {
+        RewardService.INSTANCE.getPools().thenAccept(pools -> {
             List<FavouriteMatch> matches = findMatches(favourites, pools);
             if (!matches.isEmpty()) {
                 showToasts(matches);

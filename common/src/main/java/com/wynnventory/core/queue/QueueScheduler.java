@@ -20,6 +20,11 @@ public class QueueScheduler {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final int SEND_DELAY_MINS = 5;
 
+    public static final RewardPoolQueue LOOTRUN_QUEUE = new RewardPoolQueue();
+    public static final RewardPoolQueue RAID_QUEUE = new RewardPoolQueue();
+    public static final TrademarketQueue TRADEMARKET_QUEUE = new TrademarketQueue();
+    public static final GambitQueue GAMBIT_QUEUE = new GambitQueue();
+
     private QueueScheduler() {}
 
     public static void startScheduledTask() {
@@ -50,10 +55,10 @@ public class QueueScheduler {
     }
 
     public static void sendQueuedItems() {
-        Map<RewardPool, Set<SimpleItem>> lootrunItems = QueueManager.LOOTRUN_QUEUE.drainAll();
-        Map<RewardPool, Set<SimpleItem>> raidItems = QueueManager.RAID_QUEUE.drainAll();
-        Set<TrademarketListing> trademarketItems = QueueManager.TRADEMARKET_QUEUE.drainAll();
-        Set<SimpleGambitItem> gambitItems = QueueManager.GAMBIT_QUEUE.drainAll();
+        Map<RewardPool, Set<SimpleItem>> lootrunItems = LOOTRUN_QUEUE.drainAll();
+        Map<RewardPool, Set<SimpleItem>> raidItems = RAID_QUEUE.drainAll();
+        Set<TrademarketListing> trademarketItems = TRADEMARKET_QUEUE.drainAll();
+        Set<SimpleGambitItem> gambitItems = GAMBIT_QUEUE.drainAll();
         WynnventoryMod.logDebug("Processing {} lootrun pool, {} raid reward pools, {} trademarket items, {} gambit items", lootrunItems.size(), raidItems.size(), trademarketItems.size(), gambitItems.size());
         if (!lootrunItems.isEmpty()) API.sendRewardPoolData(lootrunItems, Endpoint.LOOTPOOL_ITEMS);
         if (!raidItems.isEmpty()) API.sendRewardPoolData(raidItems, Endpoint.RAIDPOOL_ITEMS);

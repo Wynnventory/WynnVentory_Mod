@@ -2,7 +2,7 @@ package com.wynnventory.handler;
 
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.items.gui.GambitItem;
-import com.wynnventory.core.queue.QueueManager;
+import com.wynnventory.core.queue.QueueScheduler;
 import com.wynnventory.events.RaidWindowOpenedEvent;
 import com.wynnventory.model.item.simple.SimpleGambitItem;
 import com.wynnventory.util.ItemStackUtils;
@@ -18,7 +18,7 @@ public final class RaidWindowHandler {
 
             if (wynnItem == null) continue;
             if(wynnItem instanceof GambitItem item) {
-                QueueManager.GAMBIT_QUEUE.addItem(new SimpleGambitItem(item));
+                QueueScheduler.GAMBIT_QUEUE.addItem(new SimpleGambitItem(item));
             }
         }
     }

@@ -3,7 +3,7 @@ package com.wynnventory.model.item.trademarket;
 import com.wynntils.core.components.Models;
 import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.items.items.game.GearBoxItem;
-import com.wynnventory.api.TrademarketPriceDictionary;
+import com.wynnventory.api.TrademarketService;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;
@@ -27,9 +27,9 @@ public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketIt
         SimpleItem simpleItem = ItemStackUtils.toSimpleItem(stack);
 
         return switch (simpleItem) {
-            case SimpleGearItem gearItem    -> TrademarketPriceDictionary.INSTANCE.getItem(gearItem.getName(), gearItem.isShiny());
-            case SimpleTierItem tierItem    -> TrademarketPriceDictionary.INSTANCE.getItem(tierItem.getName(), tierItem.getTier());
-            case SimpleItem item            -> TrademarketPriceDictionary.INSTANCE.getItem(item.getName());
+            case SimpleGearItem gearItem    -> TrademarketService.INSTANCE.getItem(gearItem.getName(), gearItem.isShiny());
+            case SimpleTierItem tierItem    -> TrademarketService.INSTANCE.getItem(tierItem.getName(), tierItem.getTier());
+            case SimpleItem item            -> TrademarketService.INSTANCE.getItem(item.getName());
             case null                       -> null;
         };
     }
@@ -37,7 +37,7 @@ public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketIt
     public static Map<GearInfo, TrademarketItemSnapshot> resolveGearBoxItem(GearBoxItem item) {
         Map<GearInfo, TrademarketItemSnapshot> snapshots = new HashMap<>();
         for(GearInfo info : Models.Gear.getPossibleGears(item)) {
-            TrademarketItemSnapshot snapshot = TrademarketPriceDictionary.INSTANCE.getItem(info.name(), false);
+            TrademarketItemSnapshot snapshot = TrademarketService.INSTANCE.getItem(info.name(), false);
             snapshots.put(info, snapshot);
         }
 

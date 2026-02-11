@@ -2,7 +2,7 @@ package com.wynnventory.handler;
 
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
 import com.wynnventory.core.config.ModConfig;
-import com.wynnventory.core.queue.QueueManager;
+import com.wynnventory.core.queue.QueueScheduler;
 import com.wynnventory.core.tooltip.PriceTooltipBuilder;
 import com.wynnventory.core.tooltip.PriceTooltipFactory;
 import com.wynnventory.events.TrademarketTooltipRenderedEvent;
@@ -40,7 +40,7 @@ public final class TooltipRenderHandler {
         TrademarketListing listing = TrademarketListing.from(hoveredItem);
         if (listing == null) return;
 
-        QueueManager.TRADEMARKET_QUEUE.addItem(listing);
+        QueueScheduler.TRADEMARKET_QUEUE.addItem(listing);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
