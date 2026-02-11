@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import org.joml.Vector2i;
+import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,6 +66,8 @@ public final class TooltipRenderHandler {
 
         float scale = RenderUtils.getScaleFactor(priceComponents);
         guiGraphics.pose().scale(scale, scale);
+        Vector3f v = new Vector3f(tooltipCoords.x, tooltipCoords.y, 999999);
+        guiGraphics.pose().transform(v);
 
         guiGraphics.renderTooltip(Minecraft.getInstance().font, priceComponents, event.getMouseX(), event.getMouseY(), fixed, stack.get(DataComponents.TOOLTIP_STYLE));
         guiGraphics.pose().popMatrix();

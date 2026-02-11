@@ -15,10 +15,10 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SimpleItem extends TimestampedObject {
-    protected String name;
-    protected String rarity;
-    protected String itemType;
-    protected String type;
+    protected String name = "";
+    protected String rarity = "Common";
+    protected String itemType = "";
+    protected String type = "";
     protected Icon icon;
     protected int amount;
 
@@ -33,7 +33,7 @@ public class SimpleItem extends TimestampedObject {
     }
 
     public SimpleItem(String name, String rarity, String itemType, String type, Icon icon, int amount) {
-        this.name = name;
+        this.name = name != null ? name : "";
 
         if(rarity == null || rarity.isBlank()) {
             this.rarity = "Common";
@@ -41,8 +41,8 @@ public class SimpleItem extends TimestampedObject {
             this.rarity = rarity;
         }
 
-        this.itemType = itemType;
-        this.type = type;
+        this.itemType = itemType != null ? itemType : "";
+        this.type = type != null ? type : "";
         this.icon = icon;
         this.amount = amount;
     }
@@ -66,7 +66,7 @@ public class SimpleItem extends TimestampedObject {
     public Icon getIcon() { return icon; }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name != null ? name : "";
     }
 
     public void setRarity(String rarity) {
@@ -74,11 +74,11 @@ public class SimpleItem extends TimestampedObject {
     }
 
     public void setItemType(String itemType) {
-        this.itemType = itemType;
+        this.itemType = itemType != null ? itemType : "";
     }
 
     public void setType(String type) {
-        this.type = type;
+        this.type = type != null ? type : "";
     }
 
     public void setIcon(Icon icon) {

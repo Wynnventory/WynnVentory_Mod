@@ -9,11 +9,11 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Util;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import org.joml.Vector2i;
 import org.joml.Vector2ic;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,10 +67,13 @@ public abstract class RenderUtils {
     }
 
     public static List<ClientTooltipComponent> toClientComponents(List<Component> lines, Optional<TooltipComponent> tooltipImage) {
-        List<ClientTooltipComponent> list = lines.stream()
-                .map(Component::getVisualOrderText)
-                .map(ClientTooltipComponent::create)
-                .collect(Util.toMutableList());
+        if (lines == null) return new ArrayList<>();
+        List<ClientTooltipComponent> list = new ArrayList<>(lines.size() + (tooltipImage.isPresent() ? 1 : 0));
+        for (Component line : lines) {
+            if (line != null) {
+                list.add(ClientTooltipComponent.create(line.getVisualOrderText()));
+            }
+        }
 
         tooltipImage.ifPresent(img ->
                 list.add(list.isEmpty() ? 0 : 1, ClientTooltipComponent.create(img))
