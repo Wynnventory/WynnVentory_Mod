@@ -25,7 +25,7 @@ public class FavouriteNotifier {
         Set<String> favourites = Services.Favorites.getFavoriteItems();
         if (favourites.isEmpty()) return;
 
-        RewardService.INSTANCE.getPools().thenAccept(pools -> {
+        RewardService.INSTANCE.getAllPools().thenAccept(pools -> {
             List<FavouriteMatch> matches = findMatches(favourites, pools);
             if (!matches.isEmpty()) {
                 showToasts(matches);

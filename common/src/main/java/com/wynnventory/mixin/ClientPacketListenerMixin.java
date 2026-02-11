@@ -6,7 +6,7 @@ import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.events.CommandAddedEvent;
 import com.wynnventory.events.CommandSentEvent;
-import com.wynnventory.events.RaidWindowOpenedEvent;
+import com.wynnventory.events.RaidLobbyPopulatedEvent;
 import com.wynnventory.events.RewardPreviewOpenedEvent;
 import com.wynnventory.model.container.Container;
 import com.wynnventory.model.container.RaidWindowContainer;
@@ -63,7 +63,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         String title = container.title();
         if (RewardPool.isLootrunTitle(title))  WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Lootrun(packet.items(), packet.containerId(), title));
         if (RewardPool.isRaidTitle(title)) WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Raid(packet.items(), packet.containerId(), title));
-        if (RaidWindowContainer.matchesTitle(title)) WynnventoryMod.postEvent(new RaidWindowOpenedEvent(packet.items(), packet.containerId(), title));
+        if (RaidWindowContainer.matchesTitle(title)) WynnventoryMod.postEvent(new RaidLobbyPopulatedEvent(packet.items(), packet.containerId(), title));
     }
 
     @Inject(method = "sendCommand(Ljava/lang/String;)V",

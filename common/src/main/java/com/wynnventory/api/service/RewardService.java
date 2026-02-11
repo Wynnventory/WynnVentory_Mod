@@ -23,7 +23,7 @@ public enum RewardService {
     RewardService() {}
 
     public CompletableFuture<List<SimpleItem>> getItems(RewardPool pool) {
-        return getPools().thenApply(pools -> {
+        return getAllPools().thenApply(pools -> {
             List<SimpleItem> items = new ArrayList<>(pools.stream()
                     .filter(doc -> doc.getRewardPool() != null && doc.getRewardPool().equals(pool))
                     .flatMap(doc -> doc.getItems().stream())
@@ -38,7 +38,7 @@ public enum RewardService {
         });
     }
 
-    public CompletableFuture<List<RewardPoolDocument>> getPools() {
+    public CompletableFuture<List<RewardPoolDocument>> getAllPools() {
         synchronized (this) {
             if (!rewardData.isEmpty()) {
                 return CompletableFuture.completedFuture(Collections.unmodifiableList(rewardData));
@@ -56,6 +56,22 @@ public enum RewardService {
                 return Collections.unmodifiableList(rewardData);
             });
         }
+    }
+
+    public CompletableFuture<List<RewardPoolDocument>> getRaidPools() {
+        return getAllPools().thenApply(pools ->
+                Collections.unmodifiableList(pools.stream()
+                        .filter(doc -> doc.getRewardPool() != null && doc.getRewardPool().getType() == RewardType.RAID)
+                        .toList())
+        );
+    }
+
+    public CompletableFuture<List<RewardPoolDocument>> getLootrunPools() {
+        return getAllPools().thenApply(pools ->
+                Collections.unmodifiableList(pools.stream()
+                        .filter(doc -> doc.getRewardPool() != null && doc.getRewardPool().getType() == RewardType.LOOTRUN)
+                        .toList())
+        );
     }
 
     private CompletableFuture<Void> reloadAllPools() {
