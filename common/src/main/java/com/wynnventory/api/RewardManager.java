@@ -6,58 +6,74 @@ import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.model.reward.RewardType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public final class RewardManager {
-    private static final WynnventoryApi API = new WynnventoryApi();
+public enum RewardManager {
+    INSTANCE;
 
-    private static final List<RewardPoolDocument> rewardData = new ArrayList<>();
+    private final WynnventoryApi api = new WynnventoryApi();
+    private final List<RewardPoolDocument> rewardData = new CopyOnWriteArrayList<>();
 
-    private RewardManager() {}
+    RewardManager() {}
 
-    public static void reloadAllPools() {
+    public CompletableFuture<List<SimpleItem>> getItems(RewardPool pool) {
+        return getPools().thenApply(pools -> {
+            List<SimpleItem> items = new ArrayList<>(pools.stream()
+                    .filter(doc -> doc.getRewardPool().equals(pool))
+                    .flatMap(doc -> doc.getItems().stream())
+                    .toList());
+
+            items.sort(Comparator
+                    .comparingInt(this::getRarityRank).reversed()
+                    .thenComparing(SimpleItem::getType, String.CASE_INSENSITIVE_ORDER)
+                    .thenComparing(SimpleItem::getName, String.CASE_INSENSITIVE_ORDER)
+            );
+            return items;
+        });
+    }
+
+    public CompletableFuture<List<RewardPoolDocument>> getPools() {
+        if (!rewardData.isEmpty()) {
+            return CompletableFuture.completedFuture(Collections.unmodifiableList(rewardData));
+        }
+
+        return reloadAllPools().thenApply(v -> Collections.unmodifiableList(rewardData));
+    }
+
+    private CompletableFuture<Void> reloadAllPools() {
         rewardData.clear();
 
-        refresh(RewardType.LOOTRUN);
-        refresh(RewardType.RAID);
-    }
-
-    public static void refresh(RewardType type) {
-        API.fetchRewardPools(type)
-                .thenAccept(rewardData::addAll);
-    }
-
-    public static List<SimpleItem> getItems(RewardPool pool) {
-        List<SimpleItem> items = new ArrayList<>(rewardData.stream()
-                .filter(doc -> doc.getRewardPool().equals(pool))
-                .flatMap(doc -> doc.getItems().stream())
-                .toList());
-
-        items.sort(Comparator
-                .comparingInt(RewardManager::getRarityRank).reversed()
-                .thenComparing(SimpleItem::getType, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(SimpleItem::getName, String.CASE_INSENSITIVE_ORDER)
+        return CompletableFuture.allOf(
+                refresh(RewardType.LOOTRUN),
+                refresh(RewardType.RAID)
         );
-        return items;
     }
 
-    public static List<RewardPoolDocument> getPools() {
-        return rewardData.stream().toList();
+    private CompletableFuture<Void> refresh(RewardType type) {
+        return api.fetchRewardPools(type)
+                .thenAccept(pools -> {
+                    if (pools != null) {
+                        rewardData.addAll(pools);
+                    }
+                });
     }
 
-    private static int getRarityRank(SimpleItem i) {
+    private int getRarityRank(SimpleItem i) {
         String r = i.getRarity();
         if (r == null) return 0;
         return switch (r.trim().toLowerCase()) {
-            case "mythic"    -> 7;
-            case "fabled"    -> 6;
+            case "mythic" -> 7;
+            case "fabled" -> 6;
             case "legendary" -> 5;
-            case "rare"      -> 4;
-            case "unique"    -> 3;
-            case "set"       -> 2;
-            case "common"    -> 1;
-            default          -> 0;
+            case "rare" -> 4;
+            case "unique" -> 3;
+            case "set" -> 2;
+            case "common" -> 1;
+            default -> 0;
         };
     }
 }

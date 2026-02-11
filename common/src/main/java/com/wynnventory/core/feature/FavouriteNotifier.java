@@ -12,7 +12,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.network.chat.Component;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -25,27 +25,27 @@ public class FavouriteNotifier {
         Set<String> favourites = Services.Favorites.getFavoriteItems();
         if (favourites.isEmpty()) return;
 
-        List<FavouriteMatch> matches = findMatches(favourites);
-        if (matches.isEmpty()) return;
-
-        showToasts(matches);
+        RewardManager.INSTANCE.getPools().thenAccept(pools -> {
+            List<FavouriteMatch> matches = findMatches(favourites, pools);
+            if (!matches.isEmpty()) {
+                showToasts(matches);
+            }
+        });
     }
 
-    private static List<FavouriteMatch> findMatches(Set<String> favourites) {
+    private static List<FavouriteMatch> findMatches(Set<String> favourites, List<RewardPoolDocument> pools) {
         boolean mythicsOnly = ModConfig.getInstance().getFavouriteNotifierSettings().isMythicsOnly();
 
-        List<FavouriteMatch> result = new ArrayList<>();
-        for (RewardPoolDocument document : RewardManager.getPools()) {
-            List<SimpleItem> itemsToCheck = mythicsOnly ? document.getItems().stream().filter(simpleItem -> simpleItem.getRarity().equalsIgnoreCase("mythic")).toList() : document.getItems();
+        Set<FavouriteMatch> result = new HashSet<>();
+        for (RewardPoolDocument document : pools) {
+            for (SimpleItem item : document.getItems()) {
+                if (!favourites.contains(item.getName()) || (mythicsOnly && !item.getRarity().equalsIgnoreCase("mythic"))) continue;
 
-            for (SimpleItem item : itemsToCheck) {
-                if (favourites.contains(item.getName())) {
-                    result.add(new FavouriteMatch(item.getName(), document.getRewardPool(), ItemStackUtils.getRarityChatFormattingByName(item.getRarity())));
-                }
+                result.add(new FavouriteMatch(item.getName(), document.getRewardPool(), ItemStackUtils.getRarityChatFormattingByName(item.getRarity())));
             }
         }
 
-        return result;
+        return result.stream().toList();
     }
 
 
@@ -65,13 +65,13 @@ public class FavouriteNotifier {
     }
 
     private static void showToast(String title, Component desc) {
-        McUtils.mc().getToastManager().addToast(
+        McUtils.mc().execute(() -> McUtils.mc().getToastManager().addToast(
                 new SystemToast(
-                        new SystemToast.SystemToastId(10000L),
+                        new SystemToast.SystemToastId(5000),
                         Component.translatable(title),
                         desc
                 )
-        );
+        ));
     }
 
     public record FavouriteMatch(String itemName, RewardPool pool, ChatFormatting rarityColor) {}

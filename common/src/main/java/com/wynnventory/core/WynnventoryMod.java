@@ -1,6 +1,5 @@
 package com.wynnventory.core;
 
-import com.wynnventory.api.RewardManager;
 import com.wynnventory.core.queue.QueueScheduler;
 import com.wynnventory.handler.*;
 import com.wynnventory.util.IconManager;
@@ -36,7 +35,6 @@ public final class WynnventoryMod {
 
         IconManager.fetchAll();
         QueueScheduler.startScheduledTask();
-        RewardManager.reloadAllPools();
 
         eventBus.register(new LootRewardHandler());
         eventBus.register(new TooltipRenderHandler());

@@ -14,16 +14,10 @@ import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.model.reward.RewardType;
 import com.wynnventory.util.HttpUtils;
-import org.jspecify.annotations.NonNull;
 
 import java.net.URI;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -38,7 +32,7 @@ public class WynnventoryApi  {
 
         WynnventoryMod.logDebug("Sending gambit data to {} endpoint.", WynnventoryMod.isDev() ? "DEV" : "PROD");
         URI uri = Endpoint.RAIDPOOL_GAMBITS.uri();
-        post(uri, gambits);
+        HttpUtils.sendPostRequest(uri, serialize(gambits));
         WynnventoryMod.logDebug("Submitted {} gambit items to API: {}", gambits.size(), uri);
     }
 
@@ -136,10 +130,6 @@ public class WynnventoryApi  {
         }
 
         return null;
-    }
-
-    private void post(URI uri, Object payload) {
-        HttpUtils.sendPostRequest(uri, serialize(payload));
     }
 
     private String serialize(Object obj) {

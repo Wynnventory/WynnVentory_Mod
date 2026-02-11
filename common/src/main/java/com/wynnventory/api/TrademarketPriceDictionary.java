@@ -6,14 +6,14 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class TrademarketPriceDictionary {
-    public static final TrademarketPriceDictionary INSTANCE =  new TrademarketPriceDictionary();
+public enum TrademarketPriceDictionary {
+    INSTANCE;
 
-    private static final WynnventoryApi API = new WynnventoryApi();
+    private final WynnventoryApi api = new WynnventoryApi();
     private final ConcurrentHashMap<Integer, TrademarketItemSnapshot> prices = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer, CompletableFuture<TrademarketItemSnapshot>> inFlight = new ConcurrentHashMap<>();
 
-    private TrademarketPriceDictionary() {}
+    TrademarketPriceDictionary() {}
 
     public TrademarketItemSnapshot getItem(String name) {
         return getOrFetch(name, null, false);
@@ -54,8 +54,8 @@ public final class TrademarketPriceDictionary {
 
 
     private CompletableFuture<TrademarketItemSnapshot> fetchSnapshot(String name, Integer tier, boolean shiny) {
-        var liveF = API.fetchItemPrice(name, tier, shiny);
-        var histF = API.fetchHistoricItemPrice(name, tier, shiny);
+        var liveF = api.fetchItemPrice(name, tier, shiny);
+        var histF = api.fetchHistoricItemPrice(name, tier, shiny);
 
         return liveF.thenCombine(histF, TrademarketItemSnapshot::new)
                 .thenApply(snapshot -> {

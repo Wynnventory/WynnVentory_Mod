@@ -163,10 +163,6 @@ public class TrademarketItemSummary extends TimestampedObject {
         calculatedPriceInfo.setUnidentifiedAveragePrice(value);
     }
 
-    public boolean isExpired() {
-        return timestamp.isBefore(Instant.now().minus(DATA_LIFESPAN));
-    }
-
     public boolean isEmpty() {
         return item.getName() == null || item.getName().isBlank();
     }
