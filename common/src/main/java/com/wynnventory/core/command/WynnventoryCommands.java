@@ -41,7 +41,6 @@ public final class WynnventoryCommands {
     public static void registerSuggestions(RootCommandNode<SharedSuggestionProvider> root, CommandBuildContext context) {
         LiteralCommandNode<SharedSuggestionProvider> node = literalSuggestion(PREFIX)
                 .then(literalSuggestion("send").executes(ctx -> 1))
-                .then(literalSuggestion("ping").executes(ctx -> 1))
                 .then(literalSuggestion("reloadConfig").executes(ctx -> 1))
                 .build();
 
