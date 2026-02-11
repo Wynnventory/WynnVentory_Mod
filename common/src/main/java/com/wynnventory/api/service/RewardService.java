@@ -18,46 +18,58 @@ public enum RewardService {
 
     private final WynnventoryApi api = new WynnventoryApi();
     private final List<RewardPoolDocument> rewardData = new CopyOnWriteArrayList<>();
+    private CompletableFuture<Void> refreshFuture = null;
 
     RewardService() {}
 
     public CompletableFuture<List<SimpleItem>> getItems(RewardPool pool) {
         return getPools().thenApply(pools -> {
             List<SimpleItem> items = new ArrayList<>(pools.stream()
-                    .filter(doc -> doc.getRewardPool().equals(pool))
+                    .filter(doc -> doc.getRewardPool() != null && doc.getRewardPool().equals(pool))
                     .flatMap(doc -> doc.getItems().stream())
                     .toList());
 
             items.sort(Comparator
                     .comparingInt(this::getRarityRank).reversed()
-                    .thenComparing(SimpleItem::getType, String.CASE_INSENSITIVE_ORDER)
-                    .thenComparing(SimpleItem::getName, String.CASE_INSENSITIVE_ORDER)
+                    .thenComparing(SimpleItem::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                    .thenComparing(SimpleItem::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
             );
             return items;
         });
     }
 
     public CompletableFuture<List<RewardPoolDocument>> getPools() {
-        if (!rewardData.isEmpty()) {
-            return CompletableFuture.completedFuture(Collections.unmodifiableList(rewardData));
-        }
+        synchronized (this) {
+            if (!rewardData.isEmpty()) {
+                return CompletableFuture.completedFuture(Collections.unmodifiableList(rewardData));
+            }
 
-        return reloadAllPools().thenApply(v -> Collections.unmodifiableList(rewardData));
+            if (refreshFuture != null) {
+                return refreshFuture.thenApply(v -> Collections.unmodifiableList(rewardData));
+            }
+
+            refreshFuture = reloadAllPools();
+            return refreshFuture.thenApply(v -> {
+                synchronized (this) {
+                    refreshFuture = null;
+                }
+                return Collections.unmodifiableList(rewardData);
+            });
+        }
     }
 
     private CompletableFuture<Void> reloadAllPools() {
-        rewardData.clear();
-
         return CompletableFuture.allOf(
-                refresh(RewardType.LOOTRUN),
-                refresh(RewardType.RAID)
+                fetch(RewardType.LOOTRUN),
+                fetch(RewardType.RAID)
         );
     }
 
-    private CompletableFuture<Void> refresh(RewardType type) {
+    private CompletableFuture<Void> fetch(RewardType type) {
         return api.fetchRewardPools(type)
                 .thenAccept(pools -> {
-                    if (pools != null) {
+                    if (pools != null && !pools.isEmpty()) {
+                        rewardData.removeIf(doc -> doc.getRewardPool() != null && doc.getRewardPool().getType() == type);
                         rewardData.addAll(pools);
                     }
                 });
