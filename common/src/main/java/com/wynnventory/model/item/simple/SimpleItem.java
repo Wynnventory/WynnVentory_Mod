@@ -1,7 +1,9 @@
 package com.wynnventory.model.item.simple;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
@@ -83,6 +85,8 @@ public class SimpleItem extends TimestampedObject {
         this.itemType = SimpleItemType.fromType(itemType);
     }
 
+    @JsonProperty("type")
+    @JsonAlias("subtype")
     public void setType(String type) {
         this.type = type != null ? type : "";
     }
