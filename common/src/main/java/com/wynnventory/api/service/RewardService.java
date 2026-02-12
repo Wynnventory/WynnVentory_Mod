@@ -2,6 +2,7 @@ package com.wynnventory.api.service;
 
 import com.wynntils.models.gear.type.GearTier;
 import com.wynnventory.api.WynnventoryApi;
+import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;
@@ -30,13 +31,33 @@ public enum RewardService {
                     .flatMap(doc -> doc.getItems().stream())
                     .toList());
 
-            items.sort(Comparator
-                    .comparingInt(this::getRarityRank).reversed()
-                    .thenComparing(SimpleItem::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                    .thenComparing(SimpleItem::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-            );
+            if(pool.getType() == RewardType.RAID)
+                sortForRaid(items);
+            else {
+                sortForLootrun(items);
+            }
+
             return items;
         });
+    }
+
+    private void sortForRaid(List<SimpleItem> items) {
+        items.sort(Comparator
+                .comparing(this::getRarityRank, Comparator.reverseOrder())
+                .thenComparing(SimpleItem::getItemType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                .thenComparing(SimpleItem::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                .thenComparing(SimpleItem::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+        );
+    }
+
+    private void sortForLootrun(List<SimpleItem> items) {
+        items.sort(Comparator
+                .comparing((SimpleItem i) -> i instanceof SimpleGearItem gear && gear.isShiny(), Comparator.reverseOrder())
+                .thenComparing(this::getRarityRank, Comparator.reverseOrder())
+                .thenComparing(SimpleItem::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                .thenComparing(SimpleItem::getItemType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                .thenComparing(SimpleItem::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+        );
     }
 
     public CompletableFuture<List<RewardPoolDocument>> getAllPools() {
