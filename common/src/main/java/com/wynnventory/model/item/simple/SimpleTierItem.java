@@ -1,5 +1,6 @@
 package com.wynnventory.model.item.simple;
 
+import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
@@ -14,7 +15,7 @@ import java.util.Objects;
 public class SimpleTierItem extends SimpleItem {
     protected final int tier;
 
-    public SimpleTierItem(String name, String rarity, String itemType, String type, Icon icon, int amount, int tier) {
+    public SimpleTierItem(String name, GearTier rarity, SimpleItemType itemType, String type, Icon icon, int amount, int tier) {
         super(name, rarity, itemType, type, icon, amount);
         this.tier = tier;
     }
@@ -57,35 +58,35 @@ public class SimpleTierItem extends SimpleItem {
     }
 
     private static SimpleTierItem fromIngredientItem(IngredientItem item) {
-        return createTierItem(item, item.getName(), "Common", "IngredientItem", item.getIngredientInfo().professions().toString(), item.getQualityTier());
+        return createTierItem(item, item.getName(), GearTier.NORMAL, SimpleItemType.INGREDIENT, item.getIngredientInfo().professions().toString(), item.getQualityTier());
     }
 
     private static SimpleTierItem fromMaterialItem(MaterialItem materialItem) {
-        return createTierItem(materialItem, ItemStackUtils.getMaterialName(materialItem), "Common", "MaterialItem", materialItem.getProfessionTypes().toString(), materialItem.getQualityTier());
+        return createTierItem(materialItem, ItemStackUtils.getMaterialName(materialItem), GearTier.NORMAL, SimpleItemType.MATERIAL, materialItem.getProfessionTypes().toString(), materialItem.getQualityTier());
     }
 
     private static SimpleTierItem fromPowderItem(PowderItem powderItem) {
         String type = powderItem.getPowderProfile().element().getName() + "Powder";
-        return createTierItem(powderItem, ItemStackUtils.getPowderName(powderItem), "Common", "PowderItem", type, powderItem.getTier());
+        return createTierItem(powderItem, ItemStackUtils.getPowderName(powderItem), GearTier.NORMAL, SimpleItemType.POWDER, type, powderItem.getTier());
     }
 
     private static SimpleTierItem fromAmplifierItem(AmplifierItem amplifierItem) {
-        return createTierItem(amplifierItem, ItemStackUtils.getAmplifierName(amplifierItem), amplifierItem.getGearTier().getName(), "AmplifierItem", amplifierItem.getTier());
+        return createTierItem(amplifierItem, ItemStackUtils.getAmplifierName(amplifierItem), amplifierItem.getGearTier(), SimpleItemType.AMPLIFIER, amplifierItem.getTier());
     }
 
     private static SimpleTierItem fromHorseItem(HorseItem horseItem) {
-        return createTierItem(horseItem, ItemStackUtils.getHorseName(horseItem), "Common", "HorseItem", horseItem.getTier().getNumeral());
+        return createTierItem(horseItem, ItemStackUtils.getHorseName(horseItem), GearTier.NORMAL, SimpleItemType.HORSE, horseItem.getTier().getNumeral());
     }
 
     private static SimpleTierItem fromEmeraldPouchItem(EmeraldPouchItem emeraldPouchItem) {
-        return createTierItem(emeraldPouchItem, "Emerald Pouch", "Common", "EmeraldPouchItem", emeraldPouchItem.getTier());
+        return createTierItem(emeraldPouchItem, "Emerald Pouch", GearTier.NORMAL, SimpleItemType.EMERALD_POUCH, emeraldPouchItem.getTier());
     }
 
-    private static SimpleTierItem createTierItem(WynnItem item, String name, String rarity, String itemType, int tier) {
+    private static SimpleTierItem createTierItem(WynnItem item, String name, GearTier rarity, SimpleItemType itemType, int tier) {
         return createTierItem(item, name, rarity, itemType, StringUtils.toCamelCase(name), tier);
     }
 
-    private static SimpleTierItem createTierItem(WynnItem item, String name, String rarity, String itemType, String type, int tier) {
+    private static SimpleTierItem createTierItem(WynnItem item, String name, GearTier rarity, SimpleItemType itemType, String type, int tier) {
         int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
         Icon icon = IconService.INSTANCE.getIcon(name);
 

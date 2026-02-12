@@ -1,6 +1,8 @@
 package com.wynnventory.model.item.simple;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
@@ -16,32 +18,26 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SimpleItem extends TimestampedObject {
     protected String name = "";
-    protected String rarity = "Common";
-    protected String itemType = "";
+    protected GearTier rarity = GearTier.NORMAL;
+    protected SimpleItemType itemType;
     protected String type = "";
     protected Icon icon;
     protected int amount;
 
     public SimpleItem() {}
 
-    public SimpleItem(String name, String rarity, String itemType, String type) {
+    public SimpleItem(String name, GearTier rarity, SimpleItemType itemType, String type) {
         this(name, rarity, itemType, type, null);
     }
 
-    public SimpleItem(String name, String rarity, String itemType, String type, Icon icon) {
+    public SimpleItem(String name, GearTier rarity, SimpleItemType itemType, String type, Icon icon) {
         this(name, rarity, itemType, type, icon, 1);
     }
 
-    public SimpleItem(String name, String rarity, String itemType, String type, Icon icon, int amount) {
+    public SimpleItem(String name, GearTier rarity, SimpleItemType itemType, String type, Icon icon, int amount) {
         this.name = name != null ? name : "";
-
-        if(rarity == null || rarity.isBlank()) {
-            this.rarity = "Common";
-        } else {
-            this.rarity = rarity;
-        }
-
-        this.itemType = itemType != null ? itemType : "";
+        this.rarity = rarity;
+        this.itemType = itemType;
         this.type = type != null ? type : "";
         this.icon = icon;
         this.amount = amount;
@@ -52,10 +48,20 @@ public class SimpleItem extends TimestampedObject {
     }
 
     public String getRarity() {
+        return rarity.getName();
+    }
+
+    @JsonIgnore
+    public GearTier getRarityEnum() {
         return rarity;
     }
 
     public String getItemType() {
+        return itemType.getType();
+    }
+
+    @JsonIgnore
+    public SimpleItemType getItemTypeEnum() {
         return itemType;
     }
 
@@ -70,11 +76,11 @@ public class SimpleItem extends TimestampedObject {
     }
 
     public void setRarity(String rarity) {
-        this.rarity = rarity;
+        this.rarity = GearTier.fromString(rarity);
     }
 
     public void setItemType(String itemType) {
-        this.itemType = itemType != null ? itemType : "";
+        this.itemType = SimpleItemType.fromType(itemType);
     }
 
     public void setType(String type) {
@@ -142,39 +148,39 @@ public class SimpleItem extends TimestampedObject {
     }
 
     private static SimpleItem fromSimulatorItem(SimulatorItem item) {
-        return createSimpleItem(item, item.getGearTier().getName(), "SimulatorItem", "Simulator");
+        return createSimpleItem(item, item.getGearTier(), SimpleItemType.SIMULATOR, "Simulator");
     }
 
     private static SimpleItem fromInsulatorItem(InsulatorItem item) {
-        return createSimpleItem(item, item.getGearTier().getName(), "InsulatorItem", "Insulator");
+        return createSimpleItem(item, item.getGearTier(), SimpleItemType.INSULATOR, "Insulator");
     }
 
     private static SimpleItem fromRuneItem(RuneItem item) {
-        return createSimpleItem(item, "RuneItem");
+        return createSimpleItem(item, SimpleItemType.RUNE);
     }
 
     private static SimpleItem fromDungeonKeyItem(DungeonKeyItem item) {
-        return createSimpleItem(item,"DungeonKeyItem");
+        return createSimpleItem(item,SimpleItemType.DUNGEON_KEY);
     }
 
     private static SimpleItem fromEmeraldItem(EmeraldItem emeraldItem) {
-        return createSimpleItem(emeraldItem, "Common", "EmeraldItem", emeraldItem.getUnit().name());
+        return createSimpleItem(emeraldItem, GearTier.NORMAL, SimpleItemType.EMERALD_ITEM, emeraldItem.getUnit().name());
     }
 
     private static SimpleItem fromAspectItem(AspectItem aspectItem) {
-        return createSimpleItem(aspectItem, aspectItem.getGearTier().getName(), "AspectItem", aspectItem.getRequiredClass().getName() + "Aspect");
+        return createSimpleItem(aspectItem, aspectItem.getGearTier(), SimpleItemType.ASPECT, aspectItem.getRequiredClass().getName() + "Aspect");
     }
 
     private static SimpleItem fromTomeItem(TomeItem tomeItem) {
-        return new SimpleItem(tomeItem.getName().replace("Unidentified ", ""), tomeItem.getGearTier().getName(), "TomeItem", tomeItem.getItemInfo().type().name());
+        return new SimpleItem(tomeItem.getName().replace("Unidentified ", ""), tomeItem.getGearTier(), SimpleItemType.TOME, tomeItem.getItemInfo().type().name());
     }
 
-    private static SimpleItem createSimpleItem(WynnItem item, String itemType) {
+    private static SimpleItem createSimpleItem(WynnItem item, SimpleItemType itemType) {
         String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
-        return createSimpleItem(item, "Common", itemType, StringUtils.toCamelCase(name));
+        return createSimpleItem(item, GearTier.NORMAL, itemType, StringUtils.toCamelCase(name));
     }
 
-    private static SimpleItem createSimpleItem(WynnItem item, String rarity, String itemType, String type) {
+    private static SimpleItem createSimpleItem(WynnItem item, GearTier rarity, SimpleItemType itemType, String type) {
         String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
         int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
         return new SimpleItem(name, rarity, itemType, type, IconService.INSTANCE.getIcon(name), amount);

@@ -2,6 +2,7 @@ package com.wynnventory.model.item.simple;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wynntils.models.gear.GearModel;
+import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.stats.type.ShinyStat;
@@ -26,12 +27,12 @@ public class SimpleGearItem extends SimpleItem {
     private final List<ItemStat> actualStatsWithPercentage = new ArrayList<>();
     private final boolean shiny;
 
-    public SimpleGearItem(String name, String rarity, String itemType, String type, Icon icon, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
-        this(name, rarity, itemType, type, icon, 1, unidentified, rerollCount, shinyStat, overallRollPercentage, actualStatsWithPercentage);
+    public SimpleGearItem(String name, GearTier rarity, String type, Icon icon, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
+        this(name, rarity, type, icon, 1, unidentified, rerollCount, shinyStat, overallRollPercentage, actualStatsWithPercentage);
     }
 
-    public SimpleGearItem(String name, String rarity, String itemType, String type, Icon icon, int amount, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
-        super(name, rarity, itemType, type, icon, amount);
+    public SimpleGearItem(String name, GearTier rarity, String type, Icon icon, int amount, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
+        super(name, rarity, SimpleItemType.GEAR, type, icon, amount);
         this.unidentified = unidentified;
         this.rerollCount = rerollCount;
         this.shinyStat = shinyStat;
@@ -100,8 +101,7 @@ public class SimpleGearItem extends SimpleItem {
 
         return new SimpleGearItem(
                 name,
-                item.getGearTier().getName(),
-                "GearItem",
+                item.getGearTier(),
                 item.getGearType().name(),
                 IconService.INSTANCE.getIcon(name),
                 stack.getCount(),
