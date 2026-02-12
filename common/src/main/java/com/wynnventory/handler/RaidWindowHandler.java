@@ -56,7 +56,7 @@ public final class RaidWindowHandler {
                 GuideAspectItemStack stack = aspectStacks.get(lootItem.getName());
                 if (stack == null) return;
 
-                ItemButton<GuideAspectItemStack> button = new ItemButton<>(buttonX[0], buttonY, itemSize, itemSize, stack);
+                ItemButton<GuideAspectItemStack> button = new ItemButton<>(buttonX[0], buttonY, itemSize, itemSize, stack, false);
                 event.addRenderableWidget(button);
                 buttonX[0] += spacing;
             });

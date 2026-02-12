@@ -6,11 +6,17 @@ import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
+import com.wynntils.utils.colors.CommonColors;
 import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.mc.KeyboardUtils;
+import com.wynntils.utils.render.FontRenderer;
 import com.wynntils.utils.render.RenderUtils;
 import com.wynntils.utils.render.Texture;
+import com.wynntils.utils.render.type.HorizontalAlignment;
+import com.wynntils.utils.render.type.TextShadow;
+import com.wynntils.utils.render.type.VerticalAlignment;
 import com.wynnventory.util.HttpUtils;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.InputWithModifiers;
@@ -21,10 +27,12 @@ import org.lwjgl.glfw.GLFW;
 
 public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
     private final T itemStack;
+    private boolean shiny = false;
 
-    public ItemButton(int x, int y, int width, int height, T itemStack) {
+    public ItemButton(int x, int y, int width, int height, T itemStack, boolean shiny) {
         super(x, y, width, height, Component.empty());
         this.itemStack = itemStack;
+        this.shiny = shiny;
         buildTooltip();
     }
 
@@ -68,6 +76,24 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                     Texture.FAVORITE_ICON.width(),
                     Texture.FAVORITE_ICON.height());
         }
+
+        if (shiny) {
+            FontRenderer.getInstance()
+                    .renderAlignedTextInBox(
+                            g,
+                            StyledText.fromString("⬡"),
+                            getX(),
+                            getX() + getWidth(),
+                            getY(),
+                            getY() + getHeight(),
+                            0,
+                            CommonColors.WHITE,
+                            HorizontalAlignment.LEFT,
+                            VerticalAlignment.TOP,
+                            TextShadow.NORMAL,
+                            1);
+        }
+
 
         if (this.isHovered()) {
             g.setTooltipForNextFrame(Minecraft.getInstance().font, itemStack, mouseX, mouseY);

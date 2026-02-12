@@ -16,6 +16,7 @@ import com.wynnventory.gui.widget.ImageButton;
 import com.wynnventory.gui.widget.ItemButton;
 import com.wynnventory.gui.widget.RectWidget;
 import com.wynnventory.gui.widget.TextWidget;
+import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardType;
@@ -223,7 +224,12 @@ public class RewardScreen extends Screen {
                 int x = itemXStart + col * 20;
                 int y = itemYStart + row * 20;
 
-                ItemButton<GuideItemStack> button = new ItemButton<>(x, y, 18, 18, stack);
+                boolean shiny = false;
+                if(item instanceof SimpleGearItem simpleGearItem) {
+                    shiny = simpleGearItem.isShiny();
+                }
+
+                ItemButton<GuideItemStack> button = new ItemButton<>(x, y, 18, 18, stack, shiny);
                 this.addRenderableWidget(button);
 
                 displayedItemIndex++;
