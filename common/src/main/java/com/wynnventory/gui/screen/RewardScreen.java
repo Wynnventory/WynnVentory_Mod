@@ -107,8 +107,7 @@ public class RewardScreen extends Screen {
 
         // Reload Button
         this.addRenderableWidget(new ImageButton(this.width - (IMAGE_BUTTON_WIDTH * 2) - IMAGE_BUTTON_PADDING_X, startY, IMAGE_BUTTON_WIDTH, IMAGE_BUTTON_HEIGHT, Sprite.RELOAD_BUTTON, b -> {
-            RewardService.INSTANCE.reloadAllPools();
-            this.rebuildWidgets();
+            RewardService.INSTANCE.reloadAllPools().thenRun(() -> this.minecraft.execute(this::rebuildWidgets));
         }, Component.translatable("gui.wynnventory.reward.button.reload")));
 
         // Carousel buttons
