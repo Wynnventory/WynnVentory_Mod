@@ -13,7 +13,11 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Objects;
 
 public class SimpleTierItem extends SimpleItem {
-    protected final int tier;
+    protected int tier;
+
+    public SimpleTierItem() {
+        super();
+    }
 
     public SimpleTierItem(String name, GearTier rarity, SimpleItemType itemType, String type, Icon icon, int amount, int tier) {
         super(name, rarity, itemType, type, icon, amount);
@@ -22,6 +26,10 @@ public class SimpleTierItem extends SimpleItem {
 
     public int getTier() {
         return tier;
+    }
+
+    public void setTier(int tier) {
+        this.tier = tier;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.wynnventory.model.item.simple;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynntils.models.gear.GearModel;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItemData;
@@ -20,12 +21,15 @@ import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SimpleGearItem extends SimpleItem {
-    private final boolean unidentified;
-    private final int rerollCount;
-    private final Optional<ShinyStat> shinyStat;
-    private final float overallRollPercentage;
+    private boolean unidentified;
+    private int rerollCount;
+    private Optional<ShinyStat> shinyStat = Optional.empty();
+    private float overallRollPercentage;
     private final List<ItemStat> actualStatsWithPercentage = new ArrayList<>();
-    private final boolean shiny;
+
+    public SimpleGearItem() {
+        super();
+    }
 
     public SimpleGearItem(String name, GearTier rarity, String type, Icon icon, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
         this(name, rarity, type, icon, 1, unidentified, rerollCount, shinyStat, overallRollPercentage, actualStatsWithPercentage);
@@ -38,7 +42,6 @@ public class SimpleGearItem extends SimpleItem {
         this.shinyStat = shinyStat;
         this.overallRollPercentage = overallRollPercentage;
         this.actualStatsWithPercentage.addAll(actualStatsWithPercentage);
-        this.shiny = shinyStat.isPresent();
     }
 
     public boolean isUnidentified() {
@@ -61,7 +64,30 @@ public class SimpleGearItem extends SimpleItem {
         return actualStatsWithPercentage;
     }
 
-    public boolean isShiny() { return shiny; }
+    public void setUnidentified(boolean unidentified) {
+        this.unidentified = unidentified;
+    }
+
+    public void setRerollCount(int rerollCount) {
+        this.rerollCount = rerollCount;
+    }
+
+    public void setShinyStat(Optional<ShinyStat> shinyStat) {
+        this.shinyStat = shinyStat;
+    }
+
+    public void setOverallRollPercentage(float overallRollPercentage) {
+        this.overallRollPercentage = overallRollPercentage;
+    }
+
+    public void setActualStatsWithPercentage(List<ItemStat> actualStatsWithPercentage) {
+        this.actualStatsWithPercentage.clear();
+        if (actualStatsWithPercentage != null) {
+            this.actualStatsWithPercentage.addAll(actualStatsWithPercentage);
+        }
+    }
+
+    public boolean isShiny() { return shinyStat.isPresent(); }
 
     @Override
     public boolean equals(Object o) {
