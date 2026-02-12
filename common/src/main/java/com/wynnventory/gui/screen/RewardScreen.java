@@ -1,20 +1,5 @@
 package com.wynnventory.gui.screen;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Stream;
-
-import com.wynnventory.api.RewardManager;
-import com.wynnventory.gui.Sprite;
-import com.wynnventory.gui.widget.ItemButton;
-import com.wynnventory.gui.widget.ImageButton;
-import com.wynnventory.core.config.ModConfig;
-import com.wynnventory.core.config.settings.RewardScreenSettings;
-import com.wynnventory.model.item.simple.SimpleItem;
-import com.wynnventory.model.reward.RewardPool;
-import com.wynnventory.model.reward.RewardType;
 import com.wynntils.core.components.Models;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
@@ -22,12 +7,30 @@ import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
+import com.wynnventory.api.service.RewardService;
+import com.wynnventory.core.config.ModConfig;
+import com.wynnventory.core.config.settings.RewardScreenSettings;
+import com.wynnventory.gui.Sprite;
+import com.wynnventory.gui.widget.ImageButton;
+import com.wynnventory.gui.widget.ItemButton;
+import com.wynnventory.model.item.simple.SimpleItem;
+import com.wynnventory.model.reward.RewardPool;
+import com.wynnventory.model.reward.RewardType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class RewardScreen extends Screen {
 
@@ -87,7 +90,7 @@ public class RewardScreen extends Screen {
 
         // Reload Button
         this.addRenderableWidget(new ImageButton(this.width - (sideButtonSize * 2) - 15, startY, sideButtonSize, sideButtonSize, Sprite.RELOAD_BUTTON, b -> {
-            RewardManager.reloadAllPools();
+            RewardService.INSTANCE.getRaidPools();
             this.rebuildWidgets();
         }, Component.literal("Reload Lootpools")));
 
@@ -233,7 +236,7 @@ public class RewardScreen extends Screen {
             int itemYStart = startY + 15;
 
             RewardScreenSettings s = ModConfig.getInstance().getRewardScreenSettings();
-            List<SimpleItem> items = RewardManager.getItems(pool);
+            List<SimpleItem> items = RewardService.INSTANCE.getItems(pool).join();
 
             int displayedItemIndex = 0;
             for (SimpleItem item : items) {

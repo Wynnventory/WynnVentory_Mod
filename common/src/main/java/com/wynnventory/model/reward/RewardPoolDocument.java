@@ -3,8 +3,10 @@ package com.wynnventory.model.reward;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wynntils.models.gear.type.GearTier;
 import com.wynnventory.model.item.ModInfoProvider;
 import com.wynnventory.model.item.simple.SimpleItem;
+import com.wynnventory.model.item.simple.SimpleItemType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,7 @@ public final class RewardPoolDocument extends ModInfoProvider {
     }
 
     public List<SimpleItem> getItems() { return items; }
+    public List<SimpleItem> getMythicAspects() { return items.stream().filter(item -> item.getItemTypeEnum() == SimpleItemType.ASPECT && item.getRarityEnum() == GearTier.MYTHIC).toList(); }
     public String getRegion() { return rewardPool.getFullName(); }
     public String getType() { return rewardPool.getType().name(); }
 

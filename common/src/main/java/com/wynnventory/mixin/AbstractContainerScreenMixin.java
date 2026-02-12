@@ -1,11 +1,11 @@
 package com.wynnventory.mixin;
 
-import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.events.InventoryKeyPressEvent;
-import com.wynnventory.events.RaidLobbyRenderedEvent;
+import com.wynnventory.events.RaidLobbyScreenInitEvent;
 import com.wynnventory.events.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.container.Container;
+import com.wynnventory.model.container.RaidWindowContainer;
 import com.wynnventory.model.container.TrademarketContainer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -22,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractContainerScreen.class)
 public abstract class AbstractContainerScreenMixin extends Screen {
-    private static final String RAID_LOBBY_TITLE = "\uDAFF\uDFE1\uE00C";
 
     @Shadow
     protected Slot hoveredSlot;
@@ -53,12 +52,10 @@ public abstract class AbstractContainerScreenMixin extends Screen {
         if (event.isCanceled()) cir.cancel();
     }
 
-    @Inject(method = "render", at = @At("TAIL"))
-    public void renderRaidAspects(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
-        Screen screen = McUtils.mc().screen;
-
-        if(screen != null && screen.getTitle().getString().equals(RAID_LOBBY_TITLE)) {
-            WynnventoryMod.postEvent(new RaidLobbyRenderedEvent(guiGraphics, mouseX, mouseY, partialTick, ci));
+    @Inject(method = "init", at = @At("RETURN"))
+    private void init(CallbackInfo ci) {
+        if(RaidWindowContainer.matchesTitle(this.getTitle().getString())) {
+            WynnventoryMod.postEvent(new RaidLobbyScreenInitEvent((AbstractContainerScreen<?>) (Object) this, this::addRenderableWidget));
         }
     }
 }
