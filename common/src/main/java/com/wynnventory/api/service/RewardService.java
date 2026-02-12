@@ -60,17 +60,17 @@ public enum RewardService {
 
     public CompletableFuture<List<RewardPoolDocument>> getRaidPools() {
         return getAllPools().thenApply(pools ->
-                Collections.unmodifiableList(pools.stream()
+                pools.stream()
                         .filter(doc -> doc.getRewardPool() != null && doc.getRewardPool().getType() == RewardType.RAID)
-                        .toList())
+                        .toList()
         );
     }
 
     public CompletableFuture<List<RewardPoolDocument>> getLootrunPools() {
         return getAllPools().thenApply(pools ->
-                Collections.unmodifiableList(pools.stream()
+                pools.stream()
                         .filter(doc -> doc.getRewardPool() != null && doc.getRewardPool().getType() == RewardType.LOOTRUN)
-                        .toList())
+                        .toList()
         );
     }
 

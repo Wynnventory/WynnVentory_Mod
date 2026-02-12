@@ -1,15 +1,27 @@
 package com.wynnventory.handler;
 
+import com.wynntils.core.text.StyledText;
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
+import com.wynntils.models.items.WynnItem;
+import com.wynntils.models.items.items.game.AspectItem;
+import com.wynnventory.api.service.RewardService;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.queue.QueueScheduler;
 import com.wynnventory.core.tooltip.PriceTooltipBuilder;
 import com.wynnventory.core.tooltip.PriceTooltipFactory;
-import com.wynnventory.events.TrademarketTooltipRenderedEvent;
+import com.wynnventory.events.TooltipRenderedEvent;
+import com.wynnventory.model.container.Container;
+import com.wynnventory.model.container.PartyFinderContainer;
 import com.wynnventory.model.item.trademarket.TrademarketListing;
+import com.wynnventory.model.reward.RewardPool;
+import com.wynnventory.model.reward.RewardPoolDocument;
+import com.wynnventory.model.reward.RewardType;
+import com.wynnventory.util.AspectTooltipHelper;
+import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.core.component.DataComponents;
@@ -21,6 +33,7 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,13 +43,9 @@ public final class TooltipRenderHandler {
     private final PriceTooltipFactory tooltipFactory = new PriceTooltipFactory(new PriceTooltipBuilder());
 
     @SubscribeEvent
-    public void onTrademarketTooltipRendered(TrademarketTooltipRenderedEvent event) {
-        Slot hoveredItemSlot = event.getItemSlot();
-        if (hoveredItemSlot.container instanceof Inventory) return;
-
-        ItemStack hoveredItem = hoveredItemSlot.getItem();
-        if (lastItem == hoveredItem) return;
-        lastItem = hoveredItem;
+    public void onTrademarketTooltipRendered(TooltipRenderedEvent.Trademarket event) {
+        ItemStack hoveredItem = getItemFromSlot(event.getItemSlot());
+        if (hoveredItem == null) return;
 
         TrademarketListing listing = TrademarketListing.from(hoveredItem);
         if (listing == null) return;
@@ -46,30 +55,69 @@ public final class TooltipRenderHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onTooltipRendered(ItemTooltipRenderEvent.Pre event) {
-        if(!ModConfig.getInstance().getTooltipSettings().isShowTooltips()) return;
+        Screen screen = Minecraft.getInstance().screen;
+        if(screen != null && PartyFinderContainer.matchesTitle(screen.getTitle().getString())) {
+            renderPartyFinderAspects(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getItemStack(), event.getTooltips());
+        }
 
-        ItemStack stack = event.getItemStack();
-        List<Component> vanillaLines = event.getTooltips();
+        if(ModConfig.getInstance().getTooltipSettings().isShowTooltips()) {
+            renderTooltip(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getItemStack(), event.getTooltips());
+        }
+    }
+
+    private ItemStack getItemFromSlot(Slot slot) {
+        if (slot.container instanceof Inventory) return null;
+
+        ItemStack hoveredItem = slot.getItem();
+        if (lastItem == hoveredItem) return hoveredItem;
+
+        lastItem = hoveredItem;
+
+        return hoveredItem;
+    }
+
+    @Unique
+    private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, ItemStack stack, List<Component> vanillaLines) {
         if (vanillaLines == null || vanillaLines.isEmpty()) return;
 
         List<Component> priceLines = tooltipFactory.getPriceTooltip(stack);
         if (priceLines.isEmpty()) return;
 
-        List<ClientTooltipComponent> priceComponents = RenderUtils.toClientComponents(priceLines, Optional.empty());
-        List<ClientTooltipComponent> vanillaComponents = RenderUtils.toClientComponents(vanillaLines, stack.getTooltipImage());
+        drawTooltip(guiGraphics, mouseX, mouseY, vanillaLines, priceLines);
+    }
 
-        Vector2i tooltipCoords = RenderUtils.calculateTooltipCoords(event.getMouseX(), event.getMouseY(), vanillaComponents, priceComponents);
+    @Unique
+    private void renderPartyFinderAspects(GuiGraphics guiGraphics, int mouseX, int mouseY, ItemStack stack, List<Component> vanillaLines) {
+        StyledText originalName = ItemStackUtils.getWynntilsOriginalName(stack);
+        if (originalName == null) return;
+
+        String name = originalName.getStringWithoutFormatting();
+        RewardPool pool = RewardPool.fromFullName(name);
+        if (pool == null || pool.getType() != RewardType.RAID) return;
+
+        RewardService.INSTANCE.getRaidPools().thenAccept(pools -> pools.stream()
+                .filter(p -> p.getRewardPool().equals(pool))
+                .findFirst()
+                .ifPresent(p -> {
+                            List<Component> tooltipLines = AspectTooltipHelper.buildLines(p);
+                            if (tooltipLines.isEmpty()) return;
+
+                            drawTooltip(guiGraphics, mouseX, mouseY, vanillaLines, tooltipLines);
+                        }
+                ));
+    }
+
+    private static void drawTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, List<Component> vanillaLines, List<Component> customLines) {
+        List<ClientTooltipComponent> vanillaComponents = RenderUtils.toClientComponents(vanillaLines, Optional.empty());
+        List<ClientTooltipComponent> customComponents = RenderUtils.toClientComponents(customLines, Optional.empty());
+
+        Vector2i tooltipCoords = RenderUtils.calculateTooltipCoords(mouseX, mouseY, vanillaComponents, customComponents);
         ClientTooltipPositioner fixed = new RenderUtils.FixedTooltipPositioner(tooltipCoords.x, tooltipCoords.y);
 
-        GuiGraphics guiGraphics = event.getGuiGraphics();
+        float scale = RenderUtils.getScaleFactor(customComponents);
         guiGraphics.pose().pushMatrix();
-
-        float scale = RenderUtils.getScaleFactor(priceComponents);
         guiGraphics.pose().scale(scale, scale);
-        Vector3f v = new Vector3f(tooltipCoords.x, tooltipCoords.y, 999999);
-        guiGraphics.pose().transform(v);
-
-        guiGraphics.renderTooltip(Minecraft.getInstance().font, priceComponents, event.getMouseX(), event.getMouseY(), fixed, stack.get(DataComponents.TOOLTIP_STYLE));
+        guiGraphics.renderTooltip(Minecraft.getInstance().font, customComponents, mouseX, mouseY, fixed, null);
         guiGraphics.pose().popMatrix();
     }
 }
