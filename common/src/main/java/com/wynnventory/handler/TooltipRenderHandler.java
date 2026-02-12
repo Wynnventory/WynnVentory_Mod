@@ -2,19 +2,15 @@ package com.wynnventory.handler;
 
 import com.wynntils.core.text.StyledText;
 import com.wynntils.mc.event.ItemTooltipRenderEvent;
-import com.wynntils.models.items.WynnItem;
-import com.wynntils.models.items.items.game.AspectItem;
 import com.wynnventory.api.service.RewardService;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.queue.QueueScheduler;
 import com.wynnventory.core.tooltip.PriceTooltipBuilder;
 import com.wynnventory.core.tooltip.PriceTooltipFactory;
-import com.wynnventory.events.TooltipRenderedEvent;
-import com.wynnventory.model.container.Container;
+import com.wynnventory.events.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.container.PartyFinderContainer;
 import com.wynnventory.model.item.trademarket.TrademarketListing;
 import com.wynnventory.model.reward.RewardPool;
-import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.model.reward.RewardType;
 import com.wynnventory.util.AspectTooltipHelper;
 import com.wynnventory.util.ItemStackUtils;
@@ -24,7 +20,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -32,7 +27,6 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import org.joml.Vector2i;
-import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.List;
@@ -43,7 +37,7 @@ public final class TooltipRenderHandler {
     private final PriceTooltipFactory tooltipFactory = new PriceTooltipFactory(new PriceTooltipBuilder());
 
     @SubscribeEvent
-    public void onTrademarketTooltipRendered(TooltipRenderedEvent.Trademarket event) {
+    public void onTrademarketTooltipRendered(TrademarketTooltipRenderedEvent event) {
         ItemStack hoveredItem = getItemFromSlot(event.getItemSlot());
         if (hoveredItem == null) return;
 

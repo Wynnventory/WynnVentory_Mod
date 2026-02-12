@@ -3,7 +3,7 @@ package com.wynnventory.mixin;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.events.InventoryKeyPressEvent;
 import com.wynnventory.events.RaidLobbyScreenInitEvent;
-import com.wynnventory.events.TooltipRenderedEvent;
+import com.wynnventory.events.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.container.Container;
 import com.wynnventory.model.container.RaidWindowContainer;
 import com.wynnventory.model.container.TrademarketContainer;
@@ -38,8 +38,7 @@ public abstract class AbstractContainerScreenMixin extends Screen {
         Container container = Container.current();
         if (container == null) return;
 
-        if (TrademarketContainer.matchesTitle(container.title())) WynnventoryMod.postEvent(new TooltipRenderedEvent.Trademarket(hoveredSlot));
-        if (RaidWindowContainer.matchesTitle(container.title())) WynnventoryMod.postEvent(new TooltipRenderedEvent.PartyFinder(hoveredSlot));
+        if (TrademarketContainer.matchesTitle(container.title())) WynnventoryMod.postEvent(new TrademarketTooltipRenderedEvent(hoveredSlot));
     }
 
     @Inject(method = "keyPressed(Lnet/minecraft/client/input/KeyEvent;)Z",
