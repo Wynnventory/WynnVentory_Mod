@@ -1,5 +1,6 @@
 package com.wynnventory.api.service;
 
+import com.wynntils.models.gear.type.GearTier;
 import com.wynnventory.api.WynnventoryApi;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
@@ -74,7 +75,7 @@ public enum RewardService {
         );
     }
 
-    private CompletableFuture<Void> reloadAllPools() {
+    public CompletableFuture<Void> reloadAllPools() {
         return CompletableFuture.allOf(
                 fetch(RewardType.LOOTRUN),
                 fetch(RewardType.RAID)
@@ -92,16 +93,14 @@ public enum RewardService {
     }
 
     private int getRarityRank(SimpleItem i) {
-        String r = i.getRarity();
-        if (r == null) return 0;
-        return switch (r.trim().toLowerCase()) {
-            case "mythic" -> 7;
-            case "fabled" -> 6;
-            case "legendary" -> 5;
-            case "rare" -> 4;
-            case "unique" -> 3;
-            case "set" -> 2;
-            case "common" -> 1;
+        return switch (i.getRarityEnum()) {
+            case GearTier.MYTHIC -> 7;
+            case GearTier.FABLED -> 6;
+            case GearTier.LEGENDARY -> 5;
+            case GearTier.RARE -> 4;
+            case GearTier.UNIQUE -> 3;
+            case GearTier.SET -> 2;
+            case GearTier.NORMAL -> 1;
             default -> 0;
         };
     }

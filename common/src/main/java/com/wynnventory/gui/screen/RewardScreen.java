@@ -1,6 +1,7 @@
 package com.wynnventory.gui.screen;
 
 import com.wynntils.core.components.Models;
+import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
@@ -13,18 +14,17 @@ import com.wynnventory.core.config.settings.RewardScreenSettings;
 import com.wynnventory.gui.Sprite;
 import com.wynnventory.gui.widget.ImageButton;
 import com.wynnventory.gui.widget.ItemButton;
+import com.wynnventory.gui.widget.RectWidget;
+import com.wynnventory.gui.widget.TextWidget;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,18 +33,37 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class RewardScreen extends Screen {
-
     private final Screen parent;
-    private RewardType activeType = RewardType.LOOTRUN;
-    private final Map<String, List<GuideItemStack>> wynnItemsByName = new HashMap<>();
+    private static RewardType activeType = RewardType.LOOTRUN;
+    private static final Map<String, GuideItemStack> WYNN_ITEMS_BY_NAME = new HashMap<>();
 
     private int scrollIndex = 0;
     private final int lootrunColumns = ModConfig.getInstance().getRewardScreenSettings().getLootrunColumns();
     private final int raidColumns = ModConfig.getInstance().getRewardScreenSettings().getRaidColumns();
 
-    private EditBox searchBar;
-    private String currentQuery = "";
+    // Screen layout
+    private static final int MARGIN_Y = 40;
+    private static final int MARGIN_X = 55;
 
+    // Tab buttons (Lootrun / Raid)
+    private static final int TAB_BUTTON_WIDTH = 100;
+    private static final int TAB_BUTTON_HEIGHT = 20;
+    private static final int TAB_BUTTON_SPACING = 10;
+
+    // Settings & Reload buttons
+    private static final int IMAGE_BUTTON_WIDTH = 20;
+    private static final int IMAGE_BUTTON_HEIGHT = 20;
+    private static final int IMAGE_BUTTON_PADDING_X = 15;
+
+    // Carousel buttons
+    private static final int NAV_BUTTON_WIDTH = 20;
+    private static final int NAV_BUTTON_HEIGHT = 20;
+    private static final int NAV_BUTTON_Y = 40;
+    private static final int NAV_BUTTON_MARGIN = 20;
+
+    //Sidebar
+    private static final int SIDEBAR_WIDTH = 100;
+    private static final int SIDEBAR_Y = NAV_BUTTON_Y + 25;
 
     public RewardScreen(Component title, Screen parent) {
         super(title);
@@ -58,59 +77,50 @@ public class RewardScreen extends Screen {
 
     @Override
     protected void init() {
-        if (wynnItemsByName.isEmpty()) {
+        if (WYNN_ITEMS_BY_NAME.isEmpty()) {
             loadAllItems();
         }
 
-        int buttonWidth = 100;
-        int buttonHeight = 20;
-        int spacing = 10;
-        int startX = (this.width - (buttonWidth * 2 + spacing)) / 2;
+        int startX = (this.width - (TAB_BUTTON_WIDTH * 2 + TAB_BUTTON_SPACING)) / 2;
         int startY = 10;
 
+        // Tab button (Lootrun)
         Button lootrunButton = Button.builder(Component.translatable("gui.wynnventory.reward.lootrun"), button -> {
-            this.activeType = RewardType.LOOTRUN;
+            activeType = RewardType.LOOTRUN;
             this.scrollIndex = 0;
             this.rebuildWidgets();
-        }).bounds(startX, startY, buttonWidth, buttonHeight).build();
+        }).bounds(startX, startY, TAB_BUTTON_WIDTH, TAB_BUTTON_HEIGHT).build();
         lootrunButton.active = (activeType != RewardType.LOOTRUN);
         this.addRenderableWidget(lootrunButton);
 
+        // Tab button (Raid)
         Button raidButton = Button.builder(Component.translatable("gui.wynnventory.reward.raid"), button -> {
-            this.activeType = RewardType.RAID;
+            activeType = RewardType.RAID;
             this.scrollIndex = 0;
             this.rebuildWidgets();
-        }).bounds(startX + buttonWidth + spacing, startY, buttonWidth, buttonHeight).build();
+        }).bounds(startX + TAB_BUTTON_WIDTH + TAB_BUTTON_SPACING, startY, TAB_BUTTON_WIDTH, TAB_BUTTON_HEIGHT).build();
         raidButton.active = (activeType != RewardType.RAID);
         this.addRenderableWidget(raidButton);
 
         // Settings Button
-        int sideButtonSize = 20;
-        this.addRenderableWidget(new ImageButton(this.width - sideButtonSize - 10, startY, sideButtonSize, sideButtonSize, Sprite.SETTINGS_BUTTON, b -> SettingsScreen.open(), Component.literal("Open mod settings")));
+        this.addRenderableWidget(new ImageButton(this.width - IMAGE_BUTTON_WIDTH - 10, startY, IMAGE_BUTTON_WIDTH, IMAGE_BUTTON_HEIGHT, Sprite.SETTINGS_BUTTON, b -> SettingsScreen.open(), Component.translatable("gui.wynnventory.reward.button.config")));
 
         // Reload Button
-        this.addRenderableWidget(new ImageButton(this.width - (sideButtonSize * 2) - 15, startY, sideButtonSize, sideButtonSize, Sprite.RELOAD_BUTTON, b -> {
-            RewardService.INSTANCE.getRaidPools();
+        this.addRenderableWidget(new ImageButton(this.width - (IMAGE_BUTTON_WIDTH * 2) - IMAGE_BUTTON_PADDING_X, startY, IMAGE_BUTTON_WIDTH, IMAGE_BUTTON_HEIGHT, Sprite.RELOAD_BUTTON, b -> {
+            RewardService.INSTANCE.reloadAllPools();
             this.rebuildWidgets();
-        }, Component.literal("Reload Lootpools")));
-
-        List<RewardPool> activePools = getActivePools();
+        }, Component.translatable("gui.wynnventory.reward.button.reload")));
 
         // Carousel buttons
-        int navButtonWidth = 20;
-        int navButtonHeight = 20;
-        int navY = 40;
-        int margin = 20;
-
+        List<RewardPool> activePools = getActivePools();
         int currentColumns = getCurrentColumns();
-
         Button prevButton = Button.builder(Component.literal("<"), button -> {
             scrollIndex--;
             if (scrollIndex < 0) {
                 scrollIndex = activePools.size() - 1;
             }
             this.rebuildWidgets();
-        }).bounds(margin, navY, navButtonWidth, navButtonHeight).build();
+        }).bounds(NAV_BUTTON_MARGIN, NAV_BUTTON_Y, NAV_BUTTON_WIDTH, NAV_BUTTON_HEIGHT).build();
         prevButton.active = activePools.size() > currentColumns;
         this.addRenderableWidget(prevButton);
 
@@ -120,78 +130,26 @@ public class RewardScreen extends Screen {
                 scrollIndex = 0;
             }
             this.rebuildWidgets();
-        }).bounds(this.width - 130 - margin, navY, navButtonWidth, navButtonHeight).build();
+        }).bounds(this.width - 130 - NAV_BUTTON_MARGIN, NAV_BUTTON_Y, NAV_BUTTON_WIDTH, NAV_BUTTON_HEIGHT).build();
         nextButton.active = activePools.size() > currentColumns;
         this.addRenderableWidget(nextButton);
 
-        // Search Bar
-        int sidebarWidth = 100;
-        int sidebarX = this.width - sidebarWidth - 10;
-        searchBar = new EditBox(this.font, sidebarX, navY, sidebarWidth, 20, Component.translatable("gui.wynnventory.reward.search"));
-        searchBar.setValue(currentQuery);
-        searchBar.setResponder(text -> {
-            this.currentQuery = text;
-            this.rebuildWidgets();
-        });
-        this.addRenderableWidget(searchBar);
+        // === SIDEBAR ===
+        int sidebarX = this.width - SIDEBAR_WIDTH - 10;
+        this.addRenderableWidget(new RectWidget(sidebarX, MARGIN_Y, SIDEBAR_WIDTH, this.height - 10 - MARGIN_Y, 0x22FFFFFF));
 
         // Filters
-        int filterY = navY + 25;
         RewardScreenSettings s = ModConfig.getInstance().getRewardScreenSettings();
-        addFilterButton("Mythic", s::isShowMythic, s::setShowMythic, sidebarX, filterY, sidebarWidth);
-        addFilterButton("Fabled", s::isShowFabled, s::setShowFabled, sidebarX, filterY + 22, sidebarWidth);
-        addFilterButton("Legendary", s::isShowLegendary, s::setShowLegendary, sidebarX, filterY + 44, sidebarWidth);
-        addFilterButton("Rare", s::isShowRare, s::setShowRare, sidebarX, filterY + 66, sidebarWidth);
-        addFilterButton("Unique", s::isShowUnique, s::setShowUnique, sidebarX, filterY + 88, sidebarWidth);
-        addFilterButton("Common", s::isShowCommon, s::setShowCommon, sidebarX, filterY + 110, sidebarWidth);
-        addFilterButton("Set", s::isShowSet, s::setShowSet, sidebarX, filterY + 132, sidebarWidth);
+        addFilterButton("Mythic", s::isShowMythic, s::setShowMythic, sidebarX, SIDEBAR_Y, SIDEBAR_WIDTH);
+        addFilterButton("Fabled", s::isShowFabled, s::setShowFabled, sidebarX, SIDEBAR_Y + 22, SIDEBAR_WIDTH);
+        addFilterButton("Legendary", s::isShowLegendary, s::setShowLegendary, sidebarX, SIDEBAR_Y + 44, SIDEBAR_WIDTH);
+        addFilterButton("Rare", s::isShowRare, s::setShowRare, sidebarX, SIDEBAR_Y + 66, SIDEBAR_WIDTH);
+        addFilterButton("Unique", s::isShowUnique, s::setShowUnique, sidebarX, SIDEBAR_Y + 88, SIDEBAR_WIDTH);
+        addFilterButton("Common", s::isShowCommon, s::setShowCommon, sidebarX, SIDEBAR_Y + 110, SIDEBAR_WIDTH);
+        addFilterButton("Set", s::isShowSet, s::setShowSet, sidebarX, SIDEBAR_Y + 132, SIDEBAR_WIDTH);
 
         populateItemWidgets();
     }
-
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        super.render(graphics, mouseX, mouseY, delta);
-
-        int sidebarWidth = 100;
-        int startY = 40;
-        int startX = getStartX();
-        int contentWidth = getContentWidth();
-
-        List<RewardPool> allActivePools = getActivePools();
-        int currentColumns = getCurrentColumns();
-
-        if (!allActivePools.isEmpty()) {
-            int displayCount = Math.min(currentColumns, allActivePools.size());
-            int sectionWidth = contentWidth / currentColumns;
-
-            for (int i = 0; i < displayCount; i++) {
-                int poolIndex = (scrollIndex + i) % allActivePools.size();
-                RewardPool pool = allActivePools.get(poolIndex);
-                int currentX = startX + (i * sectionWidth);
-
-                graphics.fill(currentX, startY, currentX + sectionWidth - 2, startY + 12, 0x44FFFFFF);
-
-                int nameWidth = this.font.width(pool.getShortName());
-                graphics.drawString(this.font, pool.getShortName(), currentX + (sectionWidth - nameWidth) / 2, startY + 2, 0xFFFFFFFF);
-
-                if (i > 0) {
-                    graphics.fill(currentX - 1, startY, currentX, this.height - 10, 0x22FFFFFF);
-                }
-            }
-        }
-
-        int sidebarX = this.width - sidebarWidth - 10;
-        graphics.fill(sidebarX, startY, this.width - 10, this.height - 10, 0x22FFFFFF);
-        graphics.drawCenteredString(this.font, Component.translatable("gui.wynnventory.reward.search"), sidebarX + sidebarWidth / 2, startY + 10, 0xFFAAAAAA);
-
-//        for (ItemButton<GuideItemStack> widget : itemWidgets) {
-//            if (widget.isHovered()) {
-//                graphics.setTooltipForNextFrame(this.font, widget.getItemStack(), mouseX, mouseY);
-//            }
-//        }
-    }
-
 
     @Override
     public void onClose() {
@@ -208,15 +166,12 @@ public class RewardScreen extends Screen {
 
     private <T extends GuideItemStack> void addStacks(List<T> items, Function<T, String> nameMapper) {
         for (T item : items) {
-            wynnItemsByName.computeIfAbsent(nameMapper.apply(item), k -> new ArrayList<>()).add(item);
+            WYNN_ITEMS_BY_NAME.computeIfAbsent(nameMapper.apply(item), k -> item);
         }
     }
 
     private void populateItemWidgets() {
-        int startY = 40;
-        int startX = getStartX();
         int contentWidth = getContentWidth();
-
         List<RewardPool> allActivePools = getActivePools();
         int currentColumns = getCurrentColumns();
 
@@ -228,40 +183,53 @@ public class RewardScreen extends Screen {
         for (int i = 0; i < displayCount; i++) {
             int poolIndex = (scrollIndex + i) % allActivePools.size();
             RewardPool pool = allActivePools.get(poolIndex);
-            int currentX = startX + (i * sectionWidth);
+            int currentX = MARGIN_X + (i * sectionWidth);
 
-            // Items grid metrics within this section
-            int itemsPerRow = (sectionWidth - 10) / 20; // 18px buttons with 2px gaps roughly
+            // Header Background
+            this.addRenderableWidget(new RectWidget(currentX, MARGIN_Y, sectionWidth - 2, 12, 0x44FFFFFF));
+
+            // Pool Name (TextWidget)
+            int nameWidth = this.font.width(pool.getShortName());
+            int labelX = currentX + (sectionWidth - nameWidth) / 2;
+            this.addRenderableWidget(new TextWidget(labelX, MARGIN_Y + 2, Component.literal(pool.getShortName())));
+
+            // Section Separator (Vertical Line)
+            if (i > 0) {
+                this.addRenderableWidget(new RectWidget(currentX - 1, MARGIN_Y, 1, this.height - 10 - MARGIN_Y, 0x22FFFFFF));
+            }
+
+            // Items Grid
+            int itemsPerRow = (sectionWidth - 10) / 20;
             int itemXStart = currentX + 5;
-            int itemYStart = startY + 15;
+            int itemYStart = MARGIN_Y + 15;
+            createItemButtons(itemXStart, itemYStart, pool, itemsPerRow);
+        }
+    }
 
-            RewardScreenSettings s = ModConfig.getInstance().getRewardScreenSettings();
-            List<SimpleItem> items = RewardService.INSTANCE.getItems(pool).join();
+    private void createItemButtons(int itemXStart, int itemYStart, RewardPool pool, int itemsPerRow) {
+        RewardService.INSTANCE.getItems(pool).thenAccept( items -> Minecraft.getInstance().execute(() -> {
+            if (getActivePools().stream().noneMatch(p -> p == pool)) return;
 
             int displayedItemIndex = 0;
+
             for (SimpleItem item : items) {
-                if (!matchesFilters(item, s)) continue;
-                if (!currentQuery.isEmpty() && !item.getName().toLowerCase().contains(currentQuery.toLowerCase())) continue;
+                if (!matchesFilters(item)) continue;
 
-                List<GuideItemStack> stacks = wynnItemsByName.get(item.getName());
-                if (stacks == null || stacks.isEmpty()) continue;
+                GuideItemStack stack = WYNN_ITEMS_BY_NAME.get(item.getName());
+                if (stack == null || stack.isEmpty()) continue;
 
-                GuideItemStack stack = stacks.get(0);
                 int row = displayedItemIndex / itemsPerRow;
                 int col = displayedItemIndex % itemsPerRow;
 
                 int x = itemXStart + col * 20;
                 int y = itemYStart + row * 20;
 
-                // Stop if we would draw beyond bottom area
-                if (y + 18 > this.height - 10) break;
-
                 ItemButton<GuideItemStack> button = new ItemButton<>(x, y, 18, 18, stack);
                 this.addRenderableWidget(button);
 
                 displayedItemIndex++;
             }
-        }
+        }));
     }
 
     private void addFilterButton(String label, java.util.function.BooleanSupplier getter, Consumer<Boolean> setter, int x, int y, int w) {
@@ -274,31 +242,18 @@ public class RewardScreen extends Screen {
         }).bounds(x, y, w, 20).build());
     }
 
-    private boolean matchesFilters(SimpleItem item, RewardScreenSettings s) {
-        String r = item.getRarity();
-        if (r == null) return s.isShowCommon();
-        return switch (r.toLowerCase()) {
-            case "mythic" -> s.isShowMythic();
-            case "fabled" -> s.isShowFabled();
-            case "legendary" -> s.isShowLegendary();
-            case "rare" -> s.isShowRare();
-            case "unique" -> s.isShowUnique();
-            case "set" -> s.isShowSet();
+    private boolean matchesFilters(SimpleItem item) {
+        RewardScreenSettings s = ModConfig.getInstance().getRewardScreenSettings();
+
+        return switch (item.getRarityEnum()) {
+            case GearTier.MYTHIC -> s.isShowMythic();
+            case GearTier.FABLED -> s.isShowFabled();
+            case GearTier.LEGENDARY -> s.isShowLegendary();
+            case GearTier.RARE -> s.isShowRare();
+            case GearTier.UNIQUE -> s.isShowUnique();
+            case GearTier.SET -> s.isShowSet();
             default -> s.isShowCommon();
         };
-    }
-
-
-    private int getStartX() {
-        return 20 + 20 + 15;
-    }
-
-    private int getEndX() {
-        return this.width - 110 - 20 - 20 - 15;
-    }
-
-    private int getContentWidth() {
-        return getEndX() - getStartX();
     }
 
     private List<RewardPool> getActivePools() {
@@ -306,6 +261,11 @@ public class RewardScreen extends Screen {
                 .filter(pool -> pool.getType() == activeType)
                 .toList();
     }
+
+    private int getContentWidth() {
+        return this.width - SIDEBAR_WIDTH - 2 * NAV_BUTTON_WIDTH - IMAGE_BUTTON_PADDING_X - MARGIN_X;
+    }
+
 
     private int getCurrentColumns() {
         return activeType == RewardType.LOOTRUN ? lootrunColumns : raidColumns;
