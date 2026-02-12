@@ -50,6 +50,8 @@ public class SimpleItem extends TimestampedObject {
     }
 
     public String getRarity() {
+        if(rarity == GearTier.NORMAL) return "Common";
+
         return rarity.getName();
     }
 
