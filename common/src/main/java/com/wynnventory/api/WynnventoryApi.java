@@ -30,7 +30,7 @@ public class WynnventoryApi  {
     public void sendGambitData(Set<SimpleGambitItem> gambits) {
         if (gambits.isEmpty()) return;
 
-        WynnventoryMod.logDebug("Sending gambit data to {} endpoint.", WynnventoryMod.isDev() ? "DEV" : "PROD");
+        WynnventoryMod.logDebug("Sending gambit data to {} endpoint.", WynnventoryMod.isBeta() ? "DEV" : "PROD");
         URI uri = Endpoint.RAIDPOOL_GAMBITS.uri();
         HttpUtils.sendPostRequest(uri, serialize(gambits));
         WynnventoryMod.logDebug("Submitted {} gambit items to API: {}", gambits.size(), uri);

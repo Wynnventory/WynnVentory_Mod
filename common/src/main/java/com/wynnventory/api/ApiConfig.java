@@ -23,7 +23,7 @@ public final class ApiConfig {
     private ApiConfig() {}
 
     public static URI baseUri() {
-        return WynnventoryMod.isDev() ? DEV_URI : PROD_URI;
+        return WynnventoryMod.isBeta() ? DEV_URI : PROD_URI;
     }
 
     public static String getApiKey() {

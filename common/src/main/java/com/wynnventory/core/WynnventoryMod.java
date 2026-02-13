@@ -20,7 +20,7 @@ public final class WynnventoryMod {
 
     private static ModLoader loader;
     private static String version;
-    private static boolean isDev;
+    private static boolean isBeta;
     private static File modFile;
 
     private WynnventoryMod() {}
@@ -28,7 +28,7 @@ public final class WynnventoryMod {
     public static void init(ModLoader loader, String version, File modFile) {
         WynnventoryMod.loader   = loader;
         WynnventoryMod.version  = version;
-        WynnventoryMod.isDev    = WynnventoryMod.version.contains("dev");
+        WynnventoryMod.isBeta = WynnventoryMod.version.contains("beta");
         WynnventoryMod.modFile  = modFile;
 
         WynnventoryMod.logInfo("Initializing Wynnventory mod v{} ({}), from file {}", version, loader.name(), modFile.getAbsolutePath());
@@ -82,8 +82,8 @@ public final class WynnventoryMod {
         LOGGER.error(msg, t);
     }
 
-    public static boolean isDev() {
-        return isDev;
+    public static boolean isBeta() {
+        return isBeta;
     }
 
     public enum ModLoader {
@@ -97,10 +97,6 @@ public final class WynnventoryMod {
 
     public static String getVersion() {
         return version;
-    }
-
-    public static boolean isIsDev() {
-        return isDev;
     }
 
     public static File getModFile() {

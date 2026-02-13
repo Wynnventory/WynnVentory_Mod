@@ -21,7 +21,7 @@ public class HttpUtils {
     private HttpUtils() {}
 
     public static void sendPostRequest(URI uri, String jsonPayload) {
-        WynnventoryMod.logDebug("Sending data to {} endpoint: {}", WynnventoryMod.isDev() ? "DEV" : "PROD", uri);
+        WynnventoryMod.logDebug("Sending data to {} endpoint: {}", WynnventoryMod.isBeta() ? "DEV" : "PROD", uri);
         HttpRequest request;
         try {
             request = baseRequest(uri)
@@ -43,7 +43,7 @@ public class HttpUtils {
     }
 
     public static CompletableFuture<HttpResponse<String>> sendGetRequest(URI uri) {
-        WynnventoryMod.logDebug("Fetching data from {} endpoint: {}", WynnventoryMod.isDev() ? "DEV" : "PROD", uri);
+        WynnventoryMod.logDebug("Fetching data from {} endpoint: {}", WynnventoryMod.isBeta() ? "DEV" : "PROD", uri);
 
         HttpRequest request;
         try {
