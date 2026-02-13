@@ -122,10 +122,10 @@ public class WynnventoryApi  {
     }
 
     private <T> T handleResponse(HttpResponse<String> resp, Function<String, T> on200) {
-        if (resp.statusCode() == 200) {
+        if (resp != null && resp.statusCode() == 200) {
             WynnventoryMod.logDebug("API response: {}", resp.body());
             return on200.apply(resp.body());
-        } else {
+        } else if(resp != null) {
             WynnventoryMod.logError("API error ({}): {}", resp.statusCode(), resp.body());
         }
 
