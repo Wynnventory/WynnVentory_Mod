@@ -5,7 +5,7 @@ on:
   push:
     branches: # Specify your branches here
       - master
-      - release_1.21.11_support
+      - 1.21.11_support
 
 jobs:
   qodana:
