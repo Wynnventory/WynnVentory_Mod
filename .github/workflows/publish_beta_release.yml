@@ -81,6 +81,8 @@ jobs:
     needs: changelog
     if: ${{ needs.changelog.outputs.skipped != 'true' }}
     runs-on: ubuntu-latest
+    env:
+      API_KEY: ${{ secrets.API_KEY }}
     outputs:
       fabric_jar_name: ${{ steps.jar.outputs.fabric_jar_name }}
       neoforge_jar_name: ${{ steps.jar.outputs.neoforge_jar_name }}
