@@ -26,11 +26,12 @@ public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketIt
     public static TrademarketItemSnapshot resolveSnapshot(ItemStack stack) {
         SimpleItem simpleItem = ItemStackUtils.toSimpleItem(stack);
 
+        if (simpleItem == null || !simpleItem.getItemTypeEnum().isSellable()) return null;
+
         return switch (simpleItem) {
             case SimpleGearItem gearItem    -> TrademarketService.INSTANCE.getItem(gearItem.getName(), gearItem.isShiny());
             case SimpleTierItem tierItem    -> TrademarketService.INSTANCE.getItem(tierItem.getName(), tierItem.getTier());
             case SimpleItem item            -> TrademarketService.INSTANCE.getItem(item.getName());
-            case null                       -> null;
         };
     }
 

@@ -2,32 +2,39 @@ package com.wynnventory.model.item.simple;
 
 public enum SimpleItemType {
     // SimpleItems
-    SIMULATOR("SimulatorItem"),
-    INSULATOR("InsulatorItem"),
-    RUNE("RuneItem"),
-    DUNGEON_KEY( "DungeonKeyItem"),
-    EMERALD_ITEM("EmeraldItem"),
-    ASPECT("AspectItem"),
-    TOME("TomeItem"),
+    SIMULATOR("SimulatorItem", true),
+    INSULATOR("InsulatorItem", true),
+    RUNE("RuneItem", true),
+    DUNGEON_KEY( "DungeonKeyItem", true),
+    EMERALD_ITEM("EmeraldItem", false),
+    ASPECT("AspectItem", false),
+    TOME("TomeItem", false),
 
     // SimpleTierItems
-    INGREDIENT("IngredientItem"),
-    MATERIAL("MaterialItem"),
-    POWDER("PowderItem"),
-    AMPLIFIER("AmplifierItem"),
-    HORSE("HorseItem"),
-    EMERALD_POUCH("EmeraldPouchItem"),
+    INGREDIENT("IngredientItem", true),
+    MATERIAL("MaterialItem", true),
+    POWDER("PowderItem", true),
+    AMPLIFIER("AmplifierItem", true),
+    HORSE("HorseItem", true),
+    EMERALD_POUCH("EmeraldPouchItem", true),
 
     // SimpleGearItems
-    GEAR("GearItem");
+    GEAR("GearItem", true);
 
     private final String type;
-    SimpleItemType(String type) {
+    private final boolean sellable;
+
+    SimpleItemType(String type, boolean sellable) {
         this.type = type;
+        this.sellable = sellable;
     }
 
     public String getType() {
         return type;
+    }
+
+    public boolean isSellable() {
+        return sellable;
     }
 
     public static SimpleItemType fromType(String type) {
