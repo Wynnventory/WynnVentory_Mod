@@ -24,15 +24,6 @@ footer = """
 """
 # remove the leading and trailing whitespace from the templates
 trim = true
-# order of the groups
-group_order = [
-    "⚠️ Breaking Changes",
-    "🚀 Features",
-    "🐛 Bug Fixes",
-    "⚡ Performance",
-    "🧹 Refactor",
-    "🎨 Styling",
-]
 
 [git]
 # parse the commits based on https://www.conventionalcommits.org
