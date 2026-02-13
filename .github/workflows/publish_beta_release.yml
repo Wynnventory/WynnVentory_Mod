@@ -1,4 +1,4 @@
-name: Publish Dev Build
+name: Publish Beta Build
 
 on:
   workflow_dispatch:
@@ -51,6 +51,8 @@ jobs:
       - name: Create prerelease changelog + tag (vX.Y.Z-dev.N)
         id: changelog
         uses: TriPSs/conventional-changelog-action@v6.2.0
+        env:
+          manual_version: ${{ github.event.inputs.manual_version }}
         with:
           github-token: ${{ secrets.BOT_PAT }}
           preset: conventionalcommits
@@ -107,7 +109,7 @@ jobs:
         id: jar
         shell: bash
         run: |
-          tag="${{ needs.changelog.outputs.tag }}"
+          tag="${{ github.event.inputs.manual_version }}"
           fabric_jar="wynnventory-fabric-$tag.jar"
           neoforge_jar="wynnventory-neoforge-$tag.jar"
           fabric_path=$(find fabric/build/libs/ -name "wynnventory-fabric-*.jar" ! -name "*-sources.jar" ! -name "*-shadow.jar" | head -n 1)
@@ -144,8 +146,8 @@ jobs:
         id: release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.changelog.outputs.tag }}
-          name: Wynnventory ${{ needs.changelog.outputs.tag }}
+          tag_name: ${{ github.event.inputs.manual_version }}
+          name: Wynnventory ${{ github.event.inputs.manual_version }}
           body: ${{ needs.changelog.outputs.changelog }}
           prerelease: true
           draft: false
@@ -158,7 +160,7 @@ jobs:
         with:
           webhook-url: ${{ secrets.DISCORD_DEV_RELEASE_WEBHOOK_URL }}
           embed-color: "9498256"
-          embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
+          embed-title: ${{format('Wynnventory {0}', github.event.inputs.manual_version)}}
           embed-description: ${{ needs.changelog.outputs.changelog }}
           embed-url: ${{ steps.release.outputs.url }}
           embed-timestamp: ${{ steps.date.outputs.long }}
@@ -192,8 +194,8 @@ jobs:
 #          curseforge-id: 1083173
 #          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 #
-#          name: Wynnventory ${{ needs.changelog.outputs.tag }}
-#          version: ${{ needs.changelog.outputs.tag }}
+#          name: Wynnventory ${{ github.event.inputs.manual_version }}
+#          version: ${{ github.event.inputs.manual_version }}
 #          changelog: ${{ needs.changelog.outputs.changelog }}
 #
 #          # IMPORTANT: set this to whatever you support on this branch

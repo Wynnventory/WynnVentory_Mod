@@ -9,9 +9,11 @@ exports.preCommit = (props) => {
         }
     };
 
+    const version = process.env.manual_version || props.version;
+
     // replace only the version string example:
     // version = "0.0.3-alpha.2"
     // version = "0.0.3-alpha.103+MC-1.19.4"
-    replace("./gradle.properties", /(?<=version = ")\d+\.\d+\.\d+((-\w+)+\.\d+)?(-SNAPSHOT)?(?=")/g, props.version);
+    replace("./gradle.properties", /(?<=version = ")\d+\.\d+\.\d+((-\w+)+\.\d+)?(-SNAPSHOT)?(?=")/g, version);
     // Regex provided by Github Copilot
 };
