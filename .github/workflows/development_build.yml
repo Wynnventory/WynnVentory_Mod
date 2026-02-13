@@ -52,11 +52,11 @@ jobs:
 
       - name: Create prerelease changelog + tag (vX.Y.Z-dev.N)
         id: changelog
-        uses: TriPSs/conventional-changelog-action@v6.0.0
+        uses: TriPSs/conventional-changelog-action@v6.2.0
         with:
           github-token: ${{ secrets.BOT_PAT }}
+          preset: conventionalcommits
           pre-commit: ./.github/pre-commit.js
-          config-file-path: ./.github/config.js
           skip-version-file: true
           skip-git-pull: true
           pre-release: true
