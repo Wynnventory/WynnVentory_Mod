@@ -43,13 +43,23 @@ jobs:
           git push origin $TAG
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Create GitHub Release (to generate changelog)
+      - name: Generate changelog
+        id: git-cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip header
+        env:
+          OUTPUT: CHANGELOG.md
+          GITHUB_REPO: ${{ github.repository }}
+
+      - name: Create GitHub Release
         id: release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.manual_version }}
           name: Wynnventory ${{ github.event.inputs.manual_version }}
-          generate_release_notes: true
+          body: ${{ steps.git-cliff.outputs.content }}
           prerelease: false
           draft: false
 
