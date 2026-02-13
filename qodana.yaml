@@ -27,7 +27,4 @@ projectJDK: "21"
 
 bootstrap: chmod +x gradlew && ./gradlew classes --no-daemon
 
-plugins:
-  - id: com.demonwav.minecraft-dev
-
 linter: jetbrains/qodana-jvm-community:2025.3
