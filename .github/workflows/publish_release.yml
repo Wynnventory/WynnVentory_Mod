@@ -59,6 +59,12 @@ jobs:
           skip-bump: true
           pre-release: false
           output-file: false
+          skip-tag: true
+
+      - name: Create and push tag
+        run: |
+          git tag ${{ github.event.inputs.manual_version }}
+          git push origin ${{ github.event.inputs.manual_version }}
 
       - name: Upload version-mutated build.gradle
         uses: actions/upload-artifact@v4
