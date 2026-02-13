@@ -7,6 +7,11 @@ on:
         description: 'Manual version (e.g., 1.2.3).'
         required: true
         type: string
+      publish_to_platforms:
+        description: 'Publish to Mod Platforms?'
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: write # create tags + GitHub releases
@@ -167,46 +172,80 @@ jobs:
           embed-url: ${{ needs.changelog.outputs.release_url }}
           embed-timestamp: ${{ steps.date.outputs.date }}
 
-#  publish_mod_platforms:
-#    name: Publish to Modrinth + CurseForge (dev)
-#    needs: [ changelog, build ]
-#    if: ${{ needs.changelog.outputs.skipped != 'true' }}
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - name: Download JARs
-#        uses: actions/download-artifact@v4
-#        with:
-#          name: artifacts
-#          path: ${{ github.workspace }}
-#
-#      - name: Publish (dev)
-#        uses: Kir-Antipov/mc-publish@v3.3.0
-#        with:
-#          files: |
-#            ${{ github.workspace }}/${{ needs.build.outputs.fabric_jar_name }}
-#            ${{ github.workspace }}/${{ needs.build.outputs.neoforge_jar_name }}
-#
-#          # Modrinth
-#          modrinth-id: CORVJbiT
-#          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-#          modrinth-featured: false
-#
-#          # CurseForge
-#          curseforge-id: 1083173
-#          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-#
-#          name: Wynnventory ${{ github.event.inputs.manual_version }}
-#          version: ${{ github.event.inputs.manual_version }}
-#          changelog: ${{ needs.changelog.outputs.changelog }}
-#
-#          # IMPORTANT: set this to whatever you support on this branch
-#          game-versions: |
-#            [1.21.11]
-#          loaders: |
-#            fabric
-#            neoforge
-#          java: 21
-#
-#          # Dev builds should not be "release"
-#          version-type: beta
+  publish_fabric:
+    name: Publish Fabric to Modrinth + CurseForge (dev)
+    needs: [ changelog, build ]
+    if: ${{ needs.changelog.outputs.skipped != 'true' && github.event.inputs.publish_to_platforms == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts
+          path: ${{ github.workspace }}
+
+      - name: Publish Fabric (dev)
+        uses: Kir-Antipov/mc-publish@v3.3.0
+        with:
+          files: |
+            ${{ github.workspace }}/${{ needs.build.outputs.fabric_jar_name }}
+
+          modrinth-id: CORVJbiT
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: false
+
+          curseforge-id: 1083173
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          name: Wynnventory ${{ needs.changelog.outputs.tag }} (Fabric)
+          version: ${{ needs.changelog.outputs.tag }}
+          changelog: ${{ needs.changelog.outputs.changelog }}
+
+          game-versions: |
+            [1.21.11]
+          loaders: |
+            fabric
+
+          java: 21
+
+          version-type: beta
+
+  publish_neoforge:
+    name: Publish NeoForge to Modrinth + CurseForge (dev)
+    needs: [ changelog, build ]
+    if: ${{ needs.changelog.outputs.skipped != 'true' && github.event.inputs.publish_to_platforms == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts
+          path: ${{ github.workspace }}
+
+      - name: Publish NeoForge (dev)
+        uses: Kir-Antipov/mc-publish@v3.3.0
+        with:
+          files: |
+            ${{ github.workspace }}/${{ needs.build.outputs.neoforge_jar_name }}
+
+          modrinth-id: CORVJbiT
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: false
+
+          curseforge-id: 1083173
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          name: Wynnventory ${{ needs.changelog.outputs.tag }} (NeoForge)
+          version: ${{ needs.changelog.outputs.tag }}
+          changelog: ${{ needs.changelog.outputs.changelog }}
+
+          game-versions: |
+            [1.21.11]
+          loaders: |
+            neoforge
+
+          java: 21
+
+          version-type: beta
