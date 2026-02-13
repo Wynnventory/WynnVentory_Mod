@@ -37,8 +37,8 @@ jobs:
 
       - name: Install changelog deps
         run: |
-          npm install conventional-changelog-conventionalcommits@7.0.2
-          npm install conventional-recommended-bump@9.0.0
+          npm install conventional-changelog-conventionalcommits@9.1.0
+          npm install conventional-recommended-bump@11.2.0
 
       - name: Bootstrap package.json if missing (TriPSs expects it)
         run: |

@@ -42,3 +42,4 @@ replay_*.log
 # custom
 fabric/src/main/resources/key.dat
 neoforge/src/main/resources/key.dat
+node_modules/
