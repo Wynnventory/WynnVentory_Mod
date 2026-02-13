@@ -1,7 +1,12 @@
 name: Publish Release
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      manual_version:
+        description: 'Manual version (e.g., 1.2.3).'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -30,15 +35,11 @@ jobs:
         with:
           node-version: 22
 
-      - name: Bootstrap package.json if missing
+      - name: Bootstrap package.json
         run: |
-          if [ ! -f package.json ]; then
-            echo "package.json not found, bootstrapping from latest tag…"
-            TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
-            printf '{\n "version": "%s"\n}\n' "$TAG" > package.json
-          else
-            echo "package.json already exists, skipping"
-          fi
+          MANUAL_VERSION="${{ github.event.inputs.manual_version }}"
+          echo "Using manual version: $MANUAL_VERSION"
+          printf '{\n "version": "%s"\n}\n' "$MANUAL_VERSION" > package.json
 
       - name: Install changelog deps
         run: |
@@ -53,7 +54,7 @@ jobs:
           preset: conventionalcommits
           pre-commit: ./.github/pre-commit.js
           skip-git-pull: true
-          skip-bump: false
+          skip-bump: true
           pre-release: false
           output-file: false
 
