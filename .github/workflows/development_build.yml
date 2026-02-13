@@ -1,0 +1,197 @@
+name: Publish Dev Build
+
+on:
+  push:
+    branches: [ master ]
+    tags-ignore:
+      - "v*" # don't run on tags this workflow creates
+
+permissions:
+  contents: write # create tags + GitHub releases
+  actions: read
+
+concurrency:
+  group: dev-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  changelog:
+    name: Generate prerelease tag + changelog
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.changelog.outputs.tag }}
+      skipped: ${{ steps.changelog.outputs.skipped }}
+      changelog: ${{ steps.changelog.outputs.clean_changelog }}
+
+    steps:
+      - name: Checkout (bot token for tag push)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install changelog deps
+        run: |
+          npm install conventional-changelog-conventionalcommits@7.0.2
+          npm install conventional-recommended-bump@9.0.0
+
+      - name: Bootstrap package.json if missing (TriPSs expects it)
+        run: |
+          if [ ! -f package.json ]; then
+            echo "package.json not found, bootstrapping from latest tag…"
+            TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+            printf '{\n "version": "%s"\n}\n' "$TAG" > package.json
+          else
+            echo "package.json already exists, skipping"
+          fi
+
+      - name: Create prerelease changelog + tag (vX.Y.Z-dev.N)
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v6.0.0
+        with:
+          github-token: ${{ secrets.BOT_PAT }}
+          pre-commit: ./.github/pre-commit.js
+          config-file-path: ./.github/config.js
+          skip-version-file: true
+          skip-git-pull: true
+          pre-release: true
+          pre-release-identifier: dev
+          output-file: false
+
+      - name: Upload version-mutated build.gradle (from pre-commit.js)
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-gradle
+          path: build.gradle
+          overwrite: true
+
+  build:
+    name: Build
+    needs: changelog
+    if: ${{ needs.changelog.outputs.skipped != 'true' }}
+    runs-on: ubuntu-latest
+    outputs:
+      fabric_jar_name: ${{ steps.jar.outputs.fabric_jar_name }}
+      neoforge_jar_name: ${{ steps.jar.outputs.neoforge_jar_name }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download build.gradle (with replaced version)
+        uses: actions/download-artifact@v4
+        with:
+          name: build-gradle
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        run: ./gradlew build --stacktrace
+
+      - name: Rename artifacts
+        id: jar
+        shell: bash
+        run: |
+          tag="${{ needs.changelog.outputs.tag }}"
+          fabric_jar="wynnventory-fabric-$tag.jar"
+          neoforge_jar="wynnventory-neoforge-$tag.jar"
+          fabric_path=$(find fabric/build/libs/ -name "wynnventory-fabric-*.jar" ! -name "*-sources.jar" ! -name "*-shadow.jar" | head -n 1)
+          neoforge_path=$(find neoforge/build/libs/ -name "wynnventory-neoforge-*.jar" ! -name "*-sources.jar" ! -name "*-shadow.jar" | head -n 1)
+          mv "$fabric_path" "$fabric_jar"
+          mv "$neoforge_path" "$neoforge_jar"
+          echo "fabric_jar_name=$fabric_jar" >> "$GITHUB_OUTPUT"
+          echo "neoforge_jar_name=$neoforge_jar" >> "$GITHUB_OUTPUT"
+
+      - name: Upload JARs
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: |
+            ${{ steps.jar.outputs.fabric_jar_name }}
+            ${{ steps.jar.outputs.neoforge_jar_name }}
+          if-no-files-found: error
+          overwrite: true
+
+  github_prerelease:
+    name: GitHub prerelease
+    needs: [ changelog, build ]
+    if: ${{ needs.changelog.outputs.skipped != 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download JARs
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts
+          path: ${{ github.workspace }}
+
+      - name: Create GitHub prerelease
+        id: release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.changelog.outputs.tag }}
+          name: Wynnventory ${{ needs.changelog.outputs.tag }}
+          body: ${{ needs.changelog.outputs.changelog }}
+          prerelease: true
+          draft: false
+          files: |
+            ${{ github.workspace }}/${{ needs.build.outputs.fabric_jar_name }}
+            ${{ github.workspace }}/${{ needs.build.outputs.neoforge_jar_name }}
+
+#  publish_mod_platforms:
+#    name: Publish to Modrinth + CurseForge (dev)
+#    needs: [ changelog, build ]
+#    if: ${{ needs.changelog.outputs.skipped != 'true' }}
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Download JARs
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: artifacts
+#          path: ${{ github.workspace }}
+#
+#      - name: Publish (dev)
+#        uses: Kir-Antipov/mc-publish@v3.3.0
+#        with:
+#          files: |
+#            ${{ github.workspace }}/${{ needs.build.outputs.fabric_jar_name }}
+#            ${{ github.workspace }}/${{ needs.build.outputs.neoforge_jar_name }}
+#
+#          # Modrinth
+#          modrinth-id: CORVJbiT
+#          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+#          modrinth-featured: false
+#
+#          # CurseForge
+#          curseforge-id: 1083173
+#          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+#
+#          name: Wynnventory ${{ needs.changelog.outputs.tag }}
+#          version: ${{ needs.changelog.outputs.tag }}
+#          changelog: ${{ needs.changelog.outputs.changelog }}
+#
+#          # IMPORTANT: set this to whatever you support on this branch
+#          game-versions: |
+#            [1.21.11]
+#          loaders: |
+#            fabric
+#            neoforge
+#          java: 21
+#
+#          # Dev builds should not be "release"
+#          version-type: beta
