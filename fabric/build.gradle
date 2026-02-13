@@ -49,9 +49,9 @@ dependencies {
         exclude group: "org.apache.logging.log4j"
         exclude group: "cpw.mods", module: "modlauncher"
     }
-    shadowImplementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
-    shadowImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.20.1")
-    shadowImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1")
+    shadowImplementation("com.fasterxml.jackson.core:jackson-databind:${jackson_version}")
+    shadowImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jackson_version}")
+    shadowImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_version}")
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')

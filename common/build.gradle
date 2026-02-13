@@ -12,7 +12,46 @@ dependencies {
 
     compileOnly "net.neoforged:bus:${neoforge_eventbus_version}"
 
-    compileOnly "com.fasterxml.jackson.core:jackson-databind:2.20.1"
-    compileOnly "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.20.1"
-    compileOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1"
+    compileOnly "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
+    compileOnly "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jackson_version}"
+    compileOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_version}"
+}
+
+def generateKeyDat = tasks.register("generateKeyDat") {
+    def apiKey = providers.environmentVariable("API_KEY")
+
+    inputs.property("apiKey", apiKey).optional(true)
+
+    def fabricFile = rootProject.file("fabric/src/main/resources/key.dat")
+    def neoForgeFile = rootProject.file("neoforge/src/main/resources/key.dat")
+
+    outputs.files(fabricFile, neoForgeFile)
+
+    doLast {
+        def apiKeyValue = apiKey.orNull
+
+        if (apiKeyValue?.trim()) {
+            fabricFile.parentFile.mkdirs()
+            fabricFile.text = apiKeyValue
+            neoForgeFile.parentFile.mkdirs()
+            neoForgeFile.text = apiKeyValue
+            logger.lifecycle("key.dat generated in Fabric and NeoForge resource directories")
+        } else {
+            logger.lifecycle("API_KEY environment variable is not set or empty; skipping key.dat generation")
+            if (fabricFile.exists()) fabricFile.delete()
+            if (neoForgeFile.exists()) neoForgeFile.delete()
+        }
+    }
+}
+
+// Ensure key generation happens before resources are processed
+// We use evaluationDependsOn to ensure subprojects are available
+evaluationDependsOn(":fabric")
+evaluationDependsOn(":neoforge")
+
+project(":fabric").tasks.named("processResources") {
+    dependsOn(generateKeyDat)
+}
+project(":neoforge").tasks.named("processResources") {
+    dependsOn(generateKeyDat)
 }
