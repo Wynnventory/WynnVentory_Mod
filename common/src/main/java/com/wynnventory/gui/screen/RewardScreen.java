@@ -21,11 +21,13 @@ import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,8 @@ public class RewardScreen extends Screen {
     private final Screen parent;
     private static RewardType activeType = RewardType.LOOTRUN;
     private static final Map<String, GuideItemStack> WYNN_ITEMS_BY_NAME = new HashMap<>();
+
+    private static final List<ItemButton<GuideItemStack>> itemWidgets = new ArrayList<>();
 
     private int scrollIndex = 0;
     private final int lootrunColumns = ModConfig.getInstance().getRewardScreenSettings().getLootrunColumns();
@@ -64,7 +68,7 @@ public class RewardScreen extends Screen {
 
     //Sidebar
     private static final int SIDEBAR_WIDTH = 100;
-    private static final int SIDEBAR_Y = NAV_BUTTON_Y + 25;
+    private static final int SIDEBAR_Y = NAV_BUTTON_Y;
 
     public RewardScreen(Component title, Screen parent) {
         super(title);
@@ -79,7 +83,7 @@ public class RewardScreen extends Screen {
     @Override
     protected void init() {
         if (WYNN_ITEMS_BY_NAME.isEmpty()) {
-            loadAllItems();
+            loadGuideItems();
         }
 
         int startX = (this.width - (TAB_BUTTON_WIDTH * 2 + TAB_BUTTON_SPACING)) / 2;
@@ -107,9 +111,7 @@ public class RewardScreen extends Screen {
         this.addRenderableWidget(new ImageButton(this.width - IMAGE_BUTTON_WIDTH - 10, startY, IMAGE_BUTTON_WIDTH, IMAGE_BUTTON_HEIGHT, Sprite.SETTINGS_BUTTON, b -> SettingsScreen.open(), Component.translatable("gui.wynnventory.reward.button.config")));
 
         // Reload Button
-        this.addRenderableWidget(new ImageButton(this.width - (IMAGE_BUTTON_WIDTH * 2) - IMAGE_BUTTON_PADDING_X, startY, IMAGE_BUTTON_WIDTH, IMAGE_BUTTON_HEIGHT, Sprite.RELOAD_BUTTON, b -> {
-            RewardService.INSTANCE.reloadAllPools().thenRun(() -> this.minecraft.execute(this::rebuildWidgets));
-        }, Component.translatable("gui.wynnventory.reward.button.reload")));
+        this.addRenderableWidget(new ImageButton(this.width - (IMAGE_BUTTON_WIDTH * 2) - IMAGE_BUTTON_PADDING_X, startY, IMAGE_BUTTON_WIDTH, IMAGE_BUTTON_HEIGHT, Sprite.RELOAD_BUTTON, b -> RewardService.INSTANCE.reloadAllPools().thenRun(() -> this.minecraft.execute(this::rebuildWidgets)), Component.translatable("gui.wynnventory.reward.button.reload")));
 
         // Carousel buttons
         List<RewardPool> activePools = getActivePools();
@@ -152,11 +154,22 @@ public class RewardScreen extends Screen {
     }
 
     @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        super.render(graphics, mouseX, mouseY, delta);
+
+        for (ItemButton<GuideItemStack> widget : itemWidgets) {
+            if (widget.isHovered()) {
+                graphics.setTooltipForNextFrame(this.font, widget.getItemStack(), mouseX, mouseY);
+            }
+        }
+    }
+
+    @Override
     public void onClose() {
         this.minecraft.setScreen(this.parent);
     }
 
-    private void loadAllItems() {
+    private void loadGuideItems() {
         addStacks(Models.Gear.getAllGearInfos().map(GuideGearItemStack::new).toList(), s -> s.getGearInfo().name());
         addStacks(Models.Rewards.getAllTomeInfos().map(GuideTomeItemStack::new).toList(), s -> s.getTomeInfo().name());
         addStacks(Models.Element.getAllPowderTierInfo().stream().map(GuidePowderItemStack::new).toList(),
@@ -224,13 +237,11 @@ public class RewardScreen extends Screen {
                 int x = itemXStart + col * 20;
                 int y = itemYStart + row * 20;
 
-                boolean shiny = false;
-                if(item instanceof SimpleGearItem simpleGearItem) {
-                    shiny = simpleGearItem.isShiny();
-                }
+                boolean shiny = item instanceof SimpleGearItem simpleGearItem && simpleGearItem.isShiny();
 
                 ItemButton<GuideItemStack> button = new ItemButton<>(x, y, 18, 18, stack, shiny);
                 this.addRenderableWidget(button);
+                itemWidgets.add(button);
 
                 displayedItemIndex++;
             }
@@ -270,7 +281,6 @@ public class RewardScreen extends Screen {
     private int getContentWidth() {
         return this.width - SIDEBAR_WIDTH - 2 * NAV_BUTTON_WIDTH - IMAGE_BUTTON_PADDING_X - MARGIN_X;
     }
-
 
     private int getCurrentColumns() {
         return activeType == RewardType.LOOTRUN ? lootrunColumns : raidColumns;

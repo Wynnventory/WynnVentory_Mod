@@ -94,10 +94,10 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                             1);
         }
 
-
-        if (this.isHovered()) {
-            g.setTooltipForNextFrame(Minecraft.getInstance().font, itemStack, mouseX, mouseY);
-        }
+        // Causes price tooltip to render behind ItemButton textures. Maybe fix later?
+//        if (this.isHovered()) {
+//            g.setTooltipForNextFrame(Minecraft.getInstance().font, itemStack, mouseX, mouseY);
+//        }
     }
 
     @Override
@@ -121,21 +121,20 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
     public void onPress(InputWithModifiers inputWithModifiers) { }
 
     private void buildTooltip() {
-        if (itemStack instanceof GuideGearItemStack gear) {
-            gear.buildTooltip();
-        } else if (itemStack instanceof GuideTomeItemStack tome) {
-            tome.buildTooltip();
+        switch (itemStack) {
+            case GuideGearItemStack gear -> gear.buildTooltip();
+            case GuideTomeItemStack tome -> tome.buildTooltip();
+            default -> {}
         }
     }
 
     private CustomColor getCustomColor() {
-        if (itemStack instanceof GuideGearItemStack gear)
-            return CustomColor.fromChatFormatting(gear.getGearInfo().tier().getChatFormatting());
-        if (itemStack instanceof GuideTomeItemStack tome)
-            return CustomColor.fromChatFormatting(tome.getTomeInfo().tier().getChatFormatting());
-        if (itemStack instanceof GuideAspectItemStack aspect)
-            return CustomColor.fromChatFormatting(aspect.getAspectInfo().gearTier().getChatFormatting());
-        return CustomColor.NONE;
+        return switch (itemStack) {
+            case GuideGearItemStack gear -> CustomColor.fromChatFormatting(gear.getGearInfo().tier().getChatFormatting());
+            case GuideTomeItemStack tome -> CustomColor.fromChatFormatting(tome.getTomeInfo().tier().getChatFormatting());
+            case GuideAspectItemStack aspect -> CustomColor.fromChatFormatting(aspect.getAspectInfo().gearTier().getChatFormatting());
+            default -> CustomColor.NONE;
+        };
     }
 
     public T getItemStack() {
