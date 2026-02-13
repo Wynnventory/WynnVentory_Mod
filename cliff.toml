@@ -12,7 +12,7 @@ body = """
     ## [unreleased]
 {% endif %}\
 {% for group, commits in commits | group_by(attribute="group") %}
-    ### {{ group | upper_first }}
+    ### {{ group | striptags | trim | upper_first }}
     {% for commit in commits %}
         - {% if commit.scope %}**{{commit.scope}}**: {% endif %}{{ commit.message | upper_first }}\
     {% endfor %}
