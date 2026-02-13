@@ -22,10 +22,16 @@ public class HttpUtils {
 
     public static void sendPostRequest(URI uri, String jsonPayload) {
         WynnventoryMod.logDebug("Sending data to {} endpoint: {}", WynnventoryMod.isDev() ? "DEV" : "PROD", uri);
-        HttpRequest request = baseRequest(uri)
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
-                .build();
+        HttpRequest request;
+        try {
+            request = baseRequest(uri)
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .build();
+        } catch (Exception e) {
+            WynnventoryMod.logError("Failed to create POST request for endpoint '{}': {}", uri, e.getMessage());
+            return;
+        }
 
         send(request)
                 .thenAccept(resp -> {
@@ -38,10 +44,17 @@ public class HttpUtils {
 
     public static CompletableFuture<HttpResponse<String>> sendGetRequest(URI uri) {
         WynnventoryMod.logDebug("Fetching data from {} endpoint: {}", WynnventoryMod.isDev() ? "DEV" : "PROD", uri);
-        HttpRequest request = baseRequest(uri)
-                .header("Accept", "application/json")
-                .GET()
-                .build();
+
+        HttpRequest request;
+        try {
+            request = baseRequest(uri)
+                    .header("Accept", "application/json")
+                    .GET()
+                    .build();
+        } catch (Exception e) {
+            WynnventoryMod.logError("Failed to create GET request for endpoint '{}': {}", uri, e.getMessage());
+            return CompletableFuture.completedFuture(null);
+        }
 
         return send(request)
                 .whenComplete((resp, ex) -> {
