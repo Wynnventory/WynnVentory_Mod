@@ -7,7 +7,6 @@ import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
-import com.wynntils.utils.MathUtils;
 import com.wynnventory.api.service.RewardService;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.config.settings.RewardScreenSettings;
@@ -18,6 +17,8 @@ import com.wynnventory.gui.widget.RectWidget;
 import com.wynnventory.gui.widget.TextWidget;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
+import com.wynnventory.model.item.simple.SimpleItemType;
+import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardType;
 import net.minecraft.client.Minecraft;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -172,9 +174,9 @@ public class RewardScreen extends Screen {
     private void loadGuideItems() {
         addStacks(Models.Gear.getAllGearInfos().map(GuideGearItemStack::new).toList(), s -> s.getGearInfo().name());
         addStacks(Models.Rewards.getAllTomeInfos().map(GuideTomeItemStack::new).toList(), s -> s.getTomeInfo().name());
-        addStacks(Models.Element.getAllPowderTierInfo().stream().map(GuidePowderItemStack::new).toList(),
-                s -> s.getElement().getName() + " Powder " + MathUtils.toRoman(s.getTier()));
         addStacks(Models.Aspect.getAllAspectInfos().map(info -> new GuideAspectItemStack(info, 1)).toList(), s -> s.getAspectInfo().name());
+        addStacks(Models.Element.getAllPowderTierInfo().stream().map(GuidePowderItemStack::new).toList(),
+                s -> s.getElement().getName() + " Powder " + s.getTier());
     }
 
     private <T extends GuideItemStack> void addStacks(List<T> items, Function<T, String> nameMapper) {
@@ -220,7 +222,7 @@ public class RewardScreen extends Screen {
     }
 
     private void createItemButtons(int itemXStart, int itemYStart, RewardPool pool, int itemsPerRow) {
-        RewardService.INSTANCE.getItems(pool).thenAccept( items -> Minecraft.getInstance().execute(() -> {
+        RewardService.INSTANCE.getItems(pool).thenAccept(items -> Minecraft.getInstance().execute(() -> {
             if (getActivePools().stream().noneMatch(p -> p == pool)) return;
 
             int displayedItemIndex = 0;
@@ -228,7 +230,8 @@ public class RewardScreen extends Screen {
             for (SimpleItem item : items) {
                 if (!matchesFilters(item)) continue;
 
-                GuideItemStack stack = WYNN_ITEMS_BY_NAME.get(item.getName());
+                GuideItemStack stack = getGuideItemStack(item);
+
                 if (stack == null || stack.isEmpty()) continue;
 
                 int row = displayedItemIndex / itemsPerRow;
@@ -248,12 +251,13 @@ public class RewardScreen extends Screen {
         }));
     }
 
-    private void addFilterButton(String label, java.util.function.BooleanSupplier getter, Consumer<Boolean> setter, int x, int y, int w) {
+    private void addFilterButton(String label, BooleanSupplier getter, Consumer<Boolean> setter, int x, int y, int w) {
         this.addRenderableWidget(Button.builder(Component.literal(label + ": " + (getter.getAsBoolean() ? "ON" : "OFF")), b -> {
             setter.accept(!getter.getAsBoolean());
             try {
                 ModConfig.getInstance().save();
-            } catch (IOException ignored) {}
+            } catch (IOException ignored) {
+            }
             this.rebuildWidgets();
         }).bounds(x, y, w, 20).build());
     }
@@ -284,5 +288,17 @@ public class RewardScreen extends Screen {
 
     private int getCurrentColumns() {
         return activeType == RewardType.LOOTRUN ? lootrunColumns : raidColumns;
+    }
+
+    private GuideItemStack getGuideItemStack(SimpleItem item) {
+        if (item instanceof SimpleTierItem s) {
+            if (s.getItemTypeEnum() == SimpleItemType.POWDER) {
+                return WYNN_ITEMS_BY_NAME.get(s.getName() + " " + s.getTier());
+            } else if (s.getItemTypeEnum() == SimpleItemType.AMPLIFIER) {
+                // TODO
+                return null;
+            }
+        }
+        return WYNN_ITEMS_BY_NAME.get(item.getName());
     }
 }

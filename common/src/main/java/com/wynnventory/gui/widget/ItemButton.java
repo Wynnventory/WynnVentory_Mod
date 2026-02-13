@@ -5,6 +5,7 @@ import com.wynntils.core.text.StyledText;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
+import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.colors.CommonColors;
 import com.wynntils.utils.colors.CustomColor;
@@ -131,6 +132,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
             case GuideGearItemStack gear -> CustomColor.fromChatFormatting(gear.getGearInfo().tier().getChatFormatting());
             case GuideTomeItemStack tome -> CustomColor.fromChatFormatting(tome.getTomeInfo().tier().getChatFormatting());
             case GuideAspectItemStack aspect -> CustomColor.fromChatFormatting(aspect.getAspectInfo().gearTier().getChatFormatting());
+            case GuidePowderItemStack powder -> CustomColor.fromChatFormatting(powder.getElement().getLightColor());
             default -> CustomColor.NONE;
         };
     }

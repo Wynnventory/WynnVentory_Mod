@@ -1,18 +1,13 @@
 package com.wynnventory.model.item.simple;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.*;
+import com.wynnventory.api.service.IconService;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.TimestampedObject;
-import com.wynnventory.api.service.IconService;
 import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.StringUtils;
 import net.minecraft.world.item.ItemStack;
