@@ -53,11 +53,9 @@ jobs:
       - name: Create prerelease changelog + tag (vX.Y.Z-dev.N)
         id: changelog
         uses: TriPSs/conventional-changelog-action@v6.2.0
-        env:
-          IS_DEV: "true"
         with:
           github-token: ${{ secrets.BOT_PAT }}
-          config-file-path: ./.github/config.js
+          preset: conventionalcommits
           pre-commit: ./.github/pre-commit.js
           skip-version-file: true
           skip-git-pull: true

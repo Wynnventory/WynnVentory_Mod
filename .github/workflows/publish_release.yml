@@ -50,7 +50,7 @@ jobs:
         uses: TriPSs/conventional-changelog-action@v6.0.0
         with:
           github-token: ${{ secrets.BOT_PAT }}
-          config-file-path: ./.github/config.js
+          preset: conventionalcommits
           pre-commit: ./.github/pre-commit.js
           skip-git-pull: true
           skip-bump: false
