@@ -38,19 +38,19 @@ commit_preprocessors = [
 ]
 # regex for parsing and grouping commits
 commit_parsers = [
-    { message = "^feat!", group = "⚠️ Breaking Changes" },
-    { message = "^fix!", group = "⚠️ Breaking Changes" },
-    { message = "^feat:", group = "🚀 Features" },
-    { message = "^fix:", group = "🐛 Bug Fixes" },
-    { message = "^perf:", group = "⚡ Performance" },
-    { message = "^refactor:", group = "🧹 Refactor" },
-    { message = "^style:", group = "🎨 Styling" },
-    { message = "^doc:", group = "📖 Documentation", skip = true },
-    { message = "^test:", group = "🧪 Testing", skip = true },
+    { message = "^feat!",       group = "<!-- 0 -->⚠️ Breaking Changes" },
+    { message = "^fix!",        group = "<!-- 0 -->⚠️ Breaking Changes" },
+    { message = "^feat:",       group = "<!-- 1 -->🚀 Features" },
+    { message = "^fix:",        group = "<!-- 2 -->🐛 Bug Fixes" },
+    { message = "^perf:",       group = "<!-- 3 -->⚡ Performance" },
+    { message = "^refactor:",   group = "<!-- 4 -->🧹 Refactor" },
+    { message = "^style:",      group = "<!-- 5 -->🎨 Styling" },
+    { message = "^doc:",        group = "📖 Documentation", skip = true },
+    { message = "^test:",       group = "🧪 Testing", skip = true },
     { message = "^chore\\(release\\):", skip = true },
-    { message = "^ci:", group = "⚙️ Continuous Integration", skip = true },
-    { message = "^chore:", group = "⚙️ Maintenance", skip = true},
-    { body = ".*security", group = "🛡️ Security", skip = true },
+    { message = "^ci:",         group = "⚙️ Continuous Integration", skip = true },
+    { message = "^chore:",      group = "⚙️ Maintenance", skip = true},
+    { body = ".*security",      group = "🛡️ Security", skip = true },
     { message = ".*", skip = true },
 ]
 # protect github users from being mentioned
