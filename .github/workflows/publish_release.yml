@@ -145,6 +145,16 @@ jobs:
             ${{ github.workspace }}/${{ needs.build.outputs.fabric_jar_name }}
             ${{ github.workspace }}/${{ needs.build.outputs.neoforge_jar_name }}
 
+      - name: Post release on Discord
+        uses: tsickert/discord-webhook@v7.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          embed-color: "9498256"
+          embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
+          embed-description: ${{ needs.changelog.outputs.changelog }}
+          embed-url: ${{ steps.release.outputs.url }}
+          embed-timestamp: ${{ steps.date.outputs.long }}
+
   publish_fabric:
     name: Publish Fabric to Modrinth + CurseForge
     needs: [ changelog, build ]
