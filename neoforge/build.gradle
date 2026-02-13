@@ -37,12 +37,12 @@ dependencies {
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 
-    runtimeOnly("com.fasterxml.jackson.core:jackson-databind:2.20.1")
-    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.20.1")
-    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1")
-    shadowBundle("com.fasterxml.jackson.core:jackson-databind:2.20.1")
-    shadowBundle("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.20.1")
-    shadowBundle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1")
+    runtimeOnly("com.fasterxml.jackson.core:jackson-databind:${jackson_version}")
+    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jackson_version}")
+    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_version}")
+    shadowBundle("com.fasterxml.jackson.core:jackson-databind:${jackson_version}")
+    shadowBundle("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jackson_version}")
+    shadowBundle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_version}")
 }
 
 processResources {

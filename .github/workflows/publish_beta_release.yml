@@ -22,9 +22,8 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ steps.changelog.outputs.tag }}
-      skipped: ${{ steps.changelog.outputs.skipped }}
-      changelog: ${{ steps.changelog.outputs.clean_changelog }}
+      tag: ${{ steps.tag.outputs.tag }}
+      changelog: ${{ steps.release.outputs.body }}
 
     steps:
       - name: Checkout (bot token for tag push)
@@ -33,41 +32,28 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Bootstrap package.json (TriPSs expects it)
+      - name: Update gradle.properties
         run: |
-          MANUAL_VERSION="${{ github.event.inputs.manual_version }}"
-          echo "Using manual version: $MANUAL_VERSION"
-          printf '{\n "version": "%s"\n}\n' "$MANUAL_VERSION" > package.json
-
-      - name: Install changelog deps
-        run: |
-          npm install conventional-changelog-conventionalcommits@9.1.0
-          npm install conventional-recommended-bump@11.2.0
-
-      - name: Create prerelease changelog + tag (vX.Y.Z-dev.N)
-        id: changelog
-        uses: TriPSs/conventional-changelog-action@v6.2.0
-        env:
-          manual_version: ${{ github.event.inputs.manual_version }}
-        with:
-          github-token: ${{ secrets.BOT_PAT }}
-          preset: conventionalcommits
-          pre-commit: ./.github/pre-commit.js
-          skip-version-file: true
-          skip-git-pull: true
-          pre-release: false
-          pre-release-identifier: dev
-          output-file: false
-          skip-tag: true
+          VERSION="${{ github.event.inputs.manual_version }}"
+          sed -i "s/mod_version = .*/mod_version = $VERSION/" gradle.properties
 
       - name: Create and push tag
+        id: tag
         run: |
-          git tag ${{ github.event.inputs.manual_version }}
-          git push origin ${{ github.event.inputs.manual_version }}
+          TAG="${{ github.event.inputs.manual_version }}"
+          git tag $TAG
+          git push origin $TAG
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release (to generate changelog)
+        id: release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.manual_version }}
+          name: Wynnventory ${{ github.event.inputs.manual_version }}
+          generate_release_notes: true
+          prerelease: true
+          draft: false
 
       - name: Upload version-mutated build.gradle (from pre-commit.js)
         uses: actions/upload-artifact@v4
@@ -79,8 +65,9 @@ jobs:
   build:
     name: Build
     needs: changelog
-    if: ${{ needs.changelog.outputs.skipped != 'true' }}
     runs-on: ubuntu-latest
+    env:
+      API_KEY: ${{ secrets.API_KEY }}
     outputs:
       fabric_jar_name: ${{ steps.jar.outputs.fabric_jar_name }}
       neoforge_jar_name: ${{ steps.jar.outputs.neoforge_jar_name }}
@@ -138,7 +125,6 @@ jobs:
   github_prerelease:
     name: GitHub prerelease
     needs: [ changelog, build ]
-    if: ${{ needs.changelog.outputs.skipped != 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -148,15 +134,10 @@ jobs:
           name: artifacts
           path: ${{ github.workspace }}
 
-      - name: Create GitHub prerelease
-        id: release
+      - name: Update GitHub Release with JARs
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.manual_version }}
-          name: Wynnventory ${{ github.event.inputs.manual_version }}
-          body: ${{ needs.changelog.outputs.changelog }}
-          prerelease: true
-          draft: false
           files: |
             ${{ github.workspace }}/${{ needs.build.outputs.fabric_jar_name }}
             ${{ github.workspace }}/${{ needs.build.outputs.neoforge_jar_name }}
