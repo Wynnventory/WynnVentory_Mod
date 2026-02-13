@@ -21,7 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
-      changelog: ${{ steps.release.outputs.body }}
+      changelog: ${{ steps.git-cliff.outputs.content }}
+      release_url: ${{ steps.release.outputs.url }}
 
     steps:
       - name: Checkout (bot token for tag push)
@@ -145,20 +146,24 @@ jobs:
       - name: Update GitHub release with JARs
         uses: softprops/action-gh-release@v2
         with:
-          tag_name:  ${{ steps.tag.outputs.tag }}
+          tag_name:  ${{ needs.changelog.outputs.tag }}
           files: |
             ${{ github.workspace }}/${{ needs.build.outputs.fabric_jar_name }}
             ${{ github.workspace }}/${{ needs.build.outputs.neoforge_jar_name }}
+
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
 
       - name: Post release on Discord
         uses: tsickert/discord-webhook@v7.0.0
         with:
           webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           embed-color: "9498256"
-          embed-title: ${{format('Wynnventory {0}', steps.tag.outputs.tag)}}
+          embed-title: ${{format('Wynnventory {0}', needs.changelog.outputs.tag)}}
           embed-description: ${{ needs.changelog.outputs.changelog }}
-          embed-url: ${{ steps.release.outputs.url }}
-          embed-timestamp: ${{ steps.date.outputs.long }}
+          embed-url: ${{ needs.changelog.outputs.release_url }}
+          embed-timestamp: ${{ steps.date.outputs.date }}
 
   publish_fabric:
     name: Publish Fabric to Modrinth + CurseForge
@@ -185,8 +190,8 @@ jobs:
           curseforge-id: 1083173
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          name: Wynnventory ${{ steps.tag.outputs.tag }} (Fabric)
-          version: ${{ steps.tag.outputs.tag }}
+          name: Wynnventory ${{ needs.changelog.outputs.tag }} (Fabric)
+          version: ${{ needs.changelog.outputs.tag }}
           changelog: ${{ needs.changelog.outputs.changelog }}
 
           game-versions: |
@@ -223,8 +228,8 @@ jobs:
           curseforge-id: 1083173
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          name: Wynnventory ${{ steps.tag.outputs.tag }} (NeoForge)
-          version: ${{ steps.tag.outputs.tag }}
+          name: Wynnventory ${{ needs.changelog.outputs.tag }} (NeoForge)
+          version: ${{ needs.changelog.outputs.tag }}
           changelog: ${{ needs.changelog.outputs.changelog }}
 
           game-versions: |
