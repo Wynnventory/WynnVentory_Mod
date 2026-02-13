@@ -50,6 +50,5 @@
   "gui.wynnventory.settings.highlighting.hexCode": "Hex Code",
   "gui.wynnventory.settings.notifications.enableNotifier": "Enable Notifications",
   "gui.wynnventory.settings.notifications.maxToasts": "Max Toasts",
-  "gui.wynnventory.settings.notifications.mythicsOnly": "Mythics Only",
-  "key.wynnventory.openSettings": "Open Settings Screen"
+  "gui.wynnventory.settings.notifications.mythicsOnly": "Mythics Only"
 }
