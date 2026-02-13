@@ -38,7 +38,7 @@ jobs:
       - name: Create and push tag
         id: tag
         run: |
-          TAG="${{ github.event.inputs.manual_version }}"
+          TAG="v${{ github.event.inputs.manual_version }}"
           git tag $TAG
           git push origin $TAG
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
@@ -57,8 +57,8 @@ jobs:
         id: release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.manual_version }}
-          name: Wynnventory ${{ github.event.inputs.manual_version }}
+          tag_name:  ${{ steps.tag.outputs.tag }}
+          name:  ${{ steps.tag.outputs.tag }}
           body: ${{ steps.git-cliff.outputs.content }}
           prerelease: false
           draft: false
@@ -110,9 +110,9 @@ jobs:
         id: jar
         shell: bash
         run: |
-          tag="${{ github.event.inputs.manual_version }}"
-          fabric_jar="wynnventory-fabric-$tag.jar"
-          neoforge_jar="wynnventory-neoforge-$tag.jar"
+          version="${{ github.event.inputs.manual_version }}"
+          fabric_jar="wynnventory-fabric-$version.jar"
+          neoforge_jar="wynnventory-neoforge-$version.jar"
           fabric_path=$(find fabric/build/libs/ -name "wynnventory-fabric-*.jar" ! -name "*-sources.jar" ! -name "*-shadow.jar" | head -n 1)
           neoforge_path=$(find neoforge/build/libs/ -name "wynnventory-neoforge-*.jar" ! -name "*-sources.jar" ! -name "*-shadow.jar" | head -n 1)
           mv "$fabric_path" "$fabric_jar"
@@ -145,7 +145,7 @@ jobs:
       - name: Update GitHub release with JARs
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.manual_version }}
+          tag_name:  ${{ steps.tag.outputs.tag }}
           files: |
             ${{ github.workspace }}/${{ needs.build.outputs.fabric_jar_name }}
             ${{ github.workspace }}/${{ needs.build.outputs.neoforge_jar_name }}
@@ -155,7 +155,7 @@ jobs:
         with:
           webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           embed-color: "9498256"
-          embed-title: ${{format('Wynnventory {0}', github.event.inputs.manual_version)}}
+          embed-title: ${{format('Wynnventory {0}', steps.tag.outputs.tag)}}
           embed-description: ${{ needs.changelog.outputs.changelog }}
           embed-url: ${{ steps.release.outputs.url }}
           embed-timestamp: ${{ steps.date.outputs.long }}
@@ -185,8 +185,8 @@ jobs:
           curseforge-id: 1083173
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          name: Wynnventory ${{ github.event.inputs.manual_version }} (Fabric)
-          version: ${{ github.event.inputs.manual_version }}
+          name: Wynnventory ${{ steps.tag.outputs.tag }} (Fabric)
+          version: ${{ steps.tag.outputs.tag }}
           changelog: ${{ needs.changelog.outputs.changelog }}
 
           game-versions: |
@@ -223,8 +223,8 @@ jobs:
           curseforge-id: 1083173
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          name: Wynnventory ${{ github.event.inputs.manual_version }} (NeoForge)
-          version: ${{ github.event.inputs.manual_version }}
+          name: Wynnventory ${{ steps.tag.outputs.tag }} (NeoForge)
+          version: ${{ steps.tag.outputs.tag }}
           changelog: ${{ needs.changelog.outputs.changelog }}
 
           game-versions: |
