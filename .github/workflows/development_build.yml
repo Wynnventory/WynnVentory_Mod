@@ -35,11 +35,6 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install changelog deps
-        run: |
-          npm install conventional-changelog-conventionalcommits@9.1.0
-          npm install conventional-recommended-bump@11.2.0
-
       - name: Bootstrap package.json if missing (TriPSs expects it)
         run: |
           if [ ! -f package.json ]; then
@@ -49,6 +44,11 @@ jobs:
           else
             echo "package.json already exists, skipping"
           fi
+
+      - name: Install changelog deps
+        run: |
+          npm install conventional-changelog-conventionalcommits@9.1.0
+          npm install conventional-recommended-bump@11.2.0
 
       - name: Create prerelease changelog + tag (vX.Y.Z-dev.N)
         id: changelog

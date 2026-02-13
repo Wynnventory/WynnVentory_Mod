@@ -1,5 +1,4 @@
 "use strict";
-const config = require("conventional-changelog-conventionalcommits");
 
 function whatBump(commits) {
     let releaseType = 2;
@@ -41,6 +40,7 @@ function whatBump(commits) {
 }
 
 async function getOptions() {
+    const { default: config } = await import("conventional-changelog-conventionalcommits");
     let options = await config(
         {
             types: [
