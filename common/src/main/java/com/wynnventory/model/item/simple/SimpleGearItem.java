@@ -1,7 +1,6 @@
 package com.wynnventory.model.item.simple;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynntils.models.gear.GearModel;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItemData;
@@ -9,9 +8,9 @@ import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.stats.type.ShinyStat;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
+import com.wynnventory.api.service.IconService;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.ItemStat;
-import com.wynnventory.api.service.IconService;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;

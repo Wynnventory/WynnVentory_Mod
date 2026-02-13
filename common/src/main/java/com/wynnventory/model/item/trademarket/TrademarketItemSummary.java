@@ -2,12 +2,11 @@ package com.wynnventory.model.item.trademarket;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wynnventory.model.item.TimestampedObject;
 import com.wynnventory.model.item.Icon;
+import com.wynnventory.model.item.TimestampedObject;
 import com.wynnventory.model.item.simple.SimpleItem;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
