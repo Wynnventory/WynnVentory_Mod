@@ -18,6 +18,9 @@
   "entrypoints": {
     "client": [
       "com.wynnventory.fabric.WynnventoryModFabric"
+    ],
+    "modmenu": [
+      "com.wynnventory.fabric.ModMenuIntegration"
     ]
   },
   "mixins": [

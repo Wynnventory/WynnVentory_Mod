@@ -26,6 +26,11 @@ public class SettingsScreen extends OptionsSubScreen {
         mc.setScreen(new SettingsScreen(mc.screen));
     }
 
+    public static Screen create(Screen screen) {
+        Minecraft mc = Minecraft.getInstance();
+        return new SettingsScreen(mc.screen);
+    }
+
     public <T extends AbstractWidget> T addPublic(T widget) {
         return super.addRenderableWidget(widget);
     }
