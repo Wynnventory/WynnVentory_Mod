@@ -42,7 +42,7 @@ public class RewardScreen extends Screen {
     private static RewardType activeType = RewardType.LOOTRUN;
     private static final Map<String, GuideItemStack> WYNN_ITEMS_BY_NAME = new HashMap<>();
 
-    private static final List<ItemButton<GuideItemStack>> itemWidgets = new ArrayList<>();
+    private final List<ItemButton<GuideItemStack>> itemWidgets = new ArrayList<>();
 
     private int scrollIndex = 0;
     private final int lootrunColumns = ModConfig.getInstance().getRewardScreenSettings().getLootrunColumns();
