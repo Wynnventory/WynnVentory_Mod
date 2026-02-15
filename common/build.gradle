@@ -38,8 +38,6 @@ def generateKeyDat = tasks.register("generateKeyDat") {
             logger.lifecycle("key.dat generated in Fabric and NeoForge resource directories")
         } else {
             logger.lifecycle("API_KEY environment variable is not set or empty; skipping key.dat generation")
-            if (fabricFile.exists()) fabricFile.delete()
-            if (neoForgeFile.exists()) neoForgeFile.delete()
         }
     }
 }
