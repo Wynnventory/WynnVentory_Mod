@@ -6,8 +6,11 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
 public abstract class WynnventoryButton extends AbstractButton {
-    protected WynnventoryButton(int x, int y, int width, int height, Component message) {
-        super(x, y, width, height, message);
+    protected String label;
+
+    protected WynnventoryButton(int x, int y, int width, int height, String label) {
+        super(x, y, width, height, Component.literal(label));
+        this.label = label;
     }
 
     @Override
@@ -19,4 +22,7 @@ public abstract class WynnventoryButton extends AbstractButton {
     @Override
     protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {}
 
+    protected String getLabel() {
+        return this.label;
+    }
 }

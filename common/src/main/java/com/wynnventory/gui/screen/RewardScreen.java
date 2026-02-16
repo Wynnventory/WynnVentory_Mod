@@ -5,16 +5,15 @@ import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
+import com.wynntils.screens.guides.gear.GuideGearItemStackButton;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
+import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.api.service.RewardService;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.config.settings.RewardScreenSettings;
 import com.wynnventory.gui.Sprite;
-import com.wynnventory.gui.widget.ImageButton;
-import com.wynnventory.gui.widget.ItemButton;
-import com.wynnventory.gui.widget.RectWidget;
-import com.wynnventory.gui.widget.TextWidget;
+import com.wynnventory.gui.widget.*;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleItemType;
@@ -144,13 +143,15 @@ public class RewardScreen extends Screen {
 
         // Filters
         RewardScreenSettings s = ModConfig.getInstance().getRewardScreenSettings();
-        addFilterButton("Mythic", s::isShowMythic, s::setShowMythic, sidebarX, SIDEBAR_Y, SIDEBAR_WIDTH);
-        addFilterButton("Fabled", s::isShowFabled, s::setShowFabled, sidebarX, SIDEBAR_Y + 22, SIDEBAR_WIDTH);
-        addFilterButton("Legendary", s::isShowLegendary, s::setShowLegendary, sidebarX, SIDEBAR_Y + 44, SIDEBAR_WIDTH);
-        addFilterButton("Rare", s::isShowRare, s::setShowRare, sidebarX, SIDEBAR_Y + 66, SIDEBAR_WIDTH);
-        addFilterButton("Unique", s::isShowUnique, s::setShowUnique, sidebarX, SIDEBAR_Y + 88, SIDEBAR_WIDTH);
-        addFilterButton("Common", s::isShowCommon, s::setShowCommon, sidebarX, SIDEBAR_Y + 110, SIDEBAR_WIDTH);
-        addFilterButton("Set", s::isShowSet, s::setShowSet, sidebarX, SIDEBAR_Y + 132, SIDEBAR_WIDTH);
+        int filterY = SIDEBAR_Y + 12;
+        this.addRenderableWidget(new TextWidget(sidebarX + 5, SIDEBAR_Y, Component.literal("Filters")));
+        addFilterButton("Mythic", Sprite.MYTHIC_ICON, s::isShowMythic, s::setShowMythic, sidebarX + 5, filterY, 16);
+        addFilterButton("Fabled", Sprite.FABLED_ICON, s::isShowFabled, s::setShowFabled, sidebarX + 23, filterY, 16);
+        addFilterButton("Legendary", Sprite.LEGENDARY_ICON, s::isShowLegendary, s::setShowLegendary, sidebarX + 41, filterY, 16);
+        addFilterButton("Rare", Sprite.RARE_ICON, s::isShowRare, s::setShowRare, sidebarX + 59, filterY, 16);
+        addFilterButton("Unique", Sprite.UNIQUE_ICON, s::isShowUnique, s::setShowUnique, sidebarX + 77, filterY, 16);
+        addFilterButton("Common", Sprite.COMMON_ICON, s::isShowCommon, s::setShowCommon, sidebarX + 5, filterY + 18, 16);
+        addFilterButton("Set", Sprite.SET_ICON, s::isShowSet, s::setShowSet, sidebarX + 23, filterY + 18, 16);
 
         populateItemWidgets();
     }
@@ -251,15 +252,14 @@ public class RewardScreen extends Screen {
         }));
     }
 
-    private void addFilterButton(String label, BooleanSupplier getter, Consumer<Boolean> setter, int x, int y, int w) {
-        this.addRenderableWidget(Button.builder(Component.literal(label + ": " + (getter.getAsBoolean() ? "ON" : "OFF")), b -> {
-            setter.accept(!getter.getAsBoolean());
+    private void addFilterButton(String label, Sprite icon, BooleanSupplier getter, Consumer<Boolean> setter, int x, int y, int w) {
+        this.addRenderableWidget(new FilterButton(x, y, w, 16, label, icon, getter, setter, () -> {
             try {
                 ModConfig.getInstance().save();
             } catch (IOException ignored) {
             }
             this.rebuildWidgets();
-        }).bounds(x, y, w, 20).build());
+        }));
     }
 
     private boolean matchesFilters(SimpleItem item) {

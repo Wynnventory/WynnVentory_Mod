@@ -20,6 +20,7 @@
   "gui.wynnventory.reward.search": "Search...",
   "gui.wynnventory.reward.button.reload": "Reload Lootpools",
   "gui.wynnventory.reward.button.config": "Open Mod Settings",
+  "gui.wynnventory.reward.button.filter": "Toggle filtering for %s",
   "key.category.wynnventory.root": "Wynnventory",
   "key.wynnventory.openRewardScreen": "Open Reward Screen",
   "key.wynnventory.toggleTooltips": "Toggle Tooltips",

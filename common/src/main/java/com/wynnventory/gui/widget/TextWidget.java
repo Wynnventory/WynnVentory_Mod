@@ -15,7 +15,7 @@ public class TextWidget extends WynnventoryButton {
     }
 
     public TextWidget(int x, int y, Component text, int color) {
-        super(x, y, Minecraft.getInstance().font.width(text), 9, Component.empty());
+        super(x, y, Minecraft.getInstance().font.width(text), 9, "");
         this.text = text;
         this.color = color;
     }

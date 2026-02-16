@@ -30,7 +30,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
     private boolean shiny = false;
 
     public ItemButton(int x, int y, int width, int height, T itemStack, boolean shiny) {
-        super(x, y, width, height, Component.empty());
+        super(x, y, width, height, "");
         this.itemStack = itemStack;
         this.shiny = shiny;
         buildTooltip();

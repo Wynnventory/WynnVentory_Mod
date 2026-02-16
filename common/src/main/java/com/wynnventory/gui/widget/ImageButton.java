@@ -14,7 +14,7 @@ public class ImageButton extends WynnventoryButton {
     private final Button.OnPress onPress;
 
     public ImageButton(int x, int y, int width, int height, Sprite sprite, Button.OnPress onPress, Component tooltip) {
-        super(x, y, width, height, Component.empty());
+        super(x, y, width, height, "");
         this.sprite = sprite;
         this.onPress = onPress;
         if (tooltip != null) {

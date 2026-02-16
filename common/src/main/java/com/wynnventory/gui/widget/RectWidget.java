@@ -8,7 +8,7 @@ public class RectWidget extends WynnventoryButton {
     private final int color;
 
     public RectWidget(int x, int y, int width, int height, int color) {
-        super(x, y, width, height, Component.empty());
+        super(x, y, width, height, "");
         this.color = color;
     }
 
