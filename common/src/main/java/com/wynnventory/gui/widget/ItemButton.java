@@ -83,6 +83,8 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
 
         if(itemStack instanceof GuidePowderItemStack powderStack) {
             renderText(g, MathUtils.toRoman(powderStack.getTier()), powderStack.getElement().getColor(), HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM, TextShadow.OUTLINE);
+        } else if (itemStack instanceof GuideAspectItemStack aspectStack) {
+            renderText(g, aspectStack.getAspectInfo().classType().getName().substring(0, 2), CommonColors.WHITE, HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM, TextShadow.OUTLINE);
         }
 
         // Causes price tooltip to render behind ItemButton textures. Maybe fix later?
@@ -143,7 +145,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                         hAlignment,
                         vAlignment,
                         shadow,
-                        1);
+                        0.8f);
     }
 
     public T getItemStack() {
