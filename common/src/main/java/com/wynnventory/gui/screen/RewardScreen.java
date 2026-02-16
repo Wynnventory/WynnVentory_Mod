@@ -12,6 +12,7 @@ import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.rune.RuneItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
+import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.api.service.RewardService;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.config.settings.RewardScreenSettings;
@@ -211,55 +212,115 @@ public class RewardScreen extends Screen {
             RewardPool pool = allActivePools.get(poolIndex);
             int currentX = MARGIN_X + (i * sectionWidth);
 
+            // Pool Background (Container)
+            this.addRenderableWidget(new RectWidget(currentX, MARGIN_Y, sectionWidth - 2, this.height - 10 - MARGIN_Y, 0x44332211));
+
             // Header Background
-            this.addRenderableWidget(new RectWidget(currentX, MARGIN_Y, sectionWidth - 2, 12, 0x44FFFFFF));
+            this.addRenderableWidget(new ImageWidget(currentX + (sectionWidth - 70) / 2, MARGIN_Y - 5, 70, 20, Sprite.BANNER_NAME));
 
             // Pool Name (TextWidget)
             int nameWidth = this.font.width(pool.getShortName());
             int labelX = currentX + (sectionWidth - nameWidth) / 2;
-            this.addRenderableWidget(new TextWidget(labelX, MARGIN_Y + 2, Component.literal(pool.getShortName())));
+            this.addRenderableWidget(new TextWidget(labelX, MARGIN_Y + 1, Component.literal(pool.getShortName())));
 
-            // Section Separator (Vertical Line)
+            // Pool Separator (Vertical Line)
             if (i > 0) {
                 this.addRenderableWidget(new RectWidget(currentX - 1, MARGIN_Y, 1, this.height - 10 - MARGIN_Y, 0x22FFFFFF));
             }
 
-            // Items Grid
-            int itemsPerRow = (sectionWidth - 10) / 20;
-            int itemXStart = currentX + 5;
-            int itemYStart = MARGIN_Y + 15;
-            createItemButtons(itemXStart, itemYStart, pool, itemsPerRow);
+            createItemButtons(currentX, MARGIN_Y + 15, pool, sectionWidth);
         }
     }
 
-    private void createItemButtons(int itemXStart, int itemYStart, RewardPool pool, int itemsPerRow) {
+    private void createItemButtons(int startX, int startY, RewardPool pool, int totalWidth) {
         RewardService.INSTANCE.getItems(pool).thenAccept(items -> Minecraft.getInstance().execute(() -> {
             if (getActivePools().stream().noneMatch(p -> p == pool)) return;
 
-            int displayedItemIndex = 0;
+            List<SimpleItem> filteredItems = items.stream()
+                    .filter(this::matchesFilters)
+                    .filter(item -> {
+                        GuideItemStack stack = getGuideItemStack(item);
+                        return stack != null && !stack.isEmpty();
+                    })
+                    .toList();
 
-            for (SimpleItem item : items) {
-                if (!matchesFilters(item)) continue;
-
-                GuideItemStack stack = getGuideItemStack(item);
-
-                if (stack == null || stack.isEmpty()) continue;
-
-                int row = displayedItemIndex / itemsPerRow;
-                int col = displayedItemIndex % itemsPerRow;
-
-                int x = itemXStart + col * 20;
-                int y = itemYStart + row * 20;
-
-                boolean shiny = item instanceof SimpleGearItem simpleGearItem && simpleGearItem.isShiny();
-
-                ItemButton<GuideItemStack> button = new ItemButton<>(x, y, 18, 18, stack, item);
-                this.addRenderableWidget(button);
-                itemWidgets.add(button);
-
-                displayedItemIndex++;
+            if (activeType == RewardType.RAID) {
+                renderRaidSections(startX, startY, filteredItems, totalWidth);
+            } else {
+                renderLootrunSections(startX, startY, filteredItems, totalWidth);
             }
         }));
+    }
+
+    private void renderRaidSections(int startX, int startY, List<SimpleItem> items, int totalWidth) {
+        List<SimpleItem> aspects = new ArrayList<>();
+        List<SimpleItem> tomes = new ArrayList<>();
+        List<SimpleItem> gear = new ArrayList<>();
+        List<SimpleItem> misc = new ArrayList<>();
+
+        for (SimpleItem item : items) {
+            SimpleItemType type = item.getItemTypeEnum();
+            if (type == SimpleItemType.ASPECT) aspects.add(item);
+            else if (type == SimpleItemType.TOME) tomes.add(item);
+            else if (type == SimpleItemType.GEAR) gear.add(item);
+            else misc.add(item);
+        }
+
+        int currentY = startY;
+        currentY = renderSection(startX, currentY, "Aspects", aspects, totalWidth);
+        currentY = renderSection(startX, currentY, "Tomes", tomes, totalWidth);
+        currentY = renderSection(startX, currentY, "Gear", gear, totalWidth);
+        renderSection(startX, currentY, "Misc", misc, totalWidth);
+    }
+
+    private void renderLootrunSections(int startX, int startY, List<SimpleItem> items, int totalWidth) {
+        Map<GearTier, List<SimpleItem>> groupedByRarity = new HashMap<>();
+        for (SimpleItem item : items) {
+            groupedByRarity.computeIfAbsent(item.getRarityEnum(), k -> new ArrayList<>()).add(item);
+        }
+
+        GearTier[] tiers = {GearTier.MYTHIC, GearTier.FABLED, GearTier.LEGENDARY, GearTier.RARE, GearTier.UNIQUE, GearTier.SET, GearTier.NORMAL};
+        List<GearTier> activeTiers = Stream.of(tiers).filter(groupedByRarity::containsKey).toList();
+
+        if (activeTiers.isEmpty()) return;
+
+        int currentY = startY;
+        for (GearTier tier : activeTiers) {
+            currentY = renderSection(startX, currentY, tier.getName(), groupedByRarity.get(tier), totalWidth);
+        }
+    }
+
+    private int renderSection(int startX, int startY, String title, List<SimpleItem> items, int sectionWidth) {
+        if (items.isEmpty()) return startY;
+
+        // Render header
+        this.addRenderableWidget(new TextWidget(startX + 2, startY, Component.literal(title)));
+
+        int itemsStartY = startY + 10;
+
+        int itemsPerRow = (sectionWidth - 4) / 20;
+        if (itemsPerRow <= 0) itemsPerRow = 1;
+
+        int rows = (int) Math.ceil(items.size() / (double) itemsPerRow);
+
+        for (int i = 0; i < items.size(); i++) {
+            SimpleItem item = items.get(i);
+            int row = i / itemsPerRow;
+            int col = i % itemsPerRow;
+
+            int x = startX + 2 + col * 20;
+            int y = itemsStartY + row * 20;
+
+            GuideItemStack stack = getGuideItemStack(item);
+            ItemButton<GuideItemStack> button = new ItemButton<>(x, y, 18, 18, stack, item);
+            this.addRenderableWidget(button);
+            itemWidgets.add(button);
+        }
+
+        int nextY = itemsStartY + rows * 20 + 8;
+        this.addRenderableWidget(new RectWidget(startX + 2, nextY - 4, sectionWidth - 4, 1, 0x11FFFFFF));
+
+        return nextY;
     }
 
     private void addFilterButton(String label, Sprite icon, BooleanSupplier getter, Consumer<Boolean> setter, int x, int y, int w) {

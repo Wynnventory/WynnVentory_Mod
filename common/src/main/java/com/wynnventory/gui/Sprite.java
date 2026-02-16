@@ -12,7 +12,8 @@ public enum Sprite {
     UNIQUE_ICON("gui/box_unique.png", 16, 16),
     COMMON_ICON("gui/box_normal.png", 16, 16),
     SET_ICON("gui/box_set.png", 16, 16),
-    CHEST_SLOT("gui/chest_slot.png", 18, 18);
+    CHEST_SLOT("gui/chest_slot.png", 18, 18),
+    BANNER_NAME("gui/banner_name.png", 70, 20);
 
     private final Identifier resource;
     private final int width;
