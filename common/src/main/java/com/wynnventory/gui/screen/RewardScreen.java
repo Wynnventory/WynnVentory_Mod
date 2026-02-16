@@ -2,11 +2,17 @@ package com.wynnventory.gui.screen;
 
 import com.wynntils.core.components.Models;
 import com.wynntils.models.gear.type.GearTier;
+import com.wynntils.models.rewards.type.AmplifierInfo;
+import com.wynntils.models.rewards.type.RuneType;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
+import com.wynntils.screens.guides.augment.AmplifierItemStack;
+import com.wynntils.screens.guides.augment.InsulatorItemStack;
+import com.wynntils.screens.guides.augment.SimulatorItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStackButton;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
+import com.wynntils.screens.guides.rune.RuneItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.api.service.RewardService;
@@ -39,7 +45,7 @@ import java.util.stream.Stream;
 public class RewardScreen extends Screen {
     private final Screen parent;
     private static RewardType activeType = RewardType.LOOTRUN;
-    private static final Map<String, GuideItemStack> WYNN_ITEMS_BY_NAME = new HashMap<>();
+    private static final Map<String, GuideItemStack> wynnItemsByName = new HashMap<>();
 
     private final List<ItemButton<GuideItemStack>> itemWidgets = new ArrayList<>();
 
@@ -83,7 +89,7 @@ public class RewardScreen extends Screen {
 
     @Override
     protected void init() {
-        if (WYNN_ITEMS_BY_NAME.isEmpty()) {
+        if (wynnItemsByName.isEmpty()) {
             loadGuideItems();
         }
 
@@ -176,13 +182,30 @@ public class RewardScreen extends Screen {
         addStacks(Models.Gear.getAllGearInfos().map(GuideGearItemStack::new).toList(), s -> s.getGearInfo().name());
         addStacks(Models.Rewards.getAllTomeInfos().map(GuideTomeItemStack::new).toList(), s -> s.getTomeInfo().name());
         addStacks(Models.Aspect.getAllAspectInfos().map(info -> new GuideAspectItemStack(info, 1)).toList(), s -> s.getAspectInfo().name());
-        addStacks(Models.Element.getAllPowderTierInfo().stream().map(GuidePowderItemStack::new).toList(),
-                s -> s.getElement().getName() + " Powder " + s.getTier());
+        addStacks(Models.Element.getAllPowderTierInfo().stream().map(GuidePowderItemStack::new).toList(), s -> s.getElement().getName() + " Powder " + s.getTier());
+
+        RuneItemStack runeItemStack;
+        for (RuneType runeType : Models.Rewards.getAllRuneInfo()) {
+            runeItemStack = new RuneItemStack(runeType);
+            wynnItemsByName.put(runeItemStack.getHoverName().getString(), runeItemStack);
+        }
+
+        AmplifierItemStack amplifierItemStack;
+        for (AmplifierInfo amplifierInfo : Models.Rewards.getAllAmplifierInfo()) {
+            amplifierItemStack = new AmplifierItemStack(amplifierInfo);
+            wynnItemsByName.put(amplifierItemStack.getHoverName().getString(), amplifierItemStack);
+        }
+
+        InsulatorItemStack insulatorItemStack = new InsulatorItemStack();
+        wynnItemsByName.put(insulatorItemStack.getHoverName().getString(), insulatorItemStack);
+
+        SimulatorItemStack simulatorItemStack = new SimulatorItemStack();
+        wynnItemsByName.put(simulatorItemStack.getHoverName().getString(), simulatorItemStack);
     }
 
     private <T extends GuideItemStack> void addStacks(List<T> items, Function<T, String> nameMapper) {
         for (T item : items) {
-            WYNN_ITEMS_BY_NAME.computeIfAbsent(nameMapper.apply(item), k -> item);
+            wynnItemsByName.computeIfAbsent(nameMapper.apply(item), k -> item);
         }
     }
 
@@ -293,12 +316,12 @@ public class RewardScreen extends Screen {
     private GuideItemStack getGuideItemStack(SimpleItem item) {
         if (item instanceof SimpleTierItem s) {
             if (s.getItemTypeEnum() == SimpleItemType.POWDER) {
-                return WYNN_ITEMS_BY_NAME.get(s.getName() + " " + s.getTier());
+                return wynnItemsByName.get(s.getName() + " " + s.getTier());
             } else if (s.getItemTypeEnum() == SimpleItemType.AMPLIFIER) {
                 // TODO
                 return null;
             }
         }
-        return WYNN_ITEMS_BY_NAME.get(item.getName());
+        return wynnItemsByName.get(item.getName());
     }
 }

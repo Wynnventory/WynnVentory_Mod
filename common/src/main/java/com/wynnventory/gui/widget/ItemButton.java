@@ -2,10 +2,15 @@ package com.wynnventory.gui.widget;
 
 import com.wynntils.core.components.Services;
 import com.wynntils.core.text.StyledText;
+import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
+import com.wynntils.screens.guides.augment.AmplifierItemStack;
+import com.wynntils.screens.guides.augment.InsulatorItemStack;
+import com.wynntils.screens.guides.augment.SimulatorItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
+import com.wynntils.screens.guides.rune.RuneItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
 import com.wynntils.utils.colors.CommonColors;
@@ -127,6 +132,10 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
             case GuideTomeItemStack tome -> CustomColor.fromChatFormatting(tome.getTomeInfo().tier().getChatFormatting());
             case GuideAspectItemStack aspect -> CustomColor.fromChatFormatting(aspect.getAspectInfo().gearTier().getChatFormatting());
             case GuidePowderItemStack powder -> CustomColor.fromChatFormatting(powder.getElement().getLightColor());
+            case RuneItemStack rune -> CustomColor.fromChatFormatting(GearTier.NORMAL.getChatFormatting());
+            case AmplifierItemStack amplifier -> CustomColor.fromChatFormatting(amplifier.getGearTier().getChatFormatting());
+            case InsulatorItemStack insulator -> CustomColor.fromChatFormatting(insulator.getGearTier().getChatFormatting());
+            case SimulatorItemStack simulator -> CustomColor.fromChatFormatting(simulator.getGearTier().getChatFormatting());
             default -> CustomColor.NONE;
         };
     }
