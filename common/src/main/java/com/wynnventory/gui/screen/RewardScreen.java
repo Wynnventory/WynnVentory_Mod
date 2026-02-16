@@ -14,6 +14,7 @@ import com.wynntils.screens.guides.gear.GuideGearItemStackButton;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.rune.RuneItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
+import com.wynntils.utils.MathUtils;
 import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.api.service.RewardService;
 import com.wynnventory.core.config.ModConfig;
@@ -183,18 +184,8 @@ public class RewardScreen extends Screen {
         addStacks(Models.Rewards.getAllTomeInfos().map(GuideTomeItemStack::new).toList(), s -> s.getTomeInfo().name());
         addStacks(Models.Aspect.getAllAspectInfos().map(info -> new GuideAspectItemStack(info, 1)).toList(), s -> s.getAspectInfo().name());
         addStacks(Models.Element.getAllPowderTierInfo().stream().map(GuidePowderItemStack::new).toList(), s -> s.getElement().getName() + " Powder " + s.getTier());
-
-        RuneItemStack runeItemStack;
-        for (RuneType runeType : Models.Rewards.getAllRuneInfo()) {
-            runeItemStack = new RuneItemStack(runeType);
-            wynnItemsByName.put(runeItemStack.getHoverName().getString(), runeItemStack);
-        }
-
-        AmplifierItemStack amplifierItemStack;
-        for (AmplifierInfo amplifierInfo : Models.Rewards.getAllAmplifierInfo()) {
-            amplifierItemStack = new AmplifierItemStack(amplifierInfo);
-            wynnItemsByName.put(amplifierItemStack.getHoverName().getString(), amplifierItemStack);
-        }
+        addStacks((Models.Rewards.getAllAmplifierInfo().stream().map(AmplifierItemStack::new).toList()), s -> s.getHoverName().getString());
+        addStacks((Models.Rewards.getAllRuneInfo().stream().map(RuneItemStack::new).toList()), s -> s.getHoverName().getString());
 
         InsulatorItemStack insulatorItemStack = new InsulatorItemStack();
         wynnItemsByName.put(insulatorItemStack.getHoverName().getString(), insulatorItemStack);
@@ -318,8 +309,7 @@ public class RewardScreen extends Screen {
             if (s.getItemTypeEnum() == SimpleItemType.POWDER) {
                 return wynnItemsByName.get(s.getName() + " " + s.getTier());
             } else if (s.getItemTypeEnum() == SimpleItemType.AMPLIFIER) {
-                // TODO
-                return null;
+                return wynnItemsByName.get(s.getName() + " " + MathUtils.toRoman(s.getTier()));
             }
         }
         return wynnItemsByName.get(item.getName());
