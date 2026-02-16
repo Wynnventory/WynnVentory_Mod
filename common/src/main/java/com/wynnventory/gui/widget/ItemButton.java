@@ -7,6 +7,7 @@ import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
+import com.wynntils.utils.MathUtils;
 import com.wynntils.utils.colors.CommonColors;
 import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.mc.KeyboardUtils;
@@ -77,20 +78,11 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         }
 
         if (shiny) {
-            FontRenderer.getInstance()
-                    .renderAlignedTextInBox(
-                            g,
-                            StyledText.fromString("⬡"),
-                            getX(),
-                            getX() + getWidth(),
-                            getY(),
-                            getY() + getHeight(),
-                            0,
-                            CommonColors.WHITE,
-                            HorizontalAlignment.LEFT,
-                            VerticalAlignment.TOP,
-                            TextShadow.NORMAL,
-                            1);
+            renderText(g, "⬡", CommonColors.WHITE, HorizontalAlignment.LEFT, VerticalAlignment.TOP, TextShadow.NORMAL);
+        }
+
+        if(itemStack instanceof GuidePowderItemStack powderStack) {
+            renderText(g, MathUtils.toRoman(powderStack.getTier()), powderStack.getElement().getColor(), HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM, TextShadow.OUTLINE);
         }
 
         // Causes price tooltip to render behind ItemButton textures. Maybe fix later?
@@ -135,6 +127,23 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
             case GuidePowderItemStack powder -> CustomColor.fromChatFormatting(powder.getElement().getLightColor());
             default -> CustomColor.NONE;
         };
+    }
+
+    private void renderText(GuiGraphics g, String text, CustomColor color, HorizontalAlignment hAlignment, VerticalAlignment vAlignment, TextShadow shadow) {
+        FontRenderer.getInstance()
+                .renderAlignedTextInBox(
+                        g,
+                        StyledText.fromString(text),
+                        getX(),
+                        getX() + getWidth(),
+                        getY(),
+                        getY() + getHeight(),
+                        0,
+                        color,
+                        hAlignment,
+                        vAlignment,
+                        shadow,
+                        1);
     }
 
     public T getItemStack() {
