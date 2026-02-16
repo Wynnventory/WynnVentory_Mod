@@ -4,6 +4,7 @@ import com.wynntils.models.gear.type.GearTier;
 import com.wynnventory.api.WynnventoryApi;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
+import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.model.reward.RewardType;
@@ -47,6 +48,7 @@ public enum RewardService {
                 .thenComparing(SimpleItem::getItemType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
                 .thenComparing(SimpleItem::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
                 .thenComparing(SimpleItem::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                .thenComparing(i -> i instanceof SimpleTierItem sti ? sti.getTier() : 0)
         );
     }
 
