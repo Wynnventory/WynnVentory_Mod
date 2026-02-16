@@ -22,22 +22,24 @@ import com.wynntils.utils.render.Texture;
 import com.wynntils.utils.render.type.HorizontalAlignment;
 import com.wynntils.utils.render.type.TextShadow;
 import com.wynntils.utils.render.type.VerticalAlignment;
+import com.wynnventory.model.item.simple.SimpleGearItem;
+import com.wynnventory.model.item.simple.SimpleItem;
+import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.util.HttpUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
 import org.lwjgl.glfw.GLFW;
 
 public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
     private final T itemStack;
-    private boolean shiny = false;
+    private final SimpleItem simpleItem;
 
-    public ItemButton(int x, int y, int width, int height, T itemStack, boolean shiny) {
+    public ItemButton(int x, int y, int width, int height, T itemStack, SimpleItem simpleItem) {
         super(x, y, width, height, "");
         this.itemStack = itemStack;
-        this.shiny = shiny;
+        this.simpleItem = simpleItem;
         buildTooltip();
     }
 
@@ -68,6 +70,9 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         RenderUtils.renderItem(g, itemStack, 0, 0);
         g.pose().popMatrix();
 
+        if(simpleItem instanceof SimpleTierItem) {
+            renderText(g, String.valueOf(simpleItem.getAmount()), CommonColors.WHITE, HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM, TextShadow.OUTLINE);
+        }
         // Favorite icon overlay (placed relative to button size)
         if (Services.Favorites.isFavorite(itemStack)) {
             float favScale = width / 18f;
@@ -82,14 +87,20 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                     Texture.FAVORITE_ICON.height());
         }
 
-        if (shiny) {
-            renderText(g, "⬡", CommonColors.WHITE, HorizontalAlignment.LEFT, VerticalAlignment.TOP, TextShadow.NORMAL);
+        if (simpleItem instanceof SimpleGearItem simpleGearItem && simpleGearItem.isShiny()) {
+            renderText(g, "⬡", CommonColors.WHITE, TextShadow.NORMAL);
         }
 
-        if(itemStack instanceof GuidePowderItemStack powderStack) {
-            renderText(g, MathUtils.toRoman(powderStack.getTier()), powderStack.getElement().getColor(), HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM, TextShadow.OUTLINE);
-        } else if (itemStack instanceof GuideAspectItemStack aspectStack) {
-            renderText(g, aspectStack.getAspectInfo().classType().getName().substring(0, 2), CommonColors.WHITE, HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM, TextShadow.OUTLINE);
+        switch (itemStack) {
+            case GuidePowderItemStack powderStack ->
+                    renderText(g, MathUtils.toRoman(powderStack.getTier()), getCustomColor(), TextShadow.OUTLINE);
+            case GuideAspectItemStack aspectStack ->
+                    renderText(g, aspectStack.getAspectInfo().classType().getName().substring(0, 2), getCustomColor(), TextShadow.OUTLINE);
+            case AmplifierItemStack amplifierItemStack ->
+                    renderText(g, MathUtils.toRoman(amplifierItemStack.getTier()), getCustomColor(), TextShadow.OUTLINE);
+            default -> {
+                // Nothing special to be rendered
+            }
         }
 
         // Causes price tooltip to render behind ItemButton textures. Maybe fix later?
@@ -140,7 +151,11 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         };
     }
 
-    private void renderText(GuiGraphics g, String text, CustomColor color, HorizontalAlignment hAlignment, VerticalAlignment vAlignment, TextShadow shadow) {
+    private void renderText(GuiGraphics g, String text, CustomColor color, TextShadow shadow) {
+        renderText(g, text, color, HorizontalAlignment.LEFT, VerticalAlignment.TOP, shadow);
+    }
+
+    private void renderText(GuiGraphics g, String text, CustomColor color, HorizontalAlignment hAlign, VerticalAlignment vAlign,TextShadow shadow) {
         FontRenderer.getInstance()
                 .renderAlignedTextInBox(
                         g,
@@ -151,10 +166,10 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                         getY() + getHeight(),
                         0,
                         color,
-                        hAlignment,
-                        vAlignment,
+                        hAlign,
+                        vAlign,
                         shadow,
-                        0.8f);
+                        1f);
     }
 
     public T getItemStack() {

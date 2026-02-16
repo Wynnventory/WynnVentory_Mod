@@ -2,20 +2,16 @@ package com.wynnventory.gui.screen;
 
 import com.wynntils.core.components.Models;
 import com.wynntils.models.gear.type.GearTier;
-import com.wynntils.models.rewards.type.AmplifierInfo;
-import com.wynntils.models.rewards.type.RuneType;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.augment.AmplifierItemStack;
 import com.wynntils.screens.guides.augment.InsulatorItemStack;
 import com.wynntils.screens.guides.augment.SimulatorItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
-import com.wynntils.screens.guides.gear.GuideGearItemStackButton;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.rune.RuneItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
-import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.api.service.RewardService;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.config.settings.RewardScreenSettings;
@@ -257,7 +253,7 @@ public class RewardScreen extends Screen {
 
                 boolean shiny = item instanceof SimpleGearItem simpleGearItem && simpleGearItem.isShiny();
 
-                ItemButton<GuideItemStack> button = new ItemButton<>(x, y, 18, 18, stack, shiny);
+                ItemButton<GuideItemStack> button = new ItemButton<>(x, y, 18, 18, stack, item);
                 this.addRenderableWidget(button);
                 itemWidgets.add(button);
 
