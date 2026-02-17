@@ -7,6 +7,7 @@
   "feature.wynnventory.update.notifyUserOfUpdate": "New version available: %s. Attempting to auto-update...",
   "feature.wynnventory.update.notifyUserOfDownloadCompletion": "Download completed! Restart Minecraft to apply the update.",
   "feature.wynnventory.update.devNotification": "This is a dev build. Skipping update check...",
+  "feature.wynnventory.tooltip.title": "Trade Market Price Info",
   "feature.wynnventory.tooltip.avg80": "80% avg: ",
   "feature.wynnventory.tooltip.unidAvg80": "Unid 80% avg: ",
   "feature.wynnventory.tooltip.avg": "Avg: ",
