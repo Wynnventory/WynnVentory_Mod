@@ -212,8 +212,16 @@ public class RewardScreen extends Screen {
             RewardPool pool = allActivePools.get(poolIndex);
             int currentX = MARGIN_X + (i * sectionWidth);
 
-            // Pool Background (Container)
-            this.addRenderableWidget(new RectWidget(currentX, MARGIN_Y, sectionWidth - 2, this.height - 10 - MARGIN_Y, 0x44332211));
+            // Pool Background (Bookshelf Container)
+            int poolHeight = this.height - 10 - MARGIN_Y;
+            this.addRenderableWidget(new RectWidget(currentX, MARGIN_Y, sectionWidth - 2, poolHeight, 0xFF7D5D44)); // Lighter non-transparent wood color
+
+            // Pool Borders
+            int borderColor = 0xFF3E2820; // Dark wood border
+            this.addRenderableWidget(new RectWidget(currentX, MARGIN_Y, sectionWidth - 2, 1, borderColor)); // Top
+            this.addRenderableWidget(new RectWidget(currentX, MARGIN_Y + poolHeight - 1, sectionWidth - 2, 1, borderColor)); // Bottom
+            this.addRenderableWidget(new RectWidget(currentX, MARGIN_Y, 1, poolHeight, borderColor)); // Left
+            this.addRenderableWidget(new RectWidget(currentX + sectionWidth - 3, MARGIN_Y, 1, poolHeight, borderColor)); // Right
 
             // Header Background
             this.addRenderableWidget(new ImageWidget(currentX + (sectionWidth - 70) / 2, MARGIN_Y - 5, 70, 20, Sprite.BANNER_NAME));
@@ -221,12 +229,9 @@ public class RewardScreen extends Screen {
             // Pool Name (TextWidget)
             int nameWidth = this.font.width(pool.getShortName());
             int labelX = currentX + (sectionWidth - nameWidth) / 2;
-            this.addRenderableWidget(new TextWidget(labelX, MARGIN_Y + 1, Component.literal(pool.getShortName())));
+            this.addRenderableWidget(new TextWidget(labelX, MARGIN_Y + 1, Component.literal(pool.getShortName()), 0xFFEEDDBB));
 
-            // Pool Separator (Vertical Line)
-            if (i > 0) {
-                this.addRenderableWidget(new RectWidget(currentX - 1, MARGIN_Y, 1, this.height - 10 - MARGIN_Y, 0x22FFFFFF));
-            }
+            // Pool Separator (Vertical Line) - Now part of the border logic above
 
             createItemButtons(currentX, MARGIN_Y + 15, pool, sectionWidth);
         }
@@ -318,7 +323,9 @@ public class RewardScreen extends Screen {
         }
 
         int nextY = itemsStartY + rows * 20 + 8;
-        this.addRenderableWidget(new RectWidget(startX + 2, nextY - 4, sectionWidth - 4, 1, 0x11FFFFFF));
+        // Shelf Board Divider
+        this.addRenderableWidget(new RectWidget(startX + 1, nextY - 6, sectionWidth - 4, 3, 0xFF3E2820)); // Board
+        this.addRenderableWidget(new RectWidget(startX + 1, nextY - 3, sectionWidth - 4, 1, 0xFF2A1B16)); // Board shadow
 
         return nextY;
     }
