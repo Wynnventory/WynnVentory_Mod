@@ -65,8 +65,7 @@ public class SettingsScreen extends OptionsSubScreen {
     private enum Section {
         TOOLTIP("gui.wynnventory.settings.section.tooltip", new TooltipSettingsTab()),
         PRICE_HIGHLIGHT("gui.wynnventory.settings.section.highlighting", new PriceHighlightSettingsTab()),
-        NOTIFICATIONS("gui.wynnventory.settings.section.notifications", new NotificationSettingsTab()),
-        RARITY("gui.wynnventory.settings.section.rewardScreen", new RewardScreenSettingsTab());
+        NOTIFICATIONS("gui.wynnventory.settings.section.notifications", new NotificationSettingsTab());
 
         private final String translationKey;
         private final SettingsTab tab;

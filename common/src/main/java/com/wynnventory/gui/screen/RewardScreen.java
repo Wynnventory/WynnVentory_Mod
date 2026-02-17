@@ -227,11 +227,13 @@ public class RewardScreen extends Screen {
         int currentColumns = getCurrentColumns();
         int displayCount = Math.min(currentColumns, allActivePools.size());
         int sectionWidth = contentWidth / currentColumns;
+        int totalPoolsWidth = displayCount * sectionWidth;
+        int centeringOffset = (contentWidth - totalPoolsWidth) / 2;
 
         for (int i = 0; i < displayCount; i++) {
             int poolIndex = (scrollIndex + i) % allActivePools.size();
             RewardPool pool = allActivePools.get(poolIndex);
-            int currentX = MARGIN_X + (i * sectionWidth);
+            int currentX = MARGIN_X + centeringOffset + (i * sectionWidth);
 
             double poolScale = this.globalPoolScale;
             int headerH = (int) (Sprite.LOOTRUN_POOL_TOP_SECTION.height() * poolScale);
