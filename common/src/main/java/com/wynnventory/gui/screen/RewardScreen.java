@@ -39,6 +39,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RewardScreen extends Screen {
     private final Screen parent;
@@ -48,8 +49,10 @@ public class RewardScreen extends Screen {
     private final List<ItemButton<GuideItemStack>> itemWidgets = new ArrayList<>();
 
     private int scrollIndex = 0;
-    private final int lootrunColumns = ModConfig.getInstance().getRewardScreenSettings().getLootrunColumns();
-    private final int raidColumns = ModConfig.getInstance().getRewardScreenSettings().getRaidColumns();
+
+    // Global scaling derived from tallest pool to fit vertically
+    private double globalPoolScale = 1.0;
+    private boolean scaleReady = false;
 
     // Screen layout
     private static final int MARGIN_Y = 40;
@@ -120,7 +123,10 @@ public class RewardScreen extends Screen {
 
         // Carousel buttons
         List<RewardPool> activePools = getActivePools();
-        int currentColumns = getCurrentColumns();
+        int contentWidth = getContentWidth();
+        int poolWidth = Sprite.POOL_TOP_SECTION.width();
+        int currentColumns = Math.max(1, contentWidth / poolWidth);
+
         Button prevButton = Button.builder(Component.literal("<"), button -> {
             scrollIndex--;
             if (scrollIndex < 0) {
@@ -157,7 +163,12 @@ public class RewardScreen extends Screen {
         addFilterButton("Common", Sprite.COMMON_ICON, s::isShowCommon, s::setShowCommon, sidebarX + 5, filterY + 18, 16);
         addFilterButton("Set", Sprite.SET_ICON, s::isShowSet, s::setShowSet, sidebarX + 23, filterY + 18, 16);
 
-        populateItemWidgets();
+        // Trigger scale calculation on first build if needed; otherwise just populate widgets
+        if (!this.scaleReady) {
+            recalcScaleAsync();
+        } else {
+            populateItemWidgets();
+        }
     }
 
     @Override
@@ -198,12 +209,13 @@ public class RewardScreen extends Screen {
     }
 
     private void populateItemWidgets() {
+        if (!scaleReady) return; // wait until we know the global scale from tallest pool
+
         int contentWidth = getContentWidth();
         List<RewardPool> allActivePools = getActivePools();
-        int currentColumns = getCurrentColumns();
-
         if (allActivePools.isEmpty()) return;
 
+        int currentColumns = getCurrentColumns();
         int displayCount = Math.min(currentColumns, allActivePools.size());
         int sectionWidth = contentWidth / currentColumns;
 
@@ -212,13 +224,8 @@ public class RewardScreen extends Screen {
             RewardPool pool = allActivePools.get(poolIndex);
             int currentX = MARGIN_X + (i * sectionWidth);
 
-            // Calculate pool scale and items starting position
-            int maxHeaderWidth = sectionWidth - 8;
-            if (maxHeaderWidth < 40) maxHeaderWidth = sectionWidth - 2;
-            double poolScale = Math.min(1.0, (double) maxHeaderWidth / Sprite.POOL_TOP_SECTION.width());
-
+            double poolScale = this.globalPoolScale;
             int headerH = (int) (Sprite.POOL_TOP_SECTION.height() * poolScale);
-            // Items start about halfway inside the awning
             int itemsStartY = MARGIN_Y + (int) (headerH * 0.5);
 
             createItemButtons(currentX, itemsStartY, pool, sectionWidth, poolScale);
@@ -413,7 +420,10 @@ public class RewardScreen extends Screen {
     }
 
     private int getCurrentColumns() {
-        return activeType == RewardType.LOOTRUN ? lootrunColumns : raidColumns;
+        int contentWidth = getContentWidth();
+        double scale = this.scaleReady ? this.globalPoolScale : 1.0;
+        int poolScaledWidth = (int) Math.max(1, Math.round(Sprite.POOL_TOP_SECTION.width() * scale));
+        return Math.max(1, contentWidth / poolScaledWidth);
     }
 
     private GuideItemStack getGuideItemStack(SimpleItem item) {
@@ -425,5 +435,97 @@ public class RewardScreen extends Screen {
             }
         }
         return wynnItemsByName.get(item.getName());
+    }
+
+    // === Vertical-first scaling ===
+    private void recalcScaleAsync() {
+        List<RewardPool> pools = getActivePools();
+        if (pools.isEmpty()) {
+            this.globalPoolScale = 1.0;
+            this.scaleReady = true;
+            this.populateItemWidgets();
+            return;
+        }
+
+        AtomicInteger remaining = new AtomicInteger(pools.size());
+        Map<RewardPool, List<SimpleItem>> itemsByPool = new HashMap<>();
+
+        for (RewardPool pool : pools) {
+            RewardService.INSTANCE.getItems(pool).thenAccept(items -> Minecraft.getInstance().execute(() -> {
+                // Filter items now to reflect current UI filters
+                List<SimpleItem> filtered = items.stream()
+                        .filter(this::matchesFilters)
+                        .filter(it -> {
+                            GuideItemStack stack = getGuideItemStack(it);
+                            return stack != null && !stack.isEmpty();
+                        })
+                        .toList();
+                itemsByPool.put(pool, filtered);
+
+                if (remaining.decrementAndGet() == 0) {
+                    // All pools loaded; compute tallest natural height
+                    double tallest = 0.0;
+                    for (RewardPool p : pools) {
+                        List<SimpleItem> list = itemsByPool.getOrDefault(p, List.of());
+                        double h = computeNaturalPoolHeight(list);
+                        if (h > tallest) tallest = h;
+                    }
+                    double available = this.height - 10 - MARGIN_Y; // same as sidebar content area
+                    if (tallest <= 0) tallest = Sprite.POOL_TOP_SECTION.height() * 0.5 + Sprite.POOL_BOTTOM_SECTION.height();
+                    this.globalPoolScale = available / tallest;
+                    this.scaleReady = true;
+                    // Rebuild to apply scale across layout
+                    this.minecraft.execute(this::rebuildWidgets);
+                }
+            }));
+        }
+    }
+
+    private double computeNaturalPoolHeight(List<SimpleItem> items) {
+        // Sections depend on active type; itemsPerRow is fixed 9
+        int itemsPerRow = 9;
+        int headerH = Sprite.POOL_MIDDLE_SECTION_HEADER.height(); // 41
+        int middleH = Sprite.POOL_MIDDLE_SECTION.height(); // 22
+        int bottomH = Sprite.POOL_BOTTOM_SECTION.height(); // 13
+        double topOverlap = Sprite.POOL_TOP_SECTION.height() * 0.5; // start sections halfway into awning
+
+        int sectionsHeight = 0;
+        if (activeType == RewardType.RAID) {
+            List<SimpleItem> aspects = new ArrayList<>();
+            List<SimpleItem> tomes = new ArrayList<>();
+            List<SimpleItem> gear = new ArrayList<>();
+            List<SimpleItem> misc = new ArrayList<>();
+            for (SimpleItem item : items) {
+                SimpleItemType type = item.getItemTypeEnum();
+                if (type == SimpleItemType.ASPECT) aspects.add(item);
+                else if (type == SimpleItemType.TOME) tomes.add(item);
+                else if (type == SimpleItemType.GEAR) gear.add(item);
+                else misc.add(item);
+            }
+            sectionsHeight += sectionHeightForCount(aspects.size(), itemsPerRow, headerH, middleH);
+            sectionsHeight += sectionHeightForCount(tomes.size(), itemsPerRow, headerH, middleH);
+            sectionsHeight += sectionHeightForCount(gear.size(), itemsPerRow, headerH, middleH);
+            sectionsHeight += sectionHeightForCount(misc.size(), itemsPerRow, headerH, middleH);
+        } else { // LOOTRUN by tiers
+            Map<GearTier, Integer> counts = new HashMap<>();
+            for (SimpleItem item : items) {
+                counts.merge(item.getRarityEnum(), 1, Integer::sum);
+            }
+            GearTier[] tiers = {GearTier.MYTHIC, GearTier.FABLED, GearTier.LEGENDARY, GearTier.RARE, GearTier.UNIQUE, GearTier.SET, GearTier.NORMAL};
+            for (GearTier t : tiers) {
+                Integer c = counts.get(t);
+                if (c != null && c > 0) {
+                    sectionsHeight += sectionHeightForCount(c, itemsPerRow, headerH, middleH);
+                }
+            }
+        }
+        if (sectionsHeight == 0) return topOverlap + bottomH; // minimal footprint
+        return topOverlap + sectionsHeight + bottomH;
+    }
+
+    private int sectionHeightForCount(int count, int itemsPerRow, int headerH, int middleH) {
+        if (count <= 0) return 0;
+        int rows = (int) Math.ceil(count / (double) itemsPerRow);
+        return headerH + Math.max(0, (rows - 1) * middleH);
     }
 }
