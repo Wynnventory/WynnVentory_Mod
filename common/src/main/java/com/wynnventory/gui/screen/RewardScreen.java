@@ -55,10 +55,13 @@ public class RewardScreen extends Screen {
     // Global scaling derived from tallest pool to fit vertically
     private double globalPoolScale = 1.0;
     private boolean scaleReady = false;
+    private int lastWidth = -1;
+    private int lastHeight = -1;
 
     // Screen layout
     private static final int MARGIN_Y = 40;
     private static final int MARGIN_X = 55;
+    private static final int BOTTOM_PADDING = 20;
 
     // Tab buttons (Lootrun / Raid)
     private static final int TAB_BUTTON_WIDTH = 100;
@@ -92,6 +95,10 @@ public class RewardScreen extends Screen {
 
     @Override
     protected void init() {
+        if (this.width != lastWidth || this.height != lastHeight) {
+            this.scaleReady = false;
+        }
+
         if (wynnItemsByName.isEmpty()) {
             loadGuideItems();
         }
@@ -241,10 +248,10 @@ public class RewardScreen extends Screen {
         int headerY = MARGIN_Y;
         this.addRenderableWidget(new ImageWidget(headerX, headerY, headerW, headerH, Sprite.POOL_TOP_SECTION));
 
-        int titleWidth = this.font.width(title);
+        int titleWidth = (int) (this.font.width(title) * poolScale);
         int plaqueY = headerY + (int) (7 * poolScale);
         int titleX = headerX + (headerW - titleWidth) / 2;
-        this.addRenderableWidget(new TextWidget(titleX, plaqueY, Component.literal(title), 0xFFFFFFFF));
+        this.addRenderableWidget(new TextWidget(titleX, plaqueY, Component.literal(title), 0xFFFFFFFF, (float) poolScale));
     }
 
     private void createItemButtons(int startX, int startY, RewardPool pool, int totalWidth, double poolScale) {
@@ -320,10 +327,9 @@ public class RewardScreen extends Screen {
         this.addRenderableWidget(new ImageWidget(headerX, headerY, headerW, headerH, Sprite.POOL_MIDDLE_SECTION_HEADER));
 
         // Section Title centered in upper area
-        int titleWidth = this.font.width(title);
         int titleX = headerX + Math.max(1, (int) (8 * poolScale));
-        int titleY = headerY + Math.max(1, (int) (5 * poolScale)); // Offset to be in the "upper area"
-        this.addRenderableWidget(new TextWidget(titleX, titleY, Component.literal(title), 0xFFFFFFFF));
+        int titleY = headerY + Math.max(1, (int) (4 * poolScale)); // Offset to be in the "upper area"
+        this.addRenderableWidget(new TextWidget(titleX, titleY, Component.literal(title), 0xFFFFFFFF, (float) poolScale));
 
         int itemsPerRow = 9; // Fixed columns per row as requested
         int baseItemSize = 16;
@@ -472,10 +478,12 @@ public class RewardScreen extends Screen {
                         double h = computeNaturalPoolHeight(list);
                         if (h > tallest) tallest = h;
                     }
-                    double available = this.height - 10 - MARGIN_Y; // same as sidebar content area
+                    double available = this.height - MARGIN_Y - BOTTOM_PADDING;
                     if (tallest <= 0) tallest = Sprite.POOL_TOP_SECTION.height() * 0.5 + Sprite.POOL_BOTTOM_SECTION.height();
                     this.globalPoolScale = available / tallest;
                     this.scaleReady = true;
+                    this.lastWidth = this.width;
+                    this.lastHeight = this.height;
                     // Rebuild to apply scale across layout
                     this.minecraft.execute(this::rebuildWidgets);
                 }

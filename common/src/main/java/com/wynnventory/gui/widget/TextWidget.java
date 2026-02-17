@@ -9,20 +9,30 @@ import net.minecraft.network.chat.Component;
 public class TextWidget extends WynnventoryButton {
     private final Component text;
     private final int color;
+    private final float scale;
 
     public TextWidget(int x, int y, Component text) {
         this(x, y, text, 0xFFFFFFFF);
     }
 
     public TextWidget(int x, int y, Component text, int color) {
-        super(x, y, Minecraft.getInstance().font.width(text), 9, "");
+        this(x, y, text, color, 1.0f);
+    }
+
+    public TextWidget(int x, int y, Component text, int color, float scale) {
+        super(x, y, (int) (Minecraft.getInstance().font.width(text) * scale), (int) (9 * scale), "");
         this.text = text;
         this.color = color;
+        this.scale = scale;
     }
 
     @Override
     public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        graphics.drawString(Minecraft.getInstance().font, text, getX(), getY(), color);
+        graphics.pose().pushMatrix();
+        graphics.pose().translate((float) getX(), (float) getY());
+        graphics.pose().scale(scale, scale);
+        graphics.drawString(Minecraft.getInstance().font, text, 0, 0, color);
+        graphics.pose().popMatrix();
     }
 
     @Override

@@ -155,7 +155,8 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         renderText(g, text, color, HorizontalAlignment.LEFT, VerticalAlignment.TOP, shadow);
     }
 
-    private void renderText(GuiGraphics g, String text, CustomColor color, HorizontalAlignment hAlign, VerticalAlignment vAlign,TextShadow shadow) {
+    private void renderText(GuiGraphics g, String text, CustomColor color, HorizontalAlignment hAlign, VerticalAlignment vAlign, TextShadow shadow) {
+        float scale = width / 16f;
         FontRenderer.getInstance()
                 .renderAlignedTextInBox(
                         g,
@@ -169,7 +170,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                         hAlign,
                         vAlign,
                         shadow,
-                        1f);
+                        scale);
     }
 
     public T getItemStack() {
