@@ -133,7 +133,7 @@ public class RewardScreen extends Screen {
         // Carousel buttons
         List<RewardPool> activePools = getActivePools();
         int contentWidth = getContentWidth();
-        int poolWidth = Sprite.POOL_TOP_SECTION.width();
+        int poolWidth = Sprite.LOOTRUN_POOL_TOP_SECTION.width();
         int currentColumns = Math.max(1, contentWidth / poolWidth);
 
         Button prevButton = Button.builder(Component.literal("<"), button -> {
@@ -234,7 +234,7 @@ public class RewardScreen extends Screen {
             int currentX = MARGIN_X + (i * sectionWidth);
 
             double poolScale = this.globalPoolScale;
-            int headerH = (int) (Sprite.POOL_TOP_SECTION.height() * poolScale);
+            int headerH = (int) (Sprite.LOOTRUN_POOL_TOP_SECTION.height() * poolScale);
             int itemsStartY = MARGIN_Y + (int) (headerH * 0.69);
 
             createItemButtons(currentX, itemsStartY, pool, sectionWidth, poolScale);
@@ -242,11 +242,16 @@ public class RewardScreen extends Screen {
     }
 
     private void renderPoolHeader(int startX, int sectionWidth, double poolScale, String title) {
-        int headerW = (int) (Sprite.POOL_TOP_SECTION.width() * poolScale);
-        int headerH = (int) (Sprite.POOL_TOP_SECTION.height() * poolScale);
+        int headerW = (int) (Sprite.LOOTRUN_POOL_TOP_SECTION.width() * poolScale);
+        int headerH = (int) (Sprite.LOOTRUN_POOL_TOP_SECTION.height() * poolScale);
         int headerX = startX + (sectionWidth - headerW) / 2;
         int headerY = MARGIN_Y;
-        this.addRenderableWidget(new ImageWidget(headerX, headerY, headerW, headerH, Sprite.POOL_TOP_SECTION));
+
+        if(activeType == RewardType.LOOTRUN) {
+            this.addRenderableWidget(new ImageWidget(headerX, headerY, headerW, headerH, Sprite.LOOTRUN_POOL_TOP_SECTION));
+        } else {
+            this.addRenderableWidget(new ImageWidget(headerX, headerY, headerW, headerH, Sprite.RAID_POOL_TOP_SECTION));
+        }
 
         int titleWidth = (int) (this.font.width(title) * poolScale);
         int plaqueY = headerY + (int) (7 * poolScale);
@@ -430,7 +435,7 @@ public class RewardScreen extends Screen {
     private int getCurrentColumns() {
         int contentWidth = getContentWidth();
         double scale = this.scaleReady ? this.globalPoolScale : 1.0;
-        int poolScaledWidth = (int) Math.max(1, Math.round(Sprite.POOL_TOP_SECTION.width() * scale));
+        int poolScaledWidth = (int) Math.max(1, Math.round(Sprite.LOOTRUN_POOL_TOP_SECTION.width() * scale));
         return Math.max(1, contentWidth / poolScaledWidth);
     }
 
@@ -479,7 +484,7 @@ public class RewardScreen extends Screen {
                         if (h > tallest) tallest = h;
                     }
                     double available = this.height - MARGIN_Y - BOTTOM_PADDING;
-                    if (tallest <= 0) tallest = Sprite.POOL_TOP_SECTION.height() * 0.5 + Sprite.POOL_BOTTOM_SECTION.height();
+                    if (tallest <= 0) tallest = Sprite.LOOTRUN_POOL_TOP_SECTION.height() * 0.5 + Sprite.POOL_BOTTOM_SECTION.height();
                     this.globalPoolScale = available / tallest;
                     this.scaleReady = true;
                     this.lastWidth = this.width;
@@ -497,7 +502,7 @@ public class RewardScreen extends Screen {
         int headerH = Sprite.POOL_MIDDLE_SECTION_HEADER.height(); // 41
         int middleH = Sprite.POOL_MIDDLE_SECTION.height(); // 22
         int bottomH = Sprite.POOL_BOTTOM_SECTION.height(); // 13
-        double topOverlap = Sprite.POOL_TOP_SECTION.height() * 0.5; // start sections halfway into awning
+        double topOverlap = Sprite.LOOTRUN_POOL_TOP_SECTION.height() * 0.5; // start sections halfway into awning
 
         int sectionsHeight = 0;
         if (activeType == RewardType.RAID) {
