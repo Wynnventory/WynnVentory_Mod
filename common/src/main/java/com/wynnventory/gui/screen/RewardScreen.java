@@ -12,6 +12,7 @@ import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.rune.RuneItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
+import com.wynntils.utils.colors.CommonColors;
 import com.wynntils.utils.render.FontRenderer;
 import com.wynnventory.api.service.RewardService;
 import com.wynnventory.core.config.ModConfig;
@@ -24,6 +25,7 @@ import com.wynnventory.model.item.simple.SimpleItemType;
 import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardType;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -226,7 +228,7 @@ public class RewardScreen extends Screen {
 
             double poolScale = this.globalPoolScale;
             int headerH = (int) (Sprite.POOL_TOP_SECTION.height() * poolScale);
-            int itemsStartY = MARGIN_Y + (int) (headerH * 0.5);
+            int itemsStartY = MARGIN_Y + (int) (headerH * 0.69);
 
             createItemButtons(currentX, itemsStartY, pool, sectionWidth, poolScale);
         }
@@ -240,9 +242,9 @@ public class RewardScreen extends Screen {
         this.addRenderableWidget(new ImageWidget(headerX, headerY, headerW, headerH, Sprite.POOL_TOP_SECTION));
 
         int titleWidth = this.font.width(title);
-        int plaqueY = headerY + (int) (4 * poolScale);
+        int plaqueY = headerY + (int) (7 * poolScale);
         int titleX = headerX + (headerW - titleWidth) / 2;
-        this.addRenderableWidget(new TextWidget(titleX, plaqueY, Component.literal(title), 0xFF3E2820));
+        this.addRenderableWidget(new TextWidget(titleX, plaqueY, Component.literal(title), 0xFFFFFFFF));
     }
 
     private void createItemButtons(int startX, int startY, RewardPool pool, int totalWidth, double poolScale) {
@@ -319,13 +321,13 @@ public class RewardScreen extends Screen {
 
         // Section Title centered in upper area
         int titleWidth = this.font.width(title);
-        int titleX = headerX + (headerW - titleWidth) / 2;
-        int titleY = headerY + Math.max(1, (int) (2 * poolScale)); // Offset to be in the "upper area"
-        this.addRenderableWidget(new TextWidget(titleX, titleY, Component.literal(title), 0xFF3E2820));
+        int titleX = headerX + Math.max(1, (int) (8 * poolScale));
+        int titleY = headerY + Math.max(1, (int) (5 * poolScale)); // Offset to be in the "upper area"
+        this.addRenderableWidget(new TextWidget(titleX, titleY, Component.literal(title), 0xFFFFFFFF));
 
         int itemsPerRow = 9; // Fixed columns per row as requested
-        int baseItemSize = 18;
-        int basePitch = 19;
+        int baseItemSize = 16;
+        int basePitch = 18;
         int interiorWidth = (int) (176 * poolScale); // The "body" width where items sit
         int gridWidth = (int) ((itemsPerRow * basePitch - (basePitch - baseItemSize)) * poolScale);
         // We center the grid within the 176px interior body, not the full sectionWidth
@@ -357,12 +359,12 @@ public class RewardScreen extends Screen {
             int y;
             if (row == 0) {
                 // First row is inside the header (in the lower area)
-                // Middle section header height is 41 natural; item is 18;
-                // We want to center the 18px item in the lower part below the title.
-                y = headerY + headerH - (int) (20 * poolScale);
+                // Middle section header height is 41 natural; item is 16;
+                // We want to center the 16px item in the lower part below the title.
+                y = headerY + headerH - (int) (18 * poolScale);
             } else {
                 // Additional rows are inside their respective middle section backgrounds (22 natural)
-                y = headerY + headerH + (row - 1) * middleH + (middleH - itemSize) / 2;
+                y = headerY + headerH + (row - 1) * middleH + (middleH - itemSize) / 2 + 2;
             }
 
             GuideItemStack stack = getGuideItemStack(item);
