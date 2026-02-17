@@ -212,32 +212,33 @@ public class RewardScreen extends Screen {
             RewardPool pool = allActivePools.get(poolIndex);
             int currentX = MARGIN_X + (i * sectionWidth);
 
-            // Pool Background (Bookshelf Container)
-            int poolHeight = this.height - 10 - MARGIN_Y;
-            this.addRenderableWidget(new RectWidget(currentX, MARGIN_Y, sectionWidth - 2, poolHeight, 0xFF7D5D44)); // Lighter non-transparent wood color
+            // Calculate pool scale and items starting position
+            int maxHeaderWidth = sectionWidth - 8;
+            if (maxHeaderWidth < 40) maxHeaderWidth = sectionWidth - 2;
+            double poolScale = Math.min(1.0, (double) maxHeaderWidth / Sprite.POOL_TOP_SECTION.width());
 
-            // Pool Borders
-            int borderColor = 0xFF3E2820; // Dark wood border
-            this.addRenderableWidget(new RectWidget(currentX, MARGIN_Y, sectionWidth - 2, 1, borderColor)); // Top
-            this.addRenderableWidget(new RectWidget(currentX, MARGIN_Y + poolHeight - 1, sectionWidth - 2, 1, borderColor)); // Bottom
-            this.addRenderableWidget(new RectWidget(currentX, MARGIN_Y, 1, poolHeight, borderColor)); // Left
-            this.addRenderableWidget(new RectWidget(currentX + sectionWidth - 3, MARGIN_Y, 1, poolHeight, borderColor)); // Right
+            int headerH = (int) (Sprite.POOL_TOP_SECTION.height() * poolScale);
+            // Items start about halfway inside the awning
+            int itemsStartY = MARGIN_Y + (int) (headerH * 0.5);
 
-            // Header Background
-            this.addRenderableWidget(new ImageWidget(currentX + (sectionWidth - 70) / 2, MARGIN_Y - 5, 70, 20, Sprite.BANNER_NAME));
-
-            // Pool Name (TextWidget)
-            int nameWidth = this.font.width(pool.getShortName());
-            int labelX = currentX + (sectionWidth - nameWidth) / 2;
-            this.addRenderableWidget(new TextWidget(labelX, MARGIN_Y + 1, Component.literal(pool.getShortName()), 0xFFEEDDBB));
-
-            // Pool Separator (Vertical Line) - Now part of the border logic above
-
-            createItemButtons(currentX, MARGIN_Y + 15, pool, sectionWidth);
+            createItemButtons(currentX, itemsStartY, pool, sectionWidth, poolScale);
         }
     }
 
-    private void createItemButtons(int startX, int startY, RewardPool pool, int totalWidth) {
+    private void renderPoolHeader(int startX, int sectionWidth, double poolScale, String title) {
+        int headerW = (int) (Sprite.POOL_TOP_SECTION.width() * poolScale);
+        int headerH = (int) (Sprite.POOL_TOP_SECTION.height() * poolScale);
+        int headerX = startX + (sectionWidth - headerW) / 2;
+        int headerY = MARGIN_Y;
+        this.addRenderableWidget(new ImageWidget(headerX, headerY, headerW, headerH, Sprite.POOL_TOP_SECTION));
+
+        int titleWidth = this.font.width(title);
+        int plaqueY = headerY + (int) (4 * poolScale);
+        int titleX = headerX + (headerW - titleWidth) / 2;
+        this.addRenderableWidget(new TextWidget(titleX, plaqueY, Component.literal(title), 0xFF3E2820));
+    }
+
+    private void createItemButtons(int startX, int startY, RewardPool pool, int totalWidth, double poolScale) {
         RewardService.INSTANCE.getItems(pool).thenAccept(items -> Minecraft.getInstance().execute(() -> {
             if (getActivePools().stream().noneMatch(p -> p == pool)) return;
 
@@ -250,14 +251,14 @@ public class RewardScreen extends Screen {
                     .toList();
 
             if (activeType == RewardType.RAID) {
-                renderRaidSections(startX, startY, filteredItems, totalWidth);
+                renderRaidSections(startX, startY, filteredItems, totalWidth, poolScale, pool);
             } else {
-                renderLootrunSections(startX, startY, filteredItems, totalWidth);
+                renderLootrunSections(startX, startY, filteredItems, totalWidth, poolScale, pool);
             }
         }));
     }
 
-    private void renderRaidSections(int startX, int startY, List<SimpleItem> items, int totalWidth) {
+    private void renderRaidSections(int startX, int startY, List<SimpleItem> items, int totalWidth, double poolScale, RewardPool pool) {
         List<SimpleItem> aspects = new ArrayList<>();
         List<SimpleItem> tomes = new ArrayList<>();
         List<SimpleItem> gear = new ArrayList<>();
@@ -272,13 +273,15 @@ public class RewardScreen extends Screen {
         }
 
         int currentY = startY;
-        currentY = renderSection(startX, currentY, "Aspects", aspects, totalWidth);
-        currentY = renderSection(startX, currentY, "Tomes", tomes, totalWidth);
-        currentY = renderSection(startX, currentY, "Gear", gear, totalWidth);
-        renderSection(startX, currentY, "Misc", misc, totalWidth);
+        currentY = renderSection(startX, currentY, "Aspects", aspects, totalWidth, poolScale);
+        currentY = renderSection(startX, currentY, "Tomes", tomes, totalWidth, poolScale);
+        currentY = renderSection(startX, currentY, "Gear", gear, totalWidth, poolScale);
+        currentY = renderSection(startX, currentY, "Misc", misc, totalWidth, poolScale);
+        renderBottomSection(startX, currentY, totalWidth, poolScale);
+        renderPoolHeader(startX, totalWidth, poolScale, pool.getShortName());
     }
 
-    private void renderLootrunSections(int startX, int startY, List<SimpleItem> items, int totalWidth) {
+    private void renderLootrunSections(int startX, int startY, List<SimpleItem> items, int totalWidth, double poolScale, RewardPool pool) {
         Map<GearTier, List<SimpleItem>> groupedByRarity = new HashMap<>();
         for (SimpleItem item : items) {
             groupedByRarity.computeIfAbsent(item.getRarityEnum(), k -> new ArrayList<>()).add(item);
@@ -291,43 +294,88 @@ public class RewardScreen extends Screen {
 
         int currentY = startY;
         for (GearTier tier : activeTiers) {
-            currentY = renderSection(startX, currentY, tier.getName(), groupedByRarity.get(tier), totalWidth);
+            currentY = renderSection(startX, currentY, tier.getName(), groupedByRarity.get(tier), totalWidth, poolScale);
         }
+        renderBottomSection(startX, currentY, totalWidth, poolScale);
+        renderPoolHeader(startX, totalWidth, poolScale, pool.getShortName());
     }
 
-    private int renderSection(int startX, int startY, String title, List<SimpleItem> items, int sectionWidth) {
+    private int renderSection(int startX, int startY, String title, List<SimpleItem> items, int sectionWidth, double poolScale) {
         if (items.isEmpty()) return startY;
 
         // Render header
-        this.addRenderableWidget(new TextWidget(startX + 2, startY, Component.literal(title)));
+        int headerW = (int) (Sprite.POOL_MIDDLE_SECTION_HEADER.width() * poolScale);
+        int headerH = (int) (Sprite.POOL_MIDDLE_SECTION_HEADER.height() * poolScale);
+        int headerX = startX + (sectionWidth - headerW) / 2;
+        int headerY = startY;
+        this.addRenderableWidget(new ImageWidget(headerX, headerY, headerW, headerH, Sprite.POOL_MIDDLE_SECTION_HEADER));
 
-        int itemsStartY = startY + 10;
+        // Section Title centered in upper area
+        int titleWidth = this.font.width(title);
+        int titleX = headerX + (headerW - titleWidth) / 2;
+        int titleY = headerY + Math.max(1, (int) (2 * poolScale)); // Offset to be in the "upper area"
+        this.addRenderableWidget(new TextWidget(titleX, titleY, Component.literal(title), 0xFF3E2820));
 
-        int itemsPerRow = (sectionWidth - 4) / 20;
-        if (itemsPerRow <= 0) itemsPerRow = 1;
+        int itemsPerRow = 9; // Fixed columns per row as requested
+        int baseItemSize = 18;
+        int basePitch = 19;
+        int interiorWidth = (int) (176 * poolScale); // The "body" width where items sit
+        int gridWidth = (int) ((itemsPerRow * basePitch - (basePitch - baseItemSize)) * poolScale);
+        // We center the grid within the 176px interior body, not the full sectionWidth
+        int bodyX = startX + (sectionWidth - interiorWidth) / 2;
+        int leftPad = bodyX + Math.max(0, (interiorWidth - gridWidth) / 2);
 
         int rows = (int) Math.ceil(items.size() / (double) itemsPerRow);
+
+        // Middle Section Backgrounds (for additional rows only)
+        int middleW = headerW; // Match header width
+        int middleH = (int) (Sprite.POOL_MIDDLE_SECTION.height() * poolScale);
+        int middleX = headerX;
+
+        // Render additional row backgrounds (if rows > 1)
+        for (int r = 1; r < rows; r++) {
+            int rowY = headerY + headerH + (r - 1) * middleH;
+            this.addRenderableWidget(new ImageWidget(middleX, rowY, middleW, middleH, Sprite.POOL_MIDDLE_SECTION));
+        }
+
+        int itemSize = (int) (baseItemSize * poolScale);
+        int pitch = (int) (basePitch * poolScale);
 
         for (int i = 0; i < items.size(); i++) {
             SimpleItem item = items.get(i);
             int row = i / itemsPerRow;
             int col = i % itemsPerRow;
 
-            int x = startX + 2 + col * 20;
-            int y = itemsStartY + row * 20;
+            int x = leftPad + col * pitch;
+            int y;
+            if (row == 0) {
+                // First row is inside the header (in the lower area)
+                // Middle section header height is 41 natural; item is 18;
+                // We want to center the 18px item in the lower part below the title.
+                y = headerY + headerH - (int) (20 * poolScale);
+            } else {
+                // Additional rows are inside their respective middle section backgrounds (22 natural)
+                y = headerY + headerH + (row - 1) * middleH + (middleH - itemSize) / 2;
+            }
 
             GuideItemStack stack = getGuideItemStack(item);
-            ItemButton<GuideItemStack> button = new ItemButton<>(x, y, 18, 18, stack, item);
+            ItemButton<GuideItemStack> button = new ItemButton<>(x, y, itemSize, itemSize, stack, item);
             this.addRenderableWidget(button);
             itemWidgets.add(button);
         }
 
-        int nextY = itemsStartY + rows * 20 + 8;
-        // Shelf Board Divider
-        this.addRenderableWidget(new RectWidget(startX + 1, nextY - 6, sectionWidth - 4, 3, 0xFF3E2820)); // Board
-        this.addRenderableWidget(new RectWidget(startX + 1, nextY - 3, sectionWidth - 4, 1, 0xFF2A1B16)); // Board shadow
+        int nextY = headerY + headerH + (rows > 1 ? (rows - 1) * middleH : 0);
 
         return nextY;
+    }
+
+    private void renderBottomSection(int startX, int startY, int sectionWidth, double poolScale) {
+        int bottomW = (int) (Sprite.POOL_BOTTOM_SECTION.width() * poolScale);
+        int bottomH = (int) (Sprite.POOL_BOTTOM_SECTION.height() * poolScale);
+        int bottomX = startX + (sectionWidth - bottomW) / 2;
+        int bottomY = startY;
+
+        this.addRenderableWidget(new ImageWidget(bottomX, bottomY, bottomW, bottomH, Sprite.POOL_BOTTOM_SECTION));
     }
 
     private void addFilterButton(String label, Sprite icon, BooleanSupplier getter, Consumer<Boolean> setter, int x, int y, int w) {
