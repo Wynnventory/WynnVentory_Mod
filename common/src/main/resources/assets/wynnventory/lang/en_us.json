@@ -10,6 +10,7 @@
   "feature.wynnventory.tooltip.avg80": "80% avg: ",
   "feature.wynnventory.tooltip.highest": "Highest: ",
   "feature.wynnventory.tooltip.lowest": "Lowest: ",
+  "feature.wynnventory.tooltip.title": "Trade Market Price Info",
   "feature.wynnventory.tooltip.unidAvg": "Unid Avg: ",
   "feature.wynnventory.tooltip.unidAvg80": "Unid 80% avg: ",
   "feature.wynnventory.update.betaNotification": "This is a beta build. Skipping update check...",

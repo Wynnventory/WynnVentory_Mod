@@ -56,6 +56,7 @@ public class RewardScreen extends Screen {
     private boolean scaleReady = false;
     private int lastWidth = -1;
     private int lastHeight = -1;
+
     // Recalc control to avoid repeated heavy work during drag-resize
     private boolean recalculating = false;
     private boolean pendingRecalc = false;
@@ -85,6 +86,13 @@ public class RewardScreen extends Screen {
     // Sidebar
     private static final int SIDEBAR_WIDTH = 115;
     private static final int SIDEBAR_Y = NAV_BUTTON_Y;
+
+    // Layout constants for pools
+    private static final int ITEMS_PER_ROW = 9;
+    private static final int BASE_ITEM_SIZE = 16;
+    private static final int BASE_PITCH = 18;
+    private static final int INTERIOR_BODY_WIDTH = 176;
+    private static final double TOP_AWNING_OVERLAP = 0.5; // Sections start halfway into pool top
 
     public RewardScreen(Component title, Screen parent) {
         super(title);
@@ -209,25 +217,35 @@ public class RewardScreen extends Screen {
         this.addRenderableWidget(new TextWidget(textX, textY, filterTitle));
 
         // Grid of 5 buttons per row
-        // Row 1
-        int yPosRowOne = filterY + 18;
-        addFilterButton("Mythic", Sprite.MYTHIC_ICON, s::isShowMythic, s::setShowMythic, sidebarX + 9, yPosRowOne, 16);
-        addFilterButton("Fabled", Sprite.FABLED_ICON, s::isShowFabled, s::setShowFabled, sidebarX + 29, yPosRowOne, 16);
-        addFilterButton(
-                "Legendary",
-                Sprite.LEGENDARY_ICON,
-                s::isShowLegendary,
-                s::setShowLegendary,
-                sidebarX + 49,
-                yPosRowOne,
-                16);
-        addFilterButton("Rare", Sprite.RARE_ICON, s::isShowRare, s::setShowRare, sidebarX + 69, yPosRowOne, 16);
-        addFilterButton("Unique", Sprite.UNIQUE_ICON, s::isShowUnique, s::setShowUnique, sidebarX + 89, yPosRowOne, 16);
+        record FilterItem(String label, Sprite icon, BooleanSupplier getter, Consumer<Boolean> setter) {}
+        List<FilterItem> filterItems = List.of(
+                new FilterItem("Mythic", Sprite.MYTHIC_ICON, s::isShowMythic, s::setShowMythic),
+                new FilterItem("Fabled", Sprite.FABLED_ICON, s::isShowFabled, s::setShowFabled),
+                new FilterItem("Legendary", Sprite.LEGENDARY_ICON, s::isShowLegendary, s::setShowLegendary),
+                new FilterItem("Rare", Sprite.RARE_ICON, s::isShowRare, s::setShowRare),
+                new FilterItem("Unique", Sprite.UNIQUE_ICON, s::isShowUnique, s::setShowUnique),
+                new FilterItem("Common", Sprite.COMMON_ICON, s::isShowCommon, s::setShowCommon),
+                new FilterItem("Set", Sprite.SET_ICON, s::isShowSet, s::setShowSet));
 
-        // Row 2
-        int yPosRowTwo = filterY + 38;
-        addFilterButton("Common", Sprite.COMMON_ICON, s::isShowCommon, s::setShowCommon, sidebarX + 9, yPosRowTwo, 16);
-        addFilterButton("Set", Sprite.SET_ICON, s::isShowSet, s::setShowSet, sidebarX + 29, yPosRowTwo, 16);
+        int filterStartX = sidebarX + 9;
+        int filterStartY = filterY + 18;
+        int filterSpacingX = 20;
+        int filterSpacingY = 20;
+        int buttonsPerRow = 5;
+
+        for (int i = 0; i < filterItems.size(); i++) {
+            FilterItem item = filterItems.get(i);
+            int row = i / buttonsPerRow;
+            int col = i % buttonsPerRow;
+            addFilterButton(
+                    item.label,
+                    item.icon,
+                    item.getter,
+                    item.setter,
+                    filterStartX + col * filterSpacingX,
+                    filterStartY + row * filterSpacingY,
+                    16);
+        }
 
         // Trigger scale calculation on first open; during window resize it's managed in resize()
         if (!this.scaleReady) {
@@ -368,58 +386,9 @@ public class RewardScreen extends Screen {
                             })
                             .toList();
 
-                    if (activeType == RewardType.RAID) {
-                        renderRaidSections(startX, startY, filteredItems, totalWidth, poolScale, pool);
-                    } else {
-                        renderLootrunSections(startX, startY, filteredItems, totalWidth, poolScale, pool);
-                    }
+                    List<SectionData> sections = buildSections(filteredItems);
+                    renderSectionsCommon(startX, startY, sections, totalWidth, poolScale, pool);
                 }));
-    }
-
-    private void renderRaidSections(
-            int startX, int startY, List<SimpleItem> items, int totalWidth, double poolScale, RewardPool pool) {
-        List<SimpleItem> aspects = new ArrayList<>();
-        List<SimpleItem> tomes = new ArrayList<>();
-        List<SimpleItem> gear = new ArrayList<>();
-        List<SimpleItem> misc = new ArrayList<>();
-
-        for (SimpleItem item : items) {
-            SimpleItemType type = item.getItemTypeEnum();
-            if (type == SimpleItemType.ASPECT) aspects.add(item);
-            else if (type == SimpleItemType.TOME) tomes.add(item);
-            else if (type == SimpleItemType.GEAR) gear.add(item);
-            else misc.add(item);
-        }
-
-        int currentY = startY;
-        currentY = renderSection(startX, currentY, "Aspects", aspects, totalWidth, poolScale);
-        currentY = renderSection(startX, currentY, "Tomes", tomes, totalWidth, poolScale);
-        currentY = renderSection(startX, currentY, "Gear", gear, totalWidth, poolScale);
-        currentY = renderSection(startX, currentY, "Misc", misc, totalWidth, poolScale);
-        renderBottomSection(startX, currentY, totalWidth, poolScale);
-        renderPoolHeader(startX, totalWidth, poolScale, pool.getShortName());
-    }
-
-    private void renderLootrunSections(
-            int startX, int startY, List<SimpleItem> items, int totalWidth, double poolScale, RewardPool pool) {
-        Map<GearTier, List<SimpleItem>> groupedByRarity = new HashMap<>();
-        for (SimpleItem item : items) {
-            groupedByRarity
-                    .computeIfAbsent(item.getRarityEnum(), k -> new ArrayList<>())
-                    .add(item);
-        }
-
-        GearTier[] tiers = {
-            GearTier.MYTHIC, GearTier.FABLED, GearTier.LEGENDARY, GearTier.RARE, GearTier.UNIQUE, GearTier.NORMAL
-        };
-
-        int currentY = startY;
-        for (GearTier tier : tiers) {
-            List<SimpleItem> tierItems = groupedByRarity.getOrDefault(tier, new ArrayList<>());
-            currentY = renderSection(startX, currentY, tier.getName(), tierItems, totalWidth, poolScale);
-        }
-        renderBottomSection(startX, currentY, totalWidth, poolScale);
-        renderPoolHeader(startX, totalWidth, poolScale, pool.getShortName());
     }
 
     private int renderSection(
@@ -440,16 +409,13 @@ public class RewardScreen extends Screen {
         this.addRenderableWidget(
                 new TextWidget(titleX, titleY, Component.literal(title), 0xFFFFFFFF, (float) poolScale));
 
-        int itemsPerRow = 9; // Fixed columns per row as requested
-        int baseItemSize = 16;
-        int basePitch = 18;
-        int interiorWidth = (int) (176 * poolScale); // The "body" width where items sit
-        int gridWidth = (int) ((itemsPerRow * basePitch - (basePitch - baseItemSize)) * poolScale);
-        // We center the grid within the 176px interior body, not the full sectionWidth
+        int interiorWidth = (int) (INTERIOR_BODY_WIDTH * poolScale); // The "body" width where items sit
+        int gridWidth = (int) ((ITEMS_PER_ROW * BASE_PITCH - (BASE_PITCH - BASE_ITEM_SIZE)) * poolScale);
+        // We center the grid within the interior body width, not the full sectionWidth
         int bodyX = startX + (sectionWidth - interiorWidth) / 2;
         int leftPad = bodyX + Math.max(0, (interiorWidth - gridWidth) / 2);
 
-        int rows = (int) Math.ceil(items.size() / (double) itemsPerRow);
+        int rows = (int) Math.ceil(items.size() / (double) ITEMS_PER_ROW);
 
         // Middle Section Backgrounds (for additional rows only)
         int middleW = headerW; // Match header width
@@ -462,13 +428,13 @@ public class RewardScreen extends Screen {
             this.addRenderableWidget(new ImageWidget(middleX, rowY, middleW, middleH, Sprite.POOL_MIDDLE_SECTION));
         }
 
-        int itemSize = (int) (baseItemSize * poolScale);
-        int pitch = (int) (basePitch * poolScale);
+        int itemSize = (int) (BASE_ITEM_SIZE * poolScale);
+        int pitch = (int) (BASE_PITCH * poolScale);
 
         for (int i = 0; i < items.size(); i++) {
             SimpleItem item = items.get(i);
-            int row = i / itemsPerRow;
-            int col = i % itemsPerRow;
+            int row = i / ITEMS_PER_ROW;
+            int col = i % ITEMS_PER_ROW;
 
             int x = leftPad + col * pitch;
             int y;
@@ -488,9 +454,7 @@ public class RewardScreen extends Screen {
             itemWidgets.add(button);
         }
 
-        int nextY = headerY + headerH + (rows > 1 ? (rows - 1) * middleH : 0);
-
-        return nextY;
+        return headerY + headerH + (rows > 1 ? (rows - 1) * middleH : 0);
     }
 
     private void renderBottomSection(int startX, int startY, int sectionWidth, double poolScale) {
@@ -546,10 +510,14 @@ public class RewardScreen extends Screen {
 
     private GuideItemStack getGuideItemStack(SimpleItem item) {
         if (item instanceof SimpleTierItem s) {
-            if (s.getItemTypeEnum() == SimpleItemType.POWDER) {
-                return wynnItemsByName.get(s.getName() + " " + s.getTier());
-            } else if (s.getItemTypeEnum() == SimpleItemType.AMPLIFIER) {
-                return wynnItemsByName.get(s.getName() + " " + MathUtils.toRoman(s.getTier()));
+            String suffix =
+                    switch (s.getItemTypeEnum()) {
+                        case POWDER -> " " + s.getTier();
+                        case AMPLIFIER -> " " + MathUtils.toRoman(s.getTier());
+                        default -> "";
+                    };
+            if (!suffix.isEmpty()) {
+                return wynnItemsByName.get(s.getName() + suffix);
             }
         }
         return wynnItemsByName.get(item.getName());
@@ -584,78 +552,55 @@ public class RewardScreen extends Screen {
                         itemsByPool.put(pool, filtered);
 
                         if (remaining.decrementAndGet() == 0) {
-                            // All pools loaded; compute tallest natural height
-                            double tallest = 0.0;
-                            for (RewardPool p : pools) {
-                                List<SimpleItem> list = itemsByPool.getOrDefault(p, List.of());
-                                double h = computeNaturalPoolHeight(list);
-                                if (h > tallest) tallest = h;
-                            }
-                            double available = this.height - MARGIN_Y - BOTTOM_PADDING;
-                            if (tallest <= 0)
-                                tallest = Sprite.LOOTRUN_POOL_TOP_SECTION.height() * 0.5
-                                        + Sprite.POOL_BOTTOM_SECTION.height();
-                            this.globalPoolScale = available / tallest;
-                            this.scaleReady = true;
-                            this.lastWidth = this.width;
-                            this.lastHeight = this.height;
-                            this.recalculating = false;
-                            // If multiple resizes happened during calculation, run one more pass
-                            if (this.pendingRecalc) {
-                                this.pendingRecalc = false;
-                                this.minecraft.execute(this::recalcScaleAsync);
-                                return;
-                            }
-                            // Rebuild to apply scale across layout
-                            this.minecraft.execute(this::rebuildWidgets);
+                            finalizeScale(pools, itemsByPool);
                         }
                     }));
         }
     }
 
+    private void finalizeScale(List<RewardPool> pools, Map<RewardPool, List<SimpleItem>> itemsByPool) {
+        // All pools loaded; compute tallest natural height
+        double tallest = 0.0;
+        for (RewardPool p : pools) {
+            List<SimpleItem> list = itemsByPool.getOrDefault(p, List.of());
+            double h = computeNaturalPoolHeight(list);
+            if (h > tallest) tallest = h;
+        }
+
+        double available = this.height - MARGIN_Y - BOTTOM_PADDING;
+        if (tallest <= 0) {
+            tallest =
+                    Sprite.LOOTRUN_POOL_TOP_SECTION.height() * TOP_AWNING_OVERLAP + Sprite.POOL_BOTTOM_SECTION.height();
+        }
+
+        this.globalPoolScale = available / tallest;
+        this.scaleReady = true;
+        this.lastWidth = this.width;
+        this.lastHeight = this.height;
+        this.recalculating = false;
+
+        // If multiple resizes happened during calculation, run one more pass
+        if (this.pendingRecalc) {
+            this.pendingRecalc = false;
+            this.minecraft.execute(this::recalcScaleAsync);
+            return;
+        }
+
+        // Rebuild to apply scale across layout
+        this.minecraft.execute(this::rebuildWidgets);
+    }
+
     private double computeNaturalPoolHeight(List<SimpleItem> items) {
         // Sections depend on active type; itemsPerRow is fixed 9
-        int itemsPerRow = 9;
         int headerH = Sprite.POOL_MIDDLE_SECTION_HEADER.height(); // 41
         int middleH = Sprite.POOL_MIDDLE_SECTION.height(); // 22
         int bottomH = Sprite.POOL_BOTTOM_SECTION.height(); // 13
-        double topOverlap = Sprite.LOOTRUN_POOL_TOP_SECTION.height() * 0.5; // start sections halfway into awning
+        double topOverlap = Sprite.LOOTRUN_POOL_TOP_SECTION.height() * TOP_AWNING_OVERLAP;
 
         int sectionsHeight = 0;
-        if (activeType == RewardType.RAID) {
-            List<SimpleItem> aspects = new ArrayList<>();
-            List<SimpleItem> tomes = new ArrayList<>();
-            List<SimpleItem> gear = new ArrayList<>();
-            List<SimpleItem> misc = new ArrayList<>();
-            for (SimpleItem item : items) {
-                SimpleItemType type = item.getItemTypeEnum();
-                if (type == SimpleItemType.ASPECT) aspects.add(item);
-                else if (type == SimpleItemType.TOME) tomes.add(item);
-                else if (type == SimpleItemType.GEAR) gear.add(item);
-                else misc.add(item);
-            }
-            sectionsHeight += sectionHeightForCount(aspects.size(), itemsPerRow, headerH, middleH);
-            sectionsHeight += sectionHeightForCount(tomes.size(), itemsPerRow, headerH, middleH);
-            sectionsHeight += sectionHeightForCount(gear.size(), itemsPerRow, headerH, middleH);
-            sectionsHeight += sectionHeightForCount(misc.size(), itemsPerRow, headerH, middleH);
-        } else { // LOOTRUN by tiers
-            Map<GearTier, Integer> counts = new HashMap<>();
-            for (SimpleItem item : items) {
-                counts.merge(item.getRarityEnum(), 1, Integer::sum);
-            }
-            GearTier[] tiers = {
-                GearTier.MYTHIC,
-                GearTier.FABLED,
-                GearTier.LEGENDARY,
-                GearTier.RARE,
-                GearTier.UNIQUE,
-                GearTier.SET,
-                GearTier.NORMAL
-            };
-            for (GearTier t : tiers) {
-                int c = counts.getOrDefault(t, 0);
-                sectionsHeight += sectionHeightForCount(c, itemsPerRow, headerH, middleH);
-            }
+        List<SectionData> sections = buildSections(items);
+        for (SectionData sd : sections) {
+            sectionsHeight += sectionHeightForCount(sd.items.size(), ITEMS_PER_ROW, headerH, middleH);
         }
         if (sectionsHeight == 0) return topOverlap + bottomH; // minimal footprint
         return topOverlap + sectionsHeight + bottomH;
@@ -666,5 +611,63 @@ public class RewardScreen extends Screen {
         if (count <= 0) return headerH;
         int rows = (int) Math.ceil(count / (double) itemsPerRow);
         return headerH + Math.max(0, (rows - 1) * middleH);
+    }
+
+    // --- Common section building and rendering helpers ---
+    private List<SectionData> buildSections(List<SimpleItem> items) {
+        List<SectionData> sections = new ArrayList<>();
+        if (activeType == RewardType.RAID) {
+            Map<SimpleItemType, List<SimpleItem>> grouped = new HashMap<>();
+            for (SimpleItem item : items) {
+                SimpleItemType type = item.getItemTypeEnum();
+                grouped.computeIfAbsent(type, k -> new ArrayList<>()).add(item);
+            }
+
+            sections.add(new SectionData("Aspects", grouped.getOrDefault(SimpleItemType.ASPECT, List.of())));
+            sections.add(new SectionData("Tomes", grouped.getOrDefault(SimpleItemType.TOME, List.of())));
+            sections.add(new SectionData("Gear", grouped.getOrDefault(SimpleItemType.GEAR, List.of())));
+            sections.add(new SectionData(
+                    "Misc",
+                    items.stream()
+                            .filter(i -> !List.of(SimpleItemType.ASPECT, SimpleItemType.TOME, SimpleItemType.GEAR)
+                                    .contains(i.getItemTypeEnum()))
+                            .toList()));
+        } else { // LOOTRUN by rarity tiers
+            Map<GearTier, List<SimpleItem>> groupedByRarity = new HashMap<>();
+            for (SimpleItem item : items) {
+                groupedByRarity
+                        .computeIfAbsent(item.getRarityEnum(), k -> new ArrayList<>())
+                        .add(item);
+            }
+            GearTier[] tiers = new GearTier[] {
+                GearTier.MYTHIC, GearTier.FABLED, GearTier.LEGENDARY, GearTier.RARE, GearTier.UNIQUE, GearTier.NORMAL
+            };
+            for (GearTier tier : tiers) {
+                List<SimpleItem> tierItems = groupedByRarity.getOrDefault(tier, new ArrayList<>());
+                sections.add(new SectionData(tier.getName(), tierItems));
+            }
+        }
+        return sections;
+    }
+
+    private void renderSectionsCommon(
+            int startX, int startY, List<SectionData> sections, int totalWidth, double poolScale, RewardPool pool) {
+        int currentY = startY;
+        for (SectionData sd : sections) {
+            currentY = renderSection(startX, currentY, sd.title, sd.items, totalWidth, poolScale);
+        }
+        renderBottomSection(startX, currentY, totalWidth, poolScale);
+        renderPoolHeader(startX, totalWidth, poolScale, pool.getShortName());
+    }
+
+    // Lightweight inner model to represent a visual section in a pool
+    private static class SectionData {
+        final String title;
+        final List<SimpleItem> items;
+
+        SectionData(String title, List<SimpleItem> items) {
+            this.title = title;
+            this.items = items;
+        }
     }
 }
