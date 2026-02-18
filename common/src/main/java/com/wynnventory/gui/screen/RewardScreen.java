@@ -104,6 +104,15 @@ public class RewardScreen extends Screen {
         mc.setScreen(new RewardScreen(Component.empty(), mc.screen));
     }
 
+    private void triggerRecalc() {
+        this.scaleReady = false;
+        if (!this.recalculating) {
+            recalcScaleAsync();
+        } else {
+            this.pendingRecalc = true;
+        }
+    }
+
     @Override
     protected void init() {
         if (wynnItemsByName.isEmpty()) {
@@ -117,7 +126,7 @@ public class RewardScreen extends Screen {
         Button lootrunButton = Button.builder(Component.translatable("gui.wynnventory.reward.lootrun"), button -> {
                     activeType = RewardType.LOOTRUN;
                     this.scrollIndex = 0;
-                    this.rebuildWidgets();
+                    this.triggerRecalc();
                 })
                 .bounds(startX, startY, TAB_BUTTON_WIDTH, TAB_BUTTON_HEIGHT)
                 .build();
@@ -128,7 +137,7 @@ public class RewardScreen extends Screen {
         Button raidButton = Button.builder(Component.translatable("gui.wynnventory.reward.raid"), button -> {
                     activeType = RewardType.RAID;
                     this.scrollIndex = 0;
-                    this.rebuildWidgets();
+                    this.triggerRecalc();
                 })
                 .bounds(startX + TAB_BUTTON_WIDTH + TAB_BUTTON_SPACING, startY, TAB_BUTTON_WIDTH, TAB_BUTTON_HEIGHT)
                 .build();
@@ -275,12 +284,7 @@ public class RewardScreen extends Screen {
         this.suppressInitRecalc = true;
         super.resize(width, height);
         this.suppressInitRecalc = false;
-        this.scaleReady = false;
-        if (!this.recalculating) {
-            recalcScaleAsync();
-        } else {
-            this.pendingRecalc = true;
-        }
+        this.triggerRecalc();
     }
 
     @Override
