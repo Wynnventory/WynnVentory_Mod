@@ -57,6 +57,10 @@ public class RewardScreen extends Screen {
     private boolean scaleReady = false;
     private int lastWidth = -1;
     private int lastHeight = -1;
+    // Recalc control to avoid repeated heavy work during drag-resize
+    private boolean recalculating = false;
+    private boolean pendingRecalc = false;
+    private boolean suppressInitRecalc = false;
 
     // Screen layout
     private static final int MARGIN_Y = 40;
@@ -95,10 +99,6 @@ public class RewardScreen extends Screen {
 
     @Override
     protected void init() {
-        if (this.width != lastWidth || this.height != lastHeight) {
-            this.scaleReady = false;
-        }
-
         if (wynnItemsByName.isEmpty()) {
             loadGuideItems();
         }
@@ -215,9 +215,11 @@ public class RewardScreen extends Screen {
                 "Common", Sprite.COMMON_ICON, s::isShowCommon, s::setShowCommon, sidebarX + 9, filterY + 25, 16);
         addFilterButton("Set", Sprite.SET_ICON, s::isShowSet, s::setShowSet, sidebarX + 29, filterY + 25, 16);
 
-        // Trigger scale calculation on first build if needed; otherwise just populate widgets
+        // Trigger scale calculation on first open; during window resize it's managed in resize()
         if (!this.scaleReady) {
-            recalcScaleAsync();
+            if (!this.recalculating && !this.suppressInitRecalc) {
+                recalcScaleAsync();
+            }
         } else {
             populateItemWidgets();
         }
@@ -231,6 +233,21 @@ public class RewardScreen extends Screen {
             if (widget.isHovered()) {
                 graphics.setTooltipForNextFrame(this.font, widget.getItemStack(), mouseX, mouseY);
             }
+        }
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        // Use native resize to manage recalculation once per resize cycle.
+        // Suppress init-triggered recalc during this call to avoid duplicates.
+        this.suppressInitRecalc = true;
+        super.resize(width, height);
+        this.suppressInitRecalc = false;
+        this.scaleReady = false;
+        if (!this.recalculating) {
+            recalcScaleAsync();
+        } else {
+            this.pendingRecalc = true;
         }
     }
 
@@ -536,10 +553,12 @@ public class RewardScreen extends Screen {
 
     // === Vertical-first scaling ===
     private void recalcScaleAsync() {
+        this.recalculating = true;
         List<RewardPool> pools = getActivePools();
         if (pools.isEmpty()) {
             this.globalPoolScale = 1.0;
             this.scaleReady = true;
+            this.recalculating = false;
             this.populateItemWidgets();
             return;
         }
@@ -576,6 +595,13 @@ public class RewardScreen extends Screen {
                             this.scaleReady = true;
                             this.lastWidth = this.width;
                             this.lastHeight = this.height;
+                            this.recalculating = false;
+                            // If multiple resizes happened during calculation, run one more pass
+                            if (this.pendingRecalc) {
+                                this.pendingRecalc = false;
+                                this.minecraft.execute(this::recalcScaleAsync);
+                                return;
+                            }
                             // Rebuild to apply scale across layout
                             this.minecraft.execute(this::rebuildWidgets);
                         }
