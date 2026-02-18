@@ -14,18 +14,20 @@ import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.model.reward.RewardType;
 import com.wynnventory.util.HttpUtils;
-
 import java.net.URI;
 import java.net.http.HttpResponse;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-public class WynnventoryApi  {
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-            .registerModule(new Jdk8Module())
-            .registerModule(new JavaTimeModule());
-
+public class WynnventoryApi {
+    private static final ObjectMapper MAPPER =
+            new ObjectMapper().registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
 
     public void sendGambitData(Set<SimpleGambitItem> gambits) {
         if (gambits.isEmpty()) return;
@@ -77,7 +79,8 @@ public class WynnventoryApi  {
         return getTrademarketItemSummaryCompletableFuture(tier, shiny, baseUri);
     }
 
-    private CompletableFuture<TrademarketItemSummary> getTrademarketItemSummaryCompletableFuture(Integer tier, Boolean shiny, URI baseUri) {
+    private CompletableFuture<TrademarketItemSummary> getTrademarketItemSummaryCompletableFuture(
+            Integer tier, Boolean shiny, URI baseUri) {
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("tier", tier);
         params.put("shiny", shiny);
@@ -113,7 +116,9 @@ public class WynnventoryApi  {
 
             if (node == null || node.isNull()) return Collections.emptyList();
 
-            return MAPPER.readValue(node.traverse(), MAPPER.getTypeFactory().constructCollectionType(List.class, RewardPoolDocument.class));
+            return MAPPER.readValue(
+                    node.traverse(),
+                    MAPPER.getTypeFactory().constructCollectionType(List.class, RewardPoolDocument.class));
         } catch (Exception e) {
             WynnventoryMod.logError("Failed to parse reward pool response {}", responseBody, e);
         }
@@ -125,7 +130,7 @@ public class WynnventoryApi  {
         if (resp != null && resp.statusCode() == 200) {
             WynnventoryMod.logDebug("API response: {}", resp.body());
             return on200.apply(resp.body());
-        } else if(resp != null) {
+        } else if (resp != null) {
             WynnventoryMod.logError("API error ({}): {}", resp.statusCode(), resp.body());
         }
 

@@ -64,12 +64,12 @@ public class TrademarketPriceSummary {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof TrademarketPriceSummary other) {
-            return Objects.equals(averageMid80PercentPrice, other.averageMid80PercentPrice) &&
-                    Objects.equals(averagePrice, other.averagePrice) &&
-                    Objects.equals(highestPrice, other.highestPrice) &&
-                    Objects.equals(lowestPrice, other.lowestPrice) &&
-                    Objects.equals(unidentifiedAverageMid80PercentPrice, other.unidentifiedAverageMid80PercentPrice) &&
-                    Objects.equals(unidentifiedAveragePrice, other.unidentifiedAveragePrice);
+            return Objects.equals(averageMid80PercentPrice, other.averageMid80PercentPrice)
+                    && Objects.equals(averagePrice, other.averagePrice)
+                    && Objects.equals(highestPrice, other.highestPrice)
+                    && Objects.equals(lowestPrice, other.lowestPrice)
+                    && Objects.equals(unidentifiedAverageMid80PercentPrice, other.unidentifiedAverageMid80PercentPrice)
+                    && Objects.equals(unidentifiedAveragePrice, other.unidentifiedAveragePrice);
         }
         return false;
     }
@@ -82,18 +82,17 @@ public class TrademarketPriceSummary {
                 highestPrice,
                 lowestPrice,
                 unidentifiedAverageMid80PercentPrice,
-                unidentifiedAveragePrice
-        );
+                unidentifiedAveragePrice);
     }
 
     @Override
     public String toString() {
-        return "CalculatedPriceInfo{" +
-                "averageMid80PercentPrice=" + averageMid80PercentPrice +
-                ", averagePrice=" + averagePrice +
-                ", highestPrice=" + highestPrice +
-                ", lowestPrice=" + lowestPrice +
-                ", unidentifiedAverageMid80PercentPrice=" + unidentifiedAverageMid80PercentPrice +
-                ", unidentifiedAveragePrice=" + unidentifiedAveragePrice + '}';
+        return "CalculatedPriceInfo{" + "averageMid80PercentPrice="
+                + averageMid80PercentPrice + ", averagePrice="
+                + averagePrice + ", highestPrice="
+                + highestPrice + ", lowestPrice="
+                + lowestPrice + ", unidentifiedAverageMid80PercentPrice="
+                + unidentifiedAverageMid80PercentPrice + ", unidentifiedAveragePrice="
+                + unidentifiedAveragePrice + '}';
     }
 }

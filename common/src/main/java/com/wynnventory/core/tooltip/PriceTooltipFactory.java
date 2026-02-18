@@ -7,13 +7,12 @@ import com.wynntils.screens.guides.GuideItemStack;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
 import com.wynnventory.util.ItemStackUtils;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 public final class PriceTooltipFactory {
     private static final Component PRICE_TOOLTIP_TITLE = Component.translatable("feature.wynnventory.tooltip.title")
@@ -38,7 +37,7 @@ public final class PriceTooltipFactory {
     private List<PriceSection> resolveSections(ItemStack stack) {
         WynnItem wynnItem = ItemStackUtils.getWynnItem(stack);
         if (wynnItem instanceof GearBoxItem gearBox) {
-            if(ModConfig.getInstance().getTooltipSettings().isShowBoxedItemTooltips()) {
+            if (ModConfig.getInstance().getTooltipSettings().isShowBoxedItemTooltips()) {
                 return resolveGearBoxSections(gearBox);
             }
 
@@ -63,8 +62,8 @@ public final class PriceTooltipFactory {
             if (snap == null || snap.live() == null) continue;
 
             GearInfo info = e.getKey();
-            Component title = Component.literal(info.name())
-                    .withStyle(info.tier().getChatFormatting());
+            Component title =
+                    Component.literal(info.name()).withStyle(info.tier().getChatFormatting());
 
             out.add(new PriceSection(title, snap));
         }

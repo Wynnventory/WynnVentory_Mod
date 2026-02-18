@@ -7,7 +7,6 @@ import com.wynntils.models.gear.type.GearTier;
 import com.wynnventory.model.item.ModInfoProvider;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleItemType;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,15 +25,33 @@ public final class RewardPoolDocument extends ModInfoProvider {
         this.rewardPool = rewardPool;
     }
 
-    public List<SimpleItem> getItems() { return items; }
+    public List<SimpleItem> getItems() {
+        return items;
+    }
 
     @JsonIgnore
-    public List<SimpleItem> getMythicAspects() { return items.stream().filter(item -> item.getItemTypeEnum() == SimpleItemType.ASPECT && item.getRarityEnum() == GearTier.MYTHIC).toList(); }
-    public String getRegion() { return rewardPool.getFullName(); }
-    public String getType() { return rewardPool.getType().name(); }
+    public List<SimpleItem> getMythicAspects() {
+        return items.stream()
+                .filter(item ->
+                        item.getItemTypeEnum() == SimpleItemType.ASPECT && item.getRarityEnum() == GearTier.MYTHIC)
+                .toList();
+    }
 
-    public void setItems(List<SimpleItem> items) { this.items = items; }
-    public void setRewardPool(RewardPool rewardPool) { this.rewardPool = rewardPool; }
+    public String getRegion() {
+        return rewardPool.getFullName();
+    }
+
+    public String getType() {
+        return rewardPool.getType().name();
+    }
+
+    public void setItems(List<SimpleItem> items) {
+        this.items = items;
+    }
+
+    public void setRewardPool(RewardPool rewardPool) {
+        this.rewardPool = rewardPool;
+    }
 
     @JsonAlias("region")
     public void setRegion(String region) {
@@ -42,5 +59,7 @@ public final class RewardPoolDocument extends ModInfoProvider {
     }
 
     @JsonIgnore
-    public RewardPool getRewardPool() { return rewardPool; }
+    public RewardPool getRewardPool() {
+        return rewardPool;
+    }
 }

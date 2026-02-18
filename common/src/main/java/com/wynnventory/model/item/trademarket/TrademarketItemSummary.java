@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.TimestampedObject;
 import com.wynnventory.model.item.simple.SimpleItem;
-
 import java.time.Duration;
 import java.util.Objects;
 
@@ -170,10 +169,10 @@ public class TrademarketItemSummary extends TimestampedObject {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof TrademarketItemSummary other) {
-            return shiny == other.shiny &&
-                    Objects.equals(item, other.item) &&
-                    Objects.equals(calculatedPriceInfo, other.calculatedPriceInfo) &&
-                    Objects.equals(tier, other.tier);
+            return shiny == other.shiny
+                    && Objects.equals(item, other.item)
+                    && Objects.equals(calculatedPriceInfo, other.calculatedPriceInfo)
+                    && Objects.equals(tier, other.tier);
         }
         return false;
     }
@@ -185,12 +184,11 @@ public class TrademarketItemSummary extends TimestampedObject {
 
     @Override
     public String toString() {
-        return "CalculatedPriceItem{" +
-                "item=" + item +
-                ", calculatedPriceInfo=" + calculatedPriceInfo +
-                ", shiny=" + shiny +
-                ", tier=" + tier +
-                ", timestamp=" + timestamp +
-                '}';
+        return "CalculatedPriceItem{" + "item="
+                + item + ", calculatedPriceInfo="
+                + calculatedPriceInfo + ", shiny="
+                + shiny + ", tier="
+                + tier + ", timestamp="
+                + timestamp + '}';
     }
 }

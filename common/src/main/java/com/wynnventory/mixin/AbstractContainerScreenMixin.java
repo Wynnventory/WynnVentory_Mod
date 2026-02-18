@@ -22,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractContainerScreen.class)
 public abstract class AbstractContainerScreenMixin extends Screen {
-
     @Shadow
     protected Slot hoveredSlot;
 
@@ -30,20 +29,18 @@ public abstract class AbstractContainerScreenMixin extends Screen {
         super(component);
     }
 
-    @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V",
-            at = @At("RETURN"))
+    @Inject(method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V", at = @At("RETURN"))
     private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
         if (hoveredSlot == null || hoveredSlot.getItem().isEmpty()) return;
 
         Container container = Container.current();
         if (container == null) return;
 
-        if (TrademarketContainer.matchesTitle(container.title())) WynnventoryMod.postEvent(new TrademarketTooltipRenderedEvent(hoveredSlot));
+        if (TrademarketContainer.matchesTitle(container.title()))
+            WynnventoryMod.postEvent(new TrademarketTooltipRenderedEvent(hoveredSlot));
     }
 
-    @Inject(method = "keyPressed(Lnet/minecraft/client/input/KeyEvent;)Z",
-            at = @At("HEAD"),
-            cancellable = true)
+    @Inject(method = "keyPressed(Lnet/minecraft/client/input/KeyEvent;)Z", at = @At("HEAD"), cancellable = true)
     private void keyPressed(KeyEvent keyEvent, CallbackInfoReturnable<Boolean> cir) {
         InventoryKeyPressEvent event = new InventoryKeyPressEvent(keyEvent);
         WynnventoryMod.postEvent(event);
@@ -53,8 +50,9 @@ public abstract class AbstractContainerScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("RETURN"))
     private void init(CallbackInfo ci) {
-        if(RaidWindowContainer.matchesTitle(this.getTitle().getString())) {
-            WynnventoryMod.postEvent(new RaidLobbyScreenInitEvent((AbstractContainerScreen<?>) (Object) this, this::addRenderableWidget));
+        if (RaidWindowContainer.matchesTitle(this.getTitle().getString())) {
+            WynnventoryMod.postEvent(new RaidLobbyScreenInitEvent(
+                    (AbstractContainerScreen<?>) (Object) this, this::addRenderableWidget));
         }
     }
 }

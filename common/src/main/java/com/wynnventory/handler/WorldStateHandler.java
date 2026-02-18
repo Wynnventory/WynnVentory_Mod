@@ -8,7 +8,6 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 
 public class WorldStateHandler {
-
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onWorldStateChange(WorldStateEvent e) {
         if (e.isFirstJoinWorld() || e.getNewState() == WorldState.WORLD) {

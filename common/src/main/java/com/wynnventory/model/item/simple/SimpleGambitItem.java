@@ -4,7 +4,6 @@ import com.wynntils.core.text.StyledText;
 import com.wynntils.models.items.items.gui.GambitItem;
 import com.wynntils.utils.colors.CustomColor;
 import com.wynnventory.model.item.ModInfoProvider;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -17,7 +16,7 @@ public class SimpleGambitItem extends ModInfoProvider {
     public SimpleGambitItem(GambitItem gambitItem) {
         this.name = gambitItem.getName();
         this.color = gambitItem.getColor();
-        for(StyledText line : gambitItem.getDescription()) {
+        for (StyledText line : gambitItem.getDescription()) {
             this.description.add(line.getString());
         }
     }
@@ -50,8 +49,7 @@ public class SimpleGambitItem extends ModInfoProvider {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof SimpleGambitItem other) {
-            return Objects.equals(name, other.name) &&
-                    Objects.equals(description, other.description);
+            return Objects.equals(name, other.name) && Objects.equals(description, other.description);
         }
 
         return false;

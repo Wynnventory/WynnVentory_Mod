@@ -11,12 +11,11 @@ import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynnventory.api.service.IconService;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.ItemStat;
-import net.minecraft.world.item.ItemStack;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import net.minecraft.world.item.ItemStack;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SimpleGearItem extends SimpleItem {
@@ -30,11 +29,40 @@ public class SimpleGearItem extends SimpleItem {
         super();
     }
 
-    public SimpleGearItem(String name, GearTier rarity, String type, Icon icon, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
-        this(name, rarity, type, icon, 1, unidentified, rerollCount, shinyStat, overallRollPercentage, actualStatsWithPercentage);
+    public SimpleGearItem(
+            String name,
+            GearTier rarity,
+            String type,
+            Icon icon,
+            boolean unidentified,
+            int rerollCount,
+            Optional<ShinyStat> shinyStat,
+            float overallRollPercentage,
+            List<ItemStat> actualStatsWithPercentage) {
+        this(
+                name,
+                rarity,
+                type,
+                icon,
+                1,
+                unidentified,
+                rerollCount,
+                shinyStat,
+                overallRollPercentage,
+                actualStatsWithPercentage);
     }
 
-    public SimpleGearItem(String name, GearTier rarity, String type, Icon icon, int amount, boolean unidentified, int rerollCount, Optional<ShinyStat> shinyStat, float overallRollPercentage, List<ItemStat> actualStatsWithPercentage) {
+    public SimpleGearItem(
+            String name,
+            GearTier rarity,
+            String type,
+            Icon icon,
+            int amount,
+            boolean unidentified,
+            int rerollCount,
+            Optional<ShinyStat> shinyStat,
+            float overallRollPercentage,
+            List<ItemStat> actualStatsWithPercentage) {
         super(name, rarity, SimpleItemType.GEAR, type, icon, amount);
         this.unidentified = unidentified;
         this.rerollCount = rerollCount;
@@ -86,22 +114,23 @@ public class SimpleGearItem extends SimpleItem {
         }
     }
 
-    public boolean isShiny() { return shinyStat.isPresent(); }
+    public boolean isShiny() {
+        return shinyStat.isPresent();
+    }
 
     @Override
     public boolean equals(Object o) {
-        if(!super.equals(o)) return false;
+        if (!super.equals(o)) return false;
         if (this == o) return true;
 
         if (o instanceof SimpleGearItem other) {
-            return unidentified == other.unidentified &&
-                    Objects.equals(rarity, other.rarity) &&
-                    Objects.equals(rerollCount, other.rerollCount) &&
-                    Objects.equals(actualStatsWithPercentage, other.actualStatsWithPercentage) &&
-                    Objects.equals(
+            return unidentified == other.unidentified
+                    && Objects.equals(rarity, other.rarity)
+                    && Objects.equals(rerollCount, other.rerollCount)
+                    && Objects.equals(actualStatsWithPercentage, other.actualStatsWithPercentage)
+                    && Objects.equals(
                             shinyStat.map(s -> s.statType().key() + ":" + s.value()),
-                            other.shinyStat.map(s -> s.statType().key() + ":" + s.value())
-                    );
+                            other.shinyStat.map(s -> s.statType().key() + ":" + s.value()));
         }
 
         return false;
@@ -134,8 +163,7 @@ public class SimpleGearItem extends SimpleItem {
                 item.getRerollCount(),
                 new GearModel().parseInstance(item.getItemInfo(), stack).shinyStat(),
                 item.getOverallPercentage(),
-                getActualStats(item)
-        );
+                getActualStats(item));
     }
 
     private static List<ItemStat> getActualStats(GearItem item) {
@@ -144,7 +172,8 @@ public class SimpleGearItem extends SimpleItem {
 
         return actualValues.stream()
                 .map(actual -> possibleValues.stream()
-                        .filter(p -> p.statType().getKey().equals(actual.statType().getKey()))
+                        .filter(p ->
+                                p.statType().getKey().equals(actual.statType().getKey()))
                         .findFirst()
                         .map(possible -> new ItemStat(actual, possible))
                         .orElse(null))

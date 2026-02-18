@@ -14,8 +14,7 @@ public record Container(AbstractContainerScreen<?> screen, int containerId, Stri
         return new Container(
                 containerScreen,
                 containerScreen.getMenu().containerId,
-                containerScreen.getTitle().getString()
-        );
+                containerScreen.getTitle().getString());
     }
 
     public boolean matchesContainer(int packetContainerId) {

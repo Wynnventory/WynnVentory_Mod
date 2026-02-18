@@ -5,7 +5,7 @@ public enum SimpleItemType {
     SIMULATOR("SimulatorItem", true),
     INSULATOR("InsulatorItem", true),
     RUNE("RuneItem", true),
-    DUNGEON_KEY( "DungeonKeyItem", true),
+    DUNGEON_KEY("DungeonKeyItem", true),
     EMERALD_ITEM("EmeraldItem", false),
     ASPECT("AspectItem", false),
     TOME("TomeItem", false),

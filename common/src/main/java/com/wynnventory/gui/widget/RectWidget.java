@@ -2,7 +2,6 @@ package com.wynnventory.gui.widget;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.InputWithModifiers;
-import net.minecraft.network.chat.Component;
 
 public class RectWidget extends WynnventoryButton {
     private final int color;
@@ -18,8 +17,10 @@ public class RectWidget extends WynnventoryButton {
     }
 
     @Override
-    public void onPress(InputWithModifiers input) { }
+    public void onPress(InputWithModifiers input) {}
 
     @Override
-    public boolean isMouseOver(double mouseX, double mouseY) { return false; }
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        return false;
+    }
 }

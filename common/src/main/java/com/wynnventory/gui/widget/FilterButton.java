@@ -6,14 +6,13 @@ import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.mc.ComponentUtils;
 import com.wynntils.utils.render.RenderUtils;
 import com.wynnventory.gui.Sprite;
+import java.util.List;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
-
-import java.util.List;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 
 public class FilterButton extends WynnventoryButton {
     private final BooleanSupplier getter;
@@ -21,7 +20,16 @@ public class FilterButton extends WynnventoryButton {
     private final Runnable onToggle;
     private final Sprite icon;
 
-    public FilterButton(int x, int y, int width, int height, String label, Sprite icon, BooleanSupplier getter, Consumer<Boolean> setter, Runnable onToggle) {
+    public FilterButton(
+            int x,
+            int y,
+            int width,
+            int height,
+            String label,
+            Sprite icon,
+            BooleanSupplier getter,
+            Consumer<Boolean> setter,
+            Runnable onToggle) {
         super(x, y, width, height, label);
         this.icon = icon;
         this.getter = getter;
@@ -45,27 +53,22 @@ public class FilterButton extends WynnventoryButton {
                     getY(),
                     getWidth(),
                     getHeight(),
-                    0, 0,
-                    icon.width(), icon.height(),
-                    icon.width(), icon.height()
-            );
+                    0,
+                    0,
+                    icon.width(),
+                    icon.height(),
+                    icon.width(),
+                    icon.height());
         }
 
         // Hover effect
         if (isHovered()) {
-            RenderUtils.drawRect(
-                    graphics,
-                    CommonColors.WHITE.withAlpha(0.3f),
-                    getX(),
-                    getY(),
-                    getWidth(),
-                    getHeight());
+            RenderUtils.drawRect(graphics, CommonColors.WHITE.withAlpha(0.3f), getX(), getY(), getWidth(), getHeight());
 
             graphics.setTooltipForNextFrame(
                     Lists.transform(
                             ComponentUtils.wrapTooltips(
-                                    List.of(Component.translatable(
-                                            "gui.wynnventory.reward.button.filter", getLabel())),
+                                    List.of(Component.translatable("gui.wynnventory.reward.button.filter", getLabel())),
                                     200),
                             Component::getVisualOrderText),
                     mouseX,

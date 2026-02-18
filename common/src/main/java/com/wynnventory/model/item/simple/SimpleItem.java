@@ -1,18 +1,28 @@
 package com.wynnventory.model.item.simple;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
-import com.wynntils.models.items.items.game.*;
+import com.wynntils.models.items.items.game.AspectItem;
+import com.wynntils.models.items.items.game.DungeonKeyItem;
+import com.wynntils.models.items.items.game.EmeraldItem;
+import com.wynntils.models.items.items.game.InsulatorItem;
+import com.wynntils.models.items.items.game.RuneItem;
+import com.wynntils.models.items.items.game.SimulatorItem;
+import com.wynntils.models.items.items.game.TomeItem;
 import com.wynnventory.api.service.IconService;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.TimestampedObject;
 import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.StringUtils;
-import net.minecraft.world.item.ItemStack;
-
 import java.util.Objects;
+import net.minecraft.world.item.ItemStack;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(
@@ -20,16 +30,15 @@ import java.util.Objects;
         include = JsonTypeInfo.As.EXISTING_PROPERTY,
         property = "itemType",
         visible = true,
-        defaultImpl = SimpleItem.class
-)
+        defaultImpl = SimpleItem.class)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = SimpleGearItem.class, name = "GearItem"),
-        @JsonSubTypes.Type(value = SimpleTierItem.class, name = "IngredientItem"),
-        @JsonSubTypes.Type(value = SimpleTierItem.class, name = "MaterialItem"),
-        @JsonSubTypes.Type(value = SimpleTierItem.class, name = "PowderItem"),
-        @JsonSubTypes.Type(value = SimpleTierItem.class, name = "AmplifierItem"),
-        @JsonSubTypes.Type(value = SimpleTierItem.class, name = "HorseItem"),
-        @JsonSubTypes.Type(value = SimpleTierItem.class, name = "EmeraldPouchItem")
+    @JsonSubTypes.Type(value = SimpleGearItem.class, name = "GearItem"),
+    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "IngredientItem"),
+    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "MaterialItem"),
+    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "PowderItem"),
+    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "AmplifierItem"),
+    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "HorseItem"),
+    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "EmeraldPouchItem")
 })
 public class SimpleItem extends TimestampedObject {
     protected String name = "";
@@ -63,7 +72,7 @@ public class SimpleItem extends TimestampedObject {
     }
 
     public String getRarity() {
-        if(rarity == GearTier.NORMAL) return "Common";
+        if (rarity == GearTier.NORMAL) return "Common";
 
         return rarity.getName();
     }
@@ -86,7 +95,9 @@ public class SimpleItem extends TimestampedObject {
         return type;
     }
 
-    public Icon getIcon() { return icon; }
+    public Icon getIcon() {
+        return icon;
+    }
 
     public void setName(String name) {
         this.name = name != null ? name : "";
@@ -122,11 +133,11 @@ public class SimpleItem extends TimestampedObject {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof SimpleItem other) {
-            return Objects.equals(name, other.name) &&
-                    Objects.equals(rarity, other.rarity) &&
-                    Objects.equals(itemType, other.itemType) &&
-                    Objects.equals(type, other.type) &&
-                    amount == other.amount;
+            return Objects.equals(name, other.name)
+                    && Objects.equals(rarity, other.rarity)
+                    && Objects.equals(itemType, other.itemType)
+                    && Objects.equals(type, other.type)
+                    && amount == other.amount;
         }
 
         return false;
@@ -139,14 +150,13 @@ public class SimpleItem extends TimestampedObject {
 
     @Override
     public String toString() {
-        return "SimpleItem{" +
-                "name='" + name + '\'' +
-                ", rarity='" + rarity + '\'' +
-                ", itemType='" + itemType + '\'' +
-                ", type='" + type + '\'' +
-                ", icon=" + icon +
-                ", amount=" + amount +
-                '}';
+        return "SimpleItem{" + "name='"
+                + name + '\'' + ", rarity='"
+                + rarity + '\'' + ", itemType='"
+                + itemType + '\'' + ", type='"
+                + type + '\'' + ", icon="
+                + icon + ", amount="
+                + amount + '}';
     }
 
     public static SimpleItem from(ItemStack stack) {
@@ -179,19 +189,31 @@ public class SimpleItem extends TimestampedObject {
     }
 
     private static SimpleItem fromDungeonKeyItem(DungeonKeyItem item) {
-        return createSimpleItem(item,SimpleItemType.DUNGEON_KEY);
+        return createSimpleItem(item, SimpleItemType.DUNGEON_KEY);
     }
 
     private static SimpleItem fromEmeraldItem(EmeraldItem emeraldItem) {
-        return createSimpleItem(emeraldItem, GearTier.NORMAL, SimpleItemType.EMERALD_ITEM, emeraldItem.getUnit().name());
+        return createSimpleItem(
+                emeraldItem,
+                GearTier.NORMAL,
+                SimpleItemType.EMERALD_ITEM,
+                emeraldItem.getUnit().name());
     }
 
     private static SimpleItem fromAspectItem(AspectItem aspectItem) {
-        return createSimpleItem(aspectItem, aspectItem.getGearTier(), SimpleItemType.ASPECT, aspectItem.getRequiredClass().getName() + "Aspect");
+        return createSimpleItem(
+                aspectItem,
+                aspectItem.getGearTier(),
+                SimpleItemType.ASPECT,
+                aspectItem.getRequiredClass().getName() + "Aspect");
     }
 
     private static SimpleItem fromTomeItem(TomeItem tomeItem) {
-        return new SimpleItem(tomeItem.getName().replace("Unidentified ", ""), tomeItem.getGearTier(), SimpleItemType.TOME, tomeItem.getItemInfo().type().name());
+        return new SimpleItem(
+                tomeItem.getName().replace("Unidentified ", ""),
+                tomeItem.getGearTier(),
+                SimpleItemType.TOME,
+                tomeItem.getItemInfo().type().name());
     }
 
     private static SimpleItem createSimpleItem(WynnItem item, SimpleItemType itemType) {

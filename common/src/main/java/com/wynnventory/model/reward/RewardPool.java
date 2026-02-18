@@ -3,19 +3,38 @@ package com.wynnventory.model.reward;
 import java.util.regex.Pattern;
 
 public enum RewardPool {
-
     // --- Lootruns ---
-    CANYON_OF_THE_LOST(RewardType.LOOTRUN, "COTL", "Canyon of the Lost", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF006")),
+    CANYON_OF_THE_LOST(
+            RewardType.LOOTRUN, "COTL", "Canyon of the Lost", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF006")),
     CORKUS(RewardType.LOOTRUN, "Corkus", "Corkus", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF007")),
-    MOLTEN_HEIGHTS(RewardType.LOOTRUN, "Molten Heights", "Molten Heights", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF008")),
-    SKY_ISLANDS(RewardType.LOOTRUN, "Sky Islands", "Sky Islands", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF009")),
-    SILENT_EXPANSE(RewardType.LOOTRUN, "Silent Expanse", "Silent Expanse", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF00A")),
+    MOLTEN_HEIGHTS(
+            RewardType.LOOTRUN,
+            "Molten Heights",
+            "Molten Heights",
+            Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF008")),
+    SKY_ISLANDS(
+            RewardType.LOOTRUN, "Sky Islands", "Sky Islands", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF009")),
+    SILENT_EXPANSE(
+            RewardType.LOOTRUN,
+            "Silent Expanse",
+            "Silent Expanse",
+            Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF00A")),
 
     // --- Raids ---
-    NEST_OF_GROOTSLANGS(RewardType.RAID, "NOTG", "Nest of the Grootslangs", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00B")),
-    NEXUS_OF_LIGHT(RewardType.RAID, "NOL", "Orphion's Nexus of Light", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00C")),
-    CANYON_COLOSSUS(RewardType.RAID, "TCC", "The Canyon Colossus", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00D")),
-    NAMELESS_ANOMALY(RewardType.RAID, "TNA", "The Nameless Anomaly", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00E"));
+    NEST_OF_GROOTSLANGS(
+            RewardType.RAID,
+            "NOTG",
+            "Nest of the Grootslangs",
+            Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00B")),
+    NEXUS_OF_LIGHT(
+            RewardType.RAID,
+            "NOL",
+            "Orphion's Nexus of Light",
+            Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00C")),
+    CANYON_COLOSSUS(
+            RewardType.RAID, "TCC", "The Canyon Colossus", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00D")),
+    NAMELESS_ANOMALY(
+            RewardType.RAID, "TNA", "The Nameless Anomaly", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00E"));
 
     private final RewardType type;
     private final String shortName;

@@ -32,11 +32,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl {
-
     @Shadow
     private CommandDispatcher<SharedSuggestionProvider> commands;
+
     @Shadow
     private RegistryAccess.Frozen registryAccess;
+
     @Shadow
     @Final
     private FeatureFlagSet enabledFeatures;
@@ -51,7 +52,9 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         return McUtils.mc().isSameThread();
     }
 
-    @Inject(method = "handleContainerContent(Lnet/minecraft/network/protocol/game/ClientboundContainerSetContentPacket;)V",
+    @Inject(
+            method =
+                    "handleContainerContent(Lnet/minecraft/network/protocol/game/ClientboundContainerSetContentPacket;)V",
             at = @At("RETURN"))
     private void handleContainerContentPost(ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
         if (!isRenderThread()) return;
@@ -61,14 +64,15 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         if (!container.matchesContainer(packet.containerId())) return;
 
         String title = container.title();
-        if (RewardPool.isLootrunTitle(title))  WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Lootrun(packet.items(), packet.containerId(), title));
-        if (RewardPool.isRaidTitle(title)) WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Raid(packet.items(), packet.containerId(), title));
-        if (RaidWindowContainer.matchesTitle(title)) WynnventoryMod.postEvent(new RaidLobbyPopulatedEvent(packet.items(), packet.containerId(), title));
+        if (RewardPool.isLootrunTitle(title))
+            WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Lootrun(packet.items(), packet.containerId(), title));
+        if (RewardPool.isRaidTitle(title))
+            WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Raid(packet.items(), packet.containerId(), title));
+        if (RaidWindowContainer.matchesTitle(title))
+            WynnventoryMod.postEvent(new RaidLobbyPopulatedEvent(packet.items(), packet.containerId(), title));
     }
 
-    @Inject(method = "sendCommand(Ljava/lang/String;)V",
-            at = @At("HEAD"),
-            cancellable = true)
+    @Inject(method = "sendCommand(Ljava/lang/String;)V", at = @At("HEAD"), cancellable = true)
     private void sendCommand(String string, CallbackInfo ci) {
         CommandSentEvent event = new CommandSentEvent(string);
         WynnventoryMod.postEvent(event);
@@ -76,13 +80,15 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         if (event.isCanceled()) ci.cancel();
     }
 
-    @Inject(method = "handleCommands(Lnet/minecraft/network/protocol/game/ClientboundCommandsPacket;)V",
+    @Inject(
+            method = "handleCommands(Lnet/minecraft/network/protocol/game/ClientboundCommandsPacket;)V",
             at = @At("RETURN"))
     private void handleCommands(ClientboundCommandsPacket packet, CallbackInfo ci) {
         if (!isRenderThread()) return;
 
         RootCommandNode<SharedSuggestionProvider> root = this.commands.getRoot();
 
-        WynnventoryMod.postEvent(new CommandAddedEvent(root, CommandBuildContext.simple(this.registryAccess, this.enabledFeatures)));
+        WynnventoryMod.postEvent(
+                new CommandAddedEvent(root, CommandBuildContext.simple(this.registryAccess, this.enabledFeatures)));
     }
 }

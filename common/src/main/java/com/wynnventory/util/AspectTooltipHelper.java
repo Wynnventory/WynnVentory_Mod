@@ -3,19 +3,17 @@ package com.wynnventory.util;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPoolDocument;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 public final class AspectTooltipHelper {
     private static final ChatFormatting MYTHIC_COLOR = GearTier.MYTHIC.getChatFormatting();
 
-    private AspectTooltipHelper() {
-    }
+    private AspectTooltipHelper() {}
 
     public static List<Component> buildLines(RewardPoolDocument pool) {
         List<SimpleItem> mythics = pool.getMythicAspects();
@@ -24,15 +22,13 @@ public final class AspectTooltipHelper {
             return Collections.emptyList();
         }
 
-        Component header = Component.literal("Mythic Aspects")
-                .withStyle(MYTHIC_COLOR, ChatFormatting.BOLD);
+        Component header = Component.literal("Mythic Aspects").withStyle(MYTHIC_COLOR, ChatFormatting.BOLD);
 
         List<Component> bullets = mythics.stream()
                 .map(i -> {
                     ClassIcon ic = ClassIcon.fromAspectType(i.getType());
                     String txt = (ic != null ? ic.get() + " " : "") + i.getName();
-                    return Component.literal("• " + txt)
-                            .withStyle(ChatFormatting.GRAY);
+                    return Component.literal("• " + txt).withStyle(ChatFormatting.GRAY);
                 })
                 .collect(Collectors.toList());
 

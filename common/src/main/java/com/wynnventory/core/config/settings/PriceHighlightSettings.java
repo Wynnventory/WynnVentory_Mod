@@ -1,6 +1,6 @@
 package com.wynnventory.core.config.settings;
 
-public  final class PriceHighlightSettings {
+public final class PriceHighlightSettings {
     private boolean showColors = false;
     private int colorMinPrice = 4096;
     private int highlightColor = 65484;

@@ -9,11 +9,10 @@ import com.wynnventory.model.container.RaidRewardPreviewLayout;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.util.ItemStackUtils;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.SubscribeEvent;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.SubscribeEvent;
 
 public final class LootRewardHandler {
     private int lastHandledContentId = -2;
@@ -23,14 +22,18 @@ public final class LootRewardHandler {
     public void onLootrunPreviewOpened(RewardPreviewOpenedEvent.Lootrun event) {
         if (isDuplicate(event)) return;
 
-        QueueScheduler.LOOTRUN_QUEUE.addItems(RewardPool.fromTitle(event.getScreenTitle()), getStacksInBounds(event.getItems(), LootrunRewardPreviewLayout.BOUNDS));
+        QueueScheduler.LOOTRUN_QUEUE.addItems(
+                RewardPool.fromTitle(event.getScreenTitle()),
+                getStacksInBounds(event.getItems(), LootrunRewardPreviewLayout.BOUNDS));
     }
 
     @SubscribeEvent
     public void onRaidPreviewOpened(RewardPreviewOpenedEvent.Raid event) {
         if (isDuplicate(event)) return;
 
-        QueueScheduler.RAID_QUEUE.addItems(RewardPool.fromTitle(event.getScreenTitle()), getStacksInBounds(event.getItems(), RaidRewardPreviewLayout.BOUNDS));
+        QueueScheduler.RAID_QUEUE.addItems(
+                RewardPool.fromTitle(event.getScreenTitle()),
+                getStacksInBounds(event.getItems(), RaidRewardPreviewLayout.BOUNDS));
     }
 
     private static List<SimpleItem> getStacksInBounds(List<ItemStack> packetItems, ContainerBounds bounds) {
@@ -56,5 +59,4 @@ public final class LootRewardHandler {
         lastHandledItems = items;
         return false;
     }
-
 }

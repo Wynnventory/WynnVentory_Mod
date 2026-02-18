@@ -21,24 +21,21 @@ public final class WynnventoryCommands {
     public static void registerClientCommands(CommandDispatcher<Minecraft> dispatcher) {
         LiteralArgumentBuilder<Minecraft> root = LiteralArgumentBuilder.literal(PREFIX);
 
-        root.then(literalClient("send")
-                .executes(ctx -> {
-                    sendCollectedData();
-                    return 1;
-                })
-        );
+        root.then(literalClient("send").executes(ctx -> {
+            sendCollectedData();
+            return 1;
+        }));
 
-        root.then(literalClient("reloadConfig")
-                .executes(ctx -> {
-                    ModConfig.reload();
-                    return 1;
-                })
-        );
+        root.then(literalClient("reloadConfig").executes(ctx -> {
+            ModConfig.reload();
+            return 1;
+        }));
 
         dispatcher.register(root);
     }
 
-    public static void registerSuggestions(RootCommandNode<SharedSuggestionProvider> root, CommandBuildContext context) {
+    public static void registerSuggestions(
+            RootCommandNode<SharedSuggestionProvider> root, CommandBuildContext context) {
         LiteralCommandNode<SharedSuggestionProvider> node = literalSuggestion(PREFIX)
                 .then(literalSuggestion("send").executes(ctx -> 1))
                 .then(literalSuggestion("reloadConfig").executes(ctx -> 1))

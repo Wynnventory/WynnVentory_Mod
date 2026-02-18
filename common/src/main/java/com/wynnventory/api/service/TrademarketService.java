@@ -2,7 +2,6 @@ package com.wynnventory.api.service;
 
 import com.wynnventory.api.WynnventoryApi;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
-
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,7 +11,8 @@ public enum TrademarketService {
 
     private final WynnventoryApi api = new WynnventoryApi();
     private final ConcurrentHashMap<Integer, TrademarketItemSnapshot> prices = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Integer, CompletableFuture<TrademarketItemSnapshot>> inFlight = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, CompletableFuture<TrademarketItemSnapshot>> inFlight =
+            new ConcurrentHashMap<>();
 
     TrademarketService() {}
 
@@ -38,10 +38,8 @@ public enum TrademarketService {
             return cached;
         }
 
-        inFlight.computeIfAbsent(key, k ->
-                fetchSnapshot(name, tier, shiny)
-                        .whenComplete((snapshot, ex) -> cacheAndCleanup(k, snapshot))
-        );
+        inFlight.computeIfAbsent(key, k -> fetchSnapshot(name, tier, shiny)
+                .whenComplete((snapshot, ex) -> cacheAndCleanup(k, snapshot)));
 
         return cached;
     }
@@ -52,7 +50,6 @@ public enum TrademarketService {
         }
         inFlight.remove(key);
     }
-
 
     private CompletableFuture<TrademarketItemSnapshot> fetchSnapshot(String name, Integer tier, boolean shiny) {
         var liveF = api.fetchItemPrice(name, tier, shiny);
@@ -69,7 +66,7 @@ public enum TrademarketService {
                 .exceptionally(ex -> null);
     }
 
-    public int generateHash(String name, Integer tier,  boolean shiny) {
+    public int generateHash(String name, Integer tier, boolean shiny) {
         return Objects.hash(name, tier, shiny);
     }
 }

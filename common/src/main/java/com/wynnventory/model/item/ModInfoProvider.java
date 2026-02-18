@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.WynnventoryMod;
 
-
 public abstract class ModInfoProvider extends TimestampedObject {
     @JsonProperty(value = "playerName", access = Access.READ_ONLY)
     protected String playerName;
@@ -15,7 +14,7 @@ public abstract class ModInfoProvider extends TimestampedObject {
 
     protected ModInfoProvider() {
         super();
-        
+
         if (McUtils.player() != null) {
             this.playerName = McUtils.playerName();
         } else {
