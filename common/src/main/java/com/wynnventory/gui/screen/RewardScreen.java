@@ -155,6 +155,7 @@ public class RewardScreen extends Screen {
         int poolWidth = Sprite.LOOTRUN_POOL_TOP_SECTION.width();
         int currentColumns = Math.max(1, contentWidth / poolWidth);
 
+        int middleY = (this.height - NAV_BUTTON_HEIGHT) / 2;
         Button prevButton = Button.builder(Component.literal("<"), button -> {
                     scrollIndex--;
                     if (scrollIndex < 0) {
@@ -162,7 +163,7 @@ public class RewardScreen extends Screen {
                     }
                     this.rebuildWidgets();
                 })
-                .bounds(NAV_BUTTON_MARGIN, NAV_BUTTON_Y, NAV_BUTTON_WIDTH, NAV_BUTTON_HEIGHT)
+                .bounds(NAV_BUTTON_MARGIN, middleY, NAV_BUTTON_WIDTH, NAV_BUTTON_HEIGHT)
                 .build();
         prevButton.active = activePools.size() > currentColumns;
         this.addRenderableWidget(prevButton);
@@ -174,7 +175,7 @@ public class RewardScreen extends Screen {
                     }
                     this.rebuildWidgets();
                 })
-                .bounds(this.width - 130 - NAV_BUTTON_MARGIN, NAV_BUTTON_Y, NAV_BUTTON_WIDTH, NAV_BUTTON_HEIGHT)
+                .bounds(this.width - 130 - NAV_BUTTON_MARGIN, middleY, NAV_BUTTON_WIDTH, NAV_BUTTON_HEIGHT)
                 .build();
         nextButton.active = activePools.size() > currentColumns;
         this.addRenderableWidget(nextButton);
