@@ -565,15 +565,14 @@ public class RewardScreen extends Screen {
                         if (ex != null) {
                             itemsByPool.put(pool, List.of());
                         } else {
-                            // Filter items now to reflect current UI filters
-                            List<SimpleItem> filtered = items.stream()
-                                    .filter(this::matchesFilters)
+                            // We use UNFILTERED items for scaling to ensure consistent pool size
+                            List<SimpleItem> forScaling = items.stream()
                                     .filter(it -> {
                                         GuideItemStack stack = getGuideItemStack(it);
                                         return stack != null && !stack.isEmpty();
                                     })
                                     .toList();
-                            itemsByPool.put(pool, filtered);
+                            itemsByPool.put(pool, forScaling);
                         }
 
                         if (remaining.decrementAndGet() == 0) {
