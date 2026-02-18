@@ -18,7 +18,8 @@ public enum Sprite {
     RAID_POOL_TOP_SECTION("gui/raid_pool_top_section.png", 208, 69),
     POOL_MIDDLE_SECTION_HEADER("gui/pool_middle_section_header.png", 176, 41),
     POOL_MIDDLE_SECTION("gui/pool_middle_section.png", 176, 22),
-    POOL_BOTTOM_SECTION("gui/pool_bottom_section.png", 176, 13);
+    POOL_BOTTOM_SECTION("gui/pool_bottom_section.png", 176, 13),
+    FILTER_SECTION("gui/filter.png", 105, 45);
 
     private final Identifier resource;
     private final int width;

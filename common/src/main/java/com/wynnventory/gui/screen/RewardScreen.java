@@ -80,7 +80,7 @@ public class RewardScreen extends Screen {
     private static final int NAV_BUTTON_MARGIN = 20;
 
     // Sidebar
-    private static final int SIDEBAR_WIDTH = 100;
+    private static final int SIDEBAR_WIDTH = 115;
     private static final int SIDEBAR_Y = NAV_BUTTON_Y;
 
     public RewardScreen(Component title, Screen parent) {
@@ -189,21 +189,31 @@ public class RewardScreen extends Screen {
         RewardScreenSettings s = ModConfig.getInstance().getRewardScreenSettings();
         int filterY = SIDEBAR_Y + 12;
         this.addRenderableWidget(new TextWidget(sidebarX + 5, SIDEBAR_Y, Component.literal("Filters")));
-        addFilterButton("Mythic", Sprite.MYTHIC_ICON, s::isShowMythic, s::setShowMythic, sidebarX + 5, filterY, 16);
-        addFilterButton("Fabled", Sprite.FABLED_ICON, s::isShowFabled, s::setShowFabled, sidebarX + 23, filterY, 16);
+
+        // Filter background texture
+        this.addRenderableWidget(new ImageWidget(sidebarX + 5, filterY, 105, 45, Sprite.FILTER_SECTION));
+
+        // Grid of 5 buttons per row
+        // Row 1
+        addFilterButton("Mythic", Sprite.MYTHIC_ICON, s::isShowMythic, s::setShowMythic, sidebarX + 9, filterY + 4, 16);
+        addFilterButton(
+                "Fabled", Sprite.FABLED_ICON, s::isShowFabled, s::setShowFabled, sidebarX + 29, filterY + 4, 16);
         addFilterButton(
                 "Legendary",
                 Sprite.LEGENDARY_ICON,
                 s::isShowLegendary,
                 s::setShowLegendary,
-                sidebarX + 41,
-                filterY,
+                sidebarX + 49,
+                filterY + 4,
                 16);
-        addFilterButton("Rare", Sprite.RARE_ICON, s::isShowRare, s::setShowRare, sidebarX + 59, filterY, 16);
-        addFilterButton("Unique", Sprite.UNIQUE_ICON, s::isShowUnique, s::setShowUnique, sidebarX + 77, filterY, 16);
+        addFilterButton("Rare", Sprite.RARE_ICON, s::isShowRare, s::setShowRare, sidebarX + 69, filterY + 4, 16);
         addFilterButton(
-                "Common", Sprite.COMMON_ICON, s::isShowCommon, s::setShowCommon, sidebarX + 5, filterY + 18, 16);
-        addFilterButton("Set", Sprite.SET_ICON, s::isShowSet, s::setShowSet, sidebarX + 23, filterY + 18, 16);
+                "Unique", Sprite.UNIQUE_ICON, s::isShowUnique, s::setShowUnique, sidebarX + 89, filterY + 4, 16);
+
+        // Row 2
+        addFilterButton(
+                "Common", Sprite.COMMON_ICON, s::isShowCommon, s::setShowCommon, sidebarX + 9, filterY + 25, 16);
+        addFilterButton("Set", Sprite.SET_ICON, s::isShowSet, s::setShowSet, sidebarX + 29, filterY + 25, 16);
 
         // Trigger scale calculation on first build if needed; otherwise just populate widgets
         if (!this.scaleReady) {
