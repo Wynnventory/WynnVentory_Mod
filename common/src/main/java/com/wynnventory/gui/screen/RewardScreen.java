@@ -156,27 +156,37 @@ public class RewardScreen extends Screen {
         int currentColumns = Math.max(1, contentWidth / poolWidth);
 
         int middleY = (this.height - NAV_BUTTON_HEIGHT) / 2;
-        Button prevButton = Button.builder(Component.literal("<"), button -> {
+        ImageButton prevButton = new ImageButton(
+                NAV_BUTTON_MARGIN,
+                middleY,
+                NAV_BUTTON_WIDTH,
+                NAV_BUTTON_HEIGHT,
+                Sprite.ARROW_LEFT,
+                button -> {
                     scrollIndex--;
                     if (scrollIndex < 0) {
                         scrollIndex = activePools.size() - 1;
                     }
                     this.rebuildWidgets();
-                })
-                .bounds(NAV_BUTTON_MARGIN, middleY, NAV_BUTTON_WIDTH, NAV_BUTTON_HEIGHT)
-                .build();
+                },
+                null);
         prevButton.active = activePools.size() > currentColumns;
         this.addRenderableWidget(prevButton);
 
-        Button nextButton = Button.builder(Component.literal(">"), button -> {
+        ImageButton nextButton = new ImageButton(
+                this.width - 130 - NAV_BUTTON_MARGIN,
+                middleY,
+                NAV_BUTTON_WIDTH,
+                NAV_BUTTON_HEIGHT,
+                Sprite.ARROW_RIGHT,
+                button -> {
                     scrollIndex++;
                     if (scrollIndex >= activePools.size()) {
                         scrollIndex = 0;
                     }
                     this.rebuildWidgets();
-                })
-                .bounds(this.width - 130 - NAV_BUTTON_MARGIN, middleY, NAV_BUTTON_WIDTH, NAV_BUTTON_HEIGHT)
-                .build();
+                },
+                null);
         nextButton.active = activePools.size() > currentColumns;
         this.addRenderableWidget(nextButton);
 
