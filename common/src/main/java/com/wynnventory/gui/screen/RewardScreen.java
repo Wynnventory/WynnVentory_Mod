@@ -20,7 +20,6 @@ import com.wynnventory.gui.widget.FilterButton;
 import com.wynnventory.gui.widget.ImageButton;
 import com.wynnventory.gui.widget.ImageWidget;
 import com.wynnventory.gui.widget.ItemButton;
-import com.wynnventory.gui.widget.RectWidget;
 import com.wynnventory.gui.widget.TextWidget;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleItemType;
@@ -188,7 +187,12 @@ public class RewardScreen extends Screen {
         int filterY = SIDEBAR_Y;
 
         // Filter background texture
-        this.addRenderableWidget(new ImageWidget(sidebarX + 5, filterY, Sprite.FILTER_SECTION.width(), Sprite.FILTER_SECTION.height(), Sprite.FILTER_SECTION));
+        this.addRenderableWidget(new ImageWidget(
+                sidebarX + 5,
+                filterY,
+                Sprite.FILTER_SECTION.width(),
+                Sprite.FILTER_SECTION.height(),
+                Sprite.FILTER_SECTION));
 
         Component filterTitle = Component.literal("Filters");
         int textW = this.font.width(filterTitle);
@@ -200,8 +204,7 @@ public class RewardScreen extends Screen {
         // Row 1
         int yPosRowOne = filterY + 18;
         addFilterButton("Mythic", Sprite.MYTHIC_ICON, s::isShowMythic, s::setShowMythic, sidebarX + 9, yPosRowOne, 16);
-        addFilterButton(
-                "Fabled", Sprite.FABLED_ICON, s::isShowFabled, s::setShowFabled, sidebarX + 29, yPosRowOne, 16);
+        addFilterButton("Fabled", Sprite.FABLED_ICON, s::isShowFabled, s::setShowFabled, sidebarX + 29, yPosRowOne, 16);
         addFilterButton(
                 "Legendary",
                 Sprite.LEGENDARY_ICON,
@@ -211,13 +214,11 @@ public class RewardScreen extends Screen {
                 yPosRowOne,
                 16);
         addFilterButton("Rare", Sprite.RARE_ICON, s::isShowRare, s::setShowRare, sidebarX + 69, yPosRowOne, 16);
-        addFilterButton(
-                "Unique", Sprite.UNIQUE_ICON, s::isShowUnique, s::setShowUnique, sidebarX + 89, yPosRowOne, 16);
+        addFilterButton("Unique", Sprite.UNIQUE_ICON, s::isShowUnique, s::setShowUnique, sidebarX + 89, yPosRowOne, 16);
 
         // Row 2
         int yPosRowTwo = filterY + 38;
-        addFilterButton(
-                "Common", Sprite.COMMON_ICON, s::isShowCommon, s::setShowCommon, sidebarX + 9, yPosRowTwo, 16);
+        addFilterButton("Common", Sprite.COMMON_ICON, s::isShowCommon, s::setShowCommon, sidebarX + 9, yPosRowTwo, 16);
         addFilterButton("Set", Sprite.SET_ICON, s::isShowSet, s::setShowSet, sidebarX + 29, yPosRowTwo, 16);
 
         // Trigger scale calculation on first open; during window resize it's managed in resize()
