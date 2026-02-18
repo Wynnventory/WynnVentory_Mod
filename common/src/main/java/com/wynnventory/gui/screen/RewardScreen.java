@@ -539,17 +539,21 @@ public class RewardScreen extends Screen {
         Map<RewardPool, List<SimpleItem>> itemsByPool = new HashMap<>();
 
         for (RewardPool pool : pools) {
-            RewardService.INSTANCE.getItems(pool).thenAccept(items -> Minecraft.getInstance()
+            RewardService.INSTANCE.getItems(pool).whenComplete((items, ex) -> Minecraft.getInstance()
                     .execute(() -> {
-                        // Filter items now to reflect current UI filters
-                        List<SimpleItem> filtered = items.stream()
-                                .filter(this::matchesFilters)
-                                .filter(it -> {
-                                    GuideItemStack stack = getGuideItemStack(it);
-                                    return stack != null && !stack.isEmpty();
-                                })
-                                .toList();
-                        itemsByPool.put(pool, filtered);
+                        if (ex != null) {
+                            itemsByPool.put(pool, List.of());
+                        } else {
+                            // Filter items now to reflect current UI filters
+                            List<SimpleItem> filtered = items.stream()
+                                    .filter(this::matchesFilters)
+                                    .filter(it -> {
+                                        GuideItemStack stack = getGuideItemStack(it);
+                                        return stack != null && !stack.isEmpty();
+                                    })
+                                    .toList();
+                            itemsByPool.put(pool, filtered);
+                        }
 
                         if (remaining.decrementAndGet() == 0) {
                             finalizeScale(pools, itemsByPool);
