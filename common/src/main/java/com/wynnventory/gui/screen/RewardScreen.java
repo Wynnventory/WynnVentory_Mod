@@ -61,6 +61,8 @@ public class RewardScreen extends Screen {
     private boolean recalculating = false;
     private boolean pendingRecalc = false;
     private boolean suppressInitRecalc = false;
+    private long lastResizeTime = 0;
+    private static final long RESIZE_DEBOUNCE_MS = 250;
 
     // Screen layout
     private static final int MARGIN_Y = 40;
@@ -116,6 +118,12 @@ public class RewardScreen extends Screen {
 
     @Override
     protected void init() {
+        // During live window resizing, skip heavy widget rebuilds entirely.
+        // We'll rebuild once after the resize settles via triggerRecalc() in resize().
+        if (this.suppressInitRecalc) {
+            return;
+        }
+
         if (wynnItemsByName.isEmpty()) {
             loadGuideItems();
         }
@@ -283,7 +291,17 @@ public class RewardScreen extends Screen {
         this.suppressInitRecalc = true;
         super.resize(width, height);
         this.suppressInitRecalc = false;
-        this.triggerRecalc();
+
+        this.lastResizeTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.lastResizeTime > 0 && System.currentTimeMillis() - this.lastResizeTime > RESIZE_DEBOUNCE_MS) {
+            this.lastResizeTime = 0;
+            this.triggerRecalc();
+        }
     }
 
     @Override
