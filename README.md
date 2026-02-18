@@ -12,12 +12,12 @@ Just add `-Ddevauth.enabled=true` to your JVM options and you should be good to 
 
 ### Formatting & Git Hooks
 We use [Spotless](https://github.com/diffplug/spotless) to keep our code formatted.
-To automatically run `spotlessCheck` before every commit, you can install the Git hooks by running:
+To automatically run `spotlessApply` before every commit, you can install the Git hooks by running:
 ```bash
 ./gradlew installGitHooks
 ```
 This task is also automatically run during the `build` task.
-If the check fails during a commit, you can fix the formatting by running:
+If there are violations that `spotlessApply` cannot fix (like wildcard imports), the commit will be aborted.
 ```bash
 ./gradlew spotlessApply
 ```
