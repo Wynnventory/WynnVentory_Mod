@@ -105,6 +105,7 @@ public class RewardScreen extends Screen {
     }
 
     private void triggerRecalc() {
+        if (this.suppressInitRecalc) return;
         this.scaleReady = false;
         if (!this.recalculating) {
             recalcScaleAsync();
@@ -258,9 +259,7 @@ public class RewardScreen extends Screen {
 
         // Trigger scale calculation on first open; during window resize it's managed in resize()
         if (!this.scaleReady) {
-            if (!this.recalculating && !this.suppressInitRecalc) {
-                recalcScaleAsync();
-            }
+            this.triggerRecalc();
         } else {
             populateItemWidgets();
         }
