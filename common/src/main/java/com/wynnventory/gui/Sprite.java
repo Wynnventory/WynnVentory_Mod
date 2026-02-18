@@ -13,13 +13,12 @@ public enum Sprite {
     COMMON_ICON("gui/box_normal.png", 16, 16),
     SET_ICON("gui/box_set.png", 16, 16),
     CHEST_SLOT("gui/chest_slot.png", 18, 18),
-    BANNER_NAME("gui/banner_name.png", 70, 20),
     LOOTRUN_POOL_TOP_SECTION("gui/lootrun_pool_top_section.png", 208, 69),
     RAID_POOL_TOP_SECTION("gui/raid_pool_top_section.png", 208, 69),
     POOL_MIDDLE_SECTION_HEADER("gui/pool_middle_section_header.png", 176, 41),
     POOL_MIDDLE_SECTION("gui/pool_middle_section.png", 176, 22),
     POOL_BOTTOM_SECTION("gui/pool_bottom_section.png", 176, 13),
-    FILTER_SECTION("gui/filter.png", 105, 45);
+    FILTER_SECTION("gui/filter.png", 105, 58);
 
     private final Identifier resource;
     private final int width;
