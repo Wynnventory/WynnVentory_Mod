@@ -28,7 +28,7 @@ public class ModUpdater {
 
     public static void checkForUpdates() {
         if (WynnventoryMod.isBeta()) {
-            ChatUtils.info(Component.translatable("feature.wynnventory.update.devNotification"));
+            ChatUtils.info(Component.translatable("feature.wynnventory.update.betaNotification"));
             return;
         }
 
