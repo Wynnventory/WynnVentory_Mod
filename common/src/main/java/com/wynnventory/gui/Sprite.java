@@ -18,7 +18,9 @@ public enum Sprite {
     POOL_MIDDLE_SECTION_HEADER("gui/pool_middle_section_header.png", 176, 41),
     POOL_MIDDLE_SECTION("gui/pool_middle_section.png", 176, 22),
     POOL_BOTTOM_SECTION("gui/pool_bottom_section.png", 176, 13),
-    FILTER_SECTION("gui/filter.png", 105, 58);
+    FILTER_SECTION("gui/filter.png", 105, 58),
+    ARROW_LEFT("gui/arrow_left.png", 32, 32),
+    ARROW_RIGHT("gui/arrow_right.png", 32, 32);
 
     private final Identifier resource;
     private final int width;
