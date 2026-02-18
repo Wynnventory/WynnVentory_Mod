@@ -23,9 +23,6 @@ fi
 # This only stages files that were already partially staged.
 # Use git diff --name-only --cached to see what was staged.
 # We only want to re-add those.
-STAGED_FILES=$(git diff --name-only --cached)
-if [ -n "$STAGED_FILES" ]; then
-    echo "$STAGED_FILES" | xargs git add
-fi
+git diff --name-only --cached -z | git add --pathspec-from-file=- --pathspec-file-nul
 
 exit 0

@@ -41,4 +41,9 @@ public class ImageWidget extends WynnventoryButton {
     public boolean isMouseOver(double mouseX, double mouseY) {
         return false;
     }
+
+    @Override
+    public boolean isHovered() {
+        return false;
+    }
 }

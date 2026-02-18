@@ -1,8 +1,14 @@
 package com.wynnventory.core;
 
-import com.wynnventory.core.queue.QueueScheduler;
-import com.wynnventory.handler.*;
 import com.wynnventory.api.service.IconService;
+import com.wynnventory.api.service.RewardService;
+import com.wynnventory.core.queue.QueueScheduler;
+import com.wynnventory.handler.CommandHandler;
+import com.wynnventory.handler.KeyBindHandler;
+import com.wynnventory.handler.LootRewardHandler;
+import com.wynnventory.handler.RaidWindowHandler;
+import com.wynnventory.handler.TooltipRenderHandler;
+import java.io.File;
 import net.neoforged.bus.api.BusBuilder;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
@@ -10,10 +16,8 @@ import net.neoforged.bus.api.IEventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-
 public final class WynnventoryMod {
-    public static final String  MOD_ID = "wynnventory";
+    public static final String MOD_ID = "wynnventory";
 
     private static final IEventBus eventBus = BusBuilder.builder().build();
     private static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
@@ -26,14 +30,19 @@ public final class WynnventoryMod {
     private WynnventoryMod() {}
 
     public static void init(ModLoader loader, String version, File modFile) {
-        WynnventoryMod.loader   = loader;
-        WynnventoryMod.version  = version;
+        WynnventoryMod.loader = loader;
+        WynnventoryMod.version = version;
         WynnventoryMod.isBeta = WynnventoryMod.version.contains("beta");
-        WynnventoryMod.modFile  = modFile;
+        WynnventoryMod.modFile = modFile;
 
-        WynnventoryMod.logInfo("Initializing Wynnventory mod v{} ({}), from file {}", version, loader.name(), modFile.getAbsolutePath());
+        WynnventoryMod.logInfo(
+                "Initializing Wynnventory mod v{} ({}), from file {}",
+                version,
+                loader.name(),
+                modFile.getAbsolutePath());
 
         IconService.INSTANCE.fetchAll();
+        RewardService.INSTANCE.reloadAllPools();
         QueueScheduler.startScheduledTask();
 
         eventBus.register(new LootRewardHandler());
@@ -66,9 +75,13 @@ public final class WynnventoryMod {
         LOGGER.warn(msg);
     }
 
-    public static void logDebug(String msg) { LOGGER.debug(msg); }
+    public static void logDebug(String msg) {
+        LOGGER.debug(msg);
+    }
 
-    public static void logDebug(String msg, Object... args) { LOGGER.debug(msg, args); }
+    public static void logDebug(String msg, Object... args) {
+        LOGGER.debug(msg, args);
+    }
 
     public static void logError(String msg) {
         LOGGER.error(msg);

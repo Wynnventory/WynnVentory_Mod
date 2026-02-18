@@ -153,14 +153,13 @@ public class RewardScreen extends Screen {
         List<RewardPool> activePools = getActivePools();
         int contentWidth = getContentWidth();
         int poolWidth = Sprite.LOOTRUN_POOL_TOP_SECTION.width();
-        int currentColumns = Math.max(1, contentWidth / poolWidth);
 
         int middleY = (this.height - NAV_BUTTON_HEIGHT) / 2;
         ImageButton prevButton = new ImageButton(
                 NAV_BUTTON_MARGIN,
                 middleY,
-                NAV_BUTTON_WIDTH,
-                NAV_BUTTON_HEIGHT,
+                NAV_BUTTON_WIDTH * 2,
+                NAV_BUTTON_HEIGHT * 2,
                 Sprite.ARROW_LEFT,
                 button -> {
                     scrollIndex--;
@@ -170,14 +169,13 @@ public class RewardScreen extends Screen {
                     this.rebuildWidgets();
                 },
                 null);
-        prevButton.active = activePools.size() > currentColumns;
         this.addRenderableWidget(prevButton);
 
         ImageButton nextButton = new ImageButton(
                 this.width - 130 - NAV_BUTTON_MARGIN,
                 middleY,
-                NAV_BUTTON_WIDTH,
-                NAV_BUTTON_HEIGHT,
+                NAV_BUTTON_WIDTH * 2,
+                NAV_BUTTON_HEIGHT * 2,
                 Sprite.ARROW_RIGHT,
                 button -> {
                     scrollIndex++;
@@ -187,7 +185,6 @@ public class RewardScreen extends Screen {
                     this.rebuildWidgets();
                 },
                 null);
-        nextButton.active = activePools.size() > currentColumns;
         this.addRenderableWidget(nextButton);
 
         // === SIDEBAR ===
@@ -413,23 +410,13 @@ public class RewardScreen extends Screen {
         }
 
         GearTier[] tiers = {
-            GearTier.MYTHIC,
-            GearTier.FABLED,
-            GearTier.LEGENDARY,
-            GearTier.RARE,
-            GearTier.UNIQUE,
-            GearTier.SET,
-            GearTier.NORMAL
+            GearTier.MYTHIC, GearTier.FABLED, GearTier.LEGENDARY, GearTier.RARE, GearTier.UNIQUE, GearTier.NORMAL
         };
-        List<GearTier> activeTiers =
-                Stream.of(tiers).filter(groupedByRarity::containsKey).toList();
-
-        if (activeTiers.isEmpty()) return;
 
         int currentY = startY;
-        for (GearTier tier : activeTiers) {
-            currentY =
-                    renderSection(startX, currentY, tier.getName(), groupedByRarity.get(tier), totalWidth, poolScale);
+        for (GearTier tier : tiers) {
+            List<SimpleItem> tierItems = groupedByRarity.getOrDefault(tier, new ArrayList<>());
+            currentY = renderSection(startX, currentY, tier.getName(), tierItems, totalWidth, poolScale);
         }
         renderBottomSection(startX, currentY, totalWidth, poolScale);
         renderPoolHeader(startX, totalWidth, poolScale, pool.getShortName());
@@ -437,7 +424,7 @@ public class RewardScreen extends Screen {
 
     private int renderSection(
             int startX, int startY, String title, List<SimpleItem> items, int sectionWidth, double poolScale) {
-        if (items.isEmpty()) return startY;
+        // Always render the section header, even if there are no items
 
         // Render header
         int headerW = (int) (Sprite.POOL_MIDDLE_SECTION_HEADER.width() * poolScale);
@@ -666,10 +653,8 @@ public class RewardScreen extends Screen {
                 GearTier.NORMAL
             };
             for (GearTier t : tiers) {
-                Integer c = counts.get(t);
-                if (c != null && c > 0) {
-                    sectionsHeight += sectionHeightForCount(c, itemsPerRow, headerH, middleH);
-                }
+                int c = counts.getOrDefault(t, 0);
+                sectionsHeight += sectionHeightForCount(c, itemsPerRow, headerH, middleH);
             }
         }
         if (sectionsHeight == 0) return topOverlap + bottomH; // minimal footprint
@@ -677,7 +662,8 @@ public class RewardScreen extends Screen {
     }
 
     private int sectionHeightForCount(int count, int itemsPerRow, int headerH, int middleH) {
-        if (count <= 0) return 0;
+        // Always account for the header height even if the section has no items
+        if (count <= 0) return headerH;
         int rows = (int) Math.ceil(count / (double) itemsPerRow);
         return headerH + Math.max(0, (rows - 1) * middleH);
     }
