@@ -59,11 +59,11 @@ dependencies {
 
 processResources {
     var replaceProperties = [
-            mod_version                : rootProject.version,
-            minecraft_version          : minecraft_version,
-            fabric_loader_version      : fabric_loader_version,
-            wynntils_version           : wynntils_version,
-            modmenu_version            : modmenu_version
+        mod_version                : rootProject.version,
+        minecraft_version          : minecraft_version,
+        fabric_loader_version      : fabric_loader_version,
+        wynntils_version           : wynntils_version,
+        modmenu_version            : modmenu_version
     ]
     inputs.properties replaceProperties
 
@@ -74,8 +74,8 @@ processResources {
 
 shadowJar {
     configurations = [
-            project.configurations.shadowCommon,
-            project.configurations.shadowImplementation
+        project.configurations.shadowCommon,
+        project.configurations.shadowImplementation
     ]
 
     archiveClassifier = 'dev-shadow'

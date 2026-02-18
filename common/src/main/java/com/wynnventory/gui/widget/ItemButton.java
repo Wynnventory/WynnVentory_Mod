@@ -70,8 +70,14 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         RenderUtils.renderItem(g, itemStack, 0, 0);
         g.pose().popMatrix();
 
-        if(simpleItem instanceof SimpleTierItem) {
-            renderText(g, String.valueOf(simpleItem.getAmount()), CommonColors.WHITE, HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM, TextShadow.OUTLINE);
+        if (simpleItem instanceof SimpleTierItem) {
+            renderText(
+                    g,
+                    String.valueOf(simpleItem.getAmount()),
+                    CommonColors.WHITE,
+                    HorizontalAlignment.RIGHT,
+                    VerticalAlignment.BOTTOM,
+                    TextShadow.OUTLINE);
         }
         // Favorite icon overlay (placed relative to button size)
         if (Services.Favorites.isFavorite(itemStack)) {
@@ -93,20 +99,24 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
 
         switch (itemStack) {
             case GuidePowderItemStack powderStack ->
-                    renderText(g, MathUtils.toRoman(powderStack.getTier()), getCustomColor(), TextShadow.OUTLINE);
+                renderText(g, MathUtils.toRoman(powderStack.getTier()), getCustomColor(), TextShadow.OUTLINE);
             case GuideAspectItemStack aspectStack ->
-                    renderText(g, aspectStack.getAspectInfo().classType().getName().substring(0, 2), getCustomColor(), TextShadow.OUTLINE);
+                renderText(
+                        g,
+                        aspectStack.getAspectInfo().classType().getName().substring(0, 2),
+                        getCustomColor(),
+                        TextShadow.OUTLINE);
             case AmplifierItemStack amplifierItemStack ->
-                    renderText(g, MathUtils.toRoman(amplifierItemStack.getTier()), getCustomColor(), TextShadow.OUTLINE);
+                renderText(g, MathUtils.toRoman(amplifierItemStack.getTier()), getCustomColor(), TextShadow.OUTLINE);
             default -> {
                 // Nothing special to be rendered
             }
         }
 
         // Causes price tooltip to render behind ItemButton textures. Maybe fix later?
-//        if (this.isHovered()) {
-//            g.setTooltipForNextFrame(Minecraft.getInstance().font, itemStack, mouseX, mouseY);
-//        }
+        //        if (this.isHovered()) {
+        //            g.setTooltipForNextFrame(Minecraft.getInstance().font, itemStack, mouseX, mouseY);
+        //        }
     }
 
     @Override
@@ -115,7 +125,8 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
             return false;
         }
 
-        String unformattedName = StyledText.fromComponent(itemStack.getHoverName()).getStringWithoutFormatting();
+        String unformattedName =
+                StyledText.fromComponent(itemStack.getHoverName()).getStringWithoutFormatting();
         if (event.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             Util.getPlatform().openUri("https://www.wynnventory.com/history/" + HttpUtils.encode(unformattedName));
             return true;
@@ -127,7 +138,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
     }
 
     @Override
-    public void onPress(InputWithModifiers inputWithModifiers) { }
+    public void onPress(InputWithModifiers inputWithModifiers) {}
 
     private void buildTooltip() {
         switch (itemStack) {
@@ -139,14 +150,21 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
 
     private CustomColor getCustomColor() {
         return switch (itemStack) {
-            case GuideGearItemStack gear -> CustomColor.fromChatFormatting(gear.getGearInfo().tier().getChatFormatting());
-            case GuideTomeItemStack tome -> CustomColor.fromChatFormatting(tome.getTomeInfo().tier().getChatFormatting());
-            case GuideAspectItemStack aspect -> CustomColor.fromChatFormatting(aspect.getAspectInfo().gearTier().getChatFormatting());
-            case GuidePowderItemStack powder -> CustomColor.fromChatFormatting(powder.getElement().getLightColor());
+            case GuideGearItemStack gear ->
+                CustomColor.fromChatFormatting(gear.getGearInfo().tier().getChatFormatting());
+            case GuideTomeItemStack tome ->
+                CustomColor.fromChatFormatting(tome.getTomeInfo().tier().getChatFormatting());
+            case GuideAspectItemStack aspect ->
+                CustomColor.fromChatFormatting(aspect.getAspectInfo().gearTier().getChatFormatting());
+            case GuidePowderItemStack powder ->
+                CustomColor.fromChatFormatting(powder.getElement().getLightColor());
             case RuneItemStack rune -> CustomColor.fromChatFormatting(GearTier.NORMAL.getChatFormatting());
-            case AmplifierItemStack amplifier -> CustomColor.fromChatFormatting(amplifier.getGearTier().getChatFormatting());
-            case InsulatorItemStack insulator -> CustomColor.fromChatFormatting(insulator.getGearTier().getChatFormatting());
-            case SimulatorItemStack simulator -> CustomColor.fromChatFormatting(simulator.getGearTier().getChatFormatting());
+            case AmplifierItemStack amplifier ->
+                CustomColor.fromChatFormatting(amplifier.getGearTier().getChatFormatting());
+            case InsulatorItemStack insulator ->
+                CustomColor.fromChatFormatting(insulator.getGearTier().getChatFormatting());
+            case SimulatorItemStack simulator ->
+                CustomColor.fromChatFormatting(simulator.getGearTier().getChatFormatting());
             default -> CustomColor.NONE;
         };
     }
@@ -155,7 +173,14 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         renderText(g, text, color, HorizontalAlignment.LEFT, VerticalAlignment.TOP, shadow);
     }
 
-    private void renderText(GuiGraphics g, String text, CustomColor color, HorizontalAlignment hAlign, VerticalAlignment vAlign,TextShadow shadow) {
+    private void renderText(
+            GuiGraphics g,
+            String text,
+            CustomColor color,
+            HorizontalAlignment hAlign,
+            VerticalAlignment vAlign,
+            TextShadow shadow) {
+        float scale = width / 16f;
         FontRenderer.getInstance()
                 .renderAlignedTextInBox(
                         g,
@@ -169,7 +194,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                         hAlign,
                         vAlign,
                         shadow,
-                        1f);
+                        scale);
     }
 
     public T getItemStack() {

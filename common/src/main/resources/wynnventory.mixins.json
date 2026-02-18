@@ -1,8 +1,4 @@
 {
-  "required": true,
-  "package": "com.wynnventory.mixin",
-  "compatibilityLevel": "JAVA_21",
-  "minVersion": "0.8",
   "client": [
     "AbstractContainerScreenMixin",
     "ClientPacketListenerMixin",
@@ -11,9 +7,12 @@
     "OptionsMixin",
     "WynntilsModMixin"
   ],
-  "mixins": [
-  ],
+  "compatibilityLevel": "JAVA_21",
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "minVersion": "0.8",
+  "mixins": [],
+  "package": "com.wynnventory.mixin",
+  "required": true
 }

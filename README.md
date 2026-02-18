@@ -9,3 +9,15 @@ WynnVentory is a Minecraft mod for the Wynncraft server. It allows users to disp
 ## Setup
 The project is using [DevAuth](https://github.com/DJtheRedstoner/DevAuth) which you need to enable in your run configs.
 Just add `-Ddevauth.enabled=true` to your JVM options and you should be good to go.
+
+### Formatting & Git Hooks
+We use [Spotless](https://github.com/diffplug/spotless) to keep our code formatted.
+To automatically run `spotlessApply` before every commit, you can install the Git hooks by running:
+```bash
+./gradlew installGitHooks
+```
+This task is also automatically run during the `build` task.
+If there are violations that `spotlessApply` cannot fix (like wildcard imports), the commit will be aborted.
+```bash
+./gradlew spotlessApply
+```

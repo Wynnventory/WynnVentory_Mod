@@ -9,8 +9,6 @@ public class RewardScreenSettings {
     private boolean showCommon = true;
     private boolean showSet = true;
     private boolean showUnusable = true;
-    private int lootrunColumns = 5;
-    private int raidColumns = 4;
 
     public boolean isShowMythic() {
         return showMythic;
@@ -74,21 +72,5 @@ public class RewardScreenSettings {
 
     public void setShowUnusable(boolean showUnusable) {
         this.showUnusable = showUnusable;
-    }
-
-    public int getLootrunColumns() {
-        return lootrunColumns;
-    }
-
-    public void setLootrunColumns(int lootrunColumns) {
-        this.lootrunColumns = lootrunColumns;
-    }
-
-    public int getRaidColumns() {
-        return raidColumns;
-    }
-
-    public void setRaidColumns(int raidColumns) {
-        this.raidColumns = raidColumns;
     }
 }

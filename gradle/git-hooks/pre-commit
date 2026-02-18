@@ -1,0 +1,28 @@
+#!/bin/sh
+# Git pre-commit hook to run spotlessApply
+
+echo "Running Spotless apply..."
+
+# Determine the correct gradlew command based on the OS
+if [ -f "gradlew.bat" ] && ([ -n "$COMSPEC" ] || [ -n "$OS" ]); then
+    # We are likely on Windows
+    ./gradlew.bat spotlessApply
+else
+    # We are likely on a Unix-like OS
+    ./gradlew spotlessApply
+fi
+
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -ne 0 ]; then
+    echo "Spotless apply failed. Please fix violations manually and try again."
+    exit $EXIT_CODE
+fi
+
+# Re-stage any files that might have been changed by spotlessApply
+# This only stages files that were already partially staged.
+# Use git diff --name-only --cached to see what was staged.
+# We only want to re-add those.
+git diff --name-only --cached -z | git add --pathspec-from-file=- --pathspec-file-nul
+
+exit 0
