@@ -7,6 +7,7 @@ import com.wynntils.screens.guides.GuideItemStack;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
 import com.wynnventory.util.ItemStackUtils;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -15,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 public final class PriceTooltipFactory {
+    private static final Component PRICE_TOOLTIP_TITLE = Component.translatable("feature.wynnventory.tooltip.title")
+            .withStyle(ChatFormatting.GOLD)
+            .withStyle(ChatFormatting.BOLD);
 
     private final PriceTooltipBuilder builder;
 
@@ -70,6 +74,7 @@ public final class PriceTooltipFactory {
 
     private List<Component> formatSections(List<PriceSection> sections) {
         List<Component> lines = new ArrayList<>();
+        lines.add(PRICE_TOOLTIP_TITLE);
 
         for (int i = 0; i < sections.size(); i++) {
             PriceSection s = sections.get(i);
