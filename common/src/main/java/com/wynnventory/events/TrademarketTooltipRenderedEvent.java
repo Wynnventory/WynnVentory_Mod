@@ -10,5 +10,7 @@ public class TrademarketTooltipRenderedEvent extends Event {
         this.itemSlot = slot;
     }
 
-    public Slot getItemSlot() { return itemSlot; }
+    public Slot getItemSlot() {
+        return itemSlot;
+    }
 }

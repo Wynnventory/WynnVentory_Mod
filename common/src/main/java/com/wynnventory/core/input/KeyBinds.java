@@ -10,9 +10,11 @@ import org.lwjgl.glfw.GLFW;
 public enum KeyBinds {
     OPEN_REWARD_POOL("key.wynnventory.openRewardScreen", GLFW.GLFW_KEY_N, false, RewardScreen::open),
     SETTINGS_TOGGLE_TOOLTIPS("key.wynnventory.toggleTooltips", GLFW.GLFW_KEY_PERIOD, true, ModConfig::toggleTooltips),
-    SETTINGS_TOGGLE_BOXED_TOOLTIPS("key.wynnventory.toggleBoxedTooltips", GLFW.GLFW_KEY_COMMA, true, ModConfig::toggleBoxedTooltips);
+    SETTINGS_TOGGLE_BOXED_TOOLTIPS(
+            "key.wynnventory.toggleBoxedTooltips", GLFW.GLFW_KEY_COMMA, true, ModConfig::toggleBoxedTooltips);
 
-    public static final KeyMapping.Category ROOT_CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(WynnventoryMod.MOD_ID, "root"));
+    public static final KeyMapping.Category ROOT_CATEGORY =
+            KeyMapping.Category.register(Identifier.fromNamespaceAndPath(WynnventoryMod.MOD_ID, "root"));
 
     public final String translationKey;
     public final int defaultKey;

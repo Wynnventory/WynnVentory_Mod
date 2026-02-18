@@ -1,15 +1,14 @@
 package com.wynnventory.gui.screen.settings;
 
 import com.wynnventory.gui.screen.SettingsScreen;
+import java.util.List;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.OptionsList;
 
-import java.util.List;
-
 public interface SettingsTab {
     List<OptionInstance<?>> getOptions();
-    
+
     default void addOptions(OptionsList list) {
         List<OptionInstance<?>> options = getOptions();
         for (int i = 0; i < options.size(); i += 2) {
@@ -19,9 +18,8 @@ public interface SettingsTab {
         }
     }
 
-    default void initCustomWidgets(SettingsScreen screen, OptionsList list) {
-    }
+    default void initCustomWidgets(SettingsScreen screen, OptionsList list) {}
 
-    default void render(GuiGraphics graphics, int mouseX, int mouseY, float delta, int x1, int x2, int y, int w, int h) {
-    }
+    default void render(
+            GuiGraphics graphics, int mouseX, int mouseY, float delta, int x1, int x2, int y, int w, int h) {}
 }

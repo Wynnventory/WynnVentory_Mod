@@ -6,7 +6,6 @@ import com.wynnventory.events.CommandSentEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 
 public final class CommandHandler {
-
     @SubscribeEvent
     public void onCommandSent(CommandSentEvent event) {
         if (CommandRouter.handleCommand(event.getCommand())) {
@@ -18,5 +17,4 @@ public final class CommandHandler {
     public void onCommandAdded(CommandAddedEvent event) {
         CommandRouter.onCommandsRebuilt(event.getRoot(), event.getContext());
     }
-
 }

@@ -5,9 +5,8 @@ import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynnventory.model.item.ModInfoProvider;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.util.ItemStackUtils;
-import net.minecraft.world.item.ItemStack;
-
 import java.util.Objects;
+import net.minecraft.world.item.ItemStack;
 
 public class TrademarketListing extends ModInfoProvider {
     private final SimpleItem item;
@@ -23,7 +22,7 @@ public class TrademarketListing extends ModInfoProvider {
     public static TrademarketListing from(ItemStack stack) {
         SimpleItem item = ItemStackUtils.toSimpleItem(stack);
 
-        if(item == null) return null;
+        if (item == null) return null;
 
         TradeMarketPriceInfo priceInfo = ItemStackUtils.calculateItemPriceInfo(stack);
 
@@ -55,9 +54,7 @@ public class TrademarketListing extends ModInfoProvider {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof TrademarketListing other) {
-            return price == other.price &&
-                    quantity == other.quantity &&
-                    Objects.equals(item, other.item);
+            return price == other.price && quantity == other.quantity && Objects.equals(item, other.item);
         }
 
         return false;
@@ -68,4 +65,3 @@ public class TrademarketListing extends ModInfoProvider {
         return Objects.hash(item, price, quantity);
     }
 }
-

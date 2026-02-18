@@ -3,12 +3,14 @@ package com.wynnventory.core.queue;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class RewardPoolQueue {
-
     private final Map<RewardPool, Set<SimpleItem>> pools = new EnumMap<>(RewardPool.class);
 
     public RewardPoolQueue() {

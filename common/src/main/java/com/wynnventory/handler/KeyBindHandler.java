@@ -4,16 +4,14 @@ import com.wynnventory.core.input.KeyBindManager;
 import com.wynnventory.core.input.KeyBinds;
 import com.wynnventory.events.ClientTickEvent;
 import com.wynnventory.events.InventoryKeyPressEvent;
+import java.util.Map;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.neoforged.bus.api.SubscribeEvent;
 
-import java.util.Map;
-
 public final class KeyBindHandler {
-
     @SubscribeEvent
     public void onClientTick(ClientTickEvent event) {
         Minecraft mc = Minecraft.getInstance();

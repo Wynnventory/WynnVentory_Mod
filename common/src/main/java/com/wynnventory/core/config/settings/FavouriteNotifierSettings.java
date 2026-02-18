@@ -1,9 +1,9 @@
 package com.wynnventory.core.config.settings;
 
 public class FavouriteNotifierSettings {
-    private boolean  enableNotifier = true;
-    private int      maxToasts = 5;
-    private boolean  mythicsOnly = false;
+    private boolean enableNotifier = true;
+    private int maxToasts = 5;
+    private boolean mythicsOnly = false;
 
     public boolean isEnableNotifier() {
         return enableNotifier;

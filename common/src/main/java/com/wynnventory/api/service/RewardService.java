@@ -8,7 +8,6 @@ import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.model.reward.RewardType;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,12 +27,12 @@ public enum RewardService {
     public CompletableFuture<List<SimpleItem>> getItems(RewardPool pool) {
         return getAllPools().thenApply(pools -> {
             List<SimpleItem> items = new ArrayList<>(pools.stream()
-                    .filter(doc -> doc.getRewardPool() != null && doc.getRewardPool().equals(pool))
+                    .filter(doc ->
+                            doc.getRewardPool() != null && doc.getRewardPool().equals(pool))
                     .flatMap(doc -> doc.getItems().stream())
                     .toList());
 
-            if(pool.getType() == RewardType.RAID)
-                sortForRaid(items);
+            if (pool.getType() == RewardType.RAID) sortForRaid(items);
             else {
                 sortForLootrun(items);
             }
@@ -43,23 +42,20 @@ public enum RewardService {
     }
 
     private void sortForRaid(List<SimpleItem> items) {
-        items.sort(Comparator
-                .comparing(this::getRarityRank, Comparator.reverseOrder())
+        items.sort(Comparator.comparing(this::getRarityRank, Comparator.reverseOrder())
                 .thenComparing(SimpleItem::getItemType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
                 .thenComparing(SimpleItem::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
                 .thenComparing(SimpleItem::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                .thenComparing(i -> i instanceof SimpleTierItem sti ? sti.getTier() : 0)
-        );
+                .thenComparing(i -> i instanceof SimpleTierItem sti ? sti.getTier() : 0));
     }
 
     private void sortForLootrun(List<SimpleItem> items) {
-        items.sort(Comparator
-                .comparing((SimpleItem i) -> i instanceof SimpleGearItem gear && gear.isShiny(), Comparator.reverseOrder())
+        items.sort(Comparator.comparing(
+                        (SimpleItem i) -> i instanceof SimpleGearItem gear && gear.isShiny(), Comparator.reverseOrder())
                 .thenComparing(this::getRarityRank, Comparator.reverseOrder())
                 .thenComparing(SimpleItem::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
                 .thenComparing(SimpleItem::getItemType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                .thenComparing(SimpleItem::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-        );
+                .thenComparing(SimpleItem::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     }
 
     public CompletableFuture<List<RewardPoolDocument>> getAllPools() {
@@ -83,36 +79,31 @@ public enum RewardService {
     }
 
     public CompletableFuture<List<RewardPoolDocument>> getRaidPools() {
-        return getAllPools().thenApply(pools ->
-                pools.stream()
-                        .filter(doc -> doc.getRewardPool() != null && doc.getRewardPool().getType() == RewardType.RAID)
-                        .toList()
-        );
+        return getAllPools().thenApply(pools -> pools.stream()
+                .filter(doc ->
+                        doc.getRewardPool() != null && doc.getRewardPool().getType() == RewardType.RAID)
+                .toList());
     }
 
     public CompletableFuture<List<RewardPoolDocument>> getLootrunPools() {
-        return getAllPools().thenApply(pools ->
-                pools.stream()
-                        .filter(doc -> doc.getRewardPool() != null && doc.getRewardPool().getType() == RewardType.LOOTRUN)
-                        .toList()
-        );
+        return getAllPools().thenApply(pools -> pools.stream()
+                .filter(doc ->
+                        doc.getRewardPool() != null && doc.getRewardPool().getType() == RewardType.LOOTRUN)
+                .toList());
     }
 
     public CompletableFuture<Void> reloadAllPools() {
-        return CompletableFuture.allOf(
-                fetch(RewardType.LOOTRUN),
-                fetch(RewardType.RAID)
-        );
+        return CompletableFuture.allOf(fetch(RewardType.LOOTRUN), fetch(RewardType.RAID));
     }
 
     private CompletableFuture<Void> fetch(RewardType type) {
-        return api.fetchRewardPools(type)
-                .thenAccept(pools -> {
-                    if (pools != null && !pools.isEmpty()) {
-                        rewardData.removeIf(doc -> doc.getRewardPool() != null && doc.getRewardPool().getType() == type);
-                        rewardData.addAll(pools);
-                    }
-                });
+        return api.fetchRewardPools(type).thenAccept(pools -> {
+            if (pools != null && !pools.isEmpty()) {
+                rewardData.removeIf(doc ->
+                        doc.getRewardPool() != null && doc.getRewardPool().getType() == type);
+                rewardData.addAll(pools);
+            }
+        });
     }
 
     private int getRarityRank(SimpleItem i) {

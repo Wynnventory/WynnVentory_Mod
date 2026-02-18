@@ -24,7 +24,8 @@ public class ImageButton extends WynnventoryButton {
 
     @Override
     public void onPress(InputWithModifiers input) {
-        this.onPress.onPress(null); // Button.OnPress expects a Button, but we are a WynntilsButton (which is an AbstractButton)
+        this.onPress.onPress(
+                null); // Button.OnPress expects a Button, but we are a WynntilsButton (which is an AbstractButton)
     }
 
     @Override
@@ -39,9 +40,11 @@ public class ImageButton extends WynnventoryButton {
                 getY(),
                 getWidth(),
                 getHeight(),
-                spriteStart, 0,
-                sprite.width() / 2, sprite.height(),
-                sprite.width(), sprite.height()
-        );
+                spriteStart,
+                0,
+                sprite.width() / 2,
+                sprite.height(),
+                sprite.width(),
+                sprite.height());
     }
 }

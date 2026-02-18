@@ -1,23 +1,21 @@
 package com.wynnventory.core.tooltip;
 
 import com.wynnventory.core.config.ModConfig;
-import com.wynnventory.core.config.settings.PriceHighlightSettings;
 import com.wynnventory.core.config.settings.DisplayOptions;
+import com.wynnventory.core.config.settings.PriceHighlightSettings;
 import com.wynnventory.core.config.settings.TooltipSettings;
 import com.wynnventory.model.item.trademarket.PriceType;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
 import com.wynnventory.util.EmeraldUtils;
 import com.wynnventory.util.StringUtils;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public final class PriceTooltipBuilder {
-
     public List<Component> buildPriceTooltip(TrademarketItemSnapshot snapshot, Component title) {
         List<Component> out = new ArrayList<>();
         out.add(title);

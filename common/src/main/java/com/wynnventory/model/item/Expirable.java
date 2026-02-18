@@ -1,7 +1,6 @@
 package com.wynnventory.model.item;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.time.Duration;
 
 public interface Expirable {

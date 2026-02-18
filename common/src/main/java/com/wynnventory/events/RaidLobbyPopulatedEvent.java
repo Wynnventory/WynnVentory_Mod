@@ -1,9 +1,8 @@
 package com.wynnventory.events;
 
+import java.util.List;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.Event;
-
-import java.util.List;
 
 public class RaidLobbyPopulatedEvent extends Event {
     private final List<ItemStack> items;

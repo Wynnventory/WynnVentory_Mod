@@ -4,12 +4,10 @@ import com.wynntils.models.stats.StatCalculator;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynntils.utils.type.RangedValue;
+import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
-import java.util.Objects;
-
 public record ItemStat(StatActualValue statActualValue, StatPossibleValues possibleValues) {
-
     public String getDisplayName() {
         return statActualValue.statType().getDisplayName();
     }
@@ -23,7 +21,7 @@ public record ItemStat(StatActualValue statActualValue, StatPossibleValues possi
     }
 
     public RangedValue getStatRange() {
-        if(possibleValues == null) return null;
+        if (possibleValues == null) return null;
 
         return possibleValues.range();
     }
@@ -48,8 +46,10 @@ public record ItemStat(StatActualValue statActualValue, StatPossibleValues possi
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof ItemStat other) {
-            return Objects.equals(statActualValue.statType().getKey(), other.statActualValue.statType().getKey()) &&
-                    Objects.equals(getRollPercentage(), other.getRollPercentage());
+            return Objects.equals(
+                            statActualValue.statType().getKey(),
+                            other.statActualValue.statType().getKey())
+                    && Objects.equals(getRollPercentage(), other.getRollPercentage());
         }
 
         return false;
@@ -62,6 +62,9 @@ public record ItemStat(StatActualValue statActualValue, StatPossibleValues possi
 
     @Override
     public @NonNull String toString() {
-        return "statName=" + statActualValue.statType().getKey() + ", actualValue=" + statActualValue.value() + ", rollPercent=" + getRollPercentage() + ", minRange=" + possibleValues.range().low() + ", maxRange=" + possibleValues.range().high();
+        return "statName=" + statActualValue.statType().getKey() + ", actualValue=" + statActualValue.value()
+                + ", rollPercent=" + getRollPercentage() + ", minRange="
+                + possibleValues.range().low() + ", maxRange="
+                + possibleValues.range().high();
     }
 }

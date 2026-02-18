@@ -2,7 +2,6 @@ package com.wynnventory.util;
 
 import com.wynnventory.api.ApiConfig;
 import com.wynnventory.core.WynnventoryMod;
-
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -33,13 +32,13 @@ public class HttpUtils {
             return;
         }
 
-        send(request)
-                .thenAccept(resp -> {
-                    int code = resp.statusCode();
-                    if (code < 200 || code >= 300) {
-                        WynnventoryMod.logError("Failed to POST to endpoint '{}'. Code '{}', Reason '{}'", uri, code, resp.body());
-                    }
-                });
+        send(request).thenAccept(resp -> {
+            int code = resp.statusCode();
+            if (code < 200 || code >= 300) {
+                WynnventoryMod.logError(
+                        "Failed to POST to endpoint '{}'. Code '{}', Reason '{}'", uri, code, resp.body());
+            }
+        });
     }
 
     public static CompletableFuture<HttpResponse<String>> sendGetRequest(URI uri) {
@@ -47,22 +46,20 @@ public class HttpUtils {
 
         HttpRequest request;
         try {
-            request = baseRequest(uri)
-                    .header("Accept", "application/json")
-                    .GET()
-                    .build();
+            request =
+                    baseRequest(uri).header("Accept", "application/json").GET().build();
         } catch (Exception e) {
             WynnventoryMod.logError("Failed to create GET request for endpoint '{}': {}", uri, e.getMessage());
             return CompletableFuture.completedFuture(null);
         }
 
-        return send(request)
-                .whenComplete((resp, ex) -> {
-                    int code = resp.statusCode();
-                    if (code < 200 || code >= 300) {
-                        WynnventoryMod.logError("Failed to GET from endpoint '{}'. Code '{}', Reason '{}'", uri, code, resp.body());
-                    }
-                });
+        return send(request).whenComplete((resp, ex) -> {
+            int code = resp.statusCode();
+            if (code < 200 || code >= 300) {
+                WynnventoryMod.logError(
+                        "Failed to GET from endpoint '{}'. Code '{}', Reason '{}'", uri, code, resp.body());
+            }
+        });
     }
 
     public static String encode(String name) {
@@ -89,10 +86,7 @@ public class HttpUtils {
 
     private static HttpRequest.Builder baseRequest(URI uri) {
         String key = ApiConfig.getApiKey();
-        return HttpRequest.newBuilder()
-                .uri(uri)
-                .timeout(TIMEOUT)
-                .header("Authorization", "Api-Key " + key);
+        return HttpRequest.newBuilder().uri(uri).timeout(TIMEOUT).header("Authorization", "Api-Key " + key);
     }
 
     private static CompletableFuture<HttpResponse<String>> send(HttpRequest request) {

@@ -4,23 +4,24 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.wynnventory.core.WynnventoryMod;
-import com.wynnventory.core.config.settings.PriceHighlightSettings;
 import com.wynnventory.core.config.settings.FavouriteNotifierSettings;
+import com.wynnventory.core.config.settings.PriceHighlightSettings;
 import com.wynnventory.core.config.settings.RewardScreenSettings;
 import com.wynnventory.core.config.settings.TooltipSettings;
 import com.wynnventory.util.ChatUtils;
-import net.minecraft.network.chat.Component;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import net.minecraft.network.chat.Component;
 
 public final class ModConfig {
     private static ModConfig instance;
 
     private static final Path CFG_PATH = Path.of("config", "wynnventory.json");
-    private static final ObjectMapper MAPPER = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).enable(SerializationFeature.INDENT_OUTPUT);
+    private static final ObjectMapper MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .enable(SerializationFeature.INDENT_OUTPUT);
 
     private TooltipSettings tooltipSettings = new TooltipSettings();
     private PriceHighlightSettings priceHighlightSettings = new PriceHighlightSettings();
@@ -84,7 +85,9 @@ public final class ModConfig {
         // atomic-ish write: write to tmp then move
         Path tmp = CFG_PATH.resolveSibling(CFG_PATH.getFileName() + ".tmp");
         MAPPER.writeValue(tmp.toFile(), this);
-        Files.move(tmp, CFG_PATH,
+        Files.move(
+                tmp,
+                CFG_PATH,
                 java.nio.file.StandardCopyOption.REPLACE_EXISTING,
                 java.nio.file.StandardCopyOption.ATOMIC_MOVE);
     }
@@ -93,7 +96,7 @@ public final class ModConfig {
         boolean previousState = ModConfig.getInstance().getTooltipSettings().isShowTooltips();
         ModConfig.getInstance().getTooltipSettings().setShowTooltips(!previousState);
 
-        if(previousState) {
+        if (previousState) {
             ChatUtils.info(Component.translatable("feature.wynnventory.toggleTooltips.disabled"));
         } else {
             ChatUtils.info(Component.translatable("feature.wynnventory.toggleTooltips.enabled"));
@@ -104,7 +107,7 @@ public final class ModConfig {
         boolean previousState = ModConfig.getInstance().getTooltipSettings().isShowBoxedItemTooltips();
         ModConfig.getInstance().getTooltipSettings().setShowBoxedItemTooltips(!previousState);
 
-        if(previousState) {
+        if (previousState) {
             ChatUtils.info(Component.translatable("feature.wynnventory.toggleBoxedTooltips.disabled"));
         } else {
             ChatUtils.info(Component.translatable("feature.wynnventory.toggleBoxedTooltips.enabled"));

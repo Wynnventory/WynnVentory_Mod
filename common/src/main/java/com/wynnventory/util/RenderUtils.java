@@ -3,6 +3,9 @@ package com.wynnventory.util;
 import com.wynntils.core.components.Managers;
 import com.wynntils.features.tooltips.TooltipFittingFeature;
 import com.wynnventory.core.config.ModConfig;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -13,17 +16,18 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import org.joml.Vector2i;
 import org.joml.Vector2ic;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 public abstract class RenderUtils {
     private static final int TOOLTIP_GAP = 7;
-    private static final TooltipFittingFeature FITTING_FEATURE = Managers.Feature.getFeatureInstance(TooltipFittingFeature.class);
+    private static final TooltipFittingFeature FITTING_FEATURE =
+            Managers.Feature.getFeatureInstance(TooltipFittingFeature.class);
 
     private RenderUtils() {}
 
-    public static Vector2i calculateTooltipCoords(int mouseX, int mouseY, List<ClientTooltipComponent> vanillaComponents, List<ClientTooltipComponent> priceComponents) {
+    public static Vector2i calculateTooltipCoords(
+            int mouseX,
+            int mouseY,
+            List<ClientTooltipComponent> vanillaComponents,
+            List<ClientTooltipComponent> priceComponents) {
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
 
@@ -33,9 +37,8 @@ public abstract class RenderUtils {
         int screenW = mc.getWindow().getGuiScaledWidth();
         int screenH = mc.getWindow().getGuiScaledHeight();
 
-        Vector2ic vanillaPos = DefaultTooltipPositioner.INSTANCE.positionTooltip(
-                screenW, screenH, mouseX, mouseY, vanillaW, vanillaH
-        );
+        Vector2ic vanillaPos =
+                DefaultTooltipPositioner.INSTANCE.positionTooltip(screenW, screenH, mouseX, mouseY, vanillaW, vanillaH);
 
         int vanillaX = vanillaPos.x();
         int vanillaY = vanillaPos.y();
@@ -44,7 +47,7 @@ public abstract class RenderUtils {
         int priceW = (int) (tooltipWidth(priceComponents, font) * priceScale);
         int priceH = (int) (tooltipHeight(priceComponents, font) * priceScale);
 
-        if(ModConfig.getInstance().getTooltipSettings().isAnchorTooltips()) {
+        if (ModConfig.getInstance().getTooltipSettings().isAnchorTooltips()) {
             return new Vector2i(TOOLTIP_GAP, screenH / 2 - priceH / 2);
         }
 
@@ -66,7 +69,8 @@ public abstract class RenderUtils {
         return new Vector2i((int) (priceX / priceScale), priceY);
     }
 
-    public static List<ClientTooltipComponent> toClientComponents(List<Component> lines, Optional<TooltipComponent> tooltipImage) {
+    public static List<ClientTooltipComponent> toClientComponents(
+            List<Component> lines, Optional<TooltipComponent> tooltipImage) {
         if (lines == null) return new ArrayList<>();
         List<ClientTooltipComponent> list = new ArrayList<>(lines.size() + (tooltipImage.isPresent() ? 1 : 0));
         for (Component line : lines) {
@@ -75,9 +79,7 @@ public abstract class RenderUtils {
             }
         }
 
-        tooltipImage.ifPresent(img ->
-                list.add(list.isEmpty() ? 0 : 1, ClientTooltipComponent.create(img))
-        );
+        tooltipImage.ifPresent(img -> list.add(list.isEmpty() ? 0 : 1, ClientTooltipComponent.create(img)));
 
         return list;
     }
@@ -142,13 +144,7 @@ public abstract class RenderUtils {
 
         @Override
         public Vector2ic positionTooltip(
-                int screenWidth,
-                int screenHeight,
-                int mouseX,
-                int mouseY,
-                int tooltipWidth,
-                int tooltipHeight
-        ) {
+                int screenWidth, int screenHeight, int mouseX, int mouseY, int tooltipWidth, int tooltipHeight) {
             return pos;
         }
     }

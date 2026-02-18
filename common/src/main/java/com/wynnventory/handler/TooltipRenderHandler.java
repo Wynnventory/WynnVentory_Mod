@@ -15,6 +15,8 @@ import com.wynnventory.model.reward.RewardType;
 import com.wynnventory.util.AspectTooltipHelper;
 import com.wynnventory.util.ItemStackUtils;
 import com.wynnventory.util.RenderUtils;
+import java.util.List;
+import java.util.Optional;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -28,9 +30,6 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import org.joml.Vector2i;
 import org.spongepowered.asm.mixin.Unique;
-
-import java.util.List;
-import java.util.Optional;
 
 public final class TooltipRenderHandler {
     private ItemStack lastItem;
@@ -50,12 +49,23 @@ public final class TooltipRenderHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onTooltipRendered(ItemTooltipRenderEvent.Pre event) {
         Screen screen = Minecraft.getInstance().screen;
-        if(screen != null && PartyFinderContainer.matchesTitle(screen.getTitle().getString())) {
-            renderPartyFinderAspects(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getItemStack(), event.getTooltips());
+        if (screen != null
+                && PartyFinderContainer.matchesTitle(screen.getTitle().getString())) {
+            renderPartyFinderAspects(
+                    event.getGuiGraphics(),
+                    event.getMouseX(),
+                    event.getMouseY(),
+                    event.getItemStack(),
+                    event.getTooltips());
         }
 
-        if(ModConfig.getInstance().getTooltipSettings().isShowTooltips()) {
-            renderTooltip(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getItemStack(), event.getTooltips());
+        if (ModConfig.getInstance().getTooltipSettings().isShowTooltips()) {
+            renderTooltip(
+                    event.getGuiGraphics(),
+                    event.getMouseX(),
+                    event.getMouseY(),
+                    event.getItemStack(),
+                    event.getTooltips());
         }
     }
 
@@ -71,7 +81,8 @@ public final class TooltipRenderHandler {
     }
 
     @Unique
-    private void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, ItemStack stack, List<Component> vanillaLines) {
+    private void renderTooltip(
+            GuiGraphics guiGraphics, int mouseX, int mouseY, ItemStack stack, List<Component> vanillaLines) {
         if (vanillaLines == null || vanillaLines.isEmpty()) return;
 
         List<Component> priceLines = tooltipFactory.getPriceTooltip(stack);
@@ -81,7 +92,8 @@ public final class TooltipRenderHandler {
     }
 
     @Unique
-    private void renderPartyFinderAspects(GuiGraphics guiGraphics, int mouseX, int mouseY, ItemStack stack, List<Component> vanillaLines) {
+    private void renderPartyFinderAspects(
+            GuiGraphics guiGraphics, int mouseX, int mouseY, ItemStack stack, List<Component> vanillaLines) {
         StyledText originalName = ItemStackUtils.getWynntilsOriginalName(stack);
         if (originalName == null) return;
 
@@ -93,19 +105,24 @@ public final class TooltipRenderHandler {
                 .filter(p -> p.getRewardPool().equals(pool))
                 .findFirst()
                 .ifPresent(p -> {
-                            List<Component> tooltipLines = AspectTooltipHelper.buildLines(p);
-                            if (tooltipLines.isEmpty()) return;
+                    List<Component> tooltipLines = AspectTooltipHelper.buildLines(p);
+                    if (tooltipLines.isEmpty()) return;
 
-                            drawTooltip(guiGraphics, mouseX, mouseY, vanillaLines, tooltipLines);
-                        }
-                ));
+                    drawTooltip(guiGraphics, mouseX, mouseY, vanillaLines, tooltipLines);
+                }));
     }
 
-    private static void drawTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, List<Component> vanillaLines, List<Component> customLines) {
+    private static void drawTooltip(
+            GuiGraphics guiGraphics,
+            int mouseX,
+            int mouseY,
+            List<Component> vanillaLines,
+            List<Component> customLines) {
         List<ClientTooltipComponent> vanillaComponents = RenderUtils.toClientComponents(vanillaLines, Optional.empty());
         List<ClientTooltipComponent> customComponents = RenderUtils.toClientComponents(customLines, Optional.empty());
 
-        Vector2i tooltipCoords = RenderUtils.calculateTooltipCoords(mouseX, mouseY, vanillaComponents, customComponents);
+        Vector2i tooltipCoords =
+                RenderUtils.calculateTooltipCoords(mouseX, mouseY, vanillaComponents, customComponents);
         ClientTooltipPositioner fixed = new RenderUtils.FixedTooltipPositioner(tooltipCoords.x, tooltipCoords.y);
 
         float scale = RenderUtils.getScaleFactor(customComponents);

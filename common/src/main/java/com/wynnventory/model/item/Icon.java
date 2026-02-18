@@ -4,7 +4,7 @@ public class Icon {
     private String format;
     private String value;
 
-    public Icon() { }
+    public Icon() {}
 
     public Icon(String format, String value) {
         this.format = format;

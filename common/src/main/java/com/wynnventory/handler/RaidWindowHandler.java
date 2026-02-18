@@ -13,18 +13,16 @@ import com.wynnventory.gui.widget.TextWidget;
 import com.wynnventory.model.item.simple.SimpleGambitItem;
 import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.util.ItemStackUtils;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 public final class RaidWindowHandler {
-
     @SubscribeEvent
     public void onRaidLobbyPopulated(RaidLobbyPopulatedEvent event) {
         for (ItemStack stack : event.getItems()) {
@@ -37,8 +35,11 @@ public final class RaidWindowHandler {
 
     @SubscribeEvent
     public void onScreenInit(RaidLobbyScreenInitEvent event) {
-        Map<String, GuideAspectItemStack> aspectStacks = Models.Aspect.getAllAspectInfos().map(info -> new GuideAspectItemStack(info, 1)).collect(Collectors.toMap(stack -> stack.getAspectInfo().name(), Function.identity()));
-        List<RewardPoolDocument> raidPools = RewardService.INSTANCE.getRaidPools().join();
+        Map<String, GuideAspectItemStack> aspectStacks = Models.Aspect.getAllAspectInfos()
+                .map(info -> new GuideAspectItemStack(info, 1))
+                .collect(Collectors.toMap(stack -> stack.getAspectInfo().name(), Function.identity()));
+        List<RewardPoolDocument> raidPools =
+                RewardService.INSTANCE.getRaidPools().join();
 
         int currentY = 50;
         int itemSize = 16;
@@ -46,7 +47,8 @@ public final class RaidWindowHandler {
         int startX = 50;
 
         for (RewardPoolDocument pool : raidPools) {
-            Component title = Component.literal(pool.getRewardPool().getShortName() + " Mythic Aspects").withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD);
+            Component title = Component.literal(pool.getRewardPool().getShortName() + " Mythic Aspects")
+                    .withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD);
             event.addRenderableWidget(new TextWidget(startX, currentY, title));
 
             int buttonY = currentY + 12;
@@ -56,7 +58,8 @@ public final class RaidWindowHandler {
                 GuideAspectItemStack stack = aspectStacks.get(lootItem.getName());
                 if (stack == null) return;
 
-                ItemButton<GuideAspectItemStack> button = new ItemButton<>(buttonX[0], buttonY, itemSize, itemSize, stack, lootItem);
+                ItemButton<GuideAspectItemStack> button =
+                        new ItemButton<>(buttonX[0], buttonY, itemSize, itemSize, stack, lootItem);
                 event.addRenderableWidget(button);
                 buttonX[0] += spacing;
             });
