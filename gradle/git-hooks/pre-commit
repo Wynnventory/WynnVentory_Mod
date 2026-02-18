@@ -1,0 +1,22 @@
+#!/bin/sh
+# Git pre-commit hook to run spotlessCheck
+
+echo "Running Spotless check..."
+
+# Determine the correct gradlew command based on the OS
+if [ -f "gradlew.bat" ] && ([ -n "$COMSPEC" ] || [ -n "$OS" ]); then
+    # We are likely on Windows
+    ./gradlew.bat spotlessCheck
+else
+    # We are likely on a Unix-like OS
+    ./gradlew spotlessCheck
+fi
+
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -ne 0 ]; then
+    echo "Spotless check failed. Please run './gradlew spotlessApply' and try again."
+    exit $EXIT_CODE
+fi
+
+exit 0

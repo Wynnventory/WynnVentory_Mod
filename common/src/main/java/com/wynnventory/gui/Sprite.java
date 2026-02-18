@@ -24,7 +24,6 @@ public enum Sprite {
     private final int width;
     private final int height;
 
-
     Sprite(String name, int width, int height) {
         this.resource = Identifier.fromNamespaceAndPath("wynnventory", "textures/" + name);
         this.width = width;

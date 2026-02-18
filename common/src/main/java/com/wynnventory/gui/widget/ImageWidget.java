@@ -24,10 +24,12 @@ public class ImageWidget extends WynnventoryButton {
                 getY(),
                 getWidth(),
                 getHeight(),
-                0, 0,
-                sprite.width(), sprite.height(),
-                sprite.width(), sprite.height()
-        );
+                0,
+                0,
+                sprite.width(),
+                sprite.height(),
+                sprite.width(),
+                sprite.height());
     }
 
     @Override

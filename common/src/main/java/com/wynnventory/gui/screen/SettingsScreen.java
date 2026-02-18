@@ -2,7 +2,11 @@ package com.wynnventory.gui.screen;
 
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.core.config.ModConfig;
-import com.wynnventory.gui.screen.settings.*;
+import com.wynnventory.gui.screen.settings.NotificationSettingsTab;
+import com.wynnventory.gui.screen.settings.PriceHighlightSettingsTab;
+import com.wynnventory.gui.screen.settings.SettingsTab;
+import com.wynnventory.gui.screen.settings.TooltipSettingsTab;
+import java.io.IOException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -10,10 +14,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.options.OptionsSubScreen;
 import net.minecraft.network.chat.Component;
 
-import java.io.IOException;
-
 public class SettingsScreen extends OptionsSubScreen {
-
     private final Screen parent;
 
     public SettingsScreen(Screen parent) {

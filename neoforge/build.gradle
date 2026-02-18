@@ -47,22 +47,24 @@ dependencies {
 
 processResources {
     var replaceProperties = [
-            mod_version                : rootProject.version,
-            minecraft_version          : minecraft_version,
-            neoforge_loader_version    : neoforge_loader_version,
-            wynntils_version           : wynntils_version
+        mod_version                : rootProject.version,
+        minecraft_version          : minecraft_version,
+        neoforge_loader_version    : neoforge_loader_version,
+        wynntils_version           : wynntils_version
     ]
     inputs.properties replaceProperties
 
     filesMatching([
-            'META-INF/neoforge.mods.toml'
+        'META-INF/neoforge.mods.toml'
     ]) {
         expand replaceProperties
     }
 }
 
 shadowJar {
-    configurations = [project.configurations.shadowBundle]
+    configurations = [
+        project.configurations.shadowBundle
+    ]
 
     archiveClassifier = 'dev-shadow'
 }
