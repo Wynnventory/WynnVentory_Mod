@@ -100,7 +100,7 @@ public enum RewardService {
 
     private CompletableFuture<Void> fetch(RewardType type) {
         return api.fetchRewardPools(type).thenAccept(pools -> {
-            if (pools != null && !pools.isEmpty()) {
+            if (pools != null) {
                 rewardData.removeIf(doc ->
                         doc.getRewardPool() != null && doc.getRewardPool().getType() == type);
                 rewardData.addAll(pools);
