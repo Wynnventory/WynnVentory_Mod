@@ -24,10 +24,12 @@ import com.wynntils.utils.render.Texture;
 import com.wynntils.utils.render.type.HorizontalAlignment;
 import com.wynntils.utils.render.type.TextShadow;
 import com.wynntils.utils.render.type.VerticalAlignment;
+import com.wynnventory.model.container.RaidLobbyContainer;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.util.HttpUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -120,10 +122,11 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
             }
         }
 
-        // Causes price tooltip to render behind ItemButton textures. Maybe fix later?
-        //        if (this.isHovered()) {
-        //            g.setTooltipForNextFrame(Minecraft.getInstance().font, itemStack, mouseX, mouseY);
-        //        }
+        // Ugly approach to prevent price tooltip rendering behind RewardScreen assets
+        String screenTitle = Minecraft.getInstance().screen.getTitle().getString();
+        if (this.isHovered() && RaidLobbyContainer.matchesTitle(screenTitle)) {
+            g.setTooltipForNextFrame(Minecraft.getInstance().font, itemStack, mouseX, mouseY);
+        }
     }
 
     @Override
@@ -165,7 +168,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                 CustomColor.fromChatFormatting(aspect.getAspectInfo().gearTier().getChatFormatting());
             case GuidePowderItemStack powder ->
                 CustomColor.fromChatFormatting(powder.getElement().getLightColor());
-            case RuneItemStack rune -> CustomColor.fromChatFormatting(GearTier.NORMAL.getChatFormatting());
+//            case RuneItemStack rune -> CustomColor.fromChatFormatting(GearTier.NORMAL.getChatFormatting());
             case AmplifierItemStack amplifier ->
                 CustomColor.fromChatFormatting(amplifier.getGearTier().getChatFormatting());
             case InsulatorItemStack insulator ->
