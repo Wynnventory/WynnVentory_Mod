@@ -26,6 +26,12 @@ import com.wynnventory.model.item.simple.SimpleItemType;
 import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardType;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,14 +42,11 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 
 public class RewardScreen extends Screen {
     private final Screen parent;
+    public static final String TITLE = "Reward Screen";
+
     private static RewardType activeType = RewardType.LOOTRUN;
     private static final Map<String, GuideItemStack> wynnItemsByName = new HashMap<>();
 
@@ -54,8 +57,6 @@ public class RewardScreen extends Screen {
     // Global scaling derived from tallest pool to fit vertically
     private double globalPoolScale = 1.0;
     private boolean scaleReady = false;
-    private int lastWidth = -1;
-    private int lastHeight = -1;
 
     // Recalc control to avoid repeated heavy work during drag-resize
     private boolean recalculating = false;
@@ -103,7 +104,7 @@ public class RewardScreen extends Screen {
 
     public static void open() {
         Minecraft mc = Minecraft.getInstance();
-        mc.setScreen(new RewardScreen(Component.empty(), mc.screen));
+        mc.setScreen(new RewardScreen(Component.literal(TITLE), mc.screen));
     }
 
     private void triggerRecalc() {
@@ -177,8 +178,6 @@ public class RewardScreen extends Screen {
 
         // Carousel buttons
         List<RewardPool> activePools = getActivePools();
-        int contentWidth = getContentWidth();
-        int poolWidth = Sprite.LOOTRUN_POOL_TOP_SECTION.width();
 
         int middleY = (this.height - NAV_BUTTON_HEIGHT) / 2;
         ImageButton prevButton = new ImageButton(
@@ -608,8 +607,6 @@ public class RewardScreen extends Screen {
 
         this.globalPoolScale = available / tallest;
         this.scaleReady = true;
-        this.lastWidth = this.width;
-        this.lastHeight = this.height;
         this.recalculating = false;
 
         // If multiple resizes happened during calculation, run one more pass

@@ -24,6 +24,7 @@ import com.wynntils.utils.render.Texture;
 import com.wynntils.utils.render.type.HorizontalAlignment;
 import com.wynntils.utils.render.type.TextShadow;
 import com.wynntils.utils.render.type.VerticalAlignment;
+import com.wynnventory.gui.screen.RewardScreen;
 import com.wynnventory.model.container.RaidLobbyContainer;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
@@ -124,7 +125,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
 
         // Ugly approach to prevent price tooltip rendering behind RewardScreen assets
         String screenTitle = Minecraft.getInstance().screen.getTitle().getString();
-        if (this.isHovered() && RaidLobbyContainer.matchesTitle(screenTitle)) {
+        if (this.isHovered() && !screenTitle.equals(RewardScreen.TITLE)) {
             g.setTooltipForNextFrame(Minecraft.getInstance().font, itemStack, mouseX, mouseY);
         }
     }
@@ -168,7 +169,6 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                 CustomColor.fromChatFormatting(aspect.getAspectInfo().gearTier().getChatFormatting());
             case GuidePowderItemStack powder ->
                 CustomColor.fromChatFormatting(powder.getElement().getLightColor());
-//            case RuneItemStack rune -> CustomColor.fromChatFormatting(GearTier.NORMAL.getChatFormatting());
             case AmplifierItemStack amplifier ->
                 CustomColor.fromChatFormatting(amplifier.getGearTier().getChatFormatting());
             case InsulatorItemStack insulator ->
