@@ -2,7 +2,6 @@ package com.wynnventory.gui.widget;
 
 import com.wynntils.core.components.Services;
 import com.wynntils.core.text.StyledText;
-import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.augment.AmplifierItemStack;
@@ -25,7 +24,6 @@ import com.wynntils.utils.render.type.HorizontalAlignment;
 import com.wynntils.utils.render.type.TextShadow;
 import com.wynntils.utils.render.type.VerticalAlignment;
 import com.wynnventory.gui.screen.RewardScreen;
-import com.wynnventory.model.container.RaidLobbyContainer;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;
@@ -52,20 +50,22 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
     public void renderContents(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         // Colored highlight like Wynntils (scaled to our box)
         CustomColor color = getCustomColor();
-        RenderUtils.drawTexturedRect(
-                g,
-                Texture.HIGHLIGHT.identifier(),
-                color,
-                getX() - 1,
-                getY() - 1,
-                width + 2,
-                height + 2,
-                0,
-                0,
-                18,
-                18,
-                Texture.HIGHLIGHT.width(),
-                Texture.HIGHLIGHT.height());
+        if (color != CustomColor.NONE) {
+            RenderUtils.drawTexturedRect(
+                    g,
+                    Texture.HIGHLIGHT.identifier(),
+                    color,
+                    getX() - 1,
+                    getY() - 1,
+                    width + 2,
+                    height + 2,
+                    0,
+                    0,
+                    18,
+                    18,
+                    Texture.HIGHLIGHT.width(),
+                    Texture.HIGHLIGHT.height());
+        }
 
         // Draw item (MC item icon anchored at button origin, scaled)
         g.pose().pushMatrix();
