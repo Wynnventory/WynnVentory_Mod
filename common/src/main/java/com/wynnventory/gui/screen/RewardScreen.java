@@ -26,12 +26,6 @@ import com.wynnventory.model.item.simple.SimpleItemType;
 import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardType;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +36,11 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 public class RewardScreen extends Screen {
     private final Screen parent;
@@ -171,9 +170,10 @@ public class RewardScreen extends Screen {
                 IMAGE_BUTTON_WIDTH,
                 IMAGE_BUTTON_HEIGHT,
                 Sprite.RELOAD_BUTTON,
-                b -> RewardService.INSTANCE
-                        .reloadAllPools()
-                        .thenRun(() -> this.minecraft.execute(this::rebuildWidgets)),
+                b -> RewardService.INSTANCE.reloadAllPools().thenRun(() -> {
+                    this.triggerRecalc();
+                    this.minecraft.execute(this::rebuildWidgets);
+                }),
                 Component.translatable("gui.wynnventory.reward.button.reload")));
 
         // Carousel buttons

@@ -3,7 +3,7 @@ package com.wynnventory.gui;
 import net.minecraft.resources.Identifier;
 
 public enum Sprite {
-    RELOAD_BUTTON("gui/rewardscreen/rewardscreenreload.png", 64, 32),
+    RELOAD_BUTTON("gui/rewardscreen/reload.png", 64, 32),
     SETTINGS_BUTTON("gui/rewardscreen/settings.png", 40, 20),
     MYTHIC_ICON("gui/rewardscreen/box_mythic.png", 16, 16),
     FABLED_ICON("gui/rewardscreen/box_fabled.png", 16, 16),
@@ -21,7 +21,7 @@ public enum Sprite {
     FILTER_SECTION("gui/rewardscreen/filter.png", 105, 58),
     ARROW_LEFT("gui/rewardscreen/arrow_left.png", 64, 32),
     ARROW_RIGHT("gui/rewardscreen/arrow_right.png", 64, 32),
-    MYTHIC_ASPECT_DISPLAY("gui/raidlobby/mythic_aspect_display.png", 69, 102);
+    MYTHIC_ASPECT_DISPLAY("gui/raidlobby/mythic_aspect_display.png", 69, 150);
 
     private final Identifier resource;
     private final int width;

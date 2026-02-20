@@ -110,11 +110,13 @@ public class WynnventoryApi {
         if (responseBody == null || responseBody.isBlank()) return Collections.emptyList();
         try {
             JsonNode node = MAPPER.readTree(responseBody);
-            if (node != null && node.isObject() && node.has("regions")) {
+            if (node == null || node.isNull() || node.isEmpty()) return Collections.emptyList();
+
+            if (node.isObject() && node.has("regions")) {
                 node = node.get("regions");
             }
 
-            if (node == null || node.isNull()) return Collections.emptyList();
+            if (node == null || node.isNull() || node.isEmpty()) return Collections.emptyList();
 
             return MAPPER.readValue(
                     node.traverse(),
