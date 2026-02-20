@@ -2,10 +2,10 @@ package com.wynnventory.model.container;
 
 import java.util.regex.Pattern;
 
-public class RaidWindowContainer {
+public class RaidLobbyContainer {
     public static final Pattern TITLE = Pattern.compile("\uDAFF\uDFE1\uE00C");
 
-    private RaidWindowContainer() {}
+    private RaidLobbyContainer() {}
 
     public static boolean matchesTitle(String title) {
         if (title == null) return false;

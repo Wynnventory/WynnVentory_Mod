@@ -5,7 +5,7 @@ import com.wynnventory.events.InventoryKeyPressEvent;
 import com.wynnventory.events.RaidLobbyScreenInitEvent;
 import com.wynnventory.events.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.container.Container;
-import com.wynnventory.model.container.RaidWindowContainer;
+import com.wynnventory.model.container.RaidLobbyContainer;
 import com.wynnventory.model.container.TrademarketContainer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -50,7 +50,7 @@ public abstract class AbstractContainerScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("RETURN"))
     private void init(CallbackInfo ci) {
-        if (RaidWindowContainer.matchesTitle(this.getTitle().getString())) {
+        if (RaidLobbyContainer.matchesTitle(this.getTitle().getString())) {
             WynnventoryMod.postEvent(new RaidLobbyScreenInitEvent(
                     (AbstractContainerScreen<?>) (Object) this, this::addRenderableWidget));
         }
