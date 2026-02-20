@@ -46,7 +46,8 @@ public enum RewardService {
                 .thenComparing(SimpleItem::getItemType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
                 .thenComparing(SimpleItem::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
                 .thenComparing(SimpleItem::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                .thenComparing(i -> i instanceof SimpleTierItem sti ? sti.getTier() : 0));
+                .thenComparing(i -> i instanceof SimpleTierItem sti ? sti.getTier() : 0)
+                .thenComparing(SimpleItem::getAmount));
     }
 
     private void sortForLootrun(List<SimpleItem> items) {
@@ -55,7 +56,8 @@ public enum RewardService {
                 .thenComparing(this::getRarityRank, Comparator.reverseOrder())
                 .thenComparing(SimpleItem::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
                 .thenComparing(SimpleItem::getItemType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                .thenComparing(SimpleItem::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                .thenComparing(SimpleItem::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                .thenComparing(SimpleItem::getAmount));
     }
 
     public CompletableFuture<List<RewardPoolDocument>> getAllPools() {

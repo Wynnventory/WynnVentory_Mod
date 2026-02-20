@@ -8,9 +8,11 @@ import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.augment.AmplifierItemStack;
 import com.wynntils.screens.guides.augment.InsulatorItemStack;
 import com.wynntils.screens.guides.augment.SimulatorItemStack;
+import com.wynntils.screens.guides.emerald.GuideEmeraldItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
+import com.wynntils.screens.guides.misc.GuideDungeonKeyItemStack;
+import com.wynntils.screens.guides.misc.RuneItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
-import com.wynntils.screens.guides.rune.RuneItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
 import com.wynntils.utils.colors.CommonColors;
@@ -70,7 +72,12 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         RenderUtils.renderItem(g, itemStack, 0, 0);
         g.pose().popMatrix();
 
-        if (simpleItem instanceof SimpleTierItem) {
+        if (simpleItem instanceof SimpleTierItem
+                || itemStack instanceof GuideEmeraldItemStack
+                || itemStack instanceof RuneItemStack
+                || itemStack instanceof GuidePowderItemStack
+                || itemStack instanceof AmplifierItemStack
+                || itemStack instanceof GuideDungeonKeyItemStack) {
             renderText(
                     g,
                     String.valueOf(simpleItem.getAmount()),

@@ -8,8 +8,8 @@ import com.wynntils.screens.guides.augment.AmplifierItemStack;
 import com.wynntils.screens.guides.augment.InsulatorItemStack;
 import com.wynntils.screens.guides.augment.SimulatorItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
+import com.wynntils.screens.guides.misc.RuneItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
-import com.wynntils.screens.guides.rune.RuneItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
 import com.wynnventory.api.service.RewardService;
@@ -334,6 +334,15 @@ public class RewardScreen extends Screen {
                         .map(RuneItemStack::new)
                         .toList()),
                 s -> s.getHoverName().getString());
+
+        addStacks(Models.Emerald.getAllEmeraldItems(), s -> s.getHoverName().getString());
+
+        // TODO: WAIT FOR WYNNTILS 4.0.2
+        /*        List<GuideDungeonKeyItemStack> dungeonStacks = Arrays.stream(Dungeon.values())
+                .flatMap(d -> Stream.of(false, true).flatMap(b1 -> Stream.of(false, true).map(b2 -> new GuideDungeonKeyItemStack(d, b1, b2))))
+                .toList();
+
+        addStacks(dungeonStacks, s -> s.getHoverName().getString());*/
 
         InsulatorItemStack insulatorItemStack = new InsulatorItemStack();
         wynnItemsByName.put(insulatorItemStack.getHoverName().getString(), insulatorItemStack);
