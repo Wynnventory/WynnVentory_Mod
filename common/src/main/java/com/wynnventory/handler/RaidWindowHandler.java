@@ -8,6 +8,8 @@ import com.wynnventory.api.service.RewardService;
 import com.wynnventory.core.queue.QueueScheduler;
 import com.wynnventory.events.RaidLobbyPopulatedEvent;
 import com.wynnventory.events.RaidLobbyScreenInitEvent;
+import com.wynnventory.gui.Sprite;
+import com.wynnventory.gui.widget.ImageWidget;
 import com.wynnventory.gui.widget.ItemButton;
 import com.wynnventory.gui.widget.TextWidget;
 import com.wynnventory.model.item.simple.SimpleGambitItem;
@@ -18,6 +20,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -41,18 +44,33 @@ public final class RaidWindowHandler {
         List<RewardPoolDocument> raidPools =
                 RewardService.INSTANCE.getRaidPools().join();
 
-        int currentY = 50;
+        int startX = 10;
+        int startY = 50;
+
+        event.addRenderableWidget(new ImageWidget(
+                startX,
+                startY,
+                Sprite.MYTHIC_ASPECT_DISPLAY.width(),
+                Sprite.MYTHIC_ASPECT_DISPLAY.height(),
+                Sprite.MYTHIC_ASPECT_DISPLAY));
+
         int itemSize = 16;
-        int spacing = 22;
-        int startX = 50;
+        int spacing = 20;
 
-        for (RewardPoolDocument pool : raidPools) {
-            Component title = Component.literal(pool.getRewardPool().getShortName() + " Mythic Aspects")
+        for (int i = 0; i < Math.min(raidPools.size(), 5); i++) {
+            RewardPoolDocument pool = raidPools.get(i);
+            int rowY = startY + 3 + (i * 35);
+
+            Component title = Component.literal(pool.getRewardPool().getShortName())
                     .withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD);
-            event.addRenderableWidget(new TextWidget(startX, currentY, title));
 
-            int buttonY = currentY + 12;
-            final int[] buttonX = {startX};
+            // Center text in the nameplate area (approx 34 pixels wide)
+            int textWidth = Minecraft.getInstance().font.width(title);
+            int textX = startX + 17 + (34 - textWidth) / 2;
+            event.addRenderableWidget(new TextWidget(textX, rowY + 3, title));
+
+            int buttonY = rowY + 15;
+            final int[] buttonX = {startX + 7};
 
             pool.getMythicAspects().forEach(lootItem -> {
                 GuideAspectItemStack stack = aspectStacks.get(lootItem.getName());
@@ -63,8 +81,6 @@ public final class RaidWindowHandler {
                 event.addRenderableWidget(button);
                 buttonX[0] += spacing;
             });
-
-            currentY += 40;
         }
     }
 }

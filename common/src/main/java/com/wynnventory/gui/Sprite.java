@@ -21,7 +21,7 @@ public enum Sprite {
     FILTER_SECTION("gui/rewardscreen/filter.png", 105, 58),
     ARROW_LEFT("gui/rewardscreen/arrow_left.png", 64, 32),
     ARROW_RIGHT("gui/rewardscreen/arrow_right.png", 64, 32),
-    MYTHIC_ASPECT_DISPLAY("gui/raidlobby/mythic_aspect_display.png", 69, 150);
+    MYTHIC_ASPECT_DISPLAY("gui/raidlobby/mythic_aspect_display.png", 69, 148);
 
     private final Identifier resource;
     private final int width;
