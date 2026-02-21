@@ -8,11 +8,21 @@ import net.neoforged.bus.api.Event;
 public class RaidLobbyScreenInitEvent extends Event {
     private final AbstractContainerScreen<?> screen;
     private final Consumer<WynnventoryButton> addRenderableWidgetConsumer;
+    private final int leftPos;
+    private final int topPos;
+    private final int imageWidth;
 
     public RaidLobbyScreenInitEvent(
-            AbstractContainerScreen<?> screen, Consumer<WynnventoryButton> addRenderableWidgetConsumer) {
+            AbstractContainerScreen<?> screen,
+            Consumer<WynnventoryButton> addRenderableWidgetConsumer,
+            int leftPos,
+            int topPos,
+            int imageWidth) {
         this.screen = screen;
         this.addRenderableWidgetConsumer = addRenderableWidgetConsumer;
+        this.leftPos = leftPos;
+        this.topPos = topPos;
+        this.imageWidth = imageWidth;
     }
 
     public void addRenderableWidget(WynnventoryButton widget) {
@@ -21,5 +31,17 @@ public class RaidLobbyScreenInitEvent extends Event {
 
     public AbstractContainerScreen<?> getScreen() {
         return screen;
+    }
+
+    public int getLeftPos() {
+        return leftPos;
+    }
+
+    public int getTopPos() {
+        return topPos;
+    }
+
+    public int getImageWidth() {
+        return imageWidth;
     }
 }

@@ -25,6 +25,15 @@ public abstract class AbstractContainerScreenMixin extends Screen {
     @Shadow
     protected Slot hoveredSlot;
 
+    @Shadow
+    protected int leftPos;
+
+    @Shadow
+    protected int topPos;
+
+    @Shadow
+    protected int imageWidth;
+
     protected AbstractContainerScreenMixin(Component component) {
         super(component);
     }
@@ -52,7 +61,11 @@ public abstract class AbstractContainerScreenMixin extends Screen {
     private void init(CallbackInfo ci) {
         if (RaidLobbyContainer.matchesTitle(this.getTitle().getString())) {
             WynnventoryMod.postEvent(new RaidLobbyScreenInitEvent(
-                    (AbstractContainerScreen<?>) (Object) this, this::addRenderableWidget));
+                    (AbstractContainerScreen<?>) (Object) this,
+                    this::addRenderableWidget,
+                    this.leftPos,
+                    this.topPos,
+                    this.imageWidth));
         }
     }
 }

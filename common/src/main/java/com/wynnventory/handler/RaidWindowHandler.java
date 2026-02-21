@@ -44,8 +44,8 @@ public final class RaidWindowHandler {
         List<RewardPoolDocument> raidPools =
                 RewardService.INSTANCE.getRaidPools().join();
 
-        int startX = 10;
-        int startY = 50;
+        int startX = event.getLeftPos() + event.getImageWidth() + 30;
+        int startY = event.getTopPos();
 
         event.addRenderableWidget(new ImageWidget(
                 startX,
@@ -55,7 +55,7 @@ public final class RaidWindowHandler {
                 Sprite.MYTHIC_ASPECT_DISPLAY));
 
         int itemSize = 16;
-        int spacing = 20;
+        int spacing = 18;
 
         for (int i = 0; i < Math.min(raidPools.size(), 5); i++) {
             RewardPoolDocument pool = raidPools.get(i);
@@ -70,7 +70,7 @@ public final class RaidWindowHandler {
             event.addRenderableWidget(new TextWidget(textX, rowY + 3, title));
 
             int buttonY = rowY + 15;
-            final int[] buttonX = {startX + 7};
+            final int[] buttonX = {startX + 8};
 
             pool.getMythicAspects().forEach(lootItem -> {
                 GuideAspectItemStack stack = aspectStacks.get(lootItem.getName());
