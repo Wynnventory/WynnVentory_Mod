@@ -3,7 +3,7 @@ package com.wynnventory.handler;
 import com.wynntils.models.worlds.event.WorldStateEvent;
 import com.wynntils.models.worlds.type.WorldState;
 import com.wynnventory.core.feature.FavouriteNotifier;
-import com.wynnventory.core.feature.ModUpdater;
+import com.wynnventory.core.feature.updater.ModUpdater;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 

@@ -1,5 +1,9 @@
 package com.wynnventory.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.wynnventory.api.ApiConfig;
 import com.wynnventory.core.WynnventoryMod;
 import java.net.URI;
@@ -16,29 +20,26 @@ import java.util.stream.Collectors;
 public class HttpUtils {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
     private static final Duration TIMEOUT = Duration.ofSeconds(5);
+    private static final ObjectMapper MAPPER =
+            new ObjectMapper().registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
 
     private HttpUtils() {}
 
-    public static void sendPostRequest(URI uri, String jsonPayload) {
+    public static CompletableFuture<HttpResponse<String>> sendPostRequest(URI uri, Object payload) {
         WynnventoryMod.logDebug("Sending data to {} endpoint: {}", WynnventoryMod.isBeta() ? "DEV" : "PROD", uri);
         HttpRequest request;
         try {
+            WynnventoryMod.logDebug("Sending payload: {}", serialize(payload));
             request = baseRequest(uri)
                     .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .POST(HttpRequest.BodyPublishers.ofString(serialize(payload)))
                     .build();
         } catch (Exception e) {
             WynnventoryMod.logError("Failed to create POST request for endpoint '{}': {}", uri, e.getMessage());
-            return;
+            return CompletableFuture.completedFuture(null);
         }
 
-        send(request).thenAccept(resp -> {
-            int code = resp.statusCode();
-            if (code < 200 || code >= 300) {
-                WynnventoryMod.logError(
-                        "Failed to POST to endpoint '{}'. Code '{}', Reason '{}'", uri, code, resp.body());
-            }
-        });
+        return send(request);
     }
 
     public static CompletableFuture<HttpResponse<String>> sendGetRequest(URI uri) {
@@ -91,5 +92,14 @@ public class HttpUtils {
 
     private static CompletableFuture<HttpResponse<String>> send(HttpRequest request) {
         return CLIENT.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private static String serialize(Object obj) {
+        try {
+            return MAPPER.writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            WynnventoryMod.logError("Serialization failed", e);
+            return "[]";
+        }
     }
 }

@@ -34,7 +34,7 @@ public class WynnventoryApi {
 
         WynnventoryMod.logDebug("Sending gambit data to {} endpoint.", WynnventoryMod.isBeta() ? "DEV" : "PROD");
         URI uri = Endpoint.RAIDPOOL_GAMBITS.uri();
-        HttpUtils.sendPostRequest(uri, serialize(gambits));
+        HttpUtils.sendPostRequest(uri, gambits);
         WynnventoryMod.logDebug("Submitted {} gambit items to API: {}", gambits.size(), uri);
     }
 
@@ -49,13 +49,13 @@ public class WynnventoryApi {
             RewardPoolDocument doc = new RewardPoolDocument(new ArrayList<>(itemsSet), pool);
             WynnventoryMod.logDebug("Trying to send {} items for RewardPool {}", itemsSet.size(), pool.getShortName());
 
-            HttpUtils.sendPostRequest(uri, serialize(doc));
+            HttpUtils.sendPostRequest(uri, doc);
         }
     }
 
     public void sendTradeMarketData(Set<TrademarketListing> trademarketItems) {
         URI uri = Endpoint.TRADE_MARKET_ITEMS.uri();
-        HttpUtils.sendPostRequest(uri, serialize(trademarketItems));
+        HttpUtils.sendPostRequest(uri, trademarketItems);
         WynnventoryMod.logDebug("Trying to send {} trademarket items", trademarketItems.size());
     }
 
@@ -137,15 +137,6 @@ public class WynnventoryApi {
         }
 
         return null;
-    }
-
-    private String serialize(Object obj) {
-        try {
-            return MAPPER.writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
-            WynnventoryMod.logError("Serialization failed", e);
-            return "[]";
-        }
     }
 
     private TrademarketItemSummary parsePriceInfoResponse(String responseBody) {
