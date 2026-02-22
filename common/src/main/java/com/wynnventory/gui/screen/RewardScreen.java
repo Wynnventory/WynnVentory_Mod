@@ -186,13 +186,7 @@ public class RewardScreen extends Screen {
                 NAV_BUTTON_WIDTH * 2,
                 NAV_BUTTON_HEIGHT * 2,
                 Sprite.ARROW_LEFT,
-                button -> {
-                    scrollIndex--;
-                    if (scrollIndex < 0) {
-                        scrollIndex = activePools.size() - 1;
-                    }
-                    this.rebuildWidgets();
-                },
+                button -> scrollLeft(),
                 null);
         this.addRenderableWidget(prevButton);
 
@@ -202,13 +196,7 @@ public class RewardScreen extends Screen {
                 NAV_BUTTON_WIDTH * 2,
                 NAV_BUTTON_HEIGHT * 2,
                 Sprite.ARROW_RIGHT,
-                button -> {
-                    scrollIndex++;
-                    if (scrollIndex >= activePools.size()) {
-                        scrollIndex = 0;
-                    }
-                    this.rebuildWidgets();
-                },
+                button -> scrollRight(),
                 null);
         this.addRenderableWidget(nextButton);
 
@@ -301,6 +289,36 @@ public class RewardScreen extends Screen {
             this.lastResizeTime = 0;
             this.triggerRecalc();
         }
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double amountX, double amountY) {
+        if (amountY > 0) {
+            scrollLeft();
+        } else if (amountY < 0) {
+            scrollRight();
+        }
+        return true;
+    }
+
+    private void scrollLeft() {
+        List<RewardPool> activePools = getActivePools();
+        if (activePools.isEmpty()) return;
+        scrollIndex--;
+        if (scrollIndex < 0) {
+            scrollIndex = activePools.size() - 1;
+        }
+        this.rebuildWidgets();
+    }
+
+    private void scrollRight() {
+        List<RewardPool> activePools = getActivePools();
+        if (activePools.isEmpty()) return;
+        scrollIndex++;
+        if (scrollIndex >= activePools.size()) {
+            scrollIndex = 0;
+        }
+        this.rebuildWidgets();
     }
 
     @Override
