@@ -1,6 +1,7 @@
 package com.wynnventory.gui.screen;
 
 import com.wynntils.core.components.Models;
+import com.wynntils.models.activities.type.Dungeon;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
@@ -8,6 +9,7 @@ import com.wynntils.screens.guides.augment.AmplifierItemStack;
 import com.wynntils.screens.guides.augment.InsulatorItemStack;
 import com.wynntils.screens.guides.augment.SimulatorItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
+import com.wynntils.screens.guides.misc.GuideDungeonKeyItemStack;
 import com.wynntils.screens.guides.misc.RuneItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
@@ -355,13 +357,7 @@ public class RewardScreen extends Screen {
 
         addStacks(Models.Emerald.getAllEmeraldItems(), s -> s.getHoverName().getString());
 
-        /* TODO: WAIT FOR WYNNTILS 4.0.2
-        List<GuideDungeonKeyItemStack> dungeonStacks = Arrays.stream(Dungeon.values())
-                .flatMap(d -> Stream.of(false, true).flatMap(b1 -> Stream.of(false, true).map(b2 -> new GuideDungeonKeyItemStack(d, b1, b2))))
-                .toList();
-
-        addStacks(dungeonStacks, s -> s.getHoverName().getString());
-        */
+        addStacks(getDungeonKeyItemStacks(), s -> s.getHoverName().getString());
 
         InsulatorItemStack insulatorItemStack = new InsulatorItemStack();
         wynnItemsByName.put(insulatorItemStack.getHoverName().getString(), insulatorItemStack);
@@ -710,6 +706,26 @@ public class RewardScreen extends Screen {
         }
         renderBottomSection(startX, currentY, totalWidth, poolScale);
         renderPoolHeader(startX, totalWidth, poolScale, pool.getShortName());
+    }
+
+    private List<GuideDungeonKeyItemStack> getDungeonKeyItemStacks() {
+        List<GuideDungeonKeyItemStack> dungeonStacks = new ArrayList<>();
+        for (Dungeon dungeon : Dungeon.values()) {
+            if (dungeon.doesExist()) {
+                dungeonStacks.add(new GuideDungeonKeyItemStack(dungeon, false, false));
+                dungeonStacks.add(new GuideDungeonKeyItemStack(dungeon, false, true));
+            }
+
+            if (dungeon.doesCorruptedExist()) {
+                dungeonStacks.add(new GuideDungeonKeyItemStack(dungeon, true, false));
+
+                if (dungeon == Dungeon.LOST_SANCTUARY) { // Wynncraft jank... Hopefully forgery gets redone soon
+                    dungeonStacks.add(new GuideDungeonKeyItemStack(dungeon, true, true));
+                }
+            }
+        }
+
+        return dungeonStacks;
     }
 
     // Lightweight inner model to represent a visual section in a pool
