@@ -72,7 +72,7 @@ public class PriceHighlightSettingsTab implements SettingsTab {
                         } else if (msg.contains(
                                 Component.translatable("gui.wynnventory.settings.highlighting.highlightColor")
                                         .getString())) {
-                            setupColorSlider(screen, widget, s, mc);
+                            setupColorSlider(screen, widget, s);
                         }
                     }
                 }
@@ -101,7 +101,7 @@ public class PriceHighlightSettingsTab implements SettingsTab {
         dummy.active = false;
         int width = 150;
         int x = screen.width / 2 + 5;
-        minPriceBox = new EditBox(mc.font, x, dummy.getY(), width, 20, dummy.getMessage());
+        minPriceBox = new ForwardingEditBox(mc.font, x, dummy.getY(), width, 20, dummy.getMessage());
         minPriceBox.setValue(String.valueOf(s.getColorMinPrice()));
         minPriceBox.setFilter(val -> val.matches("\\d*"));
         minPriceBox.setResponder(val -> {
@@ -120,13 +120,13 @@ public class PriceHighlightSettingsTab implements SettingsTab {
         dummy.active = false;
         int width = 150;
         int x = screen.width / 2 + 5;
-        hexBox = new EditBox(mc.font, x, dummy.getY(), width, 20, dummy.getMessage());
+        hexBox = new ForwardingEditBox(mc.font, x, dummy.getY(), width, 20, dummy.getMessage());
         hexBox.setValue(String.format("#%06X", s.getHighlightColor()));
         hexBox.setFilter(val -> val.matches("^#?[0-9a-fA-F]{0,6}$"));
         screen.addPublic(hexBox);
     }
 
-    private void setupColorSlider(SettingsScreen screen, AbstractWidget dummy, PriceHighlightSettings s, Minecraft mc) {
+    private void setupColorSlider(SettingsScreen screen, AbstractWidget dummy, PriceHighlightSettings s) {
         dummy.visible = false;
         dummy.active = false;
         int width = 150;
@@ -234,7 +234,23 @@ public class PriceHighlightSettingsTab implements SettingsTab {
         return hue;
     }
 
-    private static class ColorSlider extends AbstractSliderButton {
+    // EditBox that forwards mouse scroll to the parent list so the screen can scroll while hovering it
+    private class ForwardingEditBox extends EditBox {
+        public ForwardingEditBox(
+                net.minecraft.client.gui.Font font, int x, int y, int width, int height, Component message) {
+            super(font, x, y, width, height, message);
+        }
+
+        @Override
+        public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+            if (listRef != null && listRef.mouseScrolled(mouseX, mouseY, deltaX, deltaY)) {
+                return true;
+            }
+            return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
+        }
+    }
+
+    private class ColorSlider extends AbstractSliderButton {
         private final PriceHighlightSettings settings;
         private EditBox[] hexBoxArr;
         private boolean isUpdating = false;
@@ -273,6 +289,14 @@ public class PriceHighlightSettingsTab implements SettingsTab {
                 hexBoxArr[0].setValue(String.format("#%06X", color));
             }
             isUpdating = false;
+        }
+
+        @Override
+        public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+            if (listRef != null && listRef.mouseScrolled(mouseX, mouseY, deltaX, deltaY)) {
+                return true;
+            }
+            return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
         }
 
         public void updateFromColor(int color) {
