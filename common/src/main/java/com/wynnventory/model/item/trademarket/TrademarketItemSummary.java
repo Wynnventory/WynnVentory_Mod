@@ -131,6 +131,16 @@ public class TrademarketItemSummary extends TimestampedObject {
         calculatedPriceInfo.setHighestPrice(value);
     }
 
+    @JsonProperty("unidentified_highest_price")
+    public Integer getUnidentifiedHighestPrice() {
+        return calculatedPriceInfo.getUnidentifiedHighestPrice();
+    }
+
+    @JsonProperty("unidentified_highest_price")
+    public void setUnidentifiedHighestPrice(Integer value) {
+        calculatedPriceInfo.setUnidentifiedHighestPrice(value);
+    }
+
     @JsonProperty("lowest_price")
     public Integer getLowestPrice() {
         return calculatedPriceInfo.getLowestPrice();
@@ -139,6 +149,16 @@ public class TrademarketItemSummary extends TimestampedObject {
     @JsonProperty("lowest_price")
     public void setLowestPrice(Integer value) {
         calculatedPriceInfo.setLowestPrice(value);
+    }
+
+    @JsonProperty("unidentified_lowest_price")
+    public Integer getUnidentifiedLowestPrice() {
+        return calculatedPriceInfo.getUnidentifiedLowestPrice();
+    }
+
+    @JsonProperty("unidentified_lowest_price")
+    public void setUnidentifiedLowestPrice(Integer value) {
+        calculatedPriceInfo.setUnidentifiedLowestPrice(value);
     }
 
     @JsonProperty("unidentified_average_mid_80_percent_price")

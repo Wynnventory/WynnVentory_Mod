@@ -25,10 +25,18 @@ public enum PriceType {
             "feature.wynnventory.tooltip.highest",
             TooltipSettings::isShowMaxPrice,
             s -> s.getHighestPrice() == null ? null : (double) s.getHighestPrice()),
+    UNID_HIGHEST(
+            "feature.wynnventory.tooltip.unidHighest",
+            TooltipSettings::isShowUnidentifiedMaxPrice,
+            s -> s.getUnidentifiedHighestPrice() == null ? null : (double) s.getUnidentifiedHighestPrice()),
     LOWEST(
             "feature.wynnventory.tooltip.lowest",
             TooltipSettings::isShowMinPrice,
-            s -> s.getLowestPrice() == null ? null : (double) s.getLowestPrice());
+            s -> s.getLowestPrice() == null ? null : (double) s.getLowestPrice()),
+    UNID_LOWEST(
+            "feature.wynnventory.tooltip.unidLowest",
+            TooltipSettings::isShowUnidentifiedMinPrice,
+            s -> s.getUnidentifiedLowestPrice() == null ? null : (double) s.getUnidentifiedLowestPrice());
 
     private final String label;
     private final Predicate<TooltipSettings> enabledCheck;

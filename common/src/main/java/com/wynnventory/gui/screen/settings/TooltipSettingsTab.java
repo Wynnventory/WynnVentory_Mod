@@ -38,7 +38,15 @@ public class TooltipSettingsTab implements SettingsTab {
                 OptionInstance.createBoolean(
                         "gui.wynnventory.settings.tooltip.showMaxPrice", s.isShowMaxPrice(), s::setShowMaxPrice),
                 OptionInstance.createBoolean(
+                        "gui.wynnventory.settings.tooltip.showUnidMaxPrice",
+                        s.isShowUnidentifiedMaxPrice(),
+                        s::setShowUnidentifiedMaxPrice),
+                OptionInstance.createBoolean(
                         "gui.wynnventory.settings.tooltip.showMinPrice", s.isShowMinPrice(), s::setShowMinPrice),
+                OptionInstance.createBoolean(
+                        "gui.wynnventory.settings.tooltip.showUnidMinPrice",
+                        s.isShowUnidentifiedMinPrice(),
+                        s::setShowUnidentifiedMinPrice),
                 OptionInstance.createBoolean(
                         "gui.wynnventory.settings.tooltip.showAveragePrice",
                         s.isShowAveragePrice(),

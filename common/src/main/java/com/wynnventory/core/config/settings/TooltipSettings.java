@@ -9,7 +9,9 @@ public class TooltipSettings {
     private DisplayOptions displayFormat = DisplayOptions.FORMATTED;
 
     private boolean showMaxPrice = true;
+    private boolean showUnidentifiedMaxPrice = true;
     private boolean showMinPrice = true;
+    private boolean showUnidentifiedMinPrice = true;
     private boolean showAveragePrice = false;
     private boolean showAverage80Price = true;
     private boolean showUnidAveragePrice = false;
@@ -69,6 +71,22 @@ public class TooltipSettings {
 
     public void setShowMinPrice(boolean showMinPrice) {
         this.showMinPrice = showMinPrice;
+    }
+
+    public boolean isShowUnidentifiedMaxPrice() {
+        return showUnidentifiedMaxPrice;
+    }
+
+    public void setShowUnidentifiedMaxPrice(boolean showUnidentifiedMaxPrice) {
+        this.showUnidentifiedMaxPrice = showUnidentifiedMaxPrice;
+    }
+
+    public boolean isShowUnidentifiedMinPrice() {
+        return showUnidentifiedMinPrice;
+    }
+
+    public void setShowUnidentifiedMinPrice(boolean showUnidentifiedMinPrice) {
+        this.showUnidentifiedMinPrice = showUnidentifiedMinPrice;
     }
 
     public boolean isShowAveragePrice() {

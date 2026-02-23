@@ -8,7 +8,9 @@ public class TrademarketPriceSummary {
     private Double averageMid80PercentPrice;
     private Double averagePrice;
     private Integer highestPrice;
+    private Integer unidentifiedHighestPrice;
     private Integer lowestPrice;
+    private Integer unidentifiedLowestPrice;
     private Double unidentifiedAverageMid80PercentPrice;
     private Double unidentifiedAveragePrice;
 
@@ -60,6 +62,22 @@ public class TrademarketPriceSummary {
         this.unidentifiedAveragePrice = unidentifiedAveragePrice;
     }
 
+    public Integer getUnidentifiedHighestPrice() {
+        return unidentifiedHighestPrice;
+    }
+
+    public void setUnidentifiedHighestPrice(Integer unidentifiedHighestPrice) {
+        this.unidentifiedHighestPrice = unidentifiedHighestPrice;
+    }
+
+    public Integer getUnidentifiedLowestPrice() {
+        return unidentifiedLowestPrice;
+    }
+
+    public void setUnidentifiedLowestPrice(Integer unidentifiedLowestPrice) {
+        this.unidentifiedLowestPrice = unidentifiedLowestPrice;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -67,7 +85,9 @@ public class TrademarketPriceSummary {
             return Objects.equals(averageMid80PercentPrice, other.averageMid80PercentPrice)
                     && Objects.equals(averagePrice, other.averagePrice)
                     && Objects.equals(highestPrice, other.highestPrice)
+                    && Objects.equals(unidentifiedHighestPrice, other.unidentifiedHighestPrice)
                     && Objects.equals(lowestPrice, other.lowestPrice)
+                    && Objects.equals(unidentifiedLowestPrice, other.unidentifiedLowestPrice)
                     && Objects.equals(unidentifiedAverageMid80PercentPrice, other.unidentifiedAverageMid80PercentPrice)
                     && Objects.equals(unidentifiedAveragePrice, other.unidentifiedAveragePrice);
         }
@@ -80,7 +100,9 @@ public class TrademarketPriceSummary {
                 averageMid80PercentPrice,
                 averagePrice,
                 highestPrice,
+                unidentifiedHighestPrice,
                 lowestPrice,
+                unidentifiedLowestPrice,
                 unidentifiedAverageMid80PercentPrice,
                 unidentifiedAveragePrice);
     }
@@ -90,8 +112,10 @@ public class TrademarketPriceSummary {
         return "CalculatedPriceInfo{" + "averageMid80PercentPrice="
                 + averageMid80PercentPrice + ", averagePrice="
                 + averagePrice + ", highestPrice="
-                + highestPrice + ", lowestPrice="
-                + lowestPrice + ", unidentifiedAverageMid80PercentPrice="
+                + highestPrice + ", unidentifiedHighestPrice="
+                + unidentifiedHighestPrice + ", lowestPrice="
+                + lowestPrice + ", unidentifiedLowestPrice="
+                + unidentifiedLowestPrice + ", unidentifiedAverageMid80PercentPrice="
                 + unidentifiedAverageMid80PercentPrice + ", unidentifiedAveragePrice="
                 + unidentifiedAveragePrice + '}';
     }
