@@ -1,4 +1,4 @@
-package com.wynnventory.core.tooltip;
+package com.wynnventory.feature.tooltip.price;
 
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.config.settings.DisplayOptions;

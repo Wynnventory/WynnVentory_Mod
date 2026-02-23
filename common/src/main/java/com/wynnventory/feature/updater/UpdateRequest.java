@@ -1,4 +1,4 @@
-package com.wynnventory.core.feature.updater;
+package com.wynnventory.feature.updater;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynnventory.core.WynnventoryMod;

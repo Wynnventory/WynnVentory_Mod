@@ -2,12 +2,11 @@ package com.wynnventory.core;
 
 import com.wynnventory.api.service.IconService;
 import com.wynnventory.api.service.RewardService;
-import com.wynnventory.core.queue.QueueScheduler;
-import com.wynnventory.handler.CommandHandler;
-import com.wynnventory.handler.KeyBindHandler;
-import com.wynnventory.handler.LootRewardHandler;
-import com.wynnventory.handler.RaidWindowHandler;
-import com.wynnventory.handler.TooltipRenderHandler;
+import com.wynnventory.feature.AspectOverlayFeature;
+import com.wynnventory.feature.command.CommandFeature;
+import com.wynnventory.feature.crowdsource.CrowdSourceFeature;
+import com.wynnventory.feature.crowdsource.QueueScheduler;
+import com.wynnventory.feature.input.KeybindFeature;
 import java.io.File;
 import net.neoforged.bus.api.BusBuilder;
 import net.neoforged.bus.api.Event;
@@ -45,11 +44,10 @@ public final class WynnventoryMod {
         RewardService.INSTANCE.reloadAllPools();
         QueueScheduler.startScheduledTask();
 
-        eventBus.register(new LootRewardHandler());
-        eventBus.register(new TooltipRenderHandler());
-        eventBus.register(new RaidWindowHandler());
-        eventBus.register(new CommandHandler());
-        eventBus.register(new KeyBindHandler());
+        eventBus.register(new AspectOverlayFeature());
+        eventBus.register(new CommandFeature());
+        eventBus.register(new CrowdSourceFeature());
+        eventBus.register(new KeybindFeature());
     }
 
     public static <T extends Event> void postEvent(T event) {

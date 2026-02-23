@@ -1,4 +1,4 @@
-package com.wynnventory.core.input;
+package com.wynnventory.feature.input;
 
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.core.config.ModConfig;
@@ -7,7 +7,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
-public enum KeyBinds {
+public enum Keybinds {
     OPEN_REWARD_POOL("key.wynnventory.openRewardScreen", GLFW.GLFW_KEY_N, false, RewardScreen::open),
     SETTINGS_TOGGLE_TOOLTIPS("key.wynnventory.toggleTooltips", GLFW.GLFW_KEY_PERIOD, true, ModConfig::toggleTooltips),
     SETTINGS_TOGGLE_BOXED_TOOLTIPS(
@@ -21,7 +21,7 @@ public enum KeyBinds {
     public final boolean allowInInventory;
     public final Runnable callback;
 
-    KeyBinds(String translationKey, int defaultKey, boolean allowInInventory, Runnable callback) {
+    Keybinds(String translationKey, int defaultKey, boolean allowInInventory, Runnable callback) {
         this.translationKey = translationKey;
         this.defaultKey = defaultKey;
         this.allowInInventory = allowInInventory;

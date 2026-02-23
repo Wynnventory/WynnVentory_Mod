@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
@@ -67,6 +68,26 @@ public abstract class RenderUtils {
         priceY = clamp(priceY, 6, screenH - priceH - 4);
 
         return new Vector2i((int) (priceX / priceScale), priceY);
+    }
+
+    public static void drawTooltip(
+            GuiGraphics guiGraphics,
+            int mouseX,
+            int mouseY,
+            List<Component> vanillaLines,
+            List<Component> customLines) {
+        List<ClientTooltipComponent> vanillaComponents = RenderUtils.toClientComponents(vanillaLines, Optional.empty());
+        List<ClientTooltipComponent> customComponents = RenderUtils.toClientComponents(customLines, Optional.empty());
+
+        Vector2i tooltipCoords =
+                RenderUtils.calculateTooltipCoords(mouseX, mouseY, vanillaComponents, customComponents);
+        ClientTooltipPositioner fixed = new RenderUtils.FixedTooltipPositioner(tooltipCoords.x, tooltipCoords.y);
+
+        float scale = RenderUtils.getScaleFactor(customComponents);
+        guiGraphics.pose().pushMatrix();
+        guiGraphics.pose().scale(scale, scale);
+        guiGraphics.renderTooltip(Minecraft.getInstance().font, customComponents, mouseX, mouseY, fixed, null);
+        guiGraphics.pose().popMatrix();
     }
 
     public static List<ClientTooltipComponent> toClientComponents(

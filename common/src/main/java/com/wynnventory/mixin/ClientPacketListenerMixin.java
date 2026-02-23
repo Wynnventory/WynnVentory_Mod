@@ -89,6 +89,6 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         RootCommandNode<SharedSuggestionProvider> root = this.commands.getRoot();
 
         WynnventoryMod.postEvent(
-                new CommandAddedEvent(root, CommandBuildContext.simple(this.registryAccess, this.enabledFeatures)));
+                new CommandAddedEvent(root));
     }
 }

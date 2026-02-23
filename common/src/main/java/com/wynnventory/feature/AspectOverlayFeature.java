@@ -1,20 +1,14 @@
-package com.wynnventory.handler;
+package com.wynnventory.feature;
 
 import com.wynntils.core.components.Models;
-import com.wynntils.models.items.WynnItem;
-import com.wynntils.models.items.items.gui.GambitItem;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynnventory.api.service.RewardService;
-import com.wynnventory.core.queue.QueueScheduler;
-import com.wynnventory.events.RaidLobbyPopulatedEvent;
 import com.wynnventory.events.RaidLobbyScreenInitEvent;
 import com.wynnventory.gui.Sprite;
 import com.wynnventory.gui.widget.ImageWidget;
 import com.wynnventory.gui.widget.ItemButton;
 import com.wynnventory.gui.widget.TextWidget;
-import com.wynnventory.model.item.simple.SimpleGambitItem;
 import com.wynnventory.model.reward.RewardPoolDocument;
-import com.wynnventory.util.ItemStackUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -22,19 +16,9 @@ import java.util.stream.Collectors;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 
-public final class RaidWindowHandler {
-    @SubscribeEvent
-    public void onRaidLobbyPopulated(RaidLobbyPopulatedEvent event) {
-        for (ItemStack stack : event.getItems()) {
-            WynnItem wynnItem = ItemStackUtils.getWynnItem(stack);
-            if (wynnItem instanceof GambitItem item) {
-                QueueScheduler.GAMBIT_QUEUE.addItem(new SimpleGambitItem(item));
-            }
-        }
-    }
+public final class AspectOverlayFeature {
 
     @SubscribeEvent
     public void onScreenInit(RaidLobbyScreenInitEvent event) {

@@ -1,4 +1,4 @@
-package com.wynnventory.core.tooltip;
+package com.wynnventory.feature.tooltip.price;
 
 import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.items.WynnItem;

@@ -1,4 +1,4 @@
-package com.wynnventory.util;
+package com.wynnventory.feature.tooltip.aspect;
 
 import com.wynntils.models.gear.type.GearTier;
 import com.wynnventory.model.item.simple.SimpleItem;

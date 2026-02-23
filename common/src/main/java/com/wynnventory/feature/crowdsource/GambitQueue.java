@@ -1,4 +1,4 @@
-package com.wynnventory.core.queue;
+package com.wynnventory.feature.crowdsource;
 
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleGambitItem;

@@ -1,4 +1,4 @@
-package com.wynnventory.core.command;
+package com.wynnventory.feature.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -6,7 +6,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
 import com.wynnventory.core.config.ModConfig;
-import com.wynnventory.core.queue.QueueScheduler;
+import com.wynnventory.feature.crowdsource.QueueScheduler;
 import com.wynnventory.util.ChatUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandBuildContext;
@@ -35,7 +35,7 @@ public final class WynnventoryCommands {
     }
 
     public static void registerSuggestions(
-            RootCommandNode<SharedSuggestionProvider> root, CommandBuildContext context) {
+            RootCommandNode<SharedSuggestionProvider> root) {
         LiteralCommandNode<SharedSuggestionProvider> node = literalSuggestion(PREFIX)
                 .then(literalSuggestion("send").executes(ctx -> 1))
                 .then(literalSuggestion("reloadConfig").executes(ctx -> 1))

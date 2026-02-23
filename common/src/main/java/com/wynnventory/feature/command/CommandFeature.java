@@ -1,4 +1,4 @@
-package com.wynnventory.core.command;
+package com.wynnventory.feature.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
@@ -6,19 +6,34 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.RootCommandNode;
 import com.wynnventory.core.WynnventoryMod;
+import com.wynnventory.events.CommandAddedEvent;
+import com.wynnventory.events.CommandSentEvent;
 import com.wynnventory.util.ChatUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.neoforged.bus.api.SubscribeEvent;
 
-public final class CommandRouter {
+public final class CommandFeature {
     private static final CommandDispatcher<Minecraft> DISPATCHER = buildDispatcher();
 
-    public static void onCommandsRebuilt(RootCommandNode<SharedSuggestionProvider> root, CommandBuildContext context) {
-        WynnventoryCommands.registerSuggestions(root, context);
+    @SubscribeEvent
+    public void onCommandSent(CommandSentEvent event) {
+        if (handleCommand(event.getCommand())) {
+            event.setCanceled(true);
+        }
     }
 
-    public static boolean handleCommand(String command) {
+    @SubscribeEvent
+    public void onCommandAdded(CommandAddedEvent event) {
+        onCommandsRebuilt(event.getRoot());
+    }
+
+    private static void onCommandsRebuilt(RootCommandNode<SharedSuggestionProvider> root) {
+        WynnventoryCommands.registerSuggestions(root);
+    }
+
+    private static boolean handleCommand(String command) {
         if (!command.startsWith(WynnventoryCommands.PREFIX)) return false;
 
         ParseResults<Minecraft> parse = DISPATCHER.parse(new StringReader(command), Minecraft.getInstance());

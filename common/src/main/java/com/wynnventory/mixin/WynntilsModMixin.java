@@ -1,8 +1,10 @@
 package com.wynnventory.mixin;
 
 import com.wynntils.core.WynntilsMod;
-import com.wynnventory.handler.TooltipRenderHandler;
-import com.wynnventory.handler.WorldStateHandler;
+import com.wynnventory.feature.FavouriteNotifyFeature;
+import com.wynnventory.feature.tooltip.aspect.AspectTooltipFeature;
+import com.wynnventory.feature.tooltip.price.PriceTooltipFeature;
+import com.wynnventory.feature.updater.AutoUpdateFeature;
 import java.io.File;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,7 +20,9 @@ public abstract class WynntilsModMixin {
             boolean isDevelopmentEnvironment,
             File modFile,
             CallbackInfo ci) {
-        WynntilsMod.registerEventListener(new TooltipRenderHandler());
-        WynntilsMod.registerEventListener(new WorldStateHandler());
+        WynntilsMod.registerEventListener(new AspectTooltipFeature());
+        WynntilsMod.registerEventListener(new AutoUpdateFeature());
+        WynntilsMod.registerEventListener(new FavouriteNotifyFeature());
+        WynntilsMod.registerEventListener(new PriceTooltipFeature());
     }
 }

@@ -1,6 +1,8 @@
-package com.wynnventory.core.feature;
+package com.wynnventory.feature;
 
 import com.wynntils.core.components.Services;
+import com.wynntils.models.worlds.event.WorldStateEvent;
+import com.wynntils.models.worlds.type.WorldState;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.api.service.RewardService;
 import com.wynnventory.core.config.ModConfig;
@@ -8,17 +10,25 @@ import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.util.ItemStackUtils;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.network.chat.Component;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
 
-public class FavouriteNotifier {
-    private FavouriteNotifier() {}
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-    public static void checkFavourites() {
+public class FavouriteNotifyFeature {
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onWorldStateChange(WorldStateEvent e) {
+        if (e.isFirstJoinWorld() || e.getNewState() == WorldState.WORLD) {
+            checkFavourites();
+        }
+    }
+
+    private static void checkFavourites() {
         if (!ModConfig.getInstance().getFavouriteNotifierSettings().isEnableNotifier()) return;
 
         Set<String> favourites = Services.Favorites.getFavoriteItems();
@@ -78,5 +88,5 @@ public class FavouriteNotifier {
                 .addToast(new SystemToast(new SystemToast.SystemToastId(5000), Component.translatable(title), desc)));
     }
 
-    public record FavouriteMatch(String itemName, RewardPool pool, ChatFormatting rarityColor) {}
+    private record FavouriteMatch(String itemName, RewardPool pool, ChatFormatting rarityColor) {}
 }

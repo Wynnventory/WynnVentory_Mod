@@ -1,7 +1,9 @@
-package com.wynnventory.core.feature.updater;
+package com.wynnventory.feature.updater;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wynntils.models.worlds.event.WorldStateEvent;
+import com.wynntils.models.worlds.type.WorldState;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.util.ChatUtils;
 import com.wynnventory.util.HttpUtils;
@@ -17,14 +19,21 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
 
-public class ModUpdater {
+public class AutoUpdateFeature {
     private static final String MODRINTH_UPDATE_API = "https://api.modrinth.com/v2/version_file/%s/update";
     private static final String HASH_ALGORITHM = "SHA-1";
 
-    private ModUpdater() {}
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onWorldStateChange(WorldStateEvent e) {
+        if ((e.isFirstJoinWorld() || e.getNewState() == WorldState.WORLD) && e.isFirstJoinWorld()) {
+            checkForUpdates();
+        }
+    }
 
-    public static void checkForUpdates() {
+    private static void checkForUpdates() {
         if (WynnventoryMod.isBeta()) {
             ChatUtils.info(Component.translatable("feature.wynnventory.update.betaNotification"));
             return;

@@ -128,7 +128,7 @@ public class PriceHighlightSettingsTab implements SettingsTab {
 
     private void setupColorSlider(SettingsScreen screen, AbstractWidget dummy, PriceHighlightSettings s) {
         dummy.visible = false;
-        dummy.active = false;
+        dummy.active = true;
         int width = 150;
         int x = screen.width / 2 + 5;
         slider = new ColorSlider(
