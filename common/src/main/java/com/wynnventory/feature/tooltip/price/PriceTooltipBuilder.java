@@ -1,5 +1,6 @@
 package com.wynnventory.feature.tooltip.price;
 
+import com.wynntils.models.emeralds.type.EmeraldUnits;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.config.settings.DisplayOptions;
 import com.wynnventory.core.config.settings.PriceHighlightSettings;
@@ -46,7 +47,7 @@ public final class PriceTooltipBuilder {
         PriceHighlightSettings colors = ModConfig.getInstance().getPriceHighlightSettings();
         String price = (ModConfig.getInstance().getTooltipSettings().getDisplayFormat() == DisplayOptions.FORMATTED)
                 ? EmeraldUtils.getFormattedString(live, false)
-                : StringUtils.formatNumber(live);
+                : StringUtils.formatNumber(live) + EmeraldUnits.EMERALD.getSymbol();
 
         int priceColor = ChatFormatting.GRAY.getColor();
         if (colors.isShowColors() && live >= colors.getColorMinPrice()) {
