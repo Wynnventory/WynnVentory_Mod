@@ -29,7 +29,7 @@ public class TextWidget extends WynnventoryButton {
     @Override
     public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         graphics.pose().pushMatrix();
-        graphics.pose().translate((float) getX(), (float) getY());
+        graphics.pose().translate(getX(), getY());
         graphics.pose().scale(scale, scale);
         graphics.drawString(Minecraft.getInstance().font, text, 0, 0, color);
         graphics.pose().popMatrix();

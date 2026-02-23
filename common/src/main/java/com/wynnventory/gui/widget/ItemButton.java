@@ -55,10 +55,10 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                     g,
                     Texture.HIGHLIGHT.identifier(),
                     color,
-                    getX() - 1,
-                    getY() - 1,
-                    width + 2,
-                    height + 2,
+                    getX() - 1f,
+                    getY() - 1f,
+                    width + 2f,
+                    height + 2f,
                     0,
                     0,
                     18,
@@ -95,8 +95,8 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
             RenderUtils.drawScalingTexturedRect(
                     g,
                     Texture.FAVORITE_ICON.identifier(),
-                    getX() + (int) (12 * favScale),
-                    getY() - (int) (4 * favScale),
+                    getX() + (12 * favScale),
+                    getY() - (4 * favScale),
                     (int) (9 * favScale),
                     (int) (9 * favScale),
                     Texture.FAVORITE_ICON.width(),
@@ -125,7 +125,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
 
         // Ugly approach to prevent price tooltip rendering behind RewardScreen assets
         String screenTitle = Minecraft.getInstance().screen.getTitle().getString();
-        if (this.isHovered() && !screenTitle.equals(RewardScreen.TITLE)) {
+        if (this.isHovered() && !screenTitle.equals(RewardScreen.CONTAINER_TITLE)) {
             g.setTooltipForNextFrame(Minecraft.getInstance().font, itemStack, mouseX, mouseY);
         }
     }
@@ -149,13 +149,17 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
     }
 
     @Override
-    public void onPress(InputWithModifiers inputWithModifiers) {}
+    public void onPress(InputWithModifiers inputWithModifiers) {
+        // Item buttons are non-interactive
+    }
 
     private void buildTooltip() {
         switch (itemStack) {
             case GuideGearItemStack gear -> gear.buildTooltip();
             case GuideTomeItemStack tome -> tome.buildTooltip();
-            default -> {}
+            default -> {
+                // by default no special tooltips need to be generated
+            }
         }
     }
 
@@ -196,9 +200,9 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                         g,
                         StyledText.fromString(text),
                         getX(),
-                        getX() + getWidth(),
+                        (float) getX() + getWidth(),
                         getY(),
-                        getY() + getHeight(),
+                        (float) getY() + getHeight(),
                         0,
                         color,
                         hAlign,

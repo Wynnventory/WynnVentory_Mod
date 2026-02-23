@@ -24,9 +24,9 @@ public class PriceHighlightSettingsTab implements SettingsTab {
         return List.of(
                 OptionInstance.createBoolean(
                         "gui.wynnventory.settings.highlighting.showColors", s.isShowColors(), s::setShowColors),
-                OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.colorMinPrice", true, (b) -> {}),
-                OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.hexCode", true, (b) -> {}),
-                OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.highlightColor", true, (b) -> {}));
+                OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.colorMinPrice", true, b -> {}),
+                OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.hexCode", true, b -> {}),
+                OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.highlightColor", true, b -> {}));
     }
 
     @Override
@@ -36,11 +36,10 @@ public class PriceHighlightSettingsTab implements SettingsTab {
                 OptionInstance.createBoolean(
                         "gui.wynnventory.settings.highlighting.showColors", s.isShowColors(), s::setShowColors),
                 null);
+        list.addBig(OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.colorMinPrice", true, b -> {}));
+        list.addBig(OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.hexCode", true, b -> {}));
         list.addBig(
-                OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.colorMinPrice", true, (b) -> {}));
-        list.addBig(OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.hexCode", true, (b) -> {}));
-        list.addBig(
-                OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.highlightColor", true, (b) -> {}));
+                OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.highlightColor", true, b -> {}));
     }
 
     private EditBox minPriceBox;
@@ -90,6 +89,7 @@ public class PriceHighlightSettingsTab implements SettingsTab {
                         s.setHighlightColor(color);
                         slider.updateFromColor(color);
                     } catch (NumberFormatException ignored) {
+                        // Invalid color format, ignore and keep current color
                     }
                 }
             });
@@ -109,6 +109,7 @@ public class PriceHighlightSettingsTab implements SettingsTab {
                 try {
                     s.setColorMinPrice(Integer.parseInt(val));
                 } catch (NumberFormatException ignored) {
+                    // Invalid number format, ignore and keep current value
                 }
             }
         });
@@ -132,7 +133,7 @@ public class PriceHighlightSettingsTab implements SettingsTab {
         int width = 150;
         int x = screen.width / 2 + 5;
         slider = new ColorSlider(
-                x, dummy.getY(), width, 20, dummy.getMessage(), getHue(s.getHighlightColor()), s, new EditBox[1]);
+                x, dummy.getY(), width, 20, dummy.getMessage(), getHue(s.getHighlightColor()), new EditBox[1]);
         screen.addPublic(slider);
     }
 
@@ -144,76 +145,81 @@ public class PriceHighlightSettingsTab implements SettingsTab {
         if (minPriceBox != null && hexBox != null && slider != null && listRef != null) {
             int center = mc.getWindow().getGuiScaledWidth() / 2;
 
-            // Define list boundaries for visibility check
-            int listTop = listRef.getY();
-            int listBottom = listRef.getY() + listRef.getHeight();
+            updateWidgetPositions(center);
+            drawCustomElements(graphics, mc, s, center);
+        }
+    }
 
-            // Update positions based on dummy widgets in the provided list
-            for (GuiEventListener child : listRef.children()) {
-                if (child instanceof ContainerEventHandler ceh) {
-                    for (GuiEventListener entryChild : ceh.children()) {
-                        if (entryChild instanceof AbstractWidget dummy) {
-                            String msg = dummy.getMessage().getString();
-                            int widgetX = center + 5;
-                            int widgetY = dummy.getY();
-                            boolean isVisible = widgetY >= listTop && (widgetY + 20) <= listBottom;
+    private void updateWidgetPositions(int center) {
+        // Define list boundaries for visibility check
+        int listTop = listRef.getY();
+        int listBottom = listRef.getY() + listRef.getHeight();
 
-                            if (msg.contains(
-                                    Component.translatable("gui.wynnventory.settings.highlighting.colorMinPrice")
-                                            .getString())) {
-                                minPriceBox.setY(widgetY);
-                                minPriceBox.setX(widgetX);
-                                minPriceBox.visible = isVisible;
-                            } else if (msg.contains(
-                                    Component.translatable("gui.wynnventory.settings.highlighting.hexCode")
-                                            .getString())) {
-                                hexBox.setY(widgetY);
-                                hexBox.setX(widgetX);
-                                hexBox.visible = isVisible;
-                            } else if (msg.contains(
-                                    Component.translatable("gui.wynnventory.settings.highlighting.highlightColor")
-                                            .getString())) {
-                                slider.setY(widgetY);
-                                slider.setX(widgetX);
-                                slider.visible = isVisible;
-                            }
+        // Update positions based on dummy widgets in the provided list
+        for (GuiEventListener child : listRef.children()) {
+            if (child instanceof ContainerEventHandler ceh) {
+                for (GuiEventListener entryChild : ceh.children()) {
+                    if (entryChild instanceof AbstractWidget dummy) {
+                        String msg = dummy.getMessage().getString();
+                        int widgetX = center + 5;
+                        int widgetY = dummy.getY();
+                        boolean isVisible = widgetY >= listTop && (widgetY + 20) <= listBottom;
+
+                        if (msg.contains(Component.translatable("gui.wynnventory.settings.highlighting.colorMinPrice")
+                                .getString())) {
+                            minPriceBox.setY(widgetY);
+                            minPriceBox.setX(widgetX);
+                            minPriceBox.visible = isVisible;
+                        } else if (msg.contains(Component.translatable("gui.wynnventory.settings.highlighting.hexCode")
+                                .getString())) {
+                            hexBox.setY(widgetY);
+                            hexBox.setX(widgetX);
+                            hexBox.visible = isVisible;
+                        } else if (msg.contains(
+                                Component.translatable("gui.wynnventory.settings.highlighting.highlightColor")
+                                        .getString())) {
+                            slider.setY(widgetY);
+                            slider.setX(widgetX);
+                            slider.visible = isVisible;
                         }
                     }
                 }
             }
+        }
+    }
 
-            // Draw labels and other elements only if their respective widgets are visible
-            int labelX = center - 155;
+    private void drawCustomElements(GuiGraphics graphics, Minecraft mc, PriceHighlightSettings s, int center) {
+        // Draw labels and other elements only if their respective widgets are visible
+        int labelX = center - 155;
 
-            if (minPriceBox.visible) {
-                Component minPriceLabel = Component.translatable("gui.wynnventory.settings.highlighting.colorMinPrice");
-                graphics.drawString(mc.font, minPriceLabel, labelX, minPriceBox.getY() + 6, 0xFFFFFFFF);
+        if (minPriceBox.visible) {
+            Component minPriceLabel = Component.translatable("gui.wynnventory.settings.highlighting.colorMinPrice");
+            graphics.drawString(mc.font, minPriceLabel, labelX, minPriceBox.getY() + 6, 0xFFFFFFFF);
 
-                String formattedEmeralds = EmeraldUtils.getFormattedString(s.getColorMinPrice(), false);
-                int textWidth = mc.font.width(formattedEmeralds);
-                graphics.drawString(
-                        mc.font,
-                        Component.literal(formattedEmeralds),
-                        minPriceBox.getX() - textWidth - 5,
-                        minPriceBox.getY() + 6,
-                        0xFF55FF55);
-            }
+            String formattedEmeralds = EmeraldUtils.getFormattedString(s.getColorMinPrice(), false);
+            int textWidth = mc.font.width(formattedEmeralds);
+            graphics.drawString(
+                    mc.font,
+                    Component.literal(formattedEmeralds),
+                    minPriceBox.getX() - textWidth - 5,
+                    minPriceBox.getY() + 6,
+                    0xFF55FF55);
+        }
 
-            if (hexBox.visible) {
-                Component hexCodeLabel = Component.translatable("gui.wynnventory.settings.highlighting.hexCode");
-                graphics.drawString(mc.font, hexCodeLabel, labelX, hexBox.getY() + 6, 0xFFFFFFFF);
-            }
+        if (hexBox.visible) {
+            Component hexCodeLabel = Component.translatable("gui.wynnventory.settings.highlighting.hexCode");
+            graphics.drawString(mc.font, hexCodeLabel, labelX, hexBox.getY() + 6, 0xFFFFFFFF);
+        }
 
-            if (slider.visible) {
-                Component highlightColorLabel =
-                        Component.translatable("gui.wynnventory.settings.highlighting.highlightColor");
-                graphics.drawString(mc.font, highlightColorLabel, labelX, slider.getY() + 6, 0xFFFFFFFF);
+        if (slider.visible) {
+            Component highlightColorLabel =
+                    Component.translatable("gui.wynnventory.settings.highlighting.highlightColor");
+            graphics.drawString(mc.font, highlightColorLabel, labelX, slider.getY() + 6, 0xFFFFFFFF);
 
-                // Preview box for highlight color - placed to the left of the slider
-                int previewX = slider.getX() - 25;
-                int previewY = slider.getY();
-                graphics.fill(previewX, previewY, previewX + 20, previewY + 20, 0xFF000000 | s.getHighlightColor());
-            }
+            // Preview box for highlight color - placed to the left of the slider
+            int previewX = slider.getX() - 25;
+            int previewY = slider.getY();
+            graphics.fill(previewX, previewY, previewX + 20, previewY + 20, 0xFF000000 | s.getHighlightColor());
         }
     }
 
@@ -251,21 +257,11 @@ public class PriceHighlightSettingsTab implements SettingsTab {
     }
 
     private class ColorSlider extends AbstractSliderButton {
-        private final PriceHighlightSettings settings;
         private EditBox[] hexBoxArr;
         private boolean isUpdating = false;
 
-        public ColorSlider(
-                int x,
-                int y,
-                int width,
-                int height,
-                Component message,
-                double value,
-                PriceHighlightSettings settings,
-                EditBox[] hexBoxArr) {
+        public ColorSlider(int x, int y, int width, int height, Component message, double value, EditBox[] hexBoxArr) {
             super(x, y, width, height, message, value);
-            this.settings = settings;
             this.hexBoxArr = hexBoxArr;
             this.updateMessage();
         }
@@ -284,7 +280,7 @@ public class PriceHighlightSettingsTab implements SettingsTab {
             if (isUpdating) return;
             isUpdating = true;
             int color = Mth.hsvToRgb((float) this.value, 1.0f, 1.0f) & 0xFFFFFF;
-            settings.setHighlightColor(color);
+            ModConfig.getInstance().getPriceHighlightSettings().setHighlightColor(color);
             if (hexBoxArr[0] != null) {
                 hexBoxArr[0].setValue(String.format("#%06X", color));
             }

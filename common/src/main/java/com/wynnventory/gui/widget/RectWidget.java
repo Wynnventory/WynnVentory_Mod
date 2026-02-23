@@ -17,7 +17,9 @@ public class RectWidget extends WynnventoryButton {
     }
 
     @Override
-    public void onPress(InputWithModifiers input) {}
+    public void onPress(InputWithModifiers input) {
+        // Rect widgets are non-interactive
+    }
 
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {

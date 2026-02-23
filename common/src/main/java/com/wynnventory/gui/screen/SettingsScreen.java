@@ -22,14 +22,12 @@ public class SettingsScreen extends OptionsSubScreen {
         this.parent = parent;
     }
 
-    public static void open() {
-        Minecraft mc = Minecraft.getInstance();
-        mc.setScreen(new SettingsScreen(mc.screen));
+    public static void open(Screen parent) {
+        Minecraft.getInstance().setScreen(create(parent));
     }
 
     public static Screen create(Screen screen) {
-        Minecraft mc = Minecraft.getInstance();
-        return new SettingsScreen(mc.screen);
+        return new SettingsScreen(screen);
     }
 
     public <T extends AbstractWidget> T addPublic(T widget) {

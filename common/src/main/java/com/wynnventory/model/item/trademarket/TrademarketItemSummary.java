@@ -5,14 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.TimestampedObject;
 import com.wynnventory.model.item.simple.SimpleItem;
-import java.time.Duration;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TrademarketItemSummary extends TimestampedObject {
     private final SimpleItem item = new SimpleItem();
     private final TrademarketPriceSummary calculatedPriceInfo = new TrademarketPriceSummary();
-    private static final Duration DATA_LIFESPAN = Duration.ofMinutes(5);
 
     private boolean shiny;
     private Integer tier;

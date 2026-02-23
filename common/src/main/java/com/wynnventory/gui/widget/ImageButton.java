@@ -41,7 +41,7 @@ public class ImageButton extends WynnventoryButton {
                 getHeight(),
                 spriteStart,
                 0,
-                sprite.width() / 2,
+                sprite.width() / 2f,
                 sprite.height(),
                 sprite.width(),
                 sprite.height());

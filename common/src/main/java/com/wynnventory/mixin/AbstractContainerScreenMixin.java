@@ -61,11 +61,7 @@ public abstract class AbstractContainerScreenMixin extends Screen {
     private void init(CallbackInfo ci) {
         if (RaidLobbyContainer.matchesTitle(this.getTitle().getString())) {
             WynnventoryMod.postEvent(new RaidLobbyScreenInitEvent(
-                    (AbstractContainerScreen<?>) (Object) this,
-                    this::addRenderableWidget,
-                    this.leftPos,
-                    this.topPos,
-                    this.imageWidth));
+                    this::addRenderableWidget, this.leftPos, this.topPos, this.imageWidth));
         }
     }
 }

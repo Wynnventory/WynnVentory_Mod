@@ -13,6 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WynntilsMod.class)
 public abstract class WynntilsModMixin {
+    private WynntilsModMixin() {}
+
     @Inject(method = "init", at = @At("RETURN"))
     private static void init(
             WynntilsMod.ModLoader loader,

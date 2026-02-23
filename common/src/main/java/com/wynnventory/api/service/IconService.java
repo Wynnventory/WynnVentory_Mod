@@ -28,8 +28,8 @@ public enum IconService {
             "https://raw.githubusercontent.com/Wynntils/Static-Storage/refs/heads/main/Reference/aspects.json";
     private static final String TOMES_URL =
             "https://raw.githubusercontent.com/Wynntils/Static-Storage/refs/heads/main/Reference/tomes.json";
+    private static final Gson GSON = new Gson();
 
-    private final Gson GSON = new Gson();
     private final Map<String, JsonObject> allEntries = new HashMap<>();
 
     IconService() {}
@@ -110,7 +110,7 @@ public enum IconService {
                 ? valElem.getAsString()
                 : valElem.getAsJsonObject().get("name").getAsString();
 
-        return new Icon(format, value.replaceAll(":", "_"));
+        return new Icon(format, value.replace(":", "_"));
     }
 
     private Map<String, JsonObject> flattenAspects(Map<String, JsonObject> aspectsMap) {

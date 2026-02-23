@@ -13,6 +13,7 @@ import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
 import com.wynnventory.api.service.RewardService;
+import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.config.settings.RewardScreenSettings;
 import com.wynnventory.gui.Sprite;
@@ -26,8 +27,10 @@ import com.wynnventory.model.item.simple.SimpleItemType;
 import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardType;
+import com.wynnventory.util.ChatUtils;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +47,7 @@ import net.minecraft.network.chat.Component;
 
 public class RewardScreen extends Screen {
     private final Screen parent;
-    public static final String TITLE = "Reward Screen";
+    public static final String CONTAINER_TITLE = "Reward Screen";
 
     private static RewardType activeType = RewardType.LOOTRUN;
     private static final Map<String, GuideItemStack> wynnItemsByName = new HashMap<>();
@@ -103,7 +106,7 @@ public class RewardScreen extends Screen {
 
     public static void open() {
         Minecraft mc = Minecraft.getInstance();
-        mc.setScreen(new RewardScreen(Component.literal(TITLE), mc.screen));
+        mc.setScreen(new RewardScreen(Component.literal(CONTAINER_TITLE), mc.screen));
     }
 
     private void triggerRecalc() {
@@ -160,7 +163,7 @@ public class RewardScreen extends Screen {
                 IMAGE_BUTTON_WIDTH,
                 IMAGE_BUTTON_HEIGHT,
                 Sprite.SETTINGS_BUTTON,
-                b -> SettingsScreen.open(),
+                b -> SettingsScreen.open(this),
                 Component.translatable("gui.wynnventory.reward.button.config")));
 
         // Reload Button
@@ -175,9 +178,6 @@ public class RewardScreen extends Screen {
                     this.minecraft.execute(this::rebuildWidgets);
                 }),
                 Component.translatable("gui.wynnventory.reward.button.reload")));
-
-        // Carousel buttons
-        List<RewardPool> activePools = getActivePools();
 
         int middleY = (this.height - NAV_BUTTON_HEIGHT) / 2;
         ImageButton prevButton = new ImageButton(
@@ -354,12 +354,13 @@ public class RewardScreen extends Screen {
 
         addStacks(Models.Emerald.getAllEmeraldItems(), s -> s.getHoverName().getString());
 
-        // TODO: WAIT FOR WYNNTILS 4.0.2
-        /*        List<GuideDungeonKeyItemStack> dungeonStacks = Arrays.stream(Dungeon.values())
+        /* TODO: WAIT FOR WYNNTILS 4.0.2
+        List<GuideDungeonKeyItemStack> dungeonStacks = Arrays.stream(Dungeon.values())
                 .flatMap(d -> Stream.of(false, true).flatMap(b1 -> Stream.of(false, true).map(b2 -> new GuideDungeonKeyItemStack(d, b1, b2))))
                 .toList();
 
-        addStacks(dungeonStacks, s -> s.getHoverName().getString());*/
+        addStacks(dungeonStacks, s -> s.getHoverName().getString());
+        */
 
         InsulatorItemStack insulatorItemStack = new InsulatorItemStack();
         wynnItemsByName.put(insulatorItemStack.getHoverName().getString(), insulatorItemStack);
@@ -518,7 +519,9 @@ public class RewardScreen extends Screen {
         this.addRenderableWidget(new FilterButton(x, y, w, 16, label, icon, getter, setter, () -> {
             try {
                 ModConfig.getInstance().save();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                ChatUtils.error("Failed to save filter settings.");
+                WynnventoryMod.logError("Failed to save filter settings.", e);
             }
             this.rebuildWidgets();
         }));
@@ -583,7 +586,7 @@ public class RewardScreen extends Screen {
         }
 
         AtomicInteger remaining = new AtomicInteger(pools.size());
-        Map<RewardPool, List<SimpleItem>> itemsByPool = new HashMap<>();
+        Map<RewardPool, List<SimpleItem>> itemsByPool = new EnumMap<>(RewardPool.class);
 
         for (RewardPool pool : pools) {
             RewardService.INSTANCE.getItems(pool).whenComplete((items, ex) -> Minecraft.getInstance()
@@ -617,7 +620,7 @@ public class RewardScreen extends Screen {
             if (h > tallest) tallest = h;
         }
 
-        double available = this.height - MARGIN_Y - BOTTOM_PADDING;
+        double available = (double) this.height - MARGIN_Y - BOTTOM_PADDING;
         if (tallest <= 0) {
             tallest =
                     Sprite.LOOTRUN_POOL_TOP_SECTION.height() * TOP_AWNING_OVERLAP + Sprite.POOL_BOTTOM_SECTION.height();
@@ -665,7 +668,7 @@ public class RewardScreen extends Screen {
     private List<SectionData> buildSections(List<SimpleItem> items) {
         List<SectionData> sections = new ArrayList<>();
         if (activeType == RewardType.RAID) {
-            Map<SimpleItemType, List<SimpleItem>> grouped = new HashMap<>();
+            Map<SimpleItemType, List<SimpleItem>> grouped = new EnumMap<>(SimpleItemType.class);
             for (SimpleItem item : items) {
                 SimpleItemType type = item.getItemTypeEnum();
                 grouped.computeIfAbsent(type, k -> new ArrayList<>()).add(item);
@@ -681,7 +684,7 @@ public class RewardScreen extends Screen {
                                     .contains(i.getItemTypeEnum()))
                             .toList()));
         } else { // LOOTRUN by rarity tiers
-            Map<GearTier, List<SimpleItem>> groupedByRarity = new HashMap<>();
+            Map<GearTier, List<SimpleItem>> groupedByRarity = new EnumMap<>(GearTier.class);
             for (SimpleItem item : items) {
                 groupedByRarity
                         .computeIfAbsent(item.getRarityEnum(), k -> new ArrayList<>())

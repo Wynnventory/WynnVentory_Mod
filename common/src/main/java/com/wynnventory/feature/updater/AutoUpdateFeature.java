@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -93,7 +94,7 @@ public class AutoUpdateFeature {
         return sb.toString();
     }
 
-    private static void downloadArtifact(Artifact artifact) throws Exception {
+    private static void downloadArtifact(Artifact artifact) throws IOException, URISyntaxException {
         URI uri = new URI(artifact.url);
         Path newFilePath = getModFilePath(artifact.filename);
         Files.copy(uri.toURL().openStream(), newFilePath, StandardCopyOption.REPLACE_EXISTING);
@@ -109,7 +110,6 @@ public class AutoUpdateFeature {
                 Files.deleteIfExists(oldJar.toPath());
             } catch (IOException e) {
                 WynnventoryMod.logError("Failed to delete old mod file", e);
-                throw new RuntimeException(e);
             }
         }));
     }

@@ -64,8 +64,8 @@ public abstract class RenderUtils {
         }
 
         // Clamp inside screen bounds
-        priceX = clamp(priceX, 4, screenW - priceW - 4);
-        priceY = clamp(priceY, 6, screenH - priceH - 4);
+        priceX = Math.clamp(priceX, 4, screenW - priceW - 4);
+        priceY = Math.clamp(priceY, 6, screenH - priceH - 4);
 
         return new Vector2i((int) (priceX / priceScale), priceY);
     }
@@ -150,10 +150,6 @@ public abstract class RenderUtils {
             h += c.getHeight(font);
         }
         return h;
-    }
-
-    private static int clamp(int v, int min, int max) {
-        return Math.max(min, Math.min(max, v));
     }
 
     public static final class FixedTooltipPositioner implements ClientTooltipPositioner {
