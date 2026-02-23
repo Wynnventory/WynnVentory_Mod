@@ -4,13 +4,7 @@ import com.wynntils.core.components.Services;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
-import com.wynntils.screens.guides.augment.AmplifierItemStack;
-import com.wynntils.screens.guides.augment.InsulatorItemStack;
-import com.wynntils.screens.guides.augment.SimulatorItemStack;
-import com.wynntils.screens.guides.emerald.GuideEmeraldItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
-import com.wynntils.screens.guides.misc.GuideDungeonKeyItemStack;
-import com.wynntils.screens.guides.misc.RuneItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
@@ -28,11 +22,9 @@ import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.util.HttpUtils;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.input.InputWithModifiers;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.util.Util;
 import org.lwjgl.glfw.GLFW;
 
 public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
@@ -52,8 +44,8 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         CustomColor color = getCustomColor();
         if (color != CustomColor.NONE) {
             RenderUtils.drawTexturedRect(
-                    g,
-                    Texture.HIGHLIGHT.identifier(),
+                    g.pose(),
+                    Texture.HIGHLIGHT.resource(),
                     color,
                     getX() - 1f,
                     getY() - 1f,
@@ -68,19 +60,14 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         }
 
         // Draw item (MC item icon anchored at button origin, scaled)
-        g.pose().pushMatrix();
-        g.pose().translate(getX(), getY());
+        g.pose().pushPose();
+        g.pose().translate(getX(), getY(), 1f);
         float scale = width / 16f;
-        g.pose().scale(scale, scale);
+        g.pose().scale(scale, scale, scale);
         RenderUtils.renderItem(g, itemStack, 0, 0);
-        g.pose().popMatrix();
+        g.pose().popPose();
 
-        if (simpleItem instanceof SimpleTierItem
-                || itemStack instanceof GuideEmeraldItemStack
-                || itemStack instanceof RuneItemStack
-                || itemStack instanceof GuidePowderItemStack
-                || itemStack instanceof AmplifierItemStack
-                || itemStack instanceof GuideDungeonKeyItemStack) {
+        if (simpleItem instanceof SimpleTierItem || itemStack instanceof GuidePowderItemStack) {
             renderText(
                     g,
                     String.valueOf(simpleItem.getAmount()),
@@ -93,8 +80,8 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         if (Services.Favorites.isFavorite(itemStack)) {
             float favScale = width / 18f;
             RenderUtils.drawScalingTexturedRect(
-                    g,
-                    Texture.FAVORITE_ICON.identifier(),
+                    g.pose(),
+                    Texture.FAVORITE_ICON.resource(),
                     getX() + (12 * favScale),
                     getY() - (4 * favScale),
                     (int) (9 * favScale),
@@ -116,8 +103,6 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                         aspectStack.getAspectInfo().classType().getName().substring(0, 2),
                         getCustomColor(),
                         TextShadow.OUTLINE);
-            case AmplifierItemStack amplifierItemStack ->
-                renderText(g, MathUtils.toRoman(amplifierItemStack.getTier()), getCustomColor(), TextShadow.OUTLINE);
             default -> {
                 // Nothing special to be rendered
             }
@@ -126,7 +111,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         // Ugly approach to prevent price tooltip rendering behind RewardScreen assets
         String screenTitle = Minecraft.getInstance().screen.getTitle().getString();
         if (this.isHovered() && !screenTitle.equals(RewardScreen.CONTAINER_TITLE)) {
-            g.setTooltipForNextFrame(Minecraft.getInstance().font, itemStack, mouseX, mouseY);
+            g.renderTooltip(Minecraft.getInstance().font, itemStack, mouseX, mouseY);
         }
     }
 
@@ -149,7 +134,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
     }
 
     @Override
-    public void onPress(InputWithModifiers inputWithModifiers) {
+    public void onPress() {
         // Item buttons are non-interactive
     }
 
@@ -173,12 +158,6 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                 CustomColor.fromChatFormatting(aspect.getAspectInfo().gearTier().getChatFormatting());
             case GuidePowderItemStack powder ->
                 CustomColor.fromChatFormatting(powder.getElement().getLightColor());
-            case AmplifierItemStack amplifier ->
-                CustomColor.fromChatFormatting(amplifier.getGearTier().getChatFormatting());
-            case InsulatorItemStack insulator ->
-                CustomColor.fromChatFormatting(insulator.getGearTier().getChatFormatting());
-            case SimulatorItemStack simulator ->
-                CustomColor.fromChatFormatting(simulator.getGearTier().getChatFormatting());
             default -> CustomColor.NONE;
         };
     }
@@ -197,7 +176,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         float scale = width / 16f;
         FontRenderer.getInstance()
                 .renderAlignedTextInBox(
-                        g,
+                        g.pose(),
                         StyledText.fromString(text),
                         getX(),
                         (float) getX() + getWidth(),

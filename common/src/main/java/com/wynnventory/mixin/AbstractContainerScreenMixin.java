@@ -10,7 +10,6 @@ import com.wynnventory.model.container.TrademarketContainer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
@@ -49,8 +48,8 @@ public abstract class AbstractContainerScreenMixin extends Screen {
             WynnventoryMod.postEvent(new TrademarketTooltipRenderedEvent(hoveredSlot));
     }
 
-    @Inject(method = "keyPressed(Lnet/minecraft/client/input/KeyEvent;)Z", at = @At("HEAD"), cancellable = true)
-    private void keyPressed(KeyEvent keyEvent, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
+    public void keyPressed(int i, int j, int k, CallbackInfoReturnable<Boolean> cir) {
         InventoryKeyPressEvent event = new InventoryKeyPressEvent(keyEvent);
         WynnventoryMod.postEvent(event);
 

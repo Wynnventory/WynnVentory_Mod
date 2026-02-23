@@ -1,10 +1,7 @@
 package com.wynnventory.feature.input;
 
-import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.gui.screen.RewardScreen;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public enum Keybinds {
@@ -12,9 +9,6 @@ public enum Keybinds {
     SETTINGS_TOGGLE_TOOLTIPS("key.wynnventory.toggleTooltips", GLFW.GLFW_KEY_PERIOD, true, ModConfig::toggleTooltips),
     SETTINGS_TOGGLE_BOXED_TOOLTIPS(
             "key.wynnventory.toggleBoxedTooltips", GLFW.GLFW_KEY_COMMA, true, ModConfig::toggleBoxedTooltips);
-
-    public static final KeyMapping.Category ROOT_CATEGORY =
-            KeyMapping.Category.register(Identifier.fromNamespaceAndPath(WynnventoryMod.MOD_ID, "root"));
 
     public final String translationKey;
     public final int defaultKey;

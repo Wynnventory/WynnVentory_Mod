@@ -10,7 +10,7 @@ public class UpdateRequest {
 
     @JsonProperty("game_versions")
     private final String[] gameVersions =
-            new String[] {SharedConstants.getCurrentVersion().name()};
+            new String[] {SharedConstants.getCurrentVersion().getName()};
 
     public String[] getLoaders() {
         return loaders;

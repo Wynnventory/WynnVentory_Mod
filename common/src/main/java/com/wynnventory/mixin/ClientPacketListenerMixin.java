@@ -60,15 +60,17 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
         Container container = Container.current();
         if (container == null) return;
-        if (!container.matchesContainer(packet.containerId())) return;
+        if (!container.matchesContainer(packet.getContainerId())) return;
 
         String title = container.title();
         if (RewardPool.isLootrunTitle(title))
-            WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Lootrun(packet.items(), packet.containerId(), title));
+            WynnventoryMod.postEvent(
+                    new RewardPreviewOpenedEvent.Lootrun(packet.getItems(), packet.getContainerId(), title));
         if (RewardPool.isRaidTitle(title))
-            WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Raid(packet.items(), packet.containerId(), title));
+            WynnventoryMod.postEvent(
+                    new RewardPreviewOpenedEvent.Raid(packet.getItems(), packet.getContainerId(), title));
         if (RaidLobbyContainer.matchesTitle(title))
-            WynnventoryMod.postEvent(new RaidLobbyPopulatedEvent(packet.items(), packet.containerId(), title));
+            WynnventoryMod.postEvent(new RaidLobbyPopulatedEvent(packet.getItems(), packet.getContainerId(), title));
     }
 
     @Inject(method = "sendCommand(Ljava/lang/String;)V", at = @At("HEAD"), cancellable = true)

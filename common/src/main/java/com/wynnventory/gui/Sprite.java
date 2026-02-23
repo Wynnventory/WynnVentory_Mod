@@ -1,6 +1,6 @@
 package com.wynnventory.gui;
 
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public enum Sprite {
     RELOAD_BUTTON("gui/rewardscreen/reload.png", 64, 32),
@@ -23,17 +23,17 @@ public enum Sprite {
     ARROW_RIGHT("gui/rewardscreen/arrow_right.png", 64, 32),
     MYTHIC_ASPECT_DISPLAY("gui/raidlobby/mythic_aspect_display.png", 69, 148);
 
-    private final Identifier resource;
+    private final ResourceLocation resource;
     private final int width;
     private final int height;
 
     Sprite(String name, int width, int height) {
-        this.resource = Identifier.fromNamespaceAndPath("wynnventory", "textures/" + name);
+        this.resource = ResourceLocation.fromNamespaceAndPath("wynnventory", "textures/" + name);
         this.width = width;
         this.height = height;
     }
 
-    public Identifier resource() {
+    public ResourceLocation resource() {
         return resource;
     }
 

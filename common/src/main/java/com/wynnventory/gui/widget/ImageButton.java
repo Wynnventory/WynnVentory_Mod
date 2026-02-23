@@ -6,7 +6,6 @@ import com.wynnventory.gui.Sprite;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 
 public class ImageButton extends WynnventoryButton {
@@ -23,7 +22,7 @@ public class ImageButton extends WynnventoryButton {
     }
 
     @Override
-    public void onPress(InputWithModifiers input) {
+    public void onPress() {
         this.onPress.onPress(null);
     }
 
@@ -32,7 +31,7 @@ public class ImageButton extends WynnventoryButton {
         int spriteStart = isHovered() ? sprite.width() / 2 : 0;
 
         RenderUtils.drawTexturedRect(
-                graphics,
+                graphics.pose(),
                 sprite.resource(),
                 CustomColor.NONE,
                 getX(),

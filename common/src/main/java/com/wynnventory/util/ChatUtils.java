@@ -5,11 +5,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public final class ChatUtils {
     private static final FontDescription PILL_FONT =
-            new FontDescription.Resource(Identifier.withDefaultNamespace("banner/pill"));
+            new FontDescription.Resource(ResourceLocation.withDefaultNamespace("banner/pill"));
     private static final Style BACKGROUND_STYLE =
             Style.EMPTY.withFont(PILL_FONT).withColor(ChatFormatting.GREEN);
     private static final Style FOREGROUND_STYLE =

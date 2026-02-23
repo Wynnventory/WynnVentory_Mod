@@ -1,7 +1,6 @@
 package com.wynnventory.gui.widget;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.input.InputWithModifiers;
 
 public class RectWidget extends WynnventoryButton {
     private final int color;
@@ -17,7 +16,7 @@ public class RectWidget extends WynnventoryButton {
     }
 
     @Override
-    public void onPress(InputWithModifiers input) {
+    public void onPress() {
         // Rect widgets are non-interactive
     }
 

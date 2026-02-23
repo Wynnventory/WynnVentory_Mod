@@ -5,7 +5,7 @@ import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
 import com.wynntils.utils.type.RangedValue;
 import java.util.Objects;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 public record ItemStat(StatActualValue statActualValue, StatPossibleValues possibleValues) {
     public String getDisplayName() {
@@ -61,7 +61,7 @@ public record ItemStat(StatActualValue statActualValue, StatPossibleValues possi
     }
 
     @Override
-    public @NonNull String toString() {
+    public @NotNull String toString() {
         return "statName=" + statActualValue.statType().getKey() + ", actualValue=" + statActualValue.value()
                 + ", rollPercent=" + getRollPercentage() + ", minRange="
                 + possibleValues.range().low() + ", maxRange="

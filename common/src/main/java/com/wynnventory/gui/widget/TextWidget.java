@@ -2,7 +2,6 @@ package com.wynnventory.gui.widget;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 
@@ -28,15 +27,15 @@ public class TextWidget extends WynnventoryButton {
 
     @Override
     public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(getX(), getY());
-        graphics.pose().scale(scale, scale);
+        graphics.pose().pushPose();
+        graphics.pose().translate(getX(), getY(), 1f);
+        graphics.pose().scale(scale, scale, scale);
         graphics.drawString(Minecraft.getInstance().font, text, 0, 0, color);
-        graphics.pose().popMatrix();
+        graphics.pose().popPose();
     }
 
     @Override
-    public void onPress(InputWithModifiers input) {
+    public void onPress() {
         // Text widgets are non-interactive
     }
 

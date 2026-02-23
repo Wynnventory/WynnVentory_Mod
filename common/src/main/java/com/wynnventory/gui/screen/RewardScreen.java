@@ -4,11 +4,7 @@ import com.wynntils.core.components.Models;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
-import com.wynntils.screens.guides.augment.AmplifierItemStack;
-import com.wynntils.screens.guides.augment.InsulatorItemStack;
-import com.wynntils.screens.guides.augment.SimulatorItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
-import com.wynntils.screens.guides.misc.RuneItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
@@ -266,17 +262,17 @@ public class RewardScreen extends Screen {
 
         for (ItemButton<GuideItemStack> widget : itemWidgets) {
             if (widget.isHovered()) {
-                graphics.setTooltipForNextFrame(this.font, widget.getItemStack(), mouseX, mouseY);
+                graphics.renderTooltip(this.font, widget.getItemStack(), mouseX, mouseY);
             }
         }
     }
 
     @Override
-    public void resize(int width, int height) {
+    public void resize(Minecraft mc, int width, int height) {
         // Use native resize to manage recalculation once per resize cycle.
         // Suppress init-triggered recalc during this call to avoid duplicates.
         this.suppressInitRecalc = true;
-        super.resize(width, height);
+        super.resize(mc, width, height);
         this.suppressInitRecalc = false;
 
         this.lastResizeTime = System.currentTimeMillis();
@@ -341,6 +337,7 @@ public class RewardScreen extends Screen {
                         .map(GuidePowderItemStack::new)
                         .toList(),
                 s -> s.getElement().getName() + " Powder " + s.getTier());
+        /* TODO: WAIT FOR WYNNTILS 4.0.2
         addStacks(
                 (Models.Rewards.getAllAmplifierInfo().stream()
                         .map(AmplifierItemStack::new)
@@ -354,19 +351,21 @@ public class RewardScreen extends Screen {
 
         addStacks(Models.Emerald.getAllEmeraldItems(), s -> s.getHoverName().getString());
 
-        /* TODO: WAIT FOR WYNNTILS 4.0.2
+
         List<GuideDungeonKeyItemStack> dungeonStacks = Arrays.stream(Dungeon.values())
                 .flatMap(d -> Stream.of(false, true).flatMap(b1 -> Stream.of(false, true).map(b2 -> new GuideDungeonKeyItemStack(d, b1, b2))))
                 .toList();
 
         addStacks(dungeonStacks, s -> s.getHoverName().getString());
-        */
+
 
         InsulatorItemStack insulatorItemStack = new InsulatorItemStack();
         wynnItemsByName.put(insulatorItemStack.getHoverName().getString(), insulatorItemStack);
 
         SimulatorItemStack simulatorItemStack = new SimulatorItemStack();
         wynnItemsByName.put(simulatorItemStack.getHoverName().getString(), simulatorItemStack);
+
+        */
     }
 
     private <T extends GuideItemStack> void addStacks(List<T> items, Function<T, String> nameMapper) {

@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 
 public class FilterButton extends WynnventoryButton {
@@ -46,7 +46,7 @@ public class FilterButton extends WynnventoryButton {
             // Gray out if inactive
             CustomColor tint = state ? CustomColor.NONE : CustomColor.fromChatFormatting(ChatFormatting.DARK_GRAY);
             RenderUtils.drawTexturedRect(
-                    graphics,
+                    graphics.pose(),
                     icon.resource(),
                     tint,
                     getX(),
@@ -63,9 +63,11 @@ public class FilterButton extends WynnventoryButton {
 
         // Hover effect
         if (isHovered()) {
-            RenderUtils.drawRect(graphics, CommonColors.WHITE.withAlpha(0.3f), getX(), getY(), getWidth(), getHeight());
+            RenderUtils.drawRect(
+                    graphics.pose(), CommonColors.WHITE.withAlpha(0.3f), getX(), getY(), 1f, getWidth(), getHeight());
 
-            graphics.setTooltipForNextFrame(
+            graphics.renderTooltip(
+                    Minecraft.getInstance().font,
                     Lists.transform(
                             ComponentUtils.wrapTooltips(
                                     List.of(Component.translatable("gui.wynnventory.reward.button.filter", getLabel())),
@@ -77,11 +79,6 @@ public class FilterButton extends WynnventoryButton {
     }
 
     @Override
-    public void onPress(InputWithModifiers input) {
-        setter.accept(!getter.getAsBoolean());
-        onToggle.run();
-    }
-
     public void onPress() {
         setter.accept(!getter.getAsBoolean());
         onToggle.run();

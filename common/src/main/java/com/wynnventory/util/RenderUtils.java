@@ -84,10 +84,10 @@ public abstract class RenderUtils {
         ClientTooltipPositioner fixed = new RenderUtils.FixedTooltipPositioner(tooltipCoords.x, tooltipCoords.y);
 
         float scale = RenderUtils.getScaleFactor(customComponents);
-        guiGraphics.pose().pushMatrix();
-        guiGraphics.pose().scale(scale, scale);
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().scale(scale, scale, scale);
         guiGraphics.renderTooltip(Minecraft.getInstance().font, customComponents, mouseX, mouseY, fixed, null);
-        guiGraphics.pose().popMatrix();
+        guiGraphics.pose().popPose();
     }
 
     public static List<ClientTooltipComponent> toClientComponents(

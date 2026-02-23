@@ -4,7 +4,6 @@ import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.render.RenderUtils;
 import com.wynnventory.gui.Sprite;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.input.InputWithModifiers;
 
 public class ImageWidget extends WynnventoryButton {
     private final Sprite sprite;
@@ -17,7 +16,7 @@ public class ImageWidget extends WynnventoryButton {
     @Override
     public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         RenderUtils.drawTexturedRect(
-                graphics,
+                graphics.pose(),
                 sprite.resource(),
                 CustomColor.NONE,
                 getX(),
@@ -33,7 +32,7 @@ public class ImageWidget extends WynnventoryButton {
     }
 
     @Override
-    public void onPress(InputWithModifiers input) {
+    public void onPress() {
         // Image widgets are non-interactive
     }
 

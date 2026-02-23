@@ -37,7 +37,6 @@ dependencies {
     modImplementation("maven.modrinth:wynntils:v${project.wynntils_version}-fabric")
 
     modRuntimeOnly(fabricApi.module("fabric-api-base", fabric_api_version))
-    modRuntimeOnly(fabricApi.module("fabric-resource-loader-v1", fabric_api_version))
     modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:${devauth_version}")
 
     modCompileOnly("com.terraformersmc:modmenu:${modmenu_version}")
