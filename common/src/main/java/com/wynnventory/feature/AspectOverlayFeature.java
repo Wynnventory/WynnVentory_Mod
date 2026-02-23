@@ -19,7 +19,6 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.SubscribeEvent;
 
 public final class AspectOverlayFeature {
-
     @SubscribeEvent
     public void onScreenInit(RaidLobbyScreenInitEvent event) {
         Map<String, GuideAspectItemStack> aspectStacks = Models.Aspect.getAllAspectInfos()

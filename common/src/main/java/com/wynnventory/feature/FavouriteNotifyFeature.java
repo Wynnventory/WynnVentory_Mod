@@ -10,15 +10,14 @@ import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.util.ItemStackUtils;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class FavouriteNotifyFeature {
     @SubscribeEvent(priority = EventPriority.LOWEST)

@@ -15,7 +15,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.CommonListenerCookie;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.Connection;
@@ -88,7 +87,6 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
 
         RootCommandNode<SharedSuggestionProvider> root = this.commands.getRoot();
 
-        WynnventoryMod.postEvent(
-                new CommandAddedEvent(root));
+        WynnventoryMod.postEvent(new CommandAddedEvent(root));
     }
 }

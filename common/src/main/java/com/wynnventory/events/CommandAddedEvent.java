@@ -14,5 +14,4 @@ public class CommandAddedEvent extends Event {
     public RootCommandNode<SharedSuggestionProvider> getRoot() {
         return root;
     }
-
 }

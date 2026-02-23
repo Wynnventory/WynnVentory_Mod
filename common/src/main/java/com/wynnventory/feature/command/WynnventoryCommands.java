@@ -9,7 +9,6 @@ import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.feature.crowdsource.QueueScheduler;
 import com.wynnventory.util.ChatUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 
@@ -34,8 +33,7 @@ public final class WynnventoryCommands {
         dispatcher.register(root);
     }
 
-    public static void registerSuggestions(
-            RootCommandNode<SharedSuggestionProvider> root) {
+    public static void registerSuggestions(RootCommandNode<SharedSuggestionProvider> root) {
         LiteralCommandNode<SharedSuggestionProvider> node = literalSuggestion(PREFIX)
                 .then(literalSuggestion("send").executes(ctx -> 1))
                 .then(literalSuggestion("reloadConfig").executes(ctx -> 1))
