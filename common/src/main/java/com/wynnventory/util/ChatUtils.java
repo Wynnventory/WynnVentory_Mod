@@ -1,5 +1,7 @@
 package com.wynnventory.util;
 
+import com.wynnventory.feature.joinmessage.ChatMessage;
+import com.wynnventory.feature.joinmessage.MessageSeverity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -37,6 +39,14 @@ public final class ChatUtils {
 
     public static void error(Component message) {
         send(prefixed(message.copy().withStyle(ChatFormatting.RED)));
+    }
+
+    public static void sendChatMessage(ChatMessage msg) {
+        if (msg.severity() == MessageSeverity.INFO) {
+            info(msg.message());
+        } else if (msg.severity() == MessageSeverity.ERROR) {
+            error(msg.message());
+        }
     }
 
     private static Component prefixed(Component message) {
