@@ -2,7 +2,6 @@ package com.wynnventory.mixin;
 
 import com.wynntils.core.WynntilsMod;
 import com.wynnventory.feature.FeatureManager;
-import com.wynnventory.feature.joinmessage.ServerJoinMessageFeature;
 import java.io.File;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,7 +19,6 @@ public abstract class WynntilsModMixin {
             boolean isDevelopmentEnvironment,
             File modFile,
             CallbackInfo ci) {
-        WynntilsMod.registerEventListener(new ServerJoinMessageFeature());
         WynntilsMod.registerEventListener(FeatureManager.INSTANCE);
     }
 }

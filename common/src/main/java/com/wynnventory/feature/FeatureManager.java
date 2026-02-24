@@ -16,17 +16,24 @@ import net.neoforged.bus.api.SubscribeEvent;
 public enum FeatureManager {
     INSTANCE;
 
+    // Registered with wynnventory
     private final AspectOverlayFeature overlayFeature = new AspectOverlayFeature();
     private final CommandFeature commandFeature = new CommandFeature();
     private final CrowdSourceFeature crowdSourceFeature = new CrowdSourceFeature();
     private final KeybindFeature keybindFeature = new KeybindFeature();
 
+    // Registered with wynntils
+    private final ServerJoinMessageFeature serverJoinMessageFeature = new ServerJoinMessageFeature();
     private final AspectTooltipFeature aspectTooltipFeature = new AspectTooltipFeature();
     private final AutoUpdateFeature autoUpdateFeature = new AutoUpdateFeature();
     private final FavouriteNotifyFeature favouriteNotifyFeature = new FavouriteNotifyFeature();
     private final PriceTooltipFeature priceTooltipFeature = new PriceTooltipFeature();
 
     private boolean isBetaServer = false;
+
+    FeatureManager() {
+        WynntilsMod.registerEventListener(serverJoinMessageFeature);
+    }
 
     @SubscribeEvent
     public void onConnect(WynncraftConnectionEvent.Connected event) {
@@ -44,8 +51,6 @@ public enum FeatureManager {
                 ServerJoinMessageFeature.queueMessage(
                         MessageSeverity.ERROR, "feature.wynnventory.disabled.releaseOnBetaServer");
             }
-
-            ServerJoinMessageFeature.queueMessage(MessageSeverity.ERROR, "feature.wynnventory.disabled");
         }
     }
 
