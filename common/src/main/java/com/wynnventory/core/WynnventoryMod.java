@@ -2,11 +2,7 @@ package com.wynnventory.core;
 
 import com.wynnventory.api.service.IconService;
 import com.wynnventory.api.service.RewardService;
-import com.wynnventory.feature.AspectOverlayFeature;
-import com.wynnventory.feature.command.CommandFeature;
-import com.wynnventory.feature.crowdsource.CrowdSourceFeature;
 import com.wynnventory.feature.crowdsource.QueueScheduler;
-import com.wynnventory.feature.input.KeybindFeature;
 import java.io.File;
 import net.neoforged.bus.api.BusBuilder;
 import net.neoforged.bus.api.Event;
@@ -17,8 +13,8 @@ import org.slf4j.LoggerFactory;
 
 public final class WynnventoryMod {
     public static final String MOD_ID = "wynnventory";
-
     private static final IEventBus eventBus = BusBuilder.builder().build();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     private static ModLoader loader;
@@ -43,11 +39,14 @@ public final class WynnventoryMod {
         IconService.INSTANCE.fetchAll();
         RewardService.INSTANCE.reloadAllPools();
         QueueScheduler.startScheduledTask();
+    }
 
-        eventBus.register(new AspectOverlayFeature());
-        eventBus.register(new CommandFeature());
-        eventBus.register(new CrowdSourceFeature());
-        eventBus.register(new KeybindFeature());
+    public static void registerEventListener(Object listener) {
+        eventBus.register(listener);
+    }
+
+    public static void unregisterEventListener(Object listener) {
+        eventBus.unregister(listener);
     }
 
     public static <T extends Event> void postEvent(T event) {

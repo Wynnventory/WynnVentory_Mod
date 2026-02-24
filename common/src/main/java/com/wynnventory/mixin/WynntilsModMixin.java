@@ -1,10 +1,8 @@
 package com.wynnventory.mixin;
 
 import com.wynntils.core.WynntilsMod;
-import com.wynnventory.feature.FavouriteNotifyFeature;
-import com.wynnventory.feature.tooltip.aspect.AspectTooltipFeature;
-import com.wynnventory.feature.tooltip.price.PriceTooltipFeature;
-import com.wynnventory.feature.updater.AutoUpdateFeature;
+import com.wynnventory.feature.FeatureManager;
+import com.wynnventory.feature.joinmessage.ServerJoinMessageFeature;
 import java.io.File;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,9 +20,7 @@ public abstract class WynntilsModMixin {
             boolean isDevelopmentEnvironment,
             File modFile,
             CallbackInfo ci) {
-        WynntilsMod.registerEventListener(new AspectTooltipFeature());
-        WynntilsMod.registerEventListener(new AutoUpdateFeature());
-        WynntilsMod.registerEventListener(new FavouriteNotifyFeature());
-        WynntilsMod.registerEventListener(new PriceTooltipFeature());
+        WynntilsMod.registerEventListener(new ServerJoinMessageFeature());
+        WynntilsMod.registerEventListener(FeatureManager.INSTANCE);
     }
 }
