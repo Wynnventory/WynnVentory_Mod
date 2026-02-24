@@ -1,8 +1,7 @@
 {
   "command.wynnventory.send.sendCollectedData": "Sent all collected items to the Wynnventory API.",
-  "feature.wynnventory.disabled": "All Wynnventory features have been disabled.",
-  "feature.wynnventory.disabled.betaOnReleaseServer": "Beta versions may not be used on live servers.",
-  "feature.wynnventory.disabled.releaseOnBetaServer": "Release versions may not be used on beta servers.",
+  "feature.wynnventory.disabled.betaOnReleaseServer": "Beta versions may not be used on live servers. This Wynnventory version is disabled on this server.",
+  "feature.wynnventory.disabled.releaseOnBetaServer": "Release versions may not be used on beta servers. This Wynnventory version is disabled on this server. Check our Discord for any beta release.",
   "feature.wynnventory.favouriteNotifier.favouriteFound.title": "Favourite Found",
   "feature.wynnventory.favouriteNotifier.moreFound.title": "Favourite Found",
   "feature.wynnventory.toggleBoxedTooltips.disabled": "Boxed Item Tooltips are now disabled",
