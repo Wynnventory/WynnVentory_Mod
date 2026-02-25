@@ -35,15 +35,33 @@ public abstract class RenderUtils {
         int vanillaW = tooltipWidth(vanillaComponents, font);
         int vanillaH = tooltipHeight(vanillaComponents, font);
 
+        float universalScale = FITTING_FEATURE.isEnabled() ? FITTING_FEATURE.universalScale.get() : 1.0f;
+
+        // If the scale is 1.0, but the tooltip is too tall for the screen,
+        // we should calculate what the scale SHOULD be, because Wynntils might not have updated it yet.
+        float calculatedVanillaScale = getScaleFactor(vanillaH);
+        if (calculatedVanillaScale < universalScale) {
+            universalScale = calculatedVanillaScale;
+        }
+
+        int scaledVanillaW = (int) (vanillaW * universalScale);
+        int scaledVanillaH = (int) (vanillaH * universalScale);
+
         int screenW = mc.getWindow().getGuiScaledWidth();
         int screenH = mc.getWindow().getGuiScaledHeight();
 
-        Vector2ic vanillaPos =
-                DefaultTooltipPositioner.INSTANCE.positionTooltip(screenW, screenH, mouseX, mouseY, vanillaW, vanillaH);
+        // ----------------------------
+        // 1) Position the primary tooltip using Minecraft's logic (but with scaled dimensions)
+        // ----------------------------
+        Vector2ic vanillaPos = DefaultTooltipPositioner.INSTANCE.positionTooltip(
+                screenW, screenH, mouseX, mouseY, scaledVanillaW, scaledVanillaH);
 
         int vanillaX = vanillaPos.x();
         int vanillaY = vanillaPos.y();
 
+        // ----------------------------
+        // 2) Position the secondary tooltip
+        // ----------------------------
         float priceScale = getScaleFactor(priceComponents);
         int priceW = (int) (tooltipWidth(priceComponents, font) * priceScale);
         int priceH = (int) (tooltipHeight(priceComponents, font) * priceScale);
@@ -52,10 +70,8 @@ public abstract class RenderUtils {
             return new Vector2i(TOOLTIP_GAP, screenH / 2 - priceH / 2);
         }
 
-        // ----------------------------
-        // 3) Position to the right of the vanilla tooltip (+GAP), flip/clamp if needed
-        // ----------------------------
-        int priceX = getScaledXCoordinate(vanillaX, vanillaW, vanillaH);
+        // Position to the right of the vanilla tooltip (+GAP)
+        int priceX = vanillaX + scaledVanillaW + TOOLTIP_GAP;
         int priceY = vanillaY;
 
         // Flip to left if overflowing right edge
@@ -103,21 +119,6 @@ public abstract class RenderUtils {
         tooltipImage.ifPresent(img -> list.add(list.isEmpty() ? 0 : 1, ClientTooltipComponent.create(img)));
 
         return list;
-    }
-
-    public static int getScaledXCoordinate(int tooltipX, int tooltipWidth, int tooltipHeight) {
-        boolean isFittingEnabled = FITTING_FEATURE.isEnabled();
-        float universalScale = FITTING_FEATURE.universalScale.get();
-
-        if (isFittingEnabled) {
-            float scale = getScaleFactor(tooltipHeight);
-
-            if (scale != universalScale) {
-                return (int) (tooltipX + Math.floor(tooltipWidth * scale) + TOOLTIP_GAP);
-            }
-        }
-
-        return tooltipX + tooltipWidth + TOOLTIP_GAP;
     }
 
     private static float getScaleFactor(int tooltipHeight) {
