@@ -60,7 +60,7 @@ public final class AspectOverlayFeature {
                 if (stack == null) return;
 
                 ItemButton<GuideAspectItemStack> button =
-                        new ItemButton<>(buttonX[0], buttonY, itemSize, itemSize, stack, lootItem);
+                        new ItemButton<>(buttonX[0], buttonY, itemSize, itemSize, stack, false);
                 event.addRenderableWidget(button);
                 buttonX[0] += spacing;
             });

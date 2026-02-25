@@ -19,7 +19,7 @@ public class TextWidget extends WynnventoryButton {
     }
 
     public TextWidget(int x, int y, Component text, int color, float scale) {
-        super(x, y, (int) (Minecraft.getInstance().font.width(text) * scale), (int) (9 * scale), "");
+        super(x, y, (int) (Minecraft.getInstance().font.width(text) * scale), (int) (9 * scale), Component.empty());
         this.text = text;
         this.color = color;
         this.scale = scale;

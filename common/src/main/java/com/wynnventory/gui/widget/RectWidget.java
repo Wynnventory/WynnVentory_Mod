@@ -1,12 +1,13 @@
 package com.wynnventory.gui.widget;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 public class RectWidget extends WynnventoryButton {
     private final int color;
 
     public RectWidget(int x, int y, int width, int height, int color) {
-        super(x, y, width, height, "");
+        super(x, y, width, height, Component.empty());
         this.color = color;
     }
 

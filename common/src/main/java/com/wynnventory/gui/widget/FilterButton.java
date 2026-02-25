@@ -25,7 +25,7 @@ public class FilterButton extends WynnventoryButton {
             int y,
             int width,
             int height,
-            String label,
+            Component label,
             Sprite icon,
             BooleanSupplier getter,
             Consumer<Boolean> setter,
@@ -45,16 +45,21 @@ public class FilterButton extends WynnventoryButton {
         if (icon != null) {
             // Gray out if inactive
             CustomColor tint = state ? CustomColor.NONE : CustomColor.fromChatFormatting(ChatFormatting.DARK_GRAY);
+
             RenderUtils.drawTexturedRectWithColor(
                     graphics.pose(),
                     icon.resource(),
                     tint,
                     getX(),
                     getY(),
+                    -1,
                     getWidth(),
                     getHeight(),
+                    icon.width(),
                     0,
-                    0,
+                    icon.width(),
+                    icon.height(),
+                    icon.width(),
                     icon.height());
         }
 
@@ -67,7 +72,8 @@ public class FilterButton extends WynnventoryButton {
                     Minecraft.getInstance().font,
                     Lists.transform(
                             ComponentUtils.wrapTooltips(
-                                    List.of(Component.translatable("gui.wynnventory.reward.button.filter", getLabel())),
+                                    List.of(Component.translatable(
+                                            "gui.wynnventory.reward.button.filter", getMessage())),
                                     200),
                             Component::getVisualOrderText),
                     mouseX,

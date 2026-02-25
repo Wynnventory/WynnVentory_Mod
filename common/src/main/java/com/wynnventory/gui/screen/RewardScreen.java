@@ -18,6 +18,7 @@ import com.wynnventory.gui.widget.ImageButton;
 import com.wynnventory.gui.widget.ImageWidget;
 import com.wynnventory.gui.widget.ItemButton;
 import com.wynnventory.gui.widget.TextWidget;
+import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleItemType;
 import com.wynnventory.model.item.simple.SimpleTierItem;
@@ -183,7 +184,7 @@ public class RewardScreen extends Screen {
                 NAV_BUTTON_HEIGHT * 2,
                 Sprite.ARROW_LEFT,
                 button -> scrollLeft(),
-                null);
+                Component.empty());
         this.addRenderableWidget(prevButton);
 
         ImageButton nextButton = new ImageButton(
@@ -193,7 +194,7 @@ public class RewardScreen extends Screen {
                 NAV_BUTTON_HEIGHT * 2,
                 Sprite.ARROW_RIGHT,
                 button -> scrollRight(),
-                null);
+                Component.empty());
         this.addRenderableWidget(nextButton);
 
         // === SIDEBAR ===
@@ -496,7 +497,12 @@ public class RewardScreen extends Screen {
             }
 
             GuideItemStack stack = getGuideItemStack(item);
-            ItemButton<GuideItemStack> button = new ItemButton<>(x, y, itemSize, itemSize, stack, item);
+            ItemButton<GuideItemStack> button;
+            if (item instanceof SimpleGearItem gearItem) {
+                button = new ItemButton<>(x, y, itemSize, itemSize, stack, gearItem.isShiny());
+            } else {
+                button = new ItemButton<>(x, y, itemSize, itemSize, stack, false);
+            }
             this.addRenderableWidget(button);
             itemWidgets.add(button);
         }
@@ -515,7 +521,7 @@ public class RewardScreen extends Screen {
 
     private void addFilterButton(
             String label, Sprite icon, BooleanSupplier getter, Consumer<Boolean> setter, int x, int y, int w) {
-        this.addRenderableWidget(new FilterButton(x, y, w, 16, label, icon, getter, setter, () -> {
+        this.addRenderableWidget(new FilterButton(x, y, w, 16, Component.literal(label), icon, getter, setter, () -> {
             try {
                 ModConfig.getInstance().save();
             } catch (IOException e) {

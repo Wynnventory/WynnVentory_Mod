@@ -90,7 +90,11 @@ public abstract class RenderUtils {
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(scale, scale, scale);
         guiGraphics.renderTooltip(
-                Minecraft.getInstance().font, customLines, Optional.empty(), tooltipCoords.x, tooltipCoords.y);
+                Minecraft.getInstance().font,
+                customLines,
+                Optional.empty(),
+                tooltipCoords.x - 11,
+                tooltipCoords.y + 12);
         guiGraphics.pose().popPose();
     }
 

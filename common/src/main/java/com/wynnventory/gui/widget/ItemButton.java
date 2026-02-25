@@ -9,7 +9,6 @@ import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
-import com.wynntils.utils.colors.CommonColors;
 import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.mc.KeyboardUtils;
 import com.wynntils.utils.render.FontRenderer;
@@ -17,104 +16,28 @@ import com.wynntils.utils.render.RenderUtils;
 import com.wynntils.utils.render.Texture;
 import com.wynntils.utils.render.type.HorizontalAlignment;
 import com.wynntils.utils.render.type.TextShadow;
-import com.wynntils.utils.render.type.VerticalAlignment;
-import com.wynnventory.gui.screen.RewardScreen;
-import com.wynnventory.model.item.simple.SimpleGearItem;
-import com.wynnventory.model.item.simple.SimpleItem;
-import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.util.HttpUtils;
+import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
+    private static final int BASE_SIZE = 16;
     private final T itemStack;
-    private final SimpleItem simpleItem;
+    private final boolean shiny;
 
-    public ItemButton(int x, int y, int width, int height, T itemStack, SimpleItem simpleItem) {
-        super(x, y, width, height, "");
+    public ItemButton(int x, int y, int width, int height, T itemStack, boolean shiny) {
+        super(x, y, width, height, Component.empty());
         this.itemStack = itemStack;
-        this.simpleItem = simpleItem;
+        this.shiny = shiny;
+
         buildTooltip();
     }
 
     @Override
-    public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        PoseStack poseStack = g.pose();
-
-        // Colored highlight like Wynntils (scaled to our box)
-        CustomColor color = getCustomColor();
-        if (color != CustomColor.NONE) {
-            RenderUtils.drawTexturedRectWithColor(
-                    poseStack,
-                    Texture.HIGHLIGHT.resource(),
-                    color,
-                    getX() - 1f,
-                    getY() - 1f,
-                    width + 2f,
-                    height + 2f,
-                    0,
-                    0,
-                    18);
-        }
-
-        // Draw item (MC item icon anchored at button origin, scaled)
-        g.pose().pushPose();
-        g.pose().translate(getX(), getY(), 1f);
-        float scale = width / 16f;
-        g.pose().scale(scale, scale, scale);
-        RenderUtils.renderItem(g, itemStack, 0, 0);
-        g.pose().popPose();
-
-        if (simpleItem instanceof SimpleTierItem || itemStack instanceof GuidePowderItemStack) {
-            renderText(
-                    g,
-                    String.valueOf(simpleItem.getAmount()),
-                    CommonColors.WHITE,
-                    HorizontalAlignment.RIGHT,
-                    VerticalAlignment.BOTTOM,
-                    TextShadow.OUTLINE);
-        }
-        // Favorite icon overlay (placed relative to button size)
-        if (Services.Favorites.isFavorite(itemStack)) {
-            float favScale = width / 18f;
-            RenderUtils.drawScalingTexturedRect(
-                    poseStack,
-                    Texture.FAVORITE_ICON.resource(),
-                    getX() + (12 * favScale),
-                    getY() - (4 * favScale),
-                    200,
-                    (int) (9 * favScale),
-                    (int) (9 * favScale),
-                    Texture.FAVORITE_ICON.width(),
-                    Texture.FAVORITE_ICON.height());
-        }
-
-        if (simpleItem instanceof SimpleGearItem simpleGearItem && simpleGearItem.isShiny()) {
-            renderText(g, "⬡", CommonColors.WHITE, TextShadow.NORMAL);
-        }
-
-        switch (itemStack) {
-            case GuidePowderItemStack powderStack ->
-                renderText(g, MathUtils.toRoman(powderStack.getTier()), getCustomColor(), TextShadow.OUTLINE);
-            case GuideAspectItemStack aspectStack ->
-                renderText(
-                        g,
-                        aspectStack.getAspectInfo().classType().getName().substring(0, 2),
-                        getCustomColor(),
-                        TextShadow.OUTLINE);
-            default -> {
-                // Nothing special to be rendered
-            }
-        }
-
-        // Ugly approach to prevent price tooltip rendering behind RewardScreen assets
-        String screenTitle = Minecraft.getInstance().screen.getTitle().getString();
-        if (this.isHovered() && !screenTitle.equals(RewardScreen.CONTAINER_TITLE)) {
-            g.renderTooltip(Minecraft.getInstance().font, itemStack, mouseX, mouseY);
-        }
-    }
+    public void onPress() {}
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -122,73 +45,113 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
             return false;
         }
 
-        String unformattedName =
-                StyledText.fromComponent(itemStack.getHoverName()).getStringWithoutFormatting();
+        String name = StyledText.fromComponent(itemStack.getHoverName()).getStringWithoutFormatting();
+
         if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
-            Util.getPlatform().openUri("https://www.wynnventory.com/history/" + HttpUtils.encode(unformattedName));
+            Util.getPlatform().openUri("https://www.wynnventory.com/history/" + HttpUtils.encode(name));
             return true;
         } else if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-            Services.Favorites.toggleFavorite(unformattedName);
+            Services.Favorites.toggleFavorite(name);
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     @Override
-    public void onPress() {
-        // Item buttons are non-interactive
+    public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        PoseStack pose = g.pose();
+        CustomColor color = getCustomColor();
+        float scale = (float) getWidth() / BASE_SIZE;
+
+        // Draw highlight background
+        pose.pushPose();
+        pose.translate(getX() - 1, getY() - 1, 0);
+        pose.scale(scale, scale, scale);
+
+        RenderUtils.drawTexturedRectWithColor(
+                pose,
+                Texture.HIGHLIGHT.resource(),
+                color.withAlpha(1f),
+                0,
+                0,
+                0,
+                Math.round((getWidth() + 2) / scale),
+                Math.round((getHeight() + 2) / scale),
+                Texture.HIGHLIGHT.width(),
+                Texture.HIGHLIGHT.height());
+        pose.popPose();
+
+        // Draw item
+        pose.pushPose();
+        pose.translate(getX(), getY(), 0);
+        pose.scale(scale, scale, scale);
+        g.renderItem(itemStack, 0, 0);
+        pose.popPose();
+
+        // Draw overlays
+        if (shiny) renderText("⬡", pose, CustomColor.fromChatFormatting(ChatFormatting.WHITE), scale);
+
+        if (itemStack instanceof GuidePowderItemStack powder)
+            renderText(MathUtils.toRoman(powder.getTier()), pose, color, scale);
+
+        if (itemStack instanceof GuideAspectItemStack aspect)
+            renderText(aspect.getAspectInfo().classType().getName().substring(0, 2), pose, color, scale);
+
+        // Favorite icon
+        if (Services.Favorites.isFavorite(itemStack)) {
+            RenderUtils.drawScalingTexturedRect(
+                    pose,
+                    Texture.FAVORITE_ICON.resource(),
+                    getX() + 12,
+                    getY() - 4,
+                    200,
+                    getWidth() / 2f,
+                    getHeight() / 2f,
+                    Texture.FAVORITE_ICON.width(),
+                    Texture.FAVORITE_ICON.height());
+        }
+    }
+
+    private void renderText(String text, PoseStack poseStack, CustomColor color, float scale) {
+        poseStack.pushPose();
+        poseStack.translate(getX(), getY() - (getHeight() / 2f) + 4, 200);
+        poseStack.scale(scale, scale, scale);
+
+        FontRenderer.getInstance()
+                .renderAlignedTextInBox(
+                        poseStack,
+                        StyledText.fromString(text),
+                        0,
+                        getWidth(),
+                        0,
+                        0,
+                        color,
+                        HorizontalAlignment.LEFT,
+                        TextShadow.OUTLINE);
+
+        poseStack.popPose();
     }
 
     private void buildTooltip() {
-        switch (itemStack) {
-            case GuideGearItemStack gear -> gear.buildTooltip();
-            case GuideTomeItemStack tome -> tome.buildTooltip();
-            default -> {
-                // by default no special tooltips need to be generated
-            }
+        if (itemStack instanceof GuideGearItemStack gear) {
+            gear.buildTooltip();
+        } else if (itemStack instanceof GuideTomeItemStack tome) {
+            tome.buildTooltip();
         }
     }
 
     private CustomColor getCustomColor() {
-        return switch (itemStack) {
-            case GuideGearItemStack gear ->
-                CustomColor.fromChatFormatting(gear.getGearInfo().tier().getChatFormatting());
-            case GuideTomeItemStack tome ->
-                CustomColor.fromChatFormatting(tome.getTomeInfo().tier().getChatFormatting());
-            case GuideAspectItemStack aspect ->
-                CustomColor.fromChatFormatting(aspect.getAspectInfo().gearTier().getChatFormatting());
-            case GuidePowderItemStack powder ->
-                CustomColor.fromChatFormatting(powder.getElement().getLightColor());
-            default -> CustomColor.NONE;
-        };
-    }
-
-    private void renderText(GuiGraphics g, String text, CustomColor color, TextShadow shadow) {
-        renderText(g, text, color, HorizontalAlignment.LEFT, VerticalAlignment.TOP, shadow);
-    }
-
-    private void renderText(
-            GuiGraphics g,
-            String text,
-            CustomColor color,
-            HorizontalAlignment hAlign,
-            VerticalAlignment vAlign,
-            TextShadow shadow) {
-        float scale = width / 16f;
-        FontRenderer.getInstance()
-                .renderAlignedTextInBox(
-                        g.pose(),
-                        StyledText.fromString(text),
-                        getX(),
-                        (float) getX() + getWidth(),
-                        getY(),
-                        (float) getY() + getHeight(),
-                        0,
-                        color,
-                        hAlign,
-                        vAlign,
-                        shadow,
-                        scale);
+        if (itemStack instanceof GuideGearItemStack gear)
+            return CustomColor.fromChatFormatting(gear.getGearInfo().tier().getChatFormatting());
+        if (itemStack instanceof GuideTomeItemStack tome)
+            return CustomColor.fromChatFormatting(tome.getTomeInfo().tier().getChatFormatting());
+        if (itemStack instanceof GuideAspectItemStack aspect)
+            return CustomColor.fromChatFormatting(
+                    aspect.getAspectInfo().gearTier().getChatFormatting());
+        if (itemStack instanceof GuidePowderItemStack powder)
+            return CustomColor.fromChatFormatting(powder.getElement().getLightColor());
+        return CustomColor.NONE;
     }
 
     public T getItemStack() {
