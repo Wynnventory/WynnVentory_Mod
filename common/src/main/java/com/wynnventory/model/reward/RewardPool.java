@@ -19,6 +19,10 @@ public enum RewardPool {
             "Silent Expanse",
             "Silent Expanse",
             Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF00A")),
+    FRUMA_FORAY_WEST(
+            RewardType.LOOTRUN, "FFW", "Fruma Foray (West)", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF04A")),
+    FRUMA_FORAY_EAST(
+            RewardType.LOOTRUN, "FFE", "Fruma Foray (East)", Pattern.compile("\uDAFF\uDFF2\uE00A\uDAFF\uDF6F\uF049")),
 
     // --- Raids ---
     NEST_OF_GROOTSLANGS(
@@ -35,7 +39,6 @@ public enum RewardPool {
             RewardType.RAID, "TCC", "The Canyon Colossus", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00D")),
     NAMELESS_ANOMALY(
             RewardType.RAID, "TNA", "The Nameless Anomaly", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00E"));
-
     private final RewardType type;
     private final String shortName;
     private final String fullName;
