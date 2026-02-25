@@ -3,6 +3,7 @@ package com.wynnventory.mixin;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.events.InventoryKeyPressEvent;
 import com.wynnventory.events.RaidLobbyScreenInitEvent;
+import com.wynnventory.events.RaidLobbyScreenRenderEvent;
 import com.wynnventory.events.TrademarketTooltipRenderedEvent;
 import com.wynnventory.model.container.Container;
 import com.wynnventory.model.container.RaidLobbyContainer;
@@ -61,6 +62,13 @@ public abstract class AbstractContainerScreenMixin extends Screen {
         if (RaidLobbyContainer.matchesTitle(this.getTitle().getString())) {
             WynnventoryMod.postEvent(new RaidLobbyScreenInitEvent(
                     this::addRenderableWidget, this.leftPos, this.topPos, this.imageWidth));
+        }
+    }
+
+    @Inject(method = "render", at = @At("RETURN"))
+    private void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float f, CallbackInfo ci) {
+        if (RaidLobbyContainer.matchesTitle(this.getTitle().getString())) {
+            WynnventoryMod.postEvent(new RaidLobbyScreenRenderEvent(guiGraphics, mouseX, mouseY, f));
         }
     }
 }

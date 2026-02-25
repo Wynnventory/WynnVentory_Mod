@@ -4,11 +4,13 @@ import com.wynntils.core.components.Models;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynnventory.api.service.RewardService;
 import com.wynnventory.events.RaidLobbyScreenInitEvent;
+import com.wynnventory.events.RaidLobbyScreenRenderEvent;
 import com.wynnventory.gui.Sprite;
 import com.wynnventory.gui.widget.ImageWidget;
 import com.wynnventory.gui.widget.ItemButton;
 import com.wynnventory.gui.widget.TextWidget;
 import com.wynnventory.model.reward.RewardPoolDocument;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -19,8 +21,11 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.SubscribeEvent;
 
 public final class AspectOverlayFeature {
+    private final List<ItemButton<GuideAspectItemStack>> itemButtons = new ArrayList<>();
+
     @SubscribeEvent
     public void onScreenInit(RaidLobbyScreenInitEvent event) {
+        itemButtons.clear();
         Map<String, GuideAspectItemStack> aspectStacks = Models.Aspect.getAllAspectInfos()
                 .map(info -> new GuideAspectItemStack(info, 1))
                 .collect(Collectors.toMap(stack -> stack.getAspectInfo().name(), Function.identity()));
@@ -62,8 +67,23 @@ public final class AspectOverlayFeature {
                 ItemButton<GuideAspectItemStack> button =
                         new ItemButton<>(buttonX[0], buttonY, itemSize, itemSize, stack, false);
                 event.addRenderableWidget(button);
+                itemButtons.add(button);
                 buttonX[0] += spacing;
             });
+        }
+    }
+
+    @SubscribeEvent
+    public void onScreenRender(RaidLobbyScreenRenderEvent event) {
+        for (ItemButton<GuideAspectItemStack> button : itemButtons) {
+            if (button.isHovered()) {
+                event.getGraphics()
+                        .renderTooltip(
+                                Minecraft.getInstance().font,
+                                button.getItemStack(),
+                                event.getMouseX(),
+                                event.getMouseY());
+            }
         }
     }
 }

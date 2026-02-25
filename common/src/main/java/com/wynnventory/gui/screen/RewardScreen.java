@@ -18,6 +18,7 @@ import com.wynnventory.gui.widget.ImageButton;
 import com.wynnventory.gui.widget.ImageWidget;
 import com.wynnventory.gui.widget.ItemButton;
 import com.wynnventory.gui.widget.TextWidget;
+import com.wynnventory.gui.widget.WynnventoryButton;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleItemType;
@@ -50,6 +51,7 @@ public class RewardScreen extends Screen {
     private static final Map<String, GuideItemStack> wynnItemsByName = new HashMap<>();
 
     private final List<ItemButton<GuideItemStack>> itemWidgets = new ArrayList<>();
+    private final List<WynnventoryButton> tooltippedWidgets = new ArrayList<>();
 
     private int scrollIndex = 0;
 
@@ -124,6 +126,8 @@ public class RewardScreen extends Screen {
             return;
         }
 
+        tooltippedWidgets.clear();
+
         if (wynnItemsByName.isEmpty()) {
             loadGuideItems();
         }
@@ -154,17 +158,19 @@ public class RewardScreen extends Screen {
         this.addRenderableWidget(raidButton);
 
         // Settings Button
-        this.addRenderableWidget(new ImageButton(
+        ImageButton settingsButton = new ImageButton(
                 this.width - IMAGE_BUTTON_WIDTH - 10,
                 startY,
                 IMAGE_BUTTON_WIDTH,
                 IMAGE_BUTTON_HEIGHT,
                 Sprite.SETTINGS_BUTTON,
                 b -> SettingsScreen.open(this),
-                Component.translatable("gui.wynnventory.reward.button.config")));
+                Component.translatable("gui.wynnventory.reward.button.config"));
+        this.addRenderableWidget(settingsButton);
+        tooltippedWidgets.add(settingsButton);
 
         // Reload Button
-        this.addRenderableWidget(new ImageButton(
+        ImageButton reloadButton = new ImageButton(
                 this.width - (IMAGE_BUTTON_WIDTH * 2) - IMAGE_BUTTON_PADDING_X,
                 startY,
                 IMAGE_BUTTON_WIDTH,
@@ -174,7 +180,9 @@ public class RewardScreen extends Screen {
                     this.triggerRecalc();
                     this.minecraft.execute(this::rebuildWidgets);
                 }),
-                Component.translatable("gui.wynnventory.reward.button.reload")));
+                Component.translatable("gui.wynnventory.reward.button.reload"));
+        this.addRenderableWidget(reloadButton);
+        tooltippedWidgets.add(reloadButton);
 
         int middleY = (this.height - NAV_BUTTON_HEIGHT) / 2;
         ImageButton prevButton = new ImageButton(
@@ -264,6 +272,25 @@ public class RewardScreen extends Screen {
         for (ItemButton<GuideItemStack> widget : itemWidgets) {
             if (widget.isHovered()) {
                 graphics.renderTooltip(this.font, widget.getItemStack(), mouseX, mouseY);
+            }
+        }
+
+        for (WynnventoryButton widget : tooltippedWidgets) {
+            if (widget.isHovered()) {
+                if (widget instanceof FilterButton) {
+                    graphics.renderTooltip(
+                            this.font,
+                            com.google.common.collect.Lists.transform(
+                                    com.wynntils.utils.mc.ComponentUtils.wrapTooltips(
+                                            List.of(Component.translatable(
+                                                    "gui.wynnventory.reward.button.filter", widget.getMessage())),
+                                            200),
+                                    Component::getVisualOrderText),
+                            mouseX,
+                            mouseY);
+                } else if (widget instanceof ImageButton && !widget.getMessage().equals(Component.empty())) {
+                    graphics.renderTooltip(this.font, widget.getMessage(), mouseX, mouseY);
+                }
             }
         }
     }
@@ -521,7 +548,7 @@ public class RewardScreen extends Screen {
 
     private void addFilterButton(
             String label, Sprite icon, BooleanSupplier getter, Consumer<Boolean> setter, int x, int y, int w) {
-        this.addRenderableWidget(new FilterButton(x, y, w, 16, Component.literal(label), icon, getter, setter, () -> {
+        FilterButton button = new FilterButton(x, y, w, 16, Component.literal(label), icon, getter, setter, () -> {
             try {
                 ModConfig.getInstance().save();
             } catch (IOException e) {
@@ -529,7 +556,9 @@ public class RewardScreen extends Screen {
                 WynnventoryMod.logError("Failed to save filter settings.", e);
             }
             this.rebuildWidgets();
-        }));
+        });
+        this.addRenderableWidget(button);
+        tooltippedWidgets.add(button);
     }
 
     private boolean matchesFilters(SimpleItem item) {

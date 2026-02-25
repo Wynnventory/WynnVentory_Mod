@@ -1,16 +1,12 @@
 package com.wynnventory.gui.widget;
 
-import com.google.common.collect.Lists;
 import com.wynntils.utils.colors.CommonColors;
 import com.wynntils.utils.colors.CustomColor;
-import com.wynntils.utils.mc.ComponentUtils;
 import com.wynntils.utils.render.RenderUtils;
 import com.wynnventory.gui.Sprite;
-import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
@@ -67,17 +63,6 @@ public class FilterButton extends WynnventoryButton {
         if (isHovered()) {
             RenderUtils.drawRect(
                     graphics.pose(), CommonColors.WHITE.withAlpha(0.3f), getX(), getY(), 1f, getWidth(), getHeight());
-
-            graphics.renderTooltip(
-                    Minecraft.getInstance().font,
-                    Lists.transform(
-                            ComponentUtils.wrapTooltips(
-                                    List.of(Component.translatable(
-                                            "gui.wynnventory.reward.button.filter", getMessage())),
-                                    200),
-                            Component::getVisualOrderText),
-                    mouseX,
-                    mouseY);
         }
     }
 

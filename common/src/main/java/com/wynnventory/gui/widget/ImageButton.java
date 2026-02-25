@@ -1,7 +1,6 @@
 package com.wynnventory.gui.widget;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.wynntils.utils.mc.McUtils;
 import com.wynntils.utils.render.RenderUtils;
 import com.wynnventory.gui.Sprite;
 import net.minecraft.client.gui.GuiGraphics;
@@ -41,10 +40,6 @@ public class ImageButton extends WynnventoryButton {
                 sprite.width(),
                 sprite.height());
         pose.popPose();
-
-        if (isHovered() && !getMessage().equals(Component.empty())) {
-            graphics.renderTooltip(McUtils.mc().font, getMessage(), mouseX, mouseY);
-        }
     }
 
     @Override
