@@ -80,6 +80,7 @@ jobs:
     outputs:
       fabric_jar_name: ${{ steps.jar.outputs.fabric_jar_name }}
       neoforge_jar_name: ${{ steps.jar.outputs.neoforge_jar_name }}
+      mc_version: ${{ steps.jar.outputs.mc_version }}
 
     steps:
       - name: Checkout
@@ -107,17 +108,26 @@ jobs:
       - name: Build
         run: ./gradlew build --stacktrace
 
-      - name: Rename artifacts
+      - name: Locate artifacts
         id: jar
         shell: bash
         run: |
-          version="${{ github.event.inputs.manual_version }}"
-          fabric_jar="wynnventory-fabric-$version.jar"
-          neoforge_jar="wynnventory-neoforge-$version.jar"
-          fabric_path=$(find fabric/build/libs/ -name "wynnventory-fabric-*.jar" ! -name "*-sources.jar" ! -name "*-shadow.jar" | head -n 1)
-          neoforge_path=$(find neoforge/build/libs/ -name "wynnventory-neoforge-*.jar" ! -name "*-sources.jar" ! -name "*-shadow.jar" | head -n 1)
-          mv "$fabric_path" "$fabric_jar"
-          mv "$neoforge_path" "$neoforge_jar"
+          # Find the Minecraft version from gradle.properties
+          mc_version=$(grep "minecraft_version" gradle.properties | cut -d'=' -f2 | xargs)
+          echo "mc_version=$mc_version" >> "$GITHUB_OUTPUT"
+
+          # Find the main jar (excluding sources and shadow/dev jars)
+          fabric_path=$(find fabric/build/libs/ -name "wynnventory-*.jar" ! -name "*-sources.jar" ! -name "*-dev-shadow.jar" | head -n 1)
+          neoforge_path=$(find neoforge/build/libs/ -name "wynnventory-*.jar" ! -name "*-sources.jar" ! -name "*-dev-shadow.jar" | head -n 1)
+
+          # Extract just the filename from the path
+          fabric_jar=$(basename "$fabric_path")
+          neoforge_jar=$(basename "$neoforge_path")
+
+          # Copy them to the root so the 'Upload JARs' step finds them easily
+          cp "$fabric_path" .
+          cp "$neoforge_path" .
+
           echo "fabric_jar_name=$fabric_jar" >> "$GITHUB_OUTPUT"
           echo "neoforge_jar_name=$neoforge_jar" >> "$GITHUB_OUTPUT"
 
@@ -195,7 +205,7 @@ jobs:
           changelog: ${{ needs.changelog.outputs.changelog }}
 
           game-versions: |
-            [1.21.11]
+            [${{ needs.build.outputs.mc_version }}]
           loaders: |
             fabric
 
@@ -233,7 +243,7 @@ jobs:
           changelog: ${{ needs.changelog.outputs.changelog }}
 
           game-versions: |
-            [1.21.11]
+            [${{ needs.build.outputs.mc_version }}]
           loaders: |
             neoforge
 
