@@ -13,7 +13,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 public class PriceTooltipFeature {
     private final PriceTooltipFactory tooltipFactory = new PriceTooltipFactory(new PriceTooltipBuilder());
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent(priority = EventPriority.LOW)
     public void onTooltipRendered(ItemTooltipRenderEvent.Pre event) {
         if (ModConfig.getInstance().getTooltipSettings().isShowTooltips()) {
             renderTooltip(
