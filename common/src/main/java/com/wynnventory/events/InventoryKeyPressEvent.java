@@ -1,17 +1,28 @@
 package com.wynnventory.events;
 
-import net.minecraft.client.input.KeyEvent;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 
 public class InventoryKeyPressEvent extends Event implements ICancellableEvent {
-    private final KeyEvent keyEvent;
+    private final int keyCode;
+    private final int scanCode;
+    private final int modifiers;
 
-    public InventoryKeyPressEvent(KeyEvent keyEvent) {
-        this.keyEvent = keyEvent;
+    public InventoryKeyPressEvent(int keyCode, int scanCode, int modifiers) {
+        this.keyCode = keyCode;
+        this.scanCode = scanCode;
+        this.modifiers = modifiers;
     }
 
-    public KeyEvent getKeyEvent() {
-        return keyEvent;
+    public int getKeyCode() {
+        return keyCode;
+    }
+
+    public int getScanCode() {
+        return scanCode;
+    }
+
+    public int getModifiers() {
+        return modifiers;
     }
 }

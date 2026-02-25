@@ -10,6 +10,8 @@ public enum Keybinds {
     SETTINGS_TOGGLE_BOXED_TOOLTIPS(
             "key.wynnventory.toggleBoxedTooltips", GLFW.GLFW_KEY_COMMA, true, ModConfig::toggleBoxedTooltips);
 
+    public static final String ROOT_CATEGORY = "Wynnventory";
+
     public final String translationKey;
     public final int defaultKey;
     public final boolean allowInInventory;

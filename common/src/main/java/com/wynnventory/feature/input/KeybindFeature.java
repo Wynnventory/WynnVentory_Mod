@@ -37,7 +37,7 @@ public final class KeybindFeature {
     public void onInventoryKeyPress(InventoryKeyPressEvent event) {
         for (Map.Entry<Keybinds, KeyMapping> entry : KeybindFeature.all()) {
             if (!entry.getKey().allowInInventory) continue;
-            if (entry.getValue().matches(event.getKeyEvent())) {
+            if (entry.getValue().matches(event.getKeyCode(), event.getScanCode())) {
                 handle(entry.getKey());
             }
         }

@@ -14,8 +14,8 @@ public class ImageWidget extends WynnventoryButton {
     }
 
     @Override
-    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        RenderUtils.drawTexturedRect(
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        RenderUtils.drawTexturedRectWithColor(
                 graphics.pose(),
                 sprite.resource(),
                 CustomColor.NONE,
@@ -25,9 +25,6 @@ public class ImageWidget extends WynnventoryButton {
                 getHeight(),
                 0,
                 0,
-                sprite.width(),
-                sprite.height(),
-                sprite.width(),
                 sprite.height());
     }
 

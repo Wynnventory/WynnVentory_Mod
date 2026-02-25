@@ -11,7 +11,7 @@ public class RectWidget extends WynnventoryButton {
     }
 
     @Override
-    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), color);
     }
 

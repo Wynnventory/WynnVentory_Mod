@@ -3,17 +3,15 @@ package com.wynnventory.util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 
 public final class ChatUtils {
-    private static final FontDescription PILL_FONT =
-            new FontDescription.Resource(ResourceLocation.withDefaultNamespace("banner/pill"));
+    private static final ResourceLocation PILL_FONT = ResourceLocation.withDefaultNamespace("banner/pill");
     private static final Style BACKGROUND_STYLE =
             Style.EMPTY.withFont(PILL_FONT).withColor(ChatFormatting.GREEN);
     private static final Style FOREGROUND_STYLE =
-            Style.EMPTY.withFont(PILL_FONT).withColor(ChatFormatting.BLACK).withoutShadow();
+            Style.EMPTY.withFont(PILL_FONT).withColor(ChatFormatting.BLACK);
     private static final Component WYNNVENTORY_BACKGROUND_PILL = Component.literal(
                     "\uE060\uDAFF\uDFFF\uE046\uDAFF\uDFFF\uE048\uDAFF\uDFFF\uE03D\uDAFF\uDFFF\uE03D\uDAFF\uDFFF\uE045\uDAFF\uDFFF\uE034\uDAFF\uDFFF\uE03D\uDAFF\uDFFF\uE043\uDAFF\uDFFF\uE03E\uDAFF\uDFFF\uE041\uDAFF\uDFFF\uE048\uDAFF\uDFFF\uE062\uDAFF\uDFB7")
             .withStyle(BACKGROUND_STYLE);

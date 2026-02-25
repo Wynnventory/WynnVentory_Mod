@@ -2,6 +2,7 @@ package com.wynnventory.util;
 
 import com.wynntils.core.components.Managers;
 import com.wynntils.features.tooltips.TooltipFittingFeature;
+import com.wynntils.utils.mc.TooltipUtils;
 import com.wynnventory.core.config.ModConfig;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +46,10 @@ public abstract class RenderUtils {
         int vanillaY = vanillaPos.y();
 
         float priceScale = getScaleFactor(priceComponents);
-        int priceW = (int) (tooltipWidth(priceComponents, font) * priceScale);
-        int priceH = (int) (tooltipHeight(priceComponents, font) * priceScale);
+        //        int priceW = (int) (tooltipWidth(priceComponents, font) * priceScale);
+        int priceW = (int) (TooltipUtils.getTooltipWidth(priceComponents, font) * priceScale);
+        //        int priceH = (int) (tooltipHeight(priceComponents, font) * priceScale);
+        int priceH = (int) (TooltipUtils.getTooltipHeight(priceComponents) * priceScale);
 
         if (ModConfig.getInstance().getTooltipSettings().isAnchorTooltips()) {
             return new Vector2i(TOOLTIP_GAP, screenH / 2 - priceH / 2);
@@ -86,7 +89,8 @@ public abstract class RenderUtils {
         float scale = RenderUtils.getScaleFactor(customComponents);
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(scale, scale, scale);
-        guiGraphics.renderTooltip(Minecraft.getInstance().font, customComponents, mouseX, mouseY, fixed, null);
+        guiGraphics.renderTooltip(
+                Minecraft.getInstance().font, customLines, Optional.empty(), tooltipCoords.x, tooltipCoords.y);
         guiGraphics.pose().popPose();
     }
 

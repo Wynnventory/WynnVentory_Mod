@@ -37,7 +37,7 @@ public class SettingsScreen extends OptionsSubScreen {
     @Override
     protected void addOptions() {
         for (Section section : Section.values()) {
-            this.list.addHeader(Component.translatable(section.translationKey));
+            //            this.list.(Component.translatable(section.translationKey));
             section.getTab().addOptions(this.list);
             section.getTab().initCustomWidgets(this, this.list);
         }

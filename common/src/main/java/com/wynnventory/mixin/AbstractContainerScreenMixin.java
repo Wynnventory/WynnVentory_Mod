@@ -50,7 +50,7 @@ public abstract class AbstractContainerScreenMixin extends Screen {
 
     @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
     public void keyPressed(int i, int j, int k, CallbackInfoReturnable<Boolean> cir) {
-        InventoryKeyPressEvent event = new InventoryKeyPressEvent(keyEvent);
+        InventoryKeyPressEvent event = new InventoryKeyPressEvent(i, j, k);
         WynnventoryMod.postEvent(event);
 
         if (event.isCanceled()) cir.cancel();

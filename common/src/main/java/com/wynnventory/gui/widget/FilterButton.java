@@ -38,14 +38,14 @@ public class FilterButton extends WynnventoryButton {
     }
 
     @Override
-    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         boolean state = getter.getAsBoolean();
 
         // Render icon
         if (icon != null) {
             // Gray out if inactive
             CustomColor tint = state ? CustomColor.NONE : CustomColor.fromChatFormatting(ChatFormatting.DARK_GRAY);
-            RenderUtils.drawTexturedRect(
+            RenderUtils.drawTexturedRectWithColor(
                     graphics.pose(),
                     icon.resource(),
                     tint,
@@ -55,9 +55,6 @@ public class FilterButton extends WynnventoryButton {
                     getHeight(),
                     0,
                     0,
-                    icon.width(),
-                    icon.height(),
-                    icon.width(),
                     icon.height());
         }
 

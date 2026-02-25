@@ -26,7 +26,7 @@ public class TextWidget extends WynnventoryButton {
     }
 
     @Override
-    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         graphics.pose().pushPose();
         graphics.pose().translate(getX(), getY(), 1f);
         graphics.pose().scale(scale, scale, scale);

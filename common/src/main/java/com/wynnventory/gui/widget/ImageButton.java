@@ -27,10 +27,10 @@ public class ImageButton extends WynnventoryButton {
     }
 
     @Override
-    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         int spriteStart = isHovered() ? sprite.width() / 2 : 0;
 
-        RenderUtils.drawTexturedRect(
+        RenderUtils.drawTexturedRectWithColor(
                 graphics.pose(),
                 sprite.resource(),
                 CustomColor.NONE,
@@ -40,9 +40,6 @@ public class ImageButton extends WynnventoryButton {
                 getHeight(),
                 spriteStart,
                 0,
-                sprite.width() / 2f,
-                sprite.height(),
-                sprite.width(),
                 sprite.height());
     }
 }

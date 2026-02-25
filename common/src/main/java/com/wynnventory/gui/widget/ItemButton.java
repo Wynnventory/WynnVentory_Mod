@@ -1,5 +1,6 @@
 package com.wynnventory.gui.widget;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Services;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.screens.guides.GuideItemStack;
@@ -39,12 +40,14 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
     }
 
     @Override
-    public void renderContents(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        PoseStack poseStack = g.pose();
+
         // Colored highlight like Wynntils (scaled to our box)
         CustomColor color = getCustomColor();
         if (color != CustomColor.NONE) {
-            RenderUtils.drawTexturedRect(
-                    g.pose(),
+            RenderUtils.drawTexturedRectWithColor(
+                    poseStack,
                     Texture.HIGHLIGHT.resource(),
                     color,
                     getX() - 1f,
@@ -53,10 +56,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                     height + 2f,
                     0,
                     0,
-                    18,
-                    18,
-                    Texture.HIGHLIGHT.width(),
-                    Texture.HIGHLIGHT.height());
+                    18);
         }
 
         // Draw item (MC item icon anchored at button origin, scaled)
@@ -80,10 +80,11 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         if (Services.Favorites.isFavorite(itemStack)) {
             float favScale = width / 18f;
             RenderUtils.drawScalingTexturedRect(
-                    g.pose(),
+                    poseStack,
                     Texture.FAVORITE_ICON.resource(),
                     getX() + (12 * favScale),
                     getY() - (4 * favScale),
+                    200,
                     (int) (9 * favScale),
                     (int) (9 * favScale),
                     Texture.FAVORITE_ICON.width(),
@@ -116,17 +117,17 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (!KeyboardUtils.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT) && !KeyboardUtils.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT)) {
             return false;
         }
 
         String unformattedName =
                 StyledText.fromComponent(itemStack.getHoverName()).getStringWithoutFormatting();
-        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+        if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             Util.getPlatform().openUri("https://www.wynnventory.com/history/" + HttpUtils.encode(unformattedName));
             return true;
-        } else if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+        } else if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
             Services.Favorites.toggleFavorite(unformattedName);
         }
 
