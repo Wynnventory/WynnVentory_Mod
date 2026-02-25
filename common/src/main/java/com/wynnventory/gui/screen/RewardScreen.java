@@ -120,6 +120,7 @@ public class RewardScreen extends Screen {
 
     @Override
     protected void init() {
+        itemWidgets.clear();
         // During live window resizing, skip heavy widget rebuilds entirely.
         // We'll rebuild once after the resize settles via triggerRecalc() in resize().
         if (this.suppressInitRecalc) {

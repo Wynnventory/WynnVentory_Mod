@@ -2,10 +2,10 @@ package com.wynnventory.feature.updater;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wynntils.models.worlds.event.WorldStateEvent;
-import com.wynntils.models.worlds.type.WorldState;
+import com.wynntils.core.mod.event.WynncraftConnectionEvent;
 import com.wynnventory.core.WynnventoryMod;
-import com.wynnventory.util.ChatUtils;
+import com.wynnventory.feature.joinmessage.MessageSeverity;
+import com.wynnventory.feature.joinmessage.ServerJoinMessageFeature;
 import com.wynnventory.util.HttpUtils;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,15 +28,13 @@ public class AutoUpdateFeature {
     private static final String HASH_ALGORITHM = "SHA-1";
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onWorldStateChange(WorldStateEvent e) {
-        if ((e.isFirstJoinWorld() || e.getNewState() == WorldState.WORLD) && e.isFirstJoinWorld()) {
-            checkForUpdates();
-        }
+    public void onWorldStateChange(WynncraftConnectionEvent.Connected e) {
+        checkForUpdates();
     }
 
     private static void checkForUpdates() {
         if (WynnventoryMod.isBeta()) {
-            ChatUtils.info(Component.translatable("feature.wynnventory.update.betaNotification"));
+            ServerJoinMessageFeature.queueMessage(MessageSeverity.INFO, "feature.wynnventory.update.betaNotification");
             return;
         }
 
@@ -59,8 +57,10 @@ public class AutoUpdateFeature {
 
                     String replacedVersion = updateResp.versionNumber.replace("v", "");
                     if (!WynnventoryMod.getVersion().equalsIgnoreCase(replacedVersion)) {
-                        ChatUtils.info(Component.translatable(
-                                "feature.wynnventory.update.notifyUserOfUpdate", replacedVersion));
+                        ServerJoinMessageFeature.queueMessage(
+                                MessageSeverity.INFO,
+                                Component.translatable(
+                                        "feature.wynnventory.update.notifyUserOfUpdate", replacedVersion));
                         downloadArtifact(updateResp.files.getFirst());
                         scheduleFileReplacementOnShutdown(WynnventoryMod.getModFile());
                     }

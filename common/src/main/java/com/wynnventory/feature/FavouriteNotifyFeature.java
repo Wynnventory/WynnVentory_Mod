@@ -69,7 +69,7 @@ public class FavouriteNotifyFeature {
         for (int i = 0; i < shown; i++) {
             FavouriteMatch match = matches.get(i);
             showToast(
-                    "feature.wynnventory.favotireNotifier.favouriteFound.title",
+                    "feature.wynnventory.favouriteNotifier.favouriteFound.title",
                     Component.literal(match.rarityColor() + match.itemName() + ChatFormatting.WHITE + " in "
                             + match.pool.getShortName()));
         }
@@ -77,7 +77,7 @@ public class FavouriteNotifyFeature {
         int remaining = total - shown;
         if (remaining > 0) {
             showToast(
-                    "feature.wynnventory.favotireNotifier.moreFound.title", Component.literal(remaining + " more..."));
+                    "feature.wynnventory.favouriteNotifier.moreFound.title", Component.literal(remaining + " more..."));
         }
     }
 
