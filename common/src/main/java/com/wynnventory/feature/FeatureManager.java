@@ -23,16 +23,15 @@ public enum FeatureManager {
     private final KeybindFeature keybindFeature = new KeybindFeature();
 
     // Registered with wynntils
-    private final ServerJoinMessageFeature serverJoinMessageFeature = new ServerJoinMessageFeature();
     private final AspectTooltipFeature aspectTooltipFeature = new AspectTooltipFeature();
-    private final AutoUpdateFeature autoUpdateFeature = new AutoUpdateFeature();
     private final FavouriteNotifyFeature favouriteNotifyFeature = new FavouriteNotifyFeature();
     private final PriceTooltipFeature priceTooltipFeature = new PriceTooltipFeature();
 
     private boolean isBetaServer = false;
 
     FeatureManager() {
-        WynntilsMod.registerEventListener(serverJoinMessageFeature);
+        WynntilsMod.registerEventListener(new AutoUpdateFeature());
+        WynntilsMod.registerEventListener(new ServerJoinMessageFeature());
     }
 
     @SubscribeEvent
@@ -65,7 +64,6 @@ public enum FeatureManager {
         WynnventoryMod.registerEventListener(keybindFeature);
 
         WynntilsMod.registerEventListener(aspectTooltipFeature);
-        WynntilsMod.registerEventListener(autoUpdateFeature);
         WynntilsMod.registerEventListener(favouriteNotifyFeature);
         WynntilsMod.registerEventListener(priceTooltipFeature);
     }
@@ -77,7 +75,6 @@ public enum FeatureManager {
         WynnventoryMod.unregisterEventListener(keybindFeature);
 
         WynntilsMod.unregisterEventListener(aspectTooltipFeature);
-        WynntilsMod.unregisterEventListener(autoUpdateFeature);
         WynntilsMod.unregisterEventListener(favouriteNotifyFeature);
         WynntilsMod.unregisterEventListener(priceTooltipFeature);
     }
