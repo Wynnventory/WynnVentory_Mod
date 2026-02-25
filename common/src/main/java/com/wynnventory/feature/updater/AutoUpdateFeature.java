@@ -62,7 +62,14 @@ public class AutoUpdateFeature {
                                 MessageSeverity.INFO,
                                 Component.translatable(
                                         "feature.wynnventory.update.notifyUserOfUpdate", replacedVersion));
+
                         File updateJar = downloadArtifact(updateResp.files.getFirst());
+
+                        ServerJoinMessageFeature.queueMessage(
+                                MessageSeverity.INFO,
+                                Component.translatable(
+                                        "feature.wynnventory.update.notifyUserOfUpdate.success", replacedVersion));
+
                         scheduleFileReplacementOnShutdown(currentFile, updateJar);
                     }
                 } catch (JsonProcessingException e) {

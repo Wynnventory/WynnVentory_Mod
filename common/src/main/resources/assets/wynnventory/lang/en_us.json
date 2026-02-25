@@ -20,6 +20,7 @@
   "feature.wynnventory.update.betaNotification": "This is a beta build. Skipping update check...",
   "feature.wynnventory.update.notifyUserOfDownloadCompletion": "Download completed! Restart Minecraft to apply the update.",
   "feature.wynnventory.update.notifyUserOfUpdate": "New version available: %s. Attempting to auto-update...",
+  "feature.wynnventory.update.notifyUserOfUpdate.success": "Successfully downloaded %s",
   "gui.wynnventory.reward.button.config": "Open Mod Settings",
   "gui.wynnventory.reward.button.filter": "Toggle filtering for %s",
   "gui.wynnventory.reward.button.reload": "Reload Lootpools",
