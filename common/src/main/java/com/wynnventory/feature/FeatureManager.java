@@ -36,7 +36,7 @@ public enum FeatureManager {
 
     @SubscribeEvent
     public void onConnect(WynncraftConnectionEvent.Connected event) {
-        isBetaServer = !event.getHost().equalsIgnoreCase("play");
+        isBetaServer = event.getHost().equalsIgnoreCase("beta");
 
         if (shouldEnableFeatures()) {
             registerFeatures();
