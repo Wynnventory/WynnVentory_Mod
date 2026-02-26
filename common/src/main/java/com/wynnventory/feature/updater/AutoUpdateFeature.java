@@ -35,7 +35,8 @@ public class AutoUpdateFeature {
 
     private static void checkForUpdates() {
         if (WynnventoryMod.isBeta()) {
-            ServerJoinMessageFeature.queueMessage(MessageSeverity.INFO, "feature.wynnventory.update.betaNotification");
+            ServerJoinMessageFeature.queueGameMessage(
+                    MessageSeverity.INFO, "feature.wynnventory.update.betaNotification");
             return;
         }
 
@@ -58,14 +59,14 @@ public class AutoUpdateFeature {
 
                     String replacedVersion = updateResp.versionNumber.replace("v", "");
                     if (!WynnventoryMod.getVersion().equalsIgnoreCase(replacedVersion)) {
-                        ServerJoinMessageFeature.queueMessage(
+                        ServerJoinMessageFeature.queueGameMessage(
                                 MessageSeverity.INFO,
                                 Component.translatable(
                                         "feature.wynnventory.update.notifyUserOfUpdate", replacedVersion));
 
                         File updateJar = downloadArtifact(updateResp.files.getFirst());
 
-                        ServerJoinMessageFeature.queueMessage(
+                        ServerJoinMessageFeature.queueGameMessage(
                                 MessageSeverity.INFO,
                                 Component.translatable(
                                         "feature.wynnventory.update.notifyUserOfUpdate.success", replacedVersion));
