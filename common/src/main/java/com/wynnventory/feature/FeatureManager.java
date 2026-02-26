@@ -44,10 +44,10 @@ public enum FeatureManager {
             unregisterFeatures();
 
             if (WynnventoryMod.isBeta() && !isBetaServer) {
-                ServerJoinMessageFeature.queueMessage(
+                ServerJoinMessageFeature.queueCharSelectionMessage(
                         MessageSeverity.ERROR, "feature.wynnventory.disabled.betaOnReleaseServer");
             } else {
-                ServerJoinMessageFeature.queueMessage(
+                ServerJoinMessageFeature.queueCharSelectionMessage(
                         MessageSeverity.ERROR, "feature.wynnventory.disabled.releaseOnBetaServer");
             }
         }
