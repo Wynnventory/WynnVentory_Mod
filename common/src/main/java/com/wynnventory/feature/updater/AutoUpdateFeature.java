@@ -3,6 +3,7 @@ package com.wynnventory.feature.updater;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wynntils.core.mod.event.WynncraftConnectionEvent;
+import com.wynntils.utils.FileUtils;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.feature.joinmessage.MessageSeverity;
 import com.wynnventory.feature.joinmessage.ServerJoinMessageFeature;
@@ -22,7 +23,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
-import org.apache.commons.io.FileUtils;
 
 public class AutoUpdateFeature {
     private static final String MODRINTH_UPDATE_API = "https://api.modrinth.com/v2/version_file/%s/update";
@@ -123,11 +123,11 @@ public class AutoUpdateFeature {
                 }
 
                 FileUtils.copyFile(newJar, oldJar);
-                Files.deleteIfExists(newJar.toPath());
+                Files.delete(newJar.toPath());
 
                 WynnventoryMod.logInfo("Successfully applied update!");
             } catch (IOException e) {
-                WynnventoryMod.logError("Failed to delete old mod file", e);
+                WynnventoryMod.logError("Failed to delete new mod file", e);
             }
         }));
     }
