@@ -37,6 +37,7 @@
   "gui.wynnventory.settings.rewardscreen.layoutMode": "Layout Mode",
   "gui.wynnventory.settings.rewardscreen.layoutMode.compact": "Compact (All Pools)",
   "gui.wynnventory.settings.rewardscreen.layoutMode.default": "Default (Carousel)",
+  "gui.wynnventory.settings.rewardscreen.maxPoolsPerPage": "Max Pools to show",
   "gui.wynnventory.settings.section.highlighting": "Price Highlighting",
   "gui.wynnventory.settings.section.notifications": "Notifications",
   "gui.wynnventory.settings.section.rewardscreen": "Reward Screen",
