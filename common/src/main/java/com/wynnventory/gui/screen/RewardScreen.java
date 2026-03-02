@@ -110,9 +110,8 @@ public class RewardScreen extends Screen {
     private static final double TOP_AWNING_OVERLAP = 0.5; // Sections start halfway into pool top
 
     // Compact layout constants
-    // TODO: auto-scale icon size based on the number of pools being displayed
-    private static final int COMPACT_ITEM_SIZE = 12;
-    private static final int COMPACT_ITEM_PITCH = 14;
+    private static final int COMPACT_ITEM_SIZE = 14;
+    private static final int COMPACT_ITEM_PITCH = 16;
     private static final int COMPACT_COL_MIN_WIDTH = 70;
     private static final int COMPACT_SECTION_HEADER_HEIGHT = 12;
     private static final float COMPACT_HEADER_LABEL_SCALE = 0.85f;
@@ -219,7 +218,8 @@ public class RewardScreen extends Screen {
                 }),
                 Component.translatable("gui.wynnventory.reward.button.reload")));
 
-        // Carousel nav arrows (only in default mode, and only when pools exceed page capacity)
+        // Carousel nav arrows (only in default mode, and only when pools exceed page
+        // capacity)
         if (!isCompactMode()) {
             int maxPerPage = Math.min(s.getMaxPoolsPerPage(), 2 * getCurrentColumns());
             if (getActivePools().size() > maxPerPage) {
@@ -685,8 +685,10 @@ public class RewardScreen extends Screen {
     }
 
     private int getCurrentColumns(double scale) {
-        // Determine how many pool columns can fit based on available width and current scale.
-        // We use the larger of the header width and the interior body width as the minimum section footprint.
+        // Determine how many pool columns can fit based on available width and current
+        // scale.
+        // We use the larger of the header width and the interior body width as the
+        // minimum section footprint.
         int contentWidth = getContentWidth();
 
         int headerW = (int) (Sprite.LOOTRUN_POOL_TOP_SECTION.width() * scale);
@@ -778,7 +780,8 @@ public class RewardScreen extends Screen {
 
         // --- Multi-row scaling optimization ---
         // We want the largest possible scale that fits ALL pools within at most 2 rows.
-        // We evaluate both 1-row and 2-row layouts and pick the one with the larger resulting scale.
+        // We evaluate both 1-row and 2-row layouts and pick the one with the larger
+        // resulting scale.
 
         int headerW = Sprite.LOOTRUN_POOL_TOP_SECTION.width();
         int bodyW = INTERIOR_BODY_WIDTH;
