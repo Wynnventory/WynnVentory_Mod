@@ -9,6 +9,7 @@ public class RewardScreenSettings {
     private boolean showCommon = true;
     private boolean showSet = true;
     private boolean showUnusable = true;
+    private int maxPoolsPerPage = 10;
 
     public boolean isShowMythic() {
         return showMythic;
@@ -72,5 +73,13 @@ public class RewardScreenSettings {
 
     public void setShowUnusable(boolean showUnusable) {
         this.showUnusable = showUnusable;
+    }
+
+    public int getMaxPoolsPerPage() {
+        return maxPoolsPerPage;
+    }
+
+    public void setMaxPoolsPerPage(int maxPoolsPerPage) {
+        this.maxPoolsPerPage = maxPoolsPerPage;
     }
 }
