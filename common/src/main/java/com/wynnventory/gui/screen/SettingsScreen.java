@@ -4,7 +4,7 @@ import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.gui.screen.settings.NotificationSettingsTab;
 import com.wynnventory.gui.screen.settings.PriceHighlightSettingsTab;
-import com.wynnventory.gui.screen.settings.RewardSettingsTab;
+import com.wynnventory.gui.screen.settings.RewardScreenSettingsTab;
 import com.wynnventory.gui.screen.settings.SettingsTab;
 import com.wynnventory.gui.screen.settings.TooltipSettingsTab;
 import java.io.IOException;
@@ -66,7 +66,7 @@ public class SettingsScreen extends OptionsSubScreen {
         TOOLTIP("gui.wynnventory.settings.section.tooltip", new TooltipSettingsTab()),
         PRICE_HIGHLIGHT("gui.wynnventory.settings.section.highlighting", new PriceHighlightSettingsTab()),
         NOTIFICATIONS("gui.wynnventory.settings.section.notifications", new NotificationSettingsTab()),
-        REWARD("gui.wynnventory.settings.section.reward", new RewardSettingsTab());
+        REWARD_SCREEN("gui.wynnventory.settings.section.rewardscreen", new RewardScreenSettingsTab());
 
         private final String translationKey;
         private final SettingsTab tab;
