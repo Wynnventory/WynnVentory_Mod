@@ -49,7 +49,7 @@ public record ItemStat(StatActualValue statActualValue, StatPossibleValues possi
             return Objects.equals(
                             statActualValue.statType().getKey(),
                             other.statActualValue.statType().getKey())
-                    && Objects.equals(getRollPercentage(), other.getRollPercentage());
+                    && statActualValue.value() == other.statActualValue.value();
         }
 
         return false;
@@ -57,7 +57,7 @@ public record ItemStat(StatActualValue statActualValue, StatPossibleValues possi
 
     @Override
     public int hashCode() {
-        return Objects.hash(statActualValue.statType().getKey(), getRollPercentage());
+        return Objects.hash(statActualValue.statType().getKey(), statActualValue.value());
     }
 
     @Override

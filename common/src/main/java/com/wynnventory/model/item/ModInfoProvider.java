@@ -15,10 +15,13 @@ public abstract class ModInfoProvider extends TimestampedObject {
     protected ModInfoProvider() {
         super();
 
-        if (McUtils.player() != null) {
-            this.playerName = McUtils.playerName();
-        } else {
-            this.playerName = null;
+        try {
+            if (McUtils.player() != null) {
+                this.playerName = McUtils.playerName();
+            } else {
+                this.playerName = null;
+            }
+        } catch (Exception ignored) {
         }
 
         this.modVersion = WynnventoryMod.getVersion();
