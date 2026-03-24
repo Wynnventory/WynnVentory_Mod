@@ -13,7 +13,7 @@ public class TrademarketListing extends ModInfoProvider {
     private final int price;
     private final int quantity;
 
-    protected TrademarketListing(SimpleItem item, int price, int quantity) {
+    public TrademarketListing(SimpleItem item, int price, int quantity) {
         this.item = item;
         this.price = price;
         this.quantity = quantity;

@@ -43,7 +43,7 @@ public class SimpleTierItem extends SimpleItem {
         if (this == o) return true;
 
         if (o instanceof SimpleTierItem other) {
-            return tier == other.getTier();
+            return tier == other.tier;
         }
 
         return false;
@@ -51,7 +51,7 @@ public class SimpleTierItem extends SimpleItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(tier, name, itemType, type);
+        return Objects.hash(super.hashCode(), tier);
     }
 
     public static SimpleTierItem from(ItemStack stack) {

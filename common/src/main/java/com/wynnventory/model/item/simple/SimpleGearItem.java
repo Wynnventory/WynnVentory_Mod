@@ -120,13 +120,13 @@ public class SimpleGearItem extends SimpleItem {
 
     @Override
     public boolean equals(Object o) {
-        if (!super.equals(o)) return false;
         if (this == o) return true;
+        if (!super.equals(o)) return false;
 
         if (o instanceof SimpleGearItem other) {
             return unidentified == other.unidentified
-                    && Objects.equals(rarity, other.rarity)
-                    && Objects.equals(rerollCount, other.rerollCount)
+                    && rerollCount == other.rerollCount
+                    && overallRollPercentage == other.overallRollPercentage
                     && Objects.equals(actualStatsWithPercentage, other.actualStatsWithPercentage)
                     && Objects.equals(
                             shinyStat.map(s -> s.statType().key() + ":" + s.value()),
@@ -139,14 +139,12 @@ public class SimpleGearItem extends SimpleItem {
     @Override
     public int hashCode() {
         return Objects.hash(
-                name,
-                rarity,
+                super.hashCode(),
                 unidentified,
                 rerollCount,
                 shinyStat.map(s -> s.statType().key() + ":" + s.value()).orElse(null),
-                actualStatsWithPercentage,
-                itemType,
-                type);
+                overallRollPercentage,
+                actualStatsWithPercentage);
     }
 
     public static SimpleGearItem from(GearItem item) {
