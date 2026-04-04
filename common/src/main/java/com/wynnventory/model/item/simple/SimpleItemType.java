@@ -15,7 +15,7 @@ public enum SimpleItemType {
     MATERIAL("MaterialItem", true),
     POWDER("PowderItem", true),
     AMPLIFIER("AmplifierItem", true),
-    HORSE("HorseItem", true),
+    MOUNT("MountItem", true),
     EMERALD_POUCH("EmeraldPouchItem", true),
 
     // SimpleGearItems
