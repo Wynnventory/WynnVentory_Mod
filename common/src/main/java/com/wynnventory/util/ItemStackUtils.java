@@ -11,10 +11,10 @@ import com.wynntils.models.items.items.game.DungeonKeyItem;
 import com.wynntils.models.items.items.game.EmeraldItem;
 import com.wynntils.models.items.items.game.EmeraldPouchItem;
 import com.wynntils.models.items.items.game.GearItem;
-import com.wynntils.models.items.items.game.HorseItem;
 import com.wynntils.models.items.items.game.IngredientItem;
 import com.wynntils.models.items.items.game.InsulatorItem;
 import com.wynntils.models.items.items.game.MaterialItem;
+import com.wynntils.models.items.items.game.MountItem;
 import com.wynntils.models.items.items.game.PowderItem;
 import com.wynntils.models.items.items.game.RuneItem;
 import com.wynntils.models.items.items.game.SimulatorItem;
@@ -53,7 +53,7 @@ public class ItemStackUtils {
             case EmeraldItem emeraldItem -> SimpleItem.from(emeraldItem);
             case EmeraldPouchItem emeraldPouchItem -> SimpleTierItem.from(emeraldPouchItem);
             case GearItem gearItem -> SimpleGearItem.from(gearItem);
-            case HorseItem horseItem -> SimpleTierItem.from(horseItem);
+            case MountItem mountItem -> SimpleTierItem.from(mountItem);
             case IngredientItem ingredientItem -> SimpleTierItem.from(ingredientItem);
             case InsulatorItem insulatorItem -> SimpleItem.from(insulatorItem);
             case MaterialItem materialItem -> SimpleTierItem.from(materialItem);
@@ -135,8 +135,8 @@ public class ItemStackUtils {
         return name;
     }
 
-    public static String getHorseName(HorseItem item) {
-        return StringUtils.toCamelCase(item.getTier().name()) + " Horse";
+    public static String getHorseName(MountItem item) {
+        return StringUtils.toCamelCase(item.getName().orElse(""));
     }
 
     public static ChatFormatting getRarityChatFormattingByName(String rarity) {

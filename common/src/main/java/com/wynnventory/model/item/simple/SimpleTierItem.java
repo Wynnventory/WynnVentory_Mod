@@ -5,9 +5,9 @@ import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.AmplifierItem;
 import com.wynntils.models.items.items.game.EmeraldPouchItem;
-import com.wynntils.models.items.items.game.HorseItem;
 import com.wynntils.models.items.items.game.IngredientItem;
 import com.wynntils.models.items.items.game.MaterialItem;
+import com.wynntils.models.items.items.game.MountItem;
 import com.wynntils.models.items.items.game.PowderItem;
 import com.wynnventory.api.service.IconService;
 import com.wynnventory.model.item.Icon;
@@ -64,7 +64,7 @@ public class SimpleTierItem extends SimpleItem {
             case MaterialItem materialItem -> fromMaterialItem(materialItem);
             case PowderItem powderItem -> fromPowderItem(powderItem);
             case AmplifierItem amplifierItem -> fromAmplifierItem(amplifierItem);
-            case HorseItem horseItem -> fromHorseItem(horseItem);
+            case MountItem mountItem -> fromMountItem(mountItem);
             case EmeraldPouchItem emeraldPouchItem -> fromEmeraldPouchItem(emeraldPouchItem);
             case null, default -> null;
         };
@@ -110,13 +110,9 @@ public class SimpleTierItem extends SimpleItem {
                 amplifierItem.getTier());
     }
 
-    private static SimpleTierItem fromHorseItem(HorseItem horseItem) {
+    private static SimpleTierItem fromMountItem(MountItem mountItem) {
         return createTierItem(
-                horseItem,
-                ItemStackUtils.getHorseName(horseItem),
-                GearTier.NORMAL,
-                SimpleItemType.HORSE,
-                horseItem.getTier().getNumeral());
+                mountItem, ItemStackUtils.getHorseName(mountItem), GearTier.NORMAL, SimpleItemType.MOUNT, 1);
     }
 
     private static SimpleTierItem fromEmeraldPouchItem(EmeraldPouchItem emeraldPouchItem) {
