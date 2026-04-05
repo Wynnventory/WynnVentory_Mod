@@ -2,6 +2,7 @@ package com.wynnventory.mixin;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.RootCommandNode;
+import com.wynntils.models.containers.type.ContainerBounds;
 import com.wynntils.utils.mc.McUtils;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.events.CommandAddedEvent;
@@ -9,8 +10,12 @@ import com.wynnventory.events.CommandSentEvent;
 import com.wynnventory.events.RaidLobbyPopulatedEvent;
 import com.wynnventory.events.RewardPreviewOpenedEvent;
 import com.wynnventory.model.container.Container;
+import com.wynnventory.model.container.LootrunRewardPreviewLayout;
 import com.wynnventory.model.container.RaidLobbyContainer;
+import com.wynnventory.model.container.RaidRewardPreviewLayout;
 import com.wynnventory.model.reward.RewardPool;
+import java.util.List;
+import java.util.function.BiConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -20,6 +25,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.world.flag.FeatureFlagSet;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,6 +41,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     private CommandDispatcher<SharedSuggestionProvider> commands;
 
     @Shadow
+    @Final
     private RegistryAccess.Frozen registryAccess;
 
     @Shadow
@@ -51,24 +58,46 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         return McUtils.mc().isSameThread();
     }
 
+    @Unique
+    private boolean isInsideContainer(int slotIndex, ContainerBounds bounds) {
+        return bounds.getSlots().contains(slotIndex);
+    }
+
+    @Unique
+    private void ifMatchingContainer(int containerId, BiConsumer<Container, String> action) {
+        if (!isRenderThread()) return;
+
+        Container container = Container.current();
+        if (container == null) return;
+        if (!container.matchesContainer(containerId)) return;
+
+        action.accept(container, container.title());
+    }
+
     @Inject(
             method =
                     "handleContainerContent(Lnet/minecraft/network/protocol/game/ClientboundContainerSetContentPacket;)V",
             at = @At("RETURN"))
     private void handleContainerContentPost(ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
-        if (!isRenderThread()) return;
+        ifMatchingContainer(packet.containerId(), (container, title) -> {
+            if (RaidLobbyContainer.matchesTitle(title))
+                WynnventoryMod.postEvent(new RaidLobbyPopulatedEvent(packet.items(), packet.containerId(), title));
+        });
+    }
 
-        Container container = Container.current();
-        if (container == null) return;
-        if (!container.matchesContainer(packet.containerId())) return;
-
-        String title = container.title();
-        if (RewardPool.isLootrunTitle(title))
-            WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Lootrun(packet.items(), packet.containerId(), title));
-        if (RewardPool.isRaidTitle(title))
-            WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Raid(packet.items(), packet.containerId(), title));
-        if (RaidLobbyContainer.matchesTitle(title))
-            WynnventoryMod.postEvent(new RaidLobbyPopulatedEvent(packet.items(), packet.containerId(), title));
+    @Inject(method = "handleContainerSetSlot", at = @At("RETURN"))
+    private void handleContainerSetSlot(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
+        ifMatchingContainer(packet.getContainerId(), (container, title) -> {
+            if (RewardPool.isLootrunTitle(title)
+                    && isInsideContainer(packet.getSlot(), LootrunRewardPreviewLayout.BOUNDS)) {
+                WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Lootrun(
+                        List.of(packet.getItem()), packet.getContainerId(), title));
+            } else if (RewardPool.isRaidTitle(title)
+                    && isInsideContainer(packet.getSlot(), RaidRewardPreviewLayout.BOUNDS)) {
+                WynnventoryMod.postEvent(
+                        new RewardPreviewOpenedEvent.Raid(List.of(packet.getItem()), packet.getContainerId(), title));
+            }
+        });
     }
 
     @Inject(method = "sendCommand(Ljava/lang/String;)V", at = @At("HEAD"), cancellable = true)

@@ -7,8 +7,6 @@ import com.wynntils.utils.wynn.ItemUtils;
 import com.wynnventory.events.RaidLobbyPopulatedEvent;
 import com.wynnventory.events.RewardPreviewOpenedEvent;
 import com.wynnventory.events.TrademarketTooltipRenderedEvent;
-import com.wynnventory.model.container.LootrunRewardPreviewLayout;
-import com.wynnventory.model.container.RaidRewardPreviewLayout;
 import com.wynnventory.model.item.simple.SimpleGambitItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.trademarket.TrademarketListing;
@@ -16,6 +14,7 @@ import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.util.ItemStackUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -31,8 +30,7 @@ public class CrowdSourceFeature {
         if (isDuplicate(event)) return;
 
         QueueScheduler.LOOTRUN_QUEUE.addItems(
-                RewardPool.fromTitle(event.getScreenTitle()),
-                getStacksInBounds(event.getItems(), LootrunRewardPreviewLayout.BOUNDS));
+                RewardPool.fromTitle(event.getScreenTitle()), convertItems(event.getItems()));
     }
 
     @SubscribeEvent
@@ -40,8 +38,7 @@ public class CrowdSourceFeature {
         if (isDuplicate(event)) return;
 
         QueueScheduler.RAID_QUEUE.addItems(
-                RewardPool.fromTitle(event.getScreenTitle()),
-                getStacksInBounds(event.getItems(), RaidRewardPreviewLayout.BOUNDS));
+                RewardPool.fromTitle(event.getScreenTitle()), convertItems(event.getItems()));
     }
 
     @SubscribeEvent
@@ -63,6 +60,13 @@ public class CrowdSourceFeature {
                 QueueScheduler.GAMBIT_QUEUE.addItem(new SimpleGambitItem(item));
             }
         }
+    }
+
+    private static List<SimpleItem> convertItems(List<ItemStack> items) {
+        return items.stream()
+                .map(ItemStackUtils::toSimpleItem)
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     private static List<SimpleItem> getStacksInBounds(List<ItemStack> packetItems, ContainerBounds bounds) {
