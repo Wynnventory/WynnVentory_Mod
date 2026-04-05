@@ -54,7 +54,8 @@ public enum FeatureManager {
     }
 
     public boolean shouldEnableFeatures() {
-        return isBetaServer == WynnventoryMod.isBeta();
+        return true; // Beta check no longer needed
+        // return isBetaServer == WynnventoryMod.isBeta();
     }
 
     private void registerFeatures() {
