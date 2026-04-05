@@ -59,20 +59,6 @@ public enum IconService {
             return null;
         }
 
-        try {
-            String entryType =
-                    entry.has("type") ? entry.get("type").getAsString().toLowerCase() : "";
-
-            if ("armour".equals(entryType)) {
-                String mat = entry.get("armourMaterial").getAsString();
-                String arm = entry.get("armourType").getAsString();
-                return new Icon("armour", mat + "_" + arm);
-            }
-        } catch (Exception e) {
-            WynnventoryMod.logError("Failed to extract icon for entry: " + entry, e);
-            return null;
-        }
-
         return extractIcon(entry);
     }
 
