@@ -37,7 +37,7 @@ import net.minecraft.world.item.ItemStack;
     @JsonSubTypes.Type(value = SimpleTierItem.class, name = "MaterialItem"),
     @JsonSubTypes.Type(value = SimpleTierItem.class, name = "PowderItem"),
     @JsonSubTypes.Type(value = SimpleTierItem.class, name = "AmplifierItem"),
-    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "HorseItem"),
+    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "MountItem"),
     @JsonSubTypes.Type(value = SimpleTierItem.class, name = "EmeraldPouchItem")
 })
 public class SimpleItem extends TimestampedObject {
