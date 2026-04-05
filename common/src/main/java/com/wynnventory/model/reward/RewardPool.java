@@ -38,7 +38,9 @@ public enum RewardPool {
     CANYON_COLOSSUS(
             RewardType.RAID, "TCC", "The Canyon Colossus", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00D")),
     NAMELESS_ANOMALY(
-            RewardType.RAID, "TNA", "The Nameless Anomaly", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00E"));
+            RewardType.RAID, "TNA", "The Nameless Anomaly", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF00E")),
+    WARTORN_PALACE(
+            RewardType.RAID, "TWP", "The Wartorn Palace", Pattern.compile("\uDAFF\uDFEA\uE00D\uDAFF\uDF6F\uF04B"));
     private final RewardType type;
     private final String shortName;
     private final String fullName;
