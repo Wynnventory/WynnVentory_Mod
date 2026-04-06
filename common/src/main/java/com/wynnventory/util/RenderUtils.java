@@ -18,7 +18,7 @@ import org.joml.Vector2i;
 import org.joml.Vector2ic;
 
 public abstract class RenderUtils {
-    private static final int TOOLTIP_GAP = 7;
+    private static final int TOOLTIP_GAP = 18;
     private static final TooltipFittingFeature FITTING_FEATURE =
             Managers.Feature.getFeatureInstance(TooltipFittingFeature.class);
 
