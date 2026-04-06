@@ -14,7 +14,6 @@ import com.wynnventory.model.container.LootrunRewardPreviewLayout;
 import com.wynnventory.model.container.RaidLobbyContainer;
 import com.wynnventory.model.container.RaidRewardPreviewLayout;
 import com.wynnventory.model.reward.RewardPool;
-import java.util.List;
 import java.util.function.BiConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
@@ -90,12 +89,12 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         ifMatchingContainer(packet.getContainerId(), (container, title) -> {
             if (RewardPool.isLootrunTitle(title)
                     && isInsideContainer(packet.getSlot(), LootrunRewardPreviewLayout.BOUNDS)) {
-                WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Lootrun(
-                        List.of(packet.getItem()), packet.getContainerId(), title));
+                WynnventoryMod.postEvent(
+                        new RewardPreviewOpenedEvent.Lootrun(packet.getItem(), packet.getContainerId(), title));
             } else if (RewardPool.isRaidTitle(title)
                     && isInsideContainer(packet.getSlot(), RaidRewardPreviewLayout.BOUNDS)) {
                 WynnventoryMod.postEvent(
-                        new RewardPreviewOpenedEvent.Raid(List.of(packet.getItem()), packet.getContainerId(), title));
+                        new RewardPreviewOpenedEvent.Raid(packet.getItem(), packet.getContainerId(), title));
             }
         });
     }

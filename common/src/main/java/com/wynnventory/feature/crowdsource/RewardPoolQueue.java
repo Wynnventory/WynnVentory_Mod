@@ -3,7 +3,6 @@ package com.wynnventory.feature.crowdsource;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.reward.RewardPool;
-import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,12 +18,12 @@ public final class RewardPoolQueue {
         }
     }
 
-    public void addItems(RewardPool pool, Collection<SimpleItem> items) {
-        Set<SimpleItem> poolItems = pools.get(pool);
-        if (poolItems == null) return;
+    public void addItem(RewardPool pool, SimpleItem item) {
+        if (item == null) return;
+        pools.get(pool).add(item);
 
-        poolItems.addAll(items);
-        WynnventoryMod.logInfo("Collected {} items for RewardPool {}", poolItems.size(), pool.getShortName());
+        WynnventoryMod.logInfo(
+                "Collected {} items for RewardPool {}", pools.get(pool).size(), pool.getShortName());
     }
 
     public Map<RewardPool, Set<SimpleItem>> drainAll() {
