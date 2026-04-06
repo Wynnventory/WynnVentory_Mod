@@ -35,11 +35,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.ItemStack;
 
 public class ItemStackUtils {
-    private static final Pattern PRICE_PATTERN = Pattern.compile(
-            "(?:󐀀(?:§\\{fr:minecraft:language/wynncraft})?)?" + "(?:(?:§f(?:§\\{fr:minecraft:language/wynncraft})?)"
-                    + "(?<amount>\\d+(?:,\\d+)*)\\s§7(?:§\\{fr:minecraft:language/wynncraft})?x\\s"
-                    + "(?:§f(?:§\\{fr:minecraft:language/wynncraft})?))?"
-                    + "(?<price>\\d+(?:,\\d+)*)§7");
+    private static final Pattern PRICE_PATTERN =
+            Pattern.compile("§f(?:\uDB00\uDC00)?(?:(?<amount>\\d+(?:,\\d+)*)\\s§7x\\s§f)?(?<price>\\d+(?:,\\d+)*)§7");
 
     private ItemStackUtils() {}
 
