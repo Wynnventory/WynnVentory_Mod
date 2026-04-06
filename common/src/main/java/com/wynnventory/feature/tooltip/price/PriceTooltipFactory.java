@@ -47,7 +47,16 @@ public final class PriceTooltipFactory {
         TrademarketItemSnapshot snap = TrademarketItemSnapshot.resolveSnapshot(stack);
         if (snap == null || snap.live() == null) return List.of();
 
-        Component itemName = stack instanceof GuideItemStack g ? g.getHoverName() : stack.getCustomName();
+        Component itemName;
+        if (stack instanceof GuideItemStack g) {
+            itemName = g.getHoverName();
+        } else {
+            if (stack.getHoverName().getSiblings().size() < 2) {
+                itemName = stack.getHoverName();
+            } else {
+                itemName = stack.getHoverName().getSiblings().get(1);
+            }
+        }
         return List.of(new PriceSection(itemName, snap));
     }
 
