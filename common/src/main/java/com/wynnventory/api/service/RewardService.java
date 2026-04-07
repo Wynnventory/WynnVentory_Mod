@@ -2,6 +2,7 @@ package com.wynnventory.api.service;
 
 import com.wynntils.models.gear.type.GearTier;
 import com.wynnventory.api.WynnventoryApi;
+import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;
@@ -25,39 +26,65 @@ public enum RewardService {
     RewardService() {}
 
     public CompletableFuture<List<SimpleItem>> getItems(RewardPool pool) {
-        return getAllPools().thenApply(pools -> {
-            List<SimpleItem> items = new ArrayList<>(pools.stream()
-                    .filter(doc ->
-                            doc.getRewardPool() != null && doc.getRewardPool().equals(pool))
-                    .flatMap(doc -> doc.getItems().stream())
-                    .toList());
-
-            if (pool.getType() == RewardType.RAID) sortForRaid(items);
-            else {
-                sortForLootrun(items);
-            }
-
-            return items;
-        });
+        return getAllPools()
+                .thenApply(pools -> extractItemsForPool(pools, pool))
+                .exceptionally(e -> {
+                    WynnventoryMod.logInfo(e.getMessage());
+                    return Collections.emptyList();
+                });
     }
 
-    private void sortForRaid(List<SimpleItem> items) {
-        items.sort(Comparator.comparing(this::getRarityRank, Comparator.reverseOrder())
-                .thenComparing(SimpleItem::getItemType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                .thenComparing(SimpleItem::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                .thenComparing(SimpleItem::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                .thenComparing(i -> i instanceof SimpleTierItem sti ? sti.getTier() : 0)
-                .thenComparing(SimpleItem::getAmount));
+    private List<SimpleItem> extractItemsForPool(List<RewardPoolDocument> pools, RewardPool pool) {
+        List<SimpleItem> items = new ArrayList<>(pools.stream()
+                .filter(doc ->
+                        doc.getRewardPool() != null && doc.getRewardPool().equals(pool))
+                .flatMap(doc -> doc.getItems().stream())
+                .toList());
+
+        sortItems(items, pool.getType());
+
+        return items;
     }
 
-    private void sortForLootrun(List<SimpleItem> items) {
-        items.sort(Comparator.comparing(
-                        (SimpleItem i) -> i instanceof SimpleGearItem gear && gear.isShiny(), Comparator.reverseOrder())
+    private void sortItems(List<SimpleItem> items, RewardType type) {
+        items.sort(getComparator(type));
+    }
+
+    private Comparator<SimpleItem> getComparator(RewardType type) {
+        return switch (type) {
+            case RAID -> raidComparator();
+            default -> lootrunComparator();
+        };
+    }
+
+    private Comparator<SimpleItem> raidComparator() {
+        return Comparator.comparing(this::getRarityRank, Comparator.reverseOrder())
+                .thenComparing(SimpleItem::getItemType, nullSafeString())
+                .thenComparing(SimpleItem::getType, nullSafeString())
+                .thenComparing(SimpleItem::getName, nullSafeString())
+                .thenComparing(this::getTierSafe)
+                .thenComparing(SimpleItem::getAmount);
+    }
+
+    private Comparator<SimpleItem> lootrunComparator() {
+        return Comparator.comparing(this::isShiny, Comparator.reverseOrder())
                 .thenComparing(this::getRarityRank, Comparator.reverseOrder())
-                .thenComparing(SimpleItem::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                .thenComparing(SimpleItem::getItemType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                .thenComparing(SimpleItem::getType, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
-                .thenComparing(SimpleItem::getAmount));
+                .thenComparing(SimpleItem::getName, nullSafeString())
+                .thenComparing(SimpleItem::getItemType, nullSafeString())
+                .thenComparing(SimpleItem::getType, nullSafeString())
+                .thenComparing(SimpleItem::getAmount);
+    }
+
+    private Comparator<String> nullSafeString() {
+        return Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER);
+    }
+
+    private int getTierSafe(SimpleItem item) {
+        return (item instanceof SimpleTierItem sti) ? sti.getTier() : 0;
+    }
+
+    private boolean isShiny(SimpleItem item) {
+        return (item instanceof SimpleGearItem gear) && gear.isShiny();
     }
 
     public CompletableFuture<List<RewardPoolDocument>> getAllPools() {
