@@ -60,7 +60,7 @@ public class SimpleItem extends TimestampedObject {
 
     public SimpleItem(String name, GearTier rarity, SimpleItemType itemType, String type, Icon icon, int amount) {
         this.name = name != null ? name : "";
-        this.rarity = rarity;
+        this.rarity = rarity != null ? rarity : GearTier.NORMAL;
         this.itemType = itemType;
         this.type = type != null ? type : "";
         this.icon = icon;
@@ -72,14 +72,13 @@ public class SimpleItem extends TimestampedObject {
     }
 
     public String getRarity() {
-        if (rarity == GearTier.NORMAL) return "Common";
-
+        if (rarity == GearTier.NORMAL || rarity == null) return "Common";
         return rarity.getName();
     }
 
     @JsonIgnore
     public GearTier getRarityEnum() {
-        return rarity;
+        return rarity != null ? rarity : GearTier.NORMAL;
     }
 
     public String getItemType() {
