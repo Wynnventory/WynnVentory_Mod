@@ -159,7 +159,9 @@ public class SimpleGearItem extends SimpleItem {
                 stack.getCount(),
                 item.isUnidentified(),
                 item.getRerollCount(),
-                new GearModel().parseInstance(item.getItemInfo(), stack).shinyStat(),
+                new GearModel()
+                        .parseInstance(item.getItemInfo(), stack, item.isUnidentified())
+                        .getShinyStat(),
                 item.getOverallPercentage(),
                 getActualStats(item));
     }
