@@ -51,12 +51,9 @@ public final class PriceTooltipFactory {
         if (stack instanceof GuideItemStack g) {
             itemName = g.getHoverName();
         } else {
-            if (stack.getHoverName().getSiblings().size() < 2) {
-                itemName = stack.getHoverName();
-            } else {
-                itemName = stack.getHoverName().getSiblings().get(1);
-            }
+            itemName = ItemStackUtils.getCleanItemNameComponent(stack);
         }
+
         return List.of(new PriceSection(itemName, snap));
     }
 

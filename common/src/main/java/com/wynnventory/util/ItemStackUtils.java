@@ -31,6 +31,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FontDescription;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
 
 public class ItemStackUtils {
@@ -76,6 +79,20 @@ public class ItemStackUtils {
     public static WynnItem getWynnItem(ItemStack stack) {
         Optional<WynnItem> optionalWynnItem = Models.Item.getWynnItem(stack);
         return optionalWynnItem.orElse(null);
+    }
+
+    public static Component getCleanItemNameComponent(ItemStack stack) {
+        StyledText styledText = getWynntilsOriginalName(stack).getNormalized();
+        String cleanName = StringUtils.removeNonAsciiChars(styledText.getStringWithoutFormatting());
+
+        Style style = stack.getHoverName().getSiblings().stream()
+                .filter(c -> FontDescription.DEFAULT.equals(c.getStyle().getFont()))
+                .filter(c -> !StringUtils.removeNonAsciiChars(c.getString()).isBlank())
+                .map(Component::getStyle)
+                .findFirst()
+                .orElse(stack.getHoverName().getStyle());
+
+        return Component.literal(cleanName).withStyle(style);
     }
 
     public static String getMaterialName(MaterialItem item) {
