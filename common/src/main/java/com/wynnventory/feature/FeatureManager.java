@@ -11,6 +11,11 @@ import com.wynnventory.feature.joinmessage.ServerJoinMessageFeature;
 import com.wynnventory.feature.tooltip.aspect.AspectTooltipFeature;
 import com.wynnventory.feature.tooltip.price.PriceTooltipFeature;
 import com.wynnventory.feature.updater.AutoUpdateFeature;
+import java.net.URI;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 import net.neoforged.bus.api.SubscribeEvent;
 
 public enum FeatureManager {
@@ -43,13 +48,25 @@ public enum FeatureManager {
         } else {
             unregisterFeatures();
 
-            if (WynnventoryMod.isBeta() && !isBetaServer) {
-                ServerJoinMessageFeature.queueCharSelectionMessage(
-                        MessageSeverity.ERROR, "feature.wynnventory.disabled.betaOnReleaseServer");
-            } else {
-                ServerJoinMessageFeature.queueCharSelectionMessage(
-                        MessageSeverity.ERROR, "feature.wynnventory.disabled.releaseOnBetaServer");
-            }
+            // Generate Discord invite link
+            String discordLink = "https://discord.gg/b6ATfrePuR";
+            MutableComponent link = Component.literal(discordLink);
+            link.setStyle(link.getStyle()
+                    .withClickEvent(new ClickEvent.OpenUrl(URI.create(discordLink)))
+                    .withHoverEvent(
+                            new HoverEvent.ShowText(Component.literal("Click here to join Wynnventory Discord."))));
+
+            ServerJoinMessageFeature.queueCharSelectionMessage(
+                    MessageSeverity.ERROR, "feature.wynnventory.disabled.frumaIncompatible");
+            ServerJoinMessageFeature.queueCharSelectionMessage(MessageSeverity.INFO, link);
+
+            //            if (WynnventoryMod.isBeta() && !isBetaServer) {
+            //                ServerJoinMessageFeature.queueCharSelectionMessage(
+            //                        MessageSeverity.ERROR, "feature.wynnventory.disabled.betaOnReleaseServer");
+            //            } else {
+            //                ServerJoinMessageFeature.queueCharSelectionMessage(
+            //                        MessageSeverity.ERROR, "feature.wynnventory.disabled.releaseOnBetaServer");
+            //            }
         }
     }
 

@@ -1,6 +1,7 @@
 {
   "command.wynnventory.send.sendCollectedData": "Sent all collected items to the Wynnventory API.",
   "feature.wynnventory.disabled.betaOnReleaseServer": "Beta versions may not be used on live servers. This Wynnventory version is disabled on this server.",
+  "feature.wynnventory.disabled.frumaIncompatible": "Wynnventory does not yet support Fruma. All features have been disabled. Check our Discord for any news.",
   "feature.wynnventory.disabled.releaseOnBetaServer": "Release versions may not be used on beta servers. This Wynnventory version is disabled on this server. Check our Discord for any beta release.",
   "feature.wynnventory.favouriteNotifier.favouriteFound.title": "Favourite Found",
   "feature.wynnventory.favouriteNotifier.moreFound.title": "Favourite Found",
