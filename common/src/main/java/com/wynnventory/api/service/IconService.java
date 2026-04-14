@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.Icon;
+import com.wynnventory.util.StringUtils;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -123,10 +124,7 @@ public enum IconService {
 
         Map<String, JsonObject> cleaned = new HashMap<>();
         for (Map.Entry<String, JsonObject> entry : original.entrySet()) {
-            String rawKey = entry.getKey();
-            // "\\P{ASCII}" matches any character NOT in the ASCII range (0x00 – 0x7F).
-            // Replacing all \P{ASCII} with "" leaves only ASCII characters behind.
-            String strippedKey = rawKey.replaceAll("\\P{ASCII}", "");
+            String strippedKey = StringUtils.removeNonAsciiChars(entry.getKey());
 
             if (cleaned.containsKey(strippedKey)) {
                 WynnventoryMod.logWarn("Key collision after stripping Unicode: " + strippedKey);

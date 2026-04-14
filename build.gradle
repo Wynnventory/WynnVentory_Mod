@@ -117,6 +117,8 @@ subprojects {
 
     loom {
         silentMojangMappingsLicense()
+
+        accessWidenerPath = file("src/main/resources/wynnventory.accessWidener")
     }
 
     dependencies {

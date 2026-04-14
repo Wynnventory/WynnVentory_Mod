@@ -2,6 +2,7 @@ package com.wynnventory.util;
 
 import com.wynntils.core.components.Models;
 import com.wynntils.core.text.StyledText;
+import com.wynntils.mc.extension.ItemStackExtension;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
@@ -25,9 +26,7 @@ import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -65,22 +64,13 @@ public class ItemStackUtils {
     }
 
     public static StyledText getWynntilsOriginalName(ItemStack stack) {
-        try {
-            Field originalNameField = ItemStack.class.getDeclaredField("wynntilsOriginalName");
-            originalNameField.setAccessible(true);
-            return (StyledText) originalNameField.get(stack);
-        } catch (ReflectiveOperationException e) {
-            WynnventoryMod.logError("Error retrieving original name", e);
-            return null;
-        }
+        return ((ItemStackExtension) stack).getOriginalName();
     }
 
     public static String getWynntilsOriginalNameAsString(WynnItem item) {
-        return Objects.requireNonNull(
-                        ItemStackUtils.getWynntilsOriginalName(item.getData().get(WynnItemData.ITEMSTACK_KEY)))
-                .getLastPart()
-                .getComponent()
-                .getString();
+        ItemStack stack = item.getData().get(WynnItemData.ITEMSTACK_KEY);
+        String originalName = getWynntilsOriginalName(stack).getNormalized().getStringWithoutFormatting();
+        return StringUtils.removeNonAsciiChars(originalName);
     }
 
     public static WynnItem getWynnItem(ItemStack stack) {
@@ -105,10 +95,9 @@ public class ItemStackUtils {
             Matcher matcher = styledTextParts.getMatcher(PRICE_PATTERN);
             if (matcher.find()) {
                 int price = Integer.parseInt(matcher.group("price").replace(",", ""));
-                int silverbullPrice = price;
                 String amountStr = matcher.group("amount");
                 int amount = amountStr == null ? 1 : Integer.parseInt(amountStr.replace(",", ""));
-                return new TradeMarketPriceInfo(price, silverbullPrice, amount);
+                return new TradeMarketPriceInfo(price, price, amount);
             }
         }
 
