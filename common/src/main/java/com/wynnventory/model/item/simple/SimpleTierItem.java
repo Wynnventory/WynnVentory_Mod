@@ -138,6 +138,10 @@ public class SimpleTierItem extends SimpleItem {
             icon = IconService.INSTANCE.getIcon(name, tier);
         }
 
+        if (icon == null) {
+            icon = IconService.INSTANCE.getIcon(name, itemType);
+        }
+
         return new SimpleTierItem(name, rarity, itemType, type, icon, amount, tier);
     }
 }

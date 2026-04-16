@@ -2,31 +2,39 @@ package com.wynnventory.model.item.simple;
 
 public enum SimpleItemType {
     // SimpleItems
-    SIMULATOR("SimulatorItem", true),
-    INSULATOR("InsulatorItem", true),
-    RUNE("RuneItem", true),
-    DUNGEON_KEY("DungeonKeyItem", true),
-    EMERALD_ITEM("EmeraldItem", false),
+    SIMULATOR("SimulatorItem", true, "corkian"),
+    INSULATOR("InsulatorItem", true, "corkian"),
+    RUNE("RuneItem", true, "rune"),
+    DUNGEON_KEY("DungeonKeyItem", true, "key"),
+    EMERALD_ITEM("EmeraldItem", false, "emerald"),
     ASPECT("AspectItem", false),
-    TOME("TomeItem", false),
+    TOME("TomeItem", false, "tome"),
 
     // SimpleTierItems
     INGREDIENT("IngredientItem", true),
     MATERIAL("MaterialItem", true),
     POWDER("PowderItem", true),
-    AMPLIFIER("AmplifierItem", true),
+    AMPLIFIER("AmplifierItem", true, "corkian"),
     MOUNT("MountItem", true),
-    EMERALD_POUCH("EmeraldPouchItem", true),
+    EMERALD_POUCH("EmeraldPouchItem", true, "pouch"),
 
     // SimpleGearItems
     GEAR("GearItem", true);
 
     private final String type;
     private final boolean sellable;
+    private final String iconPrefix;
+
+    SimpleItemType(String type, boolean sellable, String iconPrefix) {
+        this.type = type;
+        this.sellable = sellable;
+        this.iconPrefix = iconPrefix;
+    }
 
     SimpleItemType(String type, boolean sellable) {
         this.type = type;
         this.sellable = sellable;
+        this.iconPrefix = "";
     }
 
     public String getType() {
@@ -35,6 +43,10 @@ public enum SimpleItemType {
 
     public boolean isSellable() {
         return sellable;
+    }
+
+    public String getIconPrefix() {
+        return this.iconPrefix;
     }
 
     public static SimpleItemType fromType(String type) {

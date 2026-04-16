@@ -210,8 +210,8 @@ public class SimpleItem extends TimestampedObject {
     }
 
     private static SimpleItem fromTomeItem(TomeItem tomeItem) {
-        return new SimpleItem(
-                tomeItem.getName().replace("Unidentified ", ""),
+        return createSimpleItem(
+                tomeItem,
                 tomeItem.getGearTier(),
                 SimpleItemType.TOME,
                 tomeItem.getItemInfo().type().name());
@@ -225,6 +225,6 @@ public class SimpleItem extends TimestampedObject {
     private static SimpleItem createSimpleItem(WynnItem item, GearTier rarity, SimpleItemType itemType, String type) {
         String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
         int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        return new SimpleItem(name, rarity, itemType, type, IconService.INSTANCE.getIcon(name), amount);
+        return new SimpleItem(name, rarity, itemType, type, IconService.INSTANCE.getIcon(name, itemType), amount);
     }
 }

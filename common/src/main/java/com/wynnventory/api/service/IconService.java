@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.model.item.Icon;
+import com.wynnventory.model.item.simple.SimpleItemType;
 import com.wynnventory.util.StringUtils;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -51,6 +52,14 @@ public enum IconService {
 
     public Icon getIcon(String name, int tier) {
         return getIcon(name + " " + tier);
+    }
+
+    public Icon getIcon(String name, SimpleItemType fallbackType) {
+        Icon icon = getIcon(name);
+        if (icon != null) return icon;
+        String raw = StringUtils.toCamelCase(name).replaceAll("[^a-zA-Z0-9]", "");
+        String value = raw.isEmpty() ? raw : Character.toLowerCase(raw.charAt(0)) + raw.substring(1);
+        return new Icon(fallbackType.getIconPrefix(), value);
     }
 
     public Icon getIcon(String name) {
