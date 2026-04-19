@@ -162,7 +162,7 @@ public class SimpleGearItem extends SimpleItem {
                 name,
                 item.getGearTier(),
                 item.getGearType().name(),
-                IconService.INSTANCE.getIcon(name),
+                IconService.INSTANCE.resolveIcon(name, SimpleItemType.GEAR),
                 stack.getCount(),
                 item.isUnidentified(),
                 item.getRerollCount(),

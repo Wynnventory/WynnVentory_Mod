@@ -91,14 +91,16 @@ public class SimpleTierItem extends SimpleItem {
     }
 
     private static SimpleTierItem fromPowderItem(PowderItem powderItem) {
-        String type = powderItem.getPowderProfile().element().getName() + "Powder";
+        String element = powderItem.getPowderProfile().element().getName();
+        int tier = powderItem.getTier();
+        String iconKey = element + (tier <= 3 ? "Small" : "Large");
         return createTierItem(
                 powderItem,
                 ItemStackUtils.getPowderName(powderItem),
-                GearTier.NORMAL,
                 SimpleItemType.POWDER,
-                type,
-                powderItem.getTier());
+                element + "Powder",
+                tier,
+                iconKey);
     }
 
     private static SimpleTierItem fromAmplifierItem(AmplifierItem amplifierItem) {
@@ -119,9 +121,10 @@ public class SimpleTierItem extends SimpleItem {
         return createTierItem(
                 emeraldPouchItem,
                 "Emerald Pouch",
-                GearTier.NORMAL,
                 SimpleItemType.EMERALD_POUCH,
-                emeraldPouchItem.getTier());
+                SimpleItemType.EMERALD_POUCH.getType(),
+                emeraldPouchItem.getTier(),
+                "emeraldEmpty");
     }
 
     private static SimpleTierItem createTierItem(
@@ -132,16 +135,14 @@ public class SimpleTierItem extends SimpleItem {
     private static SimpleTierItem createTierItem(
             WynnItem item, String name, GearTier rarity, SimpleItemType itemType, String type, int tier) {
         int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        Icon icon = IconService.INSTANCE.getIcon(name);
-
-        if (icon == null) {
-            icon = IconService.INSTANCE.getIcon(name, tier);
-        }
-
-        if (icon == null) {
-            icon = IconService.INSTANCE.getIcon(name, itemType);
-        }
-
+        Icon icon = IconService.INSTANCE.resolveIcon(name, itemType);
         return new SimpleTierItem(name, rarity, itemType, type, icon, amount, tier);
+    }
+
+    private static SimpleTierItem createTierItem(
+            WynnItem item, String name, SimpleItemType itemType, String type, int tier, String iconKey) {
+        int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
+        Icon icon = IconService.INSTANCE.resolveIcon(name, itemType, iconKey);
+        return new SimpleTierItem(name, GearTier.NORMAL, itemType, type, icon, amount, tier);
     }
 }

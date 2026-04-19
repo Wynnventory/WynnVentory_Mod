@@ -186,11 +186,16 @@ public class SimpleItem extends TimestampedObject {
     }
 
     private static SimpleItem fromRuneItem(RuneItem item) {
-        return createSimpleItem(item, SimpleItemType.RUNE);
+        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
+        String iconKey = name.split(" ")[0].toLowerCase();
+        return createSimpleItem(item, GearTier.NORMAL, SimpleItemType.RUNE, StringUtils.toCamelCase(name), iconKey);
     }
 
     private static SimpleItem fromDungeonKeyItem(DungeonKeyItem item) {
-        return createSimpleItem(item, SimpleItemType.DUNGEON_KEY);
+        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
+        String iconKey = name.startsWith("Broken") ? "keyBroken" : "key";
+        return createSimpleItem(
+                item, GearTier.NORMAL, SimpleItemType.DUNGEON_KEY, StringUtils.toCamelCase(name), iconKey);
     }
 
     private static SimpleItem fromEmeraldItem(EmeraldItem emeraldItem) {
@@ -225,6 +230,14 @@ public class SimpleItem extends TimestampedObject {
     private static SimpleItem createSimpleItem(WynnItem item, GearTier rarity, SimpleItemType itemType, String type) {
         String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
         int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
-        return new SimpleItem(name, rarity, itemType, type, IconService.INSTANCE.getIcon(name, itemType), amount);
+        return new SimpleItem(name, rarity, itemType, type, IconService.INSTANCE.resolveIcon(name, itemType), amount);
+    }
+
+    private static SimpleItem createSimpleItem(
+            WynnItem item, GearTier rarity, SimpleItemType itemType, String type, String iconKey) {
+        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
+        int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
+        return new SimpleItem(
+                name, rarity, itemType, type, IconService.INSTANCE.resolveIcon(name, itemType, iconKey), amount);
     }
 }

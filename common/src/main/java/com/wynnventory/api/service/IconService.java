@@ -50,19 +50,17 @@ public enum IconService {
         allEntries.putAll(tomesMap);
     }
 
-    public Icon getIcon(String name, int tier) {
-        return getIcon(name + " " + tier);
+    public Icon resolveIcon(String lookupName, SimpleItemType itemType) {
+        return resolveIcon(lookupName, itemType, defaultIconKey(lookupName));
     }
 
-    public Icon getIcon(String name, SimpleItemType fallbackType) {
-        Icon icon = getIcon(name);
+    public Icon resolveIcon(String lookupName, SimpleItemType itemType, String iconKey) {
+        Icon icon = lookupFromJson(lookupName);
         if (icon != null) return icon;
-        String raw = StringUtils.toCamelCase(name).replaceAll("[^a-zA-Z0-9]", "");
-        String value = raw.isEmpty() ? raw : Character.toLowerCase(raw.charAt(0)) + raw.substring(1);
-        return new Icon(fallbackType.getIconPrefix(), value);
+        return new Icon("attribute", itemType.getIconPrefix() + "." + iconKey);
     }
 
-    public Icon getIcon(String name) {
+    private Icon lookupFromJson(String name) {
         JsonObject entry = allEntries.get(name.replaceFirst("^Shiny ", ""));
         if (entry == null) {
             WynnventoryMod.logDebug("No JSON entry for key: " + name);
@@ -70,6 +68,11 @@ public enum IconService {
         }
 
         return extractIcon(entry);
+    }
+
+    private static String defaultIconKey(String name) {
+        String raw = StringUtils.toCamelCase(name).replaceAll("[^a-zA-Z0-9]", "");
+        return raw.isEmpty() ? raw : Character.toLowerCase(raw.charAt(0)) + raw.substring(1);
     }
 
     private Map<String, JsonObject> fetchJson(String url) {
