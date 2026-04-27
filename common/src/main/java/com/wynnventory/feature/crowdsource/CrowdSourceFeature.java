@@ -7,6 +7,8 @@ import com.wynntils.utils.wynn.ItemUtils;
 import com.wynnventory.events.RaidLobbyPopulatedEvent;
 import com.wynnventory.events.RewardPreviewOpenedEvent;
 import com.wynnventory.events.TrademarketTooltipRenderedEvent;
+import com.wynnventory.model.container.LootrunRewardPreviewLayout;
+import com.wynnventory.model.container.RaidRewardPreviewLayout;
 import com.wynnventory.model.item.simple.SimpleGambitItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.trademarket.TrademarketListing;
@@ -14,7 +16,7 @@ import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.util.ItemStackUtils;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -22,7 +24,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 
 public class CrowdSourceFeature {
     private int lastHandledLootContentId = -2;
-    private List<ItemStack> lastHandledLootItems = List.of();
+    private Map<Integer, ItemStack> lastHandledLootItems = Map.of();
     private ItemStack lastHoveredMarketItem;
 
     @SubscribeEvent
@@ -30,7 +32,8 @@ public class CrowdSourceFeature {
         if (isDuplicate(event)) return;
 
         QueueScheduler.LOOTRUN_QUEUE.addItems(
-                RewardPool.fromTitle(event.getScreenTitle()), convertItems(event.getItems()));
+                RewardPool.fromTitle(event.getScreenTitle()),
+                getStacksInBounds(event.getItems(), LootrunRewardPreviewLayout.BOUNDS));
     }
 
     @SubscribeEvent
@@ -38,7 +41,8 @@ public class CrowdSourceFeature {
         if (isDuplicate(event)) return;
 
         QueueScheduler.RAID_QUEUE.addItems(
-                RewardPool.fromTitle(event.getScreenTitle()), convertItems(event.getItems()));
+                RewardPool.fromTitle(event.getScreenTitle()),
+                getStacksInBounds(event.getItems(), RaidRewardPreviewLayout.BOUNDS));
     }
 
     @SubscribeEvent
@@ -62,21 +66,16 @@ public class CrowdSourceFeature {
         }
     }
 
-    private static List<SimpleItem> convertItems(List<ItemStack> items) {
-        return items.stream()
-                .map(ItemStackUtils::toSimpleItem)
-                .filter(Objects::nonNull)
-                .toList();
-    }
-
-    private static List<SimpleItem> getStacksInBounds(List<ItemStack> packetItems, ContainerBounds bounds) {
+    private static List<SimpleItem> getStacksInBounds(Map<Integer, ItemStack> packetItems, ContainerBounds bounds) {
         List<SimpleItem> containerItems = new ArrayList<>();
-        for (int slot : bounds.getSlots()) {
-            if (slot < 0 || slot >= packetItems.size()) continue;
-            SimpleItem simpleItem = ItemStackUtils.toSimpleItem(packetItems.get(slot));
-            if (simpleItem == null) continue;
-            containerItems.add(simpleItem);
+
+        for (Map.Entry<Integer, ItemStack> e : packetItems.entrySet()) {
+            if (!bounds.getSlots().contains(e.getKey())) continue;
+            SimpleItem simpleItem = ItemStackUtils.toSimpleItem(e.getValue());
+
+            if (simpleItem != null) containerItems.add(simpleItem);
         }
+
         return containerItems;
     }
 
@@ -95,7 +94,10 @@ public class CrowdSourceFeature {
         int containerId = event.getContainerId();
         var items = event.getItems();
 
-        if (containerId == lastHandledLootContentId && ItemUtils.isItemListsEqual(items, lastHandledLootItems)) {
+        if (containerId == lastHandledLootContentId
+                && ItemUtils.isItemListsEqual(
+                        items.values().stream().toList(),
+                        lastHandledLootItems.values().stream().toList())) {
             return true;
         }
 

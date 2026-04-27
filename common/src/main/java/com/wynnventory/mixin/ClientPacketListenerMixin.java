@@ -10,11 +10,11 @@ import com.wynnventory.events.CommandSentEvent;
 import com.wynnventory.events.RaidLobbyPopulatedEvent;
 import com.wynnventory.events.RewardPreviewOpenedEvent;
 import com.wynnventory.model.container.Container;
-import com.wynnventory.model.container.LootrunRewardPreviewLayout;
 import com.wynnventory.model.container.RaidLobbyContainer;
 import com.wynnventory.model.container.RaidRewardPreviewLayout;
 import com.wynnventory.model.reward.RewardPool;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
@@ -27,6 +27,7 @@ import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -80,7 +81,16 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
             at = @At("RETURN"))
     private void handleContainerContentPost(ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
         ifMatchingContainer(packet.containerId(), (container, title) -> {
-            if (RaidLobbyContainer.matchesTitle(title))
+            Map<Integer, ItemStack> items = new HashMap<>();
+            for (int i = 0; i < packet.items().size(); i++) {
+                items.put(i, packet.items().get(i));
+            }
+
+            if (RewardPool.isLootrunTitle(title))
+                WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Lootrun(items, packet.containerId(), title));
+            else if (RewardPool.isRaidTitle(title))
+                WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Raid(items, packet.containerId(), title));
+            else if (RaidLobbyContainer.matchesTitle(title))
                 WynnventoryMod.postEvent(new RaidLobbyPopulatedEvent(packet.items(), packet.containerId(), title));
         });
     }
@@ -88,14 +98,9 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     @Inject(method = "handleContainerSetSlot", at = @At("RETURN"))
     private void handleContainerSetSlot(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
         ifMatchingContainer(packet.getContainerId(), (container, title) -> {
-            if (RewardPool.isLootrunTitle(title)
-                    && isInsideContainer(packet.getSlot(), LootrunRewardPreviewLayout.BOUNDS)) {
-                WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Lootrun(
-                        List.of(packet.getItem()), packet.getContainerId(), title));
-            } else if (RewardPool.isRaidTitle(title)
-                    && isInsideContainer(packet.getSlot(), RaidRewardPreviewLayout.BOUNDS)) {
-                WynnventoryMod.postEvent(
-                        new RewardPreviewOpenedEvent.Raid(List.of(packet.getItem()), packet.getContainerId(), title));
+            if (RewardPool.isRaidTitle(title) && isInsideContainer(packet.getSlot(), RaidRewardPreviewLayout.BOUNDS)) {
+                WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Raid(
+                        Map.of(packet.getSlot(), packet.getItem()), packet.getContainerId(), title));
             }
         });
     }
