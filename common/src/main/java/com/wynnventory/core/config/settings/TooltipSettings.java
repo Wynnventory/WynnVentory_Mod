@@ -13,13 +13,13 @@ public class TooltipSettings {
     private boolean showMinPrice = true;
     private boolean showUnidentifiedMinPrice = true;
     private boolean showAveragePrice = false;
-    private boolean showAverage80Price = true;
+    private boolean showAverage80Price = false;
     private boolean showUnidAveragePrice = false;
-    private boolean showUnidAverage80Price = true;
+    private boolean showUnidAverage80Price = false;
     private boolean showMedian = false;
-    private boolean showMovingMedian = false;
+    private boolean showMovingMedian = true;
     private boolean showUnidMedian = false;
-    private boolean showUnidMovingMedian = false;
+    private boolean showUnidMovingMedian = true;
 
     public boolean isShowTooltips() {
         return showTooltips;
