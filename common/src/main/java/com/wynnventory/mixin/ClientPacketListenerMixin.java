@@ -10,6 +10,7 @@ import com.wynnventory.events.CommandSentEvent;
 import com.wynnventory.events.RaidLobbyPopulatedEvent;
 import com.wynnventory.events.RewardPreviewOpenedEvent;
 import com.wynnventory.model.container.Container;
+import com.wynnventory.model.container.LootrunRewardPreviewLayout;
 import com.wynnventory.model.container.RaidLobbyContainer;
 import com.wynnventory.model.container.RaidRewardPreviewLayout;
 import com.wynnventory.model.reward.RewardPool;
@@ -100,6 +101,11 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         ifMatchingContainer(packet.getContainerId(), (container, title) -> {
             if (RewardPool.isRaidTitle(title) && isInsideContainer(packet.getSlot(), RaidRewardPreviewLayout.BOUNDS)) {
                 WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Raid(
+                        Map.of(packet.getSlot(), packet.getItem()), packet.getContainerId(), title));
+            }
+            if (RewardPool.isLootrunTitle(title)
+                    && isInsideContainer(packet.getSlot(), LootrunRewardPreviewLayout.BOUNDS)) {
+                WynnventoryMod.postEvent(new RewardPreviewOpenedEvent.Lootrun(
                         Map.of(packet.getSlot(), packet.getItem()), packet.getContainerId(), title));
             }
         });
