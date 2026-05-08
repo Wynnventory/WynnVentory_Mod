@@ -7,6 +7,7 @@ import com.wynnventory.core.config.settings.PriceHighlightSettings;
 import com.wynnventory.core.config.settings.TooltipSettings;
 import com.wynnventory.model.item.trademarket.PriceType;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
+import com.wynnventory.model.item.trademarket.prediction.PricePredictionResponse;
 import com.wynnventory.util.EmeraldUtils;
 import com.wynnventory.util.StringUtils;
 import java.util.ArrayList;
@@ -38,6 +39,12 @@ public final class PriceTooltipBuilder {
         return out;
     }
 
+    public List<Component> buildPricePredictionTooltip(PricePredictionResponse prediction) {
+        if (prediction == null || prediction.getEstimatedPrice() == null) return List.of();
+
+        return List.of(priceLine("feature.wynnventory.tooltip.prediction", prediction.getEstimatedPrice(), 0));
+    }
+
     private static void add(List<Component> out, boolean enabled, String label, Double live, Double history) {
         if (!enabled || live == null) return;
         out.add(priceLine(label, live.intValue(), history == null ? 0 : history.intValue()));
@@ -45,9 +52,7 @@ public final class PriceTooltipBuilder {
 
     private static Component priceLine(String label, int live, int history) {
         PriceHighlightSettings colors = ModConfig.getInstance().getPriceHighlightSettings();
-        String price = (ModConfig.getInstance().getTooltipSettings().getDisplayFormat() == DisplayOptions.FORMATTED)
-                ? EmeraldUtils.getFormattedString(live, false)
-                : StringUtils.formatNumber(live) + EmeraldUnits.EMERALD.getSymbol();
+        String price = formatPrice(live);
 
         int priceColor = ChatFormatting.GRAY.getColor();
         if (colors.isShowColors() && live >= colors.getColorMinPrice()) {
@@ -67,5 +72,11 @@ public final class PriceTooltipBuilder {
         }
 
         return line;
+    }
+
+    private static String formatPrice(int price) {
+        return (ModConfig.getInstance().getTooltipSettings().getDisplayFormat() == DisplayOptions.FORMATTED)
+                ? EmeraldUtils.getFormattedString(price, false)
+                : StringUtils.formatNumber(price) + EmeraldUnits.EMERALD.getSymbol();
     }
 }

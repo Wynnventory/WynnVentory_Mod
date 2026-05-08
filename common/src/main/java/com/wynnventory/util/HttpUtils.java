@@ -42,6 +42,25 @@ public class HttpUtils {
         return send(request);
     }
 
+    public static CompletableFuture<HttpResponse<String>> sendPostRequestWithApiKey(
+            URI uri, Object payload, String apiKey) {
+        WynnventoryMod.logDebug("Sending data to endpoint: {}", uri);
+        HttpRequest request;
+        try {
+            WynnventoryMod.logDebug("Sending payload: {}", serialize(payload));
+            request = request(uri)
+                    .header("Content-Type", "application/json")
+                    .header("x-api-key", apiKey)
+                    .POST(HttpRequest.BodyPublishers.ofString(serialize(payload)))
+                    .build();
+        } catch (Exception e) {
+            WynnventoryMod.logError("Failed to create POST request for endpoint '{}': {}", uri, e.getMessage());
+            return CompletableFuture.completedFuture(null);
+        }
+
+        return send(request);
+    }
+
     public static CompletableFuture<HttpResponse<String>> sendGetRequest(URI uri) {
         WynnventoryMod.logDebug("Fetching data from {} endpoint: {}", WynnventoryMod.isBeta() ? "DEV" : "PROD", uri);
 
@@ -86,8 +105,12 @@ public class HttpUtils {
     }
 
     private static HttpRequest.Builder baseRequest(URI uri) {
-        String key = ApiConfig.getApiKey();
-        return HttpRequest.newBuilder().uri(uri).timeout(TIMEOUT).header("Authorization", "Api-Key " + key);
+        String key = ApiConfig.getWynnventoryApiKey();
+        return request(uri).header("Authorization", "Api-Key " + key);
+    }
+
+    private static HttpRequest.Builder request(URI uri) {
+        return HttpRequest.newBuilder().uri(uri).timeout(TIMEOUT);
     }
 
     private static CompletableFuture<HttpResponse<String>> send(HttpRequest request) {

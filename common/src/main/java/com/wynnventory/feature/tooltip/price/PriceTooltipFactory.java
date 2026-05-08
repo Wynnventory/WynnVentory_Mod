@@ -3,9 +3,13 @@ package com.wynnventory.feature.tooltip.price;
 import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.items.game.GearBoxItem;
+import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.screens.guides.GuideItemStack;
+import com.wynnventory.api.service.PricePredictionService;
 import com.wynnventory.core.config.ModConfig;
+import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
+import com.wynnventory.model.item.trademarket.prediction.PricePredictionResponse;
 import com.wynnventory.util.ItemStackUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +48,10 @@ public final class PriceTooltipFactory {
             return List.of();
         }
 
+        PricePredictionResponse prediction = resolvePrediction(wynnItem);
+
         TrademarketItemSnapshot snap = TrademarketItemSnapshot.resolveSnapshot(stack);
-        if (snap == null || snap.live() == null) return List.of();
+        if ((snap == null || snap.live() == null) && prediction == null) return List.of();
 
         Component itemName;
         if (stack instanceof GuideItemStack g) {
@@ -54,7 +60,16 @@ public final class PriceTooltipFactory {
             itemName = ItemStackUtils.getCleanItemNameComponent(stack);
         }
 
-        return List.of(new PriceSection(itemName, snap));
+        return List.of(new PriceSection(itemName, snap, prediction));
+    }
+
+    private PricePredictionResponse resolvePrediction(WynnItem wynnItem) {
+        if (!(wynnItem instanceof GearItem gearItem)) return null;
+
+        SimpleGearItem simpleGearItem = SimpleGearItem.from(gearItem);
+        if (simpleGearItem.isUnidentified()) return null;
+
+        return PricePredictionService.INSTANCE.getPrediction(simpleGearItem);
     }
 
     private List<PriceSection> resolveGearBoxSections(GearBoxItem gearBox) {
@@ -71,7 +86,7 @@ public final class PriceTooltipFactory {
             Component title =
                     Component.literal(info.name()).withStyle(info.tier().getChatFormatting());
 
-            out.add(new PriceSection(title, snap));
+            out.add(new PriceSection(title, snap, null));
         }
 
         return out;
@@ -85,6 +100,7 @@ public final class PriceTooltipFactory {
             PriceSection s = sections.get(i);
 
             lines.addAll(builder.buildPriceTooltip(s.snapshot(), s.title()));
+            lines.addAll(builder.buildPricePredictionTooltip(s.prediction()));
 
             // separator between sections (empty line)
             if (i < sections.size() - 1) {
@@ -95,5 +111,6 @@ public final class PriceTooltipFactory {
         return lines;
     }
 
-    private record PriceSection(Component title, TrademarketItemSnapshot snapshot) {}
+    private record PriceSection(
+            Component title, TrademarketItemSnapshot snapshot, PricePredictionResponse prediction) {}
 }

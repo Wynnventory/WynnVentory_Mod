@@ -19,16 +19,21 @@ dependencies {
 
 def generateKeyDat = tasks.register("generateKeyDat") {
     def apiKey = providers.environmentVariable("API_KEY")
+    def wynnmarketApiKey = providers.environmentVariable("WYNNMARKET_API_KEY")
 
     inputs.property("apiKey", apiKey).optional(true)
+    inputs.property("wynnmarketApiKey", wynnmarketApiKey).optional(true)
 
     def fabricFile = rootProject.file("fabric/src/main/resources/key.dat")
     def neoForgeFile = rootProject.file("neoforge/src/main/resources/key.dat")
+    def fabricWynnmarketFile = rootProject.file("fabric/src/main/resources/wynnmarket-key.dat")
+    def neoForgeWynnmarketFile = rootProject.file("neoforge/src/main/resources/wynnmarket-key.dat")
 
-    outputs.files(fabricFile, neoForgeFile)
+    outputs.files(fabricFile, neoForgeFile, fabricWynnmarketFile, neoForgeWynnmarketFile)
 
     doLast {
         def apiKeyValue = apiKey.orNull
+        def wynnmarketApiKeyValue = wynnmarketApiKey.orNull
 
         if (apiKeyValue?.trim()) {
             fabricFile.parentFile.mkdirs()
@@ -38,6 +43,17 @@ def generateKeyDat = tasks.register("generateKeyDat") {
             logger.lifecycle("key.dat generated in Fabric and NeoForge resource directories")
         } else {
             logger.lifecycle("API_KEY environment variable is not set or empty; skipping key.dat generation")
+        }
+
+        if (wynnmarketApiKeyValue?.trim()) {
+            fabricWynnmarketFile.parentFile.mkdirs()
+            fabricWynnmarketFile.text = wynnmarketApiKeyValue
+            neoForgeWynnmarketFile.parentFile.mkdirs()
+            neoForgeWynnmarketFile.text = wynnmarketApiKeyValue
+            logger.lifecycle("wynnmarket-key.dat generated in Fabric and NeoForge resource directories")
+        } else {
+            logger.lifecycle(
+                    "WYNNMARKET_API_KEY environment variable is not set or empty; skipping wynnmarket-key.dat generation")
         }
     }
 }

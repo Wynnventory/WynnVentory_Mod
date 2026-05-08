@@ -15,6 +15,7 @@
   "feature.wynnventory.tooltip.lowest": "Lowest: ",
   "feature.wynnventory.tooltip.median": "Median: ",
   "feature.wynnventory.tooltip.movingMedian": "Moving Median: ",
+  "feature.wynnventory.tooltip.prediction": "Predicted: ",
   "feature.wynnventory.tooltip.title": "Trade Market Price Info",
   "feature.wynnventory.tooltip.unidAvg": "Unid Avg: ",
   "feature.wynnventory.tooltip.unidAvg80": "Unid 80% Avg: ",
