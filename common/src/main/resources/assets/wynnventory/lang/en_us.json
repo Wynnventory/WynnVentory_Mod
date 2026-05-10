@@ -65,6 +65,7 @@
   "gui.wynnventory.settings.tooltip.showMovingMedian": "Show Moving Median",
   "gui.wynnventory.settings.tooltip.showMovingMedian.tooltip": "A smoothed median that weights recent prices more heavily, reacting faster to market changes.",
   "gui.wynnventory.settings.tooltip.showPriceFluctuation": "Show Price Fluctuation",
+  "gui.wynnventory.settings.tooltip.showPricePrediction": "Show Price Prediction",
   "gui.wynnventory.settings.tooltip.showTooltips": "Show Tooltips",
   "gui.wynnventory.settings.tooltip.showUnidAverage80Price": "Show Unid 80% Average Price",
   "gui.wynnventory.settings.tooltip.showUnidAverage80Price.tooltip": "Exclude the lowest and highest 10% of prices of all listed unidentified items.",

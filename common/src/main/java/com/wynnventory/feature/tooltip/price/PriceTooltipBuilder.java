@@ -9,6 +9,7 @@ import com.wynnventory.model.item.trademarket.PriceType;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
 import com.wynnventory.model.item.trademarket.prediction.PriceContribution;
 import com.wynnventory.model.item.trademarket.prediction.PricePredictionResponse;
+import com.wynnventory.model.item.trademarket.prediction.PricePredictionType;
 import com.wynnventory.util.EmeraldUtils;
 import com.wynnventory.util.StringUtils;
 import java.util.ArrayList;
@@ -45,10 +46,16 @@ public final class PriceTooltipBuilder {
 
     public List<Component> buildPricePredictionTooltip(
             PricePredictionResponse prediction, Map<String, String> statDisplayNames) {
-        if (prediction == null || prediction.getEstimatedPrice() == null) return List.of();
+        if (prediction == null) return List.of();
 
         List<Component> out = new ArrayList<>();
-        out.add(priceLine("feature.wynnventory.tooltip.prediction", prediction.getEstimatedPrice(), 0));
+        TooltipSettings ts = ModConfig.getInstance().getTooltipSettings();
+
+        for (PricePredictionType type : PricePredictionType.values()) {
+            add(out, type.isEnabled(ts), type.getLabel(), type.getValue(prediction), 0d);
+        }
+
+        if (out.isEmpty()) return List.of();
 
         if (prediction.getContributions() != null
                 && !prediction.getContributions().isEmpty()) {

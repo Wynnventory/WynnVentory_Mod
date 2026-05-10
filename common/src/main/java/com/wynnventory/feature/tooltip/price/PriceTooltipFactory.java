@@ -66,6 +66,8 @@ public final class PriceTooltipFactory {
     }
 
     private PredictionSection resolvePrediction(WynnItem wynnItem) {
+        if (!ModConfig.getInstance().getTooltipSettings().isShowPricePrediction()) return PredictionSection.EMPTY;
+
         if (!(wynnItem instanceof GearItem gearItem)) return PredictionSection.EMPTY;
 
         SimpleGearItem simpleGearItem = SimpleGearItem.from(gearItem);
