@@ -11,6 +11,7 @@
   "feature.wynnventory.toggleTooltips.enabled": "Tooltips are now enabled",
   "feature.wynnventory.tooltip.avg": "Avg: ",
   "feature.wynnventory.tooltip.avg80": "80% Avg: ",
+  "feature.wynnventory.tooltip.contributions": "Contributing Factors:",
   "feature.wynnventory.tooltip.highest": "Highest: ",
   "feature.wynnventory.tooltip.lowest": "Lowest: ",
   "feature.wynnventory.tooltip.median": "Median: ",

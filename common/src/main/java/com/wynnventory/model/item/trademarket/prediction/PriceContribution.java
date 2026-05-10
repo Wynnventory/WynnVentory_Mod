@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PriceContribution {
     private String apiName;
-    private Integer rollPercentage;
+    private Double rollPercentage;
     private Double weight;
     private Double priceMultiplier;
 
@@ -17,11 +17,11 @@ public class PriceContribution {
         this.apiName = apiName;
     }
 
-    public Integer getRollPercentage() {
+    public Double getRollPercentage() {
         return rollPercentage;
     }
 
-    public void setRollPercentage(Integer rollPercentage) {
+    public void setRollPercentage(Double rollPercentage) {
         this.rollPercentage = rollPercentage;
     }
 

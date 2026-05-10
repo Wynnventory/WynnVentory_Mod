@@ -7,11 +7,13 @@ import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynnventory.api.service.PricePredictionService;
 import com.wynnventory.core.config.ModConfig;
+import com.wynnventory.model.item.ItemStat;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
 import com.wynnventory.model.item.trademarket.prediction.PricePredictionResponse;
 import com.wynnventory.util.ItemStackUtils;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.ChatFormatting;
@@ -48,10 +50,10 @@ public final class PriceTooltipFactory {
             return List.of();
         }
 
-        PricePredictionResponse prediction = resolvePrediction(wynnItem);
+        PredictionSection prediction = resolvePrediction(wynnItem);
 
         TrademarketItemSnapshot snap = TrademarketItemSnapshot.resolveSnapshot(stack);
-        if ((snap == null || snap.live() == null) && prediction == null) return List.of();
+        if ((snap == null || snap.live() == null) && prediction.response() == null) return List.of();
 
         Component itemName;
         if (stack instanceof GuideItemStack g) {
@@ -60,16 +62,26 @@ public final class PriceTooltipFactory {
             itemName = ItemStackUtils.getCleanItemNameComponent(stack);
         }
 
-        return List.of(new PriceSection(itemName, snap, prediction));
+        return List.of(new PriceSection(itemName, snap, prediction.response(), prediction.statDisplayNames()));
     }
 
-    private PricePredictionResponse resolvePrediction(WynnItem wynnItem) {
-        if (!(wynnItem instanceof GearItem gearItem)) return null;
+    private PredictionSection resolvePrediction(WynnItem wynnItem) {
+        if (!(wynnItem instanceof GearItem gearItem)) return PredictionSection.EMPTY;
 
         SimpleGearItem simpleGearItem = SimpleGearItem.from(gearItem);
-        if (simpleGearItem.isUnidentified()) return null;
+        if (simpleGearItem.isUnidentified()) return PredictionSection.EMPTY;
 
-        return PricePredictionService.INSTANCE.getPrediction(simpleGearItem);
+        return new PredictionSection(
+                PricePredictionService.INSTANCE.getPrediction(simpleGearItem), statDisplayNames(simpleGearItem));
+    }
+
+    private Map<String, String> statDisplayNames(SimpleGearItem gearItem) {
+        Map<String, String> displayNames = new LinkedHashMap<>();
+        for (ItemStat stat : gearItem.getActualStatsWithPercentage()) {
+            displayNames.put(stat.getApiName(), stat.getDisplayName());
+        }
+
+        return displayNames;
     }
 
     private List<PriceSection> resolveGearBoxSections(GearBoxItem gearBox) {
@@ -86,7 +98,7 @@ public final class PriceTooltipFactory {
             Component title =
                     Component.literal(info.name()).withStyle(info.tier().getChatFormatting());
 
-            out.add(new PriceSection(title, snap, null));
+            out.add(new PriceSection(title, snap, null, Map.of()));
         }
 
         return out;
@@ -100,7 +112,7 @@ public final class PriceTooltipFactory {
             PriceSection s = sections.get(i);
 
             lines.addAll(builder.buildPriceTooltip(s.snapshot(), s.title()));
-            lines.addAll(builder.buildPricePredictionTooltip(s.prediction()));
+            lines.addAll(builder.buildPricePredictionTooltip(s.prediction(), s.statDisplayNames()));
 
             // separator between sections (empty line)
             if (i < sections.size() - 1) {
@@ -112,5 +124,12 @@ public final class PriceTooltipFactory {
     }
 
     private record PriceSection(
-            Component title, TrademarketItemSnapshot snapshot, PricePredictionResponse prediction) {}
+            Component title,
+            TrademarketItemSnapshot snapshot,
+            PricePredictionResponse prediction,
+            Map<String, String> statDisplayNames) {}
+
+    private record PredictionSection(PricePredictionResponse response, Map<String, String> statDisplayNames) {
+        private static final PredictionSection EMPTY = new PredictionSection(null, Map.of());
+    }
 }

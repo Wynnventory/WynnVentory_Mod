@@ -7,11 +7,15 @@ import com.wynnventory.core.config.settings.PriceHighlightSettings;
 import com.wynnventory.core.config.settings.TooltipSettings;
 import com.wynnventory.model.item.trademarket.PriceType;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
+import com.wynnventory.model.item.trademarket.prediction.PriceContribution;
 import com.wynnventory.model.item.trademarket.prediction.PricePredictionResponse;
 import com.wynnventory.util.EmeraldUtils;
 import com.wynnventory.util.StringUtils;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -39,10 +43,28 @@ public final class PriceTooltipBuilder {
         return out;
     }
 
-    public List<Component> buildPricePredictionTooltip(PricePredictionResponse prediction) {
+    public List<Component> buildPricePredictionTooltip(
+            PricePredictionResponse prediction, Map<String, String> statDisplayNames) {
         if (prediction == null || prediction.getEstimatedPrice() == null) return List.of();
 
-        return List.of(priceLine("feature.wynnventory.tooltip.prediction", prediction.getEstimatedPrice(), 0));
+        List<Component> out = new ArrayList<>();
+        out.add(priceLine("feature.wynnventory.tooltip.prediction", prediction.getEstimatedPrice(), 0));
+
+        if (prediction.getContributions() != null
+                && !prediction.getContributions().isEmpty()) {
+            out.add(Component.translatable("feature.wynnventory.tooltip.contributions")
+                    .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+            prediction.getContributions().stream()
+                    .filter(PriceTooltipBuilder::isRenderableContribution)
+                    .sorted(Comparator.comparing(
+                                    PriceContribution::getPriceMultiplier,
+                                    Comparator.nullsLast(Comparator.reverseOrder()))
+                            .thenComparing(PriceContribution::getApiName, Comparator.nullsLast(String::compareTo)))
+                    .map(contribution -> contributionLine(contribution, statDisplayNames))
+                    .forEach(out::add);
+        }
+
+        return out;
     }
 
     private static void add(List<Component> out, boolean enabled, String label, Double live, Double history) {
@@ -78,5 +100,55 @@ public final class PriceTooltipBuilder {
         return (ModConfig.getInstance().getTooltipSettings().getDisplayFormat() == DisplayOptions.FORMATTED)
                 ? EmeraldUtils.getFormattedString(price, false)
                 : StringUtils.formatNumber(price) + EmeraldUnits.EMERALD.getSymbol();
+    }
+
+    private static boolean isRenderableContribution(PriceContribution contribution) {
+        return contribution != null
+                && contribution.getApiName() != null
+                && !contribution.getApiName().isBlank()
+                && (contribution.getRollPercentage() != null || contribution.getPriceMultiplier() != null);
+    }
+
+    private static Component contributionLine(PriceContribution contribution, Map<String, String> statDisplayNames) {
+        MutableComponent line = Component.literal("  ");
+        line.append(Component.literal(displayName(contribution.getApiName(), statDisplayNames))
+                .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)));
+
+        if (contribution.getRollPercentage() != null) {
+            line.append(Component.literal(": ").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
+            line.append(Component.literal(formatPercentage(contribution.getRollPercentage()))
+                    .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+        }
+
+        if (contribution.getPriceMultiplier() != null) {
+            line.append(Component.literal(" (").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
+            line.append(Component.literal("x" + formatMultiplier(contribution.getPriceMultiplier()))
+                    .withStyle(Style.EMPTY.withColor(multiplierColor(contribution.getPriceMultiplier()))));
+            line.append(Component.literal(")").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
+        }
+
+        return line;
+    }
+
+    private static String displayName(String apiName, Map<String, String> statDisplayNames) {
+        if (statDisplayNames == null) return apiName;
+
+        String displayName = statDisplayNames.get(apiName);
+        return displayName == null || displayName.isBlank() ? apiName : displayName;
+    }
+
+    private static String formatPercentage(double percentage) {
+        return String.format(Locale.ROOT, "%.0f%%", percentage);
+    }
+
+    private static String formatMultiplier(double multiplier) {
+        return String.format(Locale.ROOT, "%.2f", multiplier);
+    }
+
+    private static ChatFormatting multiplierColor(double multiplier) {
+        if (multiplier > 1.0d) return ChatFormatting.GREEN;
+        if (multiplier < 1.0d) return ChatFormatting.RED;
+
+        return ChatFormatting.GRAY;
     }
 }
