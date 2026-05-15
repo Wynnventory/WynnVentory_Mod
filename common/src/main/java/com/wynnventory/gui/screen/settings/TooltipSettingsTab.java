@@ -29,6 +29,10 @@ public class TooltipSettingsTab implements SettingsTab {
                         "gui.wynnventory.settings.tooltip.showPricePrediction",
                         s.isShowPricePrediction(),
                         s::setShowPricePrediction),
+                OptionInstance.createBoolean(
+                        "gui.wynnventory.settings.tooltip.showContributingFactors",
+                        s.isShowContributingFactors(),
+                        s::setShowContributingFactors),
                 new OptionInstance<>(
                         "gui.wynnventory.settings.tooltip.displayFormat",
                         OptionInstance.noTooltip(),

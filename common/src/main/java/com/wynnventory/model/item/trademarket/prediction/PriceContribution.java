@@ -8,6 +8,7 @@ public class PriceContribution {
     private Double rollPercentage;
     private Double weight;
     private Double priceMultiplier;
+    private ContributionImpact impact;
 
     public String getApiName() {
         return apiName;
@@ -39,5 +40,13 @@ public class PriceContribution {
 
     public void setPriceMultiplier(Double priceMultiplier) {
         this.priceMultiplier = priceMultiplier;
+    }
+
+    public ContributionImpact getImpact() {
+        return impact;
+    }
+
+    public void setImpact(ContributionImpact impact) {
+        this.impact = impact;
     }
 }

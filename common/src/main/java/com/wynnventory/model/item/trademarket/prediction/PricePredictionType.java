@@ -8,7 +8,11 @@ public enum PricePredictionType {
     ESTIMATED_PRICE(
             "feature.wynnventory.tooltip.prediction",
             TooltipSettings::isShowPricePrediction,
-            response -> response.getEstimatedPrice() == null ? null : (double) response.getEstimatedPrice());
+            response -> response.getEstimatedPrice() == null ? null : (double) response.getEstimatedPrice()),
+    BASELINE_PRICE(
+            "feature.wynnventory.tooltip.baseline",
+            TooltipSettings::isShowContributingFactors,
+            response -> response.getBaselinePrice() == null ? null : (double) response.getBaselinePrice());
 
     private final String label;
     private final Predicate<TooltipSettings> enabledCheck;

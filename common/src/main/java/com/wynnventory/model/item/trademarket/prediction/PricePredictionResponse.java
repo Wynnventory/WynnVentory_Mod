@@ -8,6 +8,7 @@ public class PricePredictionResponse {
     private String name;
     private Integer tier;
     private Integer estimatedPrice;
+    private Integer baselinePrice;
     private Integer modelTier;
     private Double confidence;
     private Integer sampleSize;
@@ -40,6 +41,14 @@ public class PricePredictionResponse {
 
     public void setEstimatedPrice(Integer estimatedPrice) {
         this.estimatedPrice = estimatedPrice;
+    }
+
+    public Integer getBaselinePrice() {
+        return baselinePrice;
+    }
+
+    public void setBaselinePrice(Integer baselinePrice) {
+        this.baselinePrice = baselinePrice;
     }
 
     public Integer getModelTier() {
