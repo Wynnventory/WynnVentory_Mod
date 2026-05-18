@@ -13,13 +13,20 @@ public class NotificationSettingsTab implements SettingsTab {
         return List.of(
                 OptionInstance.createBoolean(
                         "gui.wynnventory.settings.notifications.enableNotifier",
+                        OptionInstance.cachedConstantTooltip(Component.translatable(
+                                "gui.wynnventory.settings.notifications.enableNotifier.tooltip")),
                         s.isEnableNotifier(),
                         s::setEnableNotifier),
                 OptionInstance.createBoolean(
-                        "gui.wynnventory.settings.notifications.mythicsOnly", s.isMythicsOnly(), s::setMythicsOnly),
+                        "gui.wynnventory.settings.notifications.mythicsOnly",
+                        OptionInstance.cachedConstantTooltip(
+                                Component.translatable("gui.wynnventory.settings.notifications.mythicsOnly.tooltip")),
+                        s.isMythicsOnly(),
+                        s::setMythicsOnly),
                 new OptionInstance<>(
                         "gui.wynnventory.settings.notifications.maxToasts",
-                        OptionInstance.noTooltip(),
+                        OptionInstance.cachedConstantTooltip(
+                                Component.translatable("gui.wynnventory.settings.notifications.maxToasts.tooltip")),
                         (label, value) -> Component.literal(label.getString() + ": " + value),
                         new OptionInstance.IntRange(1, 20),
                         s.getMaxToasts(),

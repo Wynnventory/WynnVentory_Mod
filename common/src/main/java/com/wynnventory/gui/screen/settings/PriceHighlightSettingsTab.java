@@ -23,10 +23,29 @@ public class PriceHighlightSettingsTab implements SettingsTab {
         PriceHighlightSettings s = ModConfig.getInstance().getPriceHighlightSettings();
         return List.of(
                 OptionInstance.createBoolean(
-                        "gui.wynnventory.settings.highlighting.showColors", s.isShowColors(), s::setShowColors),
-                OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.colorMinPrice", true, b -> {}),
-                OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.hexCode", true, b -> {}),
-                OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.highlightColor", true, b -> {}));
+                        "gui.wynnventory.settings.highlighting.showColors",
+                        OptionInstance.cachedConstantTooltip(
+                                Component.translatable("gui.wynnventory.settings.highlighting.showColors.tooltip")),
+                        s.isShowColors(),
+                        s::setShowColors),
+                OptionInstance.createBoolean(
+                        "gui.wynnventory.settings.highlighting.colorMinPrice",
+                        OptionInstance.cachedConstantTooltip(
+                                Component.translatable("gui.wynnventory.settings.highlighting.colorMinPrice.tooltip")),
+                        true,
+                        b -> {}),
+                OptionInstance.createBoolean(
+                        "gui.wynnventory.settings.highlighting.hexCode",
+                        OptionInstance.cachedConstantTooltip(
+                                Component.translatable("gui.wynnventory.settings.highlighting.hexCode.tooltip")),
+                        true,
+                        b -> {}),
+                OptionInstance.createBoolean(
+                        "gui.wynnventory.settings.highlighting.highlightColor",
+                        OptionInstance.cachedConstantTooltip(
+                                Component.translatable("gui.wynnventory.settings.highlighting.highlightColor.tooltip")),
+                        true,
+                        b -> {}));
     }
 
     @Override
@@ -34,12 +53,30 @@ public class PriceHighlightSettingsTab implements SettingsTab {
         PriceHighlightSettings s = ModConfig.getInstance().getPriceHighlightSettings();
         list.addSmall(
                 OptionInstance.createBoolean(
-                        "gui.wynnventory.settings.highlighting.showColors", s.isShowColors(), s::setShowColors),
+                        "gui.wynnventory.settings.highlighting.showColors",
+                        OptionInstance.cachedConstantTooltip(
+                                Component.translatable("gui.wynnventory.settings.highlighting.showColors.tooltip")),
+                        s.isShowColors(),
+                        s::setShowColors),
                 null);
-        list.addBig(OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.colorMinPrice", true, b -> {}));
-        list.addBig(OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.hexCode", true, b -> {}));
-        list.addBig(
-                OptionInstance.createBoolean("gui.wynnventory.settings.highlighting.highlightColor", true, b -> {}));
+        list.addBig(OptionInstance.createBoolean(
+                "gui.wynnventory.settings.highlighting.colorMinPrice",
+                OptionInstance.cachedConstantTooltip(
+                        Component.translatable("gui.wynnventory.settings.highlighting.colorMinPrice.tooltip")),
+                true,
+                b -> {}));
+        list.addBig(OptionInstance.createBoolean(
+                "gui.wynnventory.settings.highlighting.hexCode",
+                OptionInstance.cachedConstantTooltip(
+                        Component.translatable("gui.wynnventory.settings.highlighting.hexCode.tooltip")),
+                true,
+                b -> {}));
+        list.addBig(OptionInstance.createBoolean(
+                "gui.wynnventory.settings.highlighting.highlightColor",
+                OptionInstance.cachedConstantTooltip(
+                        Component.translatable("gui.wynnventory.settings.highlighting.highlightColor.tooltip")),
+                true,
+                b -> {}));
     }
 
     private EditBox minPriceBox;

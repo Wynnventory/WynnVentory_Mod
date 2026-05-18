@@ -15,7 +15,8 @@ public class RewardScreenSettingsTab implements SettingsTab {
         return List.of(
                 new OptionInstance<>(
                         "gui.wynnventory.settings.rewardscreen.layoutMode",
-                        OptionInstance.noTooltip(),
+                        OptionInstance.cachedConstantTooltip(
+                                Component.translatable("gui.wynnventory.settings.rewardscreen.layoutMode.tooltip")),
                         (label, value) -> Component.translatable("gui.wynnventory.settings.rewardscreen.layoutMode."
                                 + value.toString().toLowerCase()),
                         new OptionInstance.Enum<>(
@@ -25,7 +26,8 @@ public class RewardScreenSettingsTab implements SettingsTab {
                         s::setLayoutMode),
                 new OptionInstance<>(
                         "gui.wynnventory.settings.rewardscreen.maxPoolsPerPage",
-                        OptionInstance.noTooltip(),
+                        OptionInstance.cachedConstantTooltip(Component.translatable(
+                                "gui.wynnventory.settings.rewardscreen.maxPoolsPerPage.tooltip")),
                         (label, value) -> Component.literal(label.getString() + ": " + value),
                         new OptionInstance.IntRange(1, 10),
                         s.getMaxPoolsPerPage(),

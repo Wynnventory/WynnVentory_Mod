@@ -36,6 +36,10 @@ public class SettingsScreen extends OptionsSubScreen {
         return super.addRenderableWidget(widget);
     }
 
+    public Screen getParent() {
+        return parent;
+    }
+
     @Override
     protected void addOptions() {
         for (Section section : Section.values()) {

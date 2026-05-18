@@ -1,5 +1,6 @@
 package com.wynnventory.model.item.trademarket;
 
+import com.wynnventory.core.config.settings.PriceDetailLevel;
 import com.wynnventory.core.config.settings.TooltipSettings;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -70,7 +71,35 @@ public enum PriceType {
     }
 
     public boolean isEnabled(TooltipSettings settings) {
+        PriceDetailLevel level = settings.getPriceDetailLevel();
+        if (level != PriceDetailLevel.CUSTOM) {
+            return isEnabledForLevel(level);
+        }
+
+        if (!settings.isSeparateUnidSettings() && isUnidentified()) {
+            return getIdentifiedEquivalent().isEnabled(settings);
+        }
+
         return enabledCheck.test(settings);
+    }
+
+    private boolean isEnabledForLevel(PriceDetailLevel level) {
+        PriceType id = getIdentifiedEquivalent();
+        return switch (level) {
+            case MINIMAL -> id == LOWEST;
+            case STANDARD -> id == LOWEST || id == MOVING_MEDIAN;
+            case DETAILED -> id == LOWEST || id == MOVING_MEDIAN || id == AVG_80;
+            default -> false;
+        };
+    }
+
+    private boolean isUnidentified() {
+        return name().startsWith("UNID_");
+    }
+
+    private PriceType getIdentifiedEquivalent() {
+        if (!isUnidentified()) return this;
+        return PriceType.valueOf(name().substring(5));
     }
 
     public Double getValue(TrademarketItemSummary summary) {
