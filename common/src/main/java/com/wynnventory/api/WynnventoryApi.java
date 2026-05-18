@@ -10,6 +10,8 @@ import com.wynnventory.model.item.simple.SimpleGambitItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.trademarket.TrademarketItemSummary;
 import com.wynnventory.model.item.trademarket.TrademarketListing;
+import com.wynnventory.model.item.trademarket.prediction.PricePredictionRequest;
+import com.wynnventory.model.item.trademarket.prediction.PricePredictionResponse;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardPoolDocument;
 import com.wynnventory.model.reward.RewardType;
@@ -79,6 +81,21 @@ public class WynnventoryApi {
         return getTrademarketItemSummaryCompletableFuture(tier, shiny, baseUri);
     }
 
+    public CompletableFuture<PricePredictionResponse> fetchPricePrediction(PricePredictionRequest request) {
+        if (request == null || request.getName() == null || request.getName().isBlank()) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        URI uri = Endpoint.PRICE_PREDICTION.uri();
+
+        return HttpUtils.sendPostRequestWithApiKey(uri, request, ApiConfig.getWynnmarketApiKey())
+                .thenApply(resp -> handleResponse(resp, this::parsePricePredictionResponse))
+                .exceptionally(ex -> {
+                    WynnventoryMod.logError("Failed to fetch price prediction", ex);
+                    return null;
+                });
+    }
+
     private CompletableFuture<TrademarketItemSummary> getTrademarketItemSummaryCompletableFuture(
             Integer tier, Boolean shiny, URI baseUri) {
         Map<String, Object> params = new LinkedHashMap<>();
@@ -144,6 +161,16 @@ public class WynnventoryApi {
             return MAPPER.readValue(responseBody, TrademarketItemSummary.class);
         } catch (JsonProcessingException e) {
             WynnventoryMod.logError("Failed to parse item price response {}", responseBody, e);
+        }
+
+        return null;
+    }
+
+    private PricePredictionResponse parsePricePredictionResponse(String responseBody) {
+        try {
+            return MAPPER.readValue(responseBody, PricePredictionResponse.class);
+        } catch (JsonProcessingException e) {
+            WynnventoryMod.logError("Failed to parse price prediction response {}", responseBody, e);
         }
 
         return null;

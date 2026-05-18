@@ -4,19 +4,29 @@ import com.wynntils.models.emeralds.type.EmeraldUnits;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.config.settings.DisplayOptions;
 import com.wynnventory.core.config.settings.PriceHighlightSettings;
+import com.wynnventory.core.config.settings.PricePredictionSettings;
 import com.wynnventory.core.config.settings.TooltipSettings;
 import com.wynnventory.model.item.trademarket.PriceType;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
+import com.wynnventory.model.item.trademarket.prediction.ContributionImpact;
+import com.wynnventory.model.item.trademarket.prediction.PriceContribution;
+import com.wynnventory.model.item.trademarket.prediction.PricePredictionResponse;
+import com.wynnventory.model.item.trademarket.prediction.PricePredictionType;
 import com.wynnventory.util.EmeraldUtils;
 import com.wynnventory.util.StringUtils;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
 public final class PriceTooltipBuilder {
+    private static final String POSITIVE_DIRECTION = "positive";
+
     public List<Component> buildPriceTooltip(TrademarketItemSnapshot snapshot, Component title) {
         List<Component> out = new ArrayList<>();
         out.add(title);
@@ -38,6 +48,62 @@ public final class PriceTooltipBuilder {
         return out;
     }
 
+    public List<Component> buildPricePredictionTooltip(
+            PricePredictionResponse prediction, Map<String, String> statDisplayNames) {
+        if (prediction == null) return List.of();
+
+        List<Component> out = new ArrayList<>();
+        PricePredictionSettings ps = ModConfig.getInstance().getPricePredictionSettings();
+
+        for (PricePredictionType type : PricePredictionType.values()) {
+            add(out, type.isEnabled(ps), type.getLabel(), type.getValue(prediction), 0d);
+        }
+
+        if (out.isEmpty()) return List.of();
+
+        if (ps.isShowContributingFactors()) {
+            boolean hasBaseline = prediction.getBaselinePrice() != null;
+            boolean hasContributions = prediction.getContributions() != null
+                    && !prediction.getContributions().isEmpty();
+
+            if (hasBaseline || hasContributions) {
+                out.add(Component.translatable("feature.wynnventory.tooltip.contributions")
+                        .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+
+                if (hasBaseline) {
+                    MutableComponent line = Component.literal("  ");
+                    line.append(Component.translatable("feature.wynnventory.tooltip.baseline")
+                            .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)));
+                    line.append(Component.literal(": ").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
+                    line.append(Component.literal(formatPrice(prediction.getBaselinePrice()))
+                            .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+                    out.add(line);
+                }
+
+                if (hasContributions) {
+                    prediction.getContributions().stream()
+                            .filter(PriceTooltipBuilder::isRenderableContribution)
+                            .sorted(Comparator.comparing(
+                                            PriceTooltipBuilder::getContributionAbsImpact,
+                                            Comparator.nullsLast(Comparator.reverseOrder()))
+                                    .thenComparing(
+                                            PriceContribution::getApiName, Comparator.nullsLast(String::compareTo)))
+                            .map(contribution -> contributionLine(contribution, statDisplayNames))
+                            .forEach(out::add);
+                }
+            }
+        }
+
+        return out;
+    }
+
+    private static Double getContributionAbsImpact(PriceContribution contribution) {
+        if (contribution.getImpact() != null && contribution.getImpact().getAmountEmeralds() != null) {
+            return (double) Math.abs(contribution.getImpact().getAmountEmeralds());
+        }
+        return null;
+    }
+
     private static void add(List<Component> out, boolean enabled, String label, Double live, Double history) {
         if (!enabled || live == null) return;
         out.add(priceLine(label, live.intValue(), history == null ? 0 : history.intValue()));
@@ -45,9 +111,7 @@ public final class PriceTooltipBuilder {
 
     private static Component priceLine(String label, int live, int history) {
         PriceHighlightSettings colors = ModConfig.getInstance().getPriceHighlightSettings();
-        String price = (ModConfig.getInstance().getTooltipSettings().getDisplayFormat() == DisplayOptions.FORMATTED)
-                ? EmeraldUtils.getFormattedString(live, false)
-                : StringUtils.formatNumber(live) + EmeraldUnits.EMERALD.getSymbol();
+        String price = formatPrice(live);
 
         int priceColor = ChatFormatting.GRAY.getColor();
         if (colors.isShowColors() && live >= colors.getColorMinPrice()) {
@@ -67,5 +131,56 @@ public final class PriceTooltipBuilder {
         }
 
         return line;
+    }
+
+    private static String formatPrice(int price) {
+        return (ModConfig.getInstance().getTooltipSettings().getDisplayFormat() == DisplayOptions.FORMATTED)
+                ? EmeraldUtils.getFormattedString(price, false)
+                : StringUtils.formatNumber(price) + EmeraldUnits.EMERALD.getSymbol();
+    }
+
+    private static boolean isRenderableContribution(PriceContribution contribution) {
+        return contribution != null
+                && contribution.getApiName() != null
+                && !contribution.getApiName().isBlank()
+                && (contribution.getRollPercentage() != null
+                        || (contribution.getImpact() != null
+                                && contribution.getImpact().getAmountEmeralds() != null));
+    }
+
+    private static Component contributionLine(PriceContribution contribution, Map<String, String> statDisplayNames) {
+        MutableComponent line = Component.literal("  ");
+        line.append(Component.literal(displayName(contribution.getApiName(), statDisplayNames))
+                .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)));
+
+        if (contribution.getRollPercentage() != null) {
+            line.append(Component.literal(": ").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
+            line.append(Component.literal(formatPercentage(contribution.getRollPercentage()))
+                    .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+        }
+
+        ContributionImpact impact = contribution.getImpact();
+        if (impact != null && impact.getAmountEmeralds() != null && impact.getAmountEmeralds() != 0) {
+            line.append(Component.literal(" (").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
+            String sign = POSITIVE_DIRECTION.equals(impact.getDirection()) ? "+" : "-";
+            ChatFormatting color =
+                    POSITIVE_DIRECTION.equals(impact.getDirection()) ? ChatFormatting.GREEN : ChatFormatting.RED;
+            line.append(Component.literal(sign + formatPrice(Math.abs(impact.getAmountEmeralds())))
+                    .withStyle(Style.EMPTY.withColor(color)));
+            line.append(Component.literal(")").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
+        }
+
+        return line;
+    }
+
+    private static String displayName(String apiName, Map<String, String> statDisplayNames) {
+        if (statDisplayNames == null) return apiName;
+
+        String displayName = statDisplayNames.get(apiName);
+        return displayName == null || displayName.isBlank() ? apiName : displayName;
+    }
+
+    private static String formatPercentage(double percentage) {
+        return String.format(Locale.ROOT, "%.0f%%", percentage);
     }
 }

@@ -10,7 +10,8 @@ public enum Endpoint {
     RAIDPOOL_CURRENT("raidpool/current"),
     RAIDPOOL_GAMBITS("raidpool/gambits"),
     TRADE_MARKET_PRICE("trademarket/item/%s/price"),
-    TRADE_MARKET_HISTORIC_PRICE("trademarket/history/%s/price");
+    TRADE_MARKET_HISTORIC_PRICE("trademarket/history/%s/price"),
+    PRICE_PREDICTION("https://wynnmarket.com/api/estimate");
 
     private final String template;
 
