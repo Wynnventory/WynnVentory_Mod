@@ -4,6 +4,7 @@ import com.wynntils.models.emeralds.type.EmeraldUnits;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.core.config.settings.DisplayOptions;
 import com.wynnventory.core.config.settings.PriceHighlightSettings;
+import com.wynnventory.core.config.settings.PricePredictionSettings;
 import com.wynnventory.core.config.settings.TooltipSettings;
 import com.wynnventory.model.item.trademarket.PriceType;
 import com.wynnventory.model.item.trademarket.TrademarketItemSnapshot;
@@ -52,30 +53,45 @@ public final class PriceTooltipBuilder {
         if (prediction == null) return List.of();
 
         List<Component> out = new ArrayList<>();
-        TooltipSettings ts = ModConfig.getInstance().getTooltipSettings();
+        PricePredictionSettings ps = ModConfig.getInstance().getPricePredictionSettings();
 
         for (PricePredictionType type : PricePredictionType.values()) {
-            add(out, type.isEnabled(ts), type.getLabel(), type.getValue(prediction), 0d);
+            add(out, type.isEnabled(ps), type.getLabel(), type.getValue(prediction), 0d);
         }
 
         if (out.isEmpty()) return List.of();
 
-        if (ts.isShowContributingFactors()
-                && prediction.getContributions() != null
-                && !prediction.getContributions().isEmpty()) {
-            out.add(Component.translatable("feature.wynnventory.tooltip.contributions")
-                    .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
-            prediction.getContributions().stream()
-                    .filter(PriceTooltipBuilder::isRenderableContribution)
-                    .sorted(Comparator.comparing(
-                                    PriceTooltipBuilder::getContributionAbsImpact,
-                                    Comparator.nullsLast(Comparator.reverseOrder()))
-                            .thenComparing(
-                                    PriceContribution::getPriceMultiplier,
-                                    Comparator.nullsLast(Comparator.reverseOrder()))
-                            .thenComparing(PriceContribution::getApiName, Comparator.nullsLast(String::compareTo)))
-                    .map(contribution -> contributionLine(contribution, statDisplayNames))
-                    .forEach(out::add);
+        if (ps.isShowContributingFactors()) {
+            boolean hasBaseline = prediction.getBaselinePrice() != null;
+            boolean hasContributions = prediction.getContributions() != null
+                    && !prediction.getContributions().isEmpty();
+
+            if (hasBaseline || hasContributions) {
+                out.add(Component.translatable("feature.wynnventory.tooltip.contributions")
+                        .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+
+                if (hasBaseline) {
+                    MutableComponent line = Component.literal("  ");
+                    line.append(Component.translatable("feature.wynnventory.tooltip.baseline")
+                            .withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE)));
+                    line.append(Component.literal(": ").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
+                    line.append(Component.literal(formatPrice(prediction.getBaselinePrice()))
+                            .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+                    out.add(line);
+                }
+
+                if (hasContributions) {
+                    prediction.getContributions().stream()
+                            .filter(PriceTooltipBuilder::isRenderableContribution)
+                            .sorted(Comparator.comparing(
+                                            PriceTooltipBuilder::getContributionAbsImpact,
+                                            Comparator.nullsLast(Comparator.reverseOrder()))
+                                    .thenComparing(
+                                            PriceContribution::getApiName, Comparator.nullsLast(String::compareTo)))
+                            .map(contribution -> contributionLine(contribution, statDisplayNames))
+                            .forEach(out::add);
+                }
+            }
         }
 
         return out;
@@ -128,7 +144,6 @@ public final class PriceTooltipBuilder {
                 && contribution.getApiName() != null
                 && !contribution.getApiName().isBlank()
                 && (contribution.getRollPercentage() != null
-                        || contribution.getPriceMultiplier() != null
                         || (contribution.getImpact() != null
                                 && contribution.getImpact().getAmountEmeralds() != null));
     }
@@ -144,13 +159,6 @@ public final class PriceTooltipBuilder {
                     .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
         }
 
-        if (contribution.getWeight() != null && contribution.getWeight() != 0) {
-            line.append(Component.literal(" [").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
-            line.append(Component.literal(formatWeight(contribution.getWeight()))
-                    .withStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
-            line.append(Component.literal("]").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
-        }
-
         ContributionImpact impact = contribution.getImpact();
         if (impact != null && impact.getAmountEmeralds() != null && impact.getAmountEmeralds() != 0) {
             line.append(Component.literal(" (").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
@@ -159,11 +167,6 @@ public final class PriceTooltipBuilder {
                     POSITIVE_DIRECTION.equals(impact.getDirection()) ? ChatFormatting.GREEN : ChatFormatting.RED;
             line.append(Component.literal(sign + formatPrice(Math.abs(impact.getAmountEmeralds())))
                     .withStyle(Style.EMPTY.withColor(color)));
-            line.append(Component.literal(")").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
-        } else if (contribution.getPriceMultiplier() != null) {
-            line.append(Component.literal(" (").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
-            line.append(Component.literal("x" + formatMultiplier(contribution.getPriceMultiplier()))
-                    .withStyle(Style.EMPTY.withColor(multiplierColor(contribution.getPriceMultiplier()))));
             line.append(Component.literal(")").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
         }
 
@@ -179,20 +182,5 @@ public final class PriceTooltipBuilder {
 
     private static String formatPercentage(double percentage) {
         return String.format(Locale.ROOT, "%.0f%%", percentage);
-    }
-
-    private static String formatWeight(double weight) {
-        return String.format(Locale.ROOT, "%.3f", weight);
-    }
-
-    private static String formatMultiplier(double multiplier) {
-        return String.format(Locale.ROOT, "%.2f", multiplier);
-    }
-
-    private static ChatFormatting multiplierColor(double multiplier) {
-        if (multiplier > 1.0d) return ChatFormatting.GREEN;
-        if (multiplier < 1.0d) return ChatFormatting.RED;
-
-        return ChatFormatting.GRAY;
     }
 }

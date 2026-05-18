@@ -4,6 +4,7 @@ import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.core.config.ModConfig;
 import com.wynnventory.gui.screen.settings.NotificationSettingsTab;
 import com.wynnventory.gui.screen.settings.PriceHighlightSettingsTab;
+import com.wynnventory.gui.screen.settings.PricePredictionSettingsTab;
 import com.wynnventory.gui.screen.settings.RewardScreenSettingsTab;
 import com.wynnventory.gui.screen.settings.SettingsTab;
 import com.wynnventory.gui.screen.settings.TooltipSettingsTab;
@@ -64,6 +65,7 @@ public class SettingsScreen extends OptionsSubScreen {
 
     private enum Section {
         TOOLTIP("gui.wynnventory.settings.section.tooltip", new TooltipSettingsTab()),
+        PRICE_PREDICTION("gui.wynnventory.settings.section.prediction", new PricePredictionSettingsTab()),
         PRICE_HIGHLIGHT("gui.wynnventory.settings.section.highlighting", new PriceHighlightSettingsTab()),
         NOTIFICATIONS("gui.wynnventory.settings.section.notifications", new NotificationSettingsTab()),
         REWARD_SCREEN("gui.wynnventory.settings.section.rewardscreen", new RewardScreenSettingsTab());
