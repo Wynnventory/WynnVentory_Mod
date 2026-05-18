@@ -56,9 +56,6 @@ public class TooltipSettingsTab implements SettingsTab {
                                 Codec.INT.xmap(i -> DisplayOptions.values()[i], DisplayOptions::ordinal)),
                         s.getDisplayFormat(),
                         s::setDisplayFormat));
-
-        // --- GUI Behavior ---
-        list.addHeader(Component.translatable("gui.wynnventory.settings.tooltip.header.gui"));
         list.addSmall(
                 OptionInstance.createBoolean(
                         "gui.wynnventory.settings.tooltip.showBoxedItemTooltips",
@@ -98,19 +95,19 @@ public class TooltipSettingsTab implements SettingsTab {
                         s.isShowPriceFluctuation(),
                         s::setShowPriceFluctuation));
 
-        list.addSmall(
-                OptionInstance.createBoolean(
-                        "gui.wynnventory.settings.tooltip.separateUnidSettings",
-                        OptionInstance.cachedConstantTooltip(Component.translatable(
-                                "gui.wynnventory.settings.tooltip.separateUnidSettings.tooltip")),
-                        s.isSeparateUnidSettings(),
-                        value -> {
-                            s.setSeparateUnidSettings(value);
-                            refresh();
-                        }),
-                null);
-
         if (s.getPriceDetailLevel() == PriceDetailLevel.CUSTOM) {
+            list.addSmall(
+                    OptionInstance.createBoolean(
+                            "gui.wynnventory.settings.tooltip.separateUnidSettings",
+                            OptionInstance.cachedConstantTooltip(Component.translatable(
+                                    "gui.wynnventory.settings.tooltip.separateUnidSettings.tooltip")),
+                            s.isSeparateUnidSettings(),
+                            value -> {
+                                s.setSeparateUnidSettings(value);
+                                refresh();
+                            }),
+                    null);
+
             List<OptionInstance<?>> customOptions = new ArrayList<>();
             customOptions.add(OptionInstance.createBoolean(
                     "gui.wynnventory.settings.tooltip.showMinPrice",

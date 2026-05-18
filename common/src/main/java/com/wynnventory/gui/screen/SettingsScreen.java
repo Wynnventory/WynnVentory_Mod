@@ -43,7 +43,9 @@ public class SettingsScreen extends OptionsSubScreen {
     @Override
     protected void addOptions() {
         for (Section section : Section.values()) {
-            this.list.addHeader(Component.translatable(section.translationKey));
+            if (section.translationKey != null) {
+                this.list.addHeader(Component.translatable(section.translationKey));
+            }
             section.getTab().addOptions(this.list);
             section.getTab().initCustomWidgets(this, this.list);
         }
@@ -68,7 +70,7 @@ public class SettingsScreen extends OptionsSubScreen {
     }
 
     private enum Section {
-        TOOLTIP("gui.wynnventory.settings.section.tooltip", new TooltipSettingsTab()),
+        TOOLTIP(null, new TooltipSettingsTab()),
         PRICE_PREDICTION("gui.wynnventory.settings.section.prediction", new PricePredictionSettingsTab()),
         PRICE_HIGHLIGHT("gui.wynnventory.settings.section.highlighting", new PriceHighlightSettingsTab()),
         NOTIFICATIONS("gui.wynnventory.settings.section.notifications", new NotificationSettingsTab()),
