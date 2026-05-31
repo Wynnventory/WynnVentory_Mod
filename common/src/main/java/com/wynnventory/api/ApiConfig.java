@@ -17,6 +17,7 @@ public final class ApiConfig {
 
     private static final byte MASK = (byte) 0x5A;
     private static String apiKey;
+    private static String wynnmarketApiKey;
 
     private ApiConfig() {}
 
@@ -24,13 +25,27 @@ public final class ApiConfig {
         return WynnventoryMod.isBeta() ? DEV_URI : PROD_URI;
     }
 
-    public static String getApiKey() {
+    public static String getWynnventoryApiKey() {
         if (apiKey != null) return apiKey;
 
-        try (InputStream in = ApiConfig.class.getResourceAsStream("/key.dat")) {
+        apiKey = readEncodedApiKey("/key.dat", "key.dat");
+
+        return apiKey;
+    }
+
+    public static String getWynnmarketApiKey() {
+        if (wynnmarketApiKey != null) return wynnmarketApiKey;
+
+        wynnmarketApiKey = readPlainApiKey("/wynnmarket-key.dat", "wynnmarket-key.dat");
+
+        return wynnmarketApiKey;
+    }
+
+    private static String readEncodedApiKey(String resourcePath, String fileName) {
+        try (InputStream in = ApiConfig.class.getResourceAsStream(resourcePath)) {
             if (in == null)
                 throw new ApiKeyException(
-                        "Missing key.dat. For local development create the file and paste your API key");
+                        "Missing " + fileName + ". For local development create the file and paste your API key");
 
             String raw = new String(in.readAllBytes(), StandardCharsets.UTF_8).trim();
             byte[] ob = Base64.getDecoder().decode(raw);
@@ -39,11 +54,21 @@ public final class ApiConfig {
                 ob[i] ^= MASK;
             }
 
-            apiKey = new String(ob, StandardCharsets.UTF_8);
-
-            return apiKey;
+            return new String(ob, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new ApiKeyException("Failed to read key.dat", e);
+            throw new ApiKeyException("Failed to read " + fileName, e);
+        }
+    }
+
+    private static String readPlainApiKey(String resourcePath, String fileName) {
+        try (InputStream in = ApiConfig.class.getResourceAsStream(resourcePath)) {
+            if (in == null)
+                throw new ApiKeyException(
+                        "Missing " + fileName + ". For local development create the file and paste your API key");
+
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8).trim();
+        } catch (IOException e) {
+            throw new ApiKeyException("Failed to read " + fileName, e);
         }
     }
 }

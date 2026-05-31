@@ -43,5 +43,7 @@ replay_*.log
 # custom
 fabric/src/main/resources/key.dat
 neoforge/src/main/resources/key.dat
+fabric/src/main/resources/wynnmarket-key.dat
+neoforge/src/main/resources/wynnmarket-key.dat
 /.architectury-transformer
 /.junie

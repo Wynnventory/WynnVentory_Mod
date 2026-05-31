@@ -9,6 +9,8 @@ import org.jspecify.annotations.NonNull;
 
 public record ItemStat(StatActualValue statActualValue, StatPossibleValues possibleValues) {
     public String getDisplayName() {
+        if (possibleValues != null) return possibleValues.statType().getDisplayName();
+
         return statActualValue.statType().getDisplayName();
     }
 

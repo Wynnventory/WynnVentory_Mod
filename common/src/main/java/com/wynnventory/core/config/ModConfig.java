@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.wynnventory.core.WynnventoryMod;
 import com.wynnventory.core.config.settings.FavouriteNotifierSettings;
 import com.wynnventory.core.config.settings.PriceHighlightSettings;
+import com.wynnventory.core.config.settings.PricePredictionSettings;
 import com.wynnventory.core.config.settings.RewardScreenSettings;
 import com.wynnventory.core.config.settings.TooltipSettings;
 import com.wynnventory.util.ChatUtils;
@@ -24,6 +25,7 @@ public final class ModConfig {
             .enable(SerializationFeature.INDENT_OUTPUT);
 
     private TooltipSettings tooltipSettings = new TooltipSettings();
+    private PricePredictionSettings pricePredictionSettings = new PricePredictionSettings();
     private PriceHighlightSettings priceHighlightSettings = new PriceHighlightSettings();
     private FavouriteNotifierSettings favouriteNotifierSettings = new FavouriteNotifierSettings();
     private RewardScreenSettings rewardScreenSettings = new RewardScreenSettings();
@@ -124,6 +126,14 @@ public final class ModConfig {
 
     public void setTooltipSettings(TooltipSettings tooltipSettings) {
         this.tooltipSettings = tooltipSettings;
+    }
+
+    public PricePredictionSettings getPricePredictionSettings() {
+        return pricePredictionSettings;
+    }
+
+    public void setPricePredictionSettings(PricePredictionSettings pricePredictionSettings) {
+        this.pricePredictionSettings = pricePredictionSettings;
     }
 
     public PriceHighlightSettings getPriceHighlightSettings() {

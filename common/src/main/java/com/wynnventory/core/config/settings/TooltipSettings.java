@@ -5,8 +5,10 @@ public class TooltipSettings {
     private boolean showBoxedItemTooltips = true;
     private boolean anchorTooltips = true;
     private boolean showPriceFluctuation = true;
+    private boolean separateUnidSettings = false;
 
     private DisplayOptions displayFormat = DisplayOptions.FORMATTED;
+    private PriceDetailLevel priceDetailLevel = PriceDetailLevel.STANDARD;
 
     private boolean showMaxPrice = false;
     private boolean showUnidentifiedMaxPrice = false;
@@ -53,12 +55,28 @@ public class TooltipSettings {
         this.showPriceFluctuation = showPriceFluctuation;
     }
 
+    public boolean isSeparateUnidSettings() {
+        return separateUnidSettings;
+    }
+
+    public void setSeparateUnidSettings(boolean separateUnidSettings) {
+        this.separateUnidSettings = separateUnidSettings;
+    }
+
     public DisplayOptions getDisplayFormat() {
         return displayFormat;
     }
 
     public void setDisplayFormat(DisplayOptions displayFormat) {
         this.displayFormat = displayFormat;
+    }
+
+    public PriceDetailLevel getPriceDetailLevel() {
+        return priceDetailLevel;
+    }
+
+    public void setPriceDetailLevel(PriceDetailLevel priceDetailLevel) {
+        this.priceDetailLevel = priceDetailLevel;
     }
 
     public boolean isShowMaxPrice() {
