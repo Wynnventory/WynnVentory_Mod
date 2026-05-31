@@ -51,20 +51,10 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         // Colored highlight like Wynntils (scaled to our box)
         CustomColor color = getCustomColor();
         if (color != CustomColor.NONE) {
-            RenderUtils.drawTexturedRect(
-                    g,
-                    Texture.HIGHLIGHT.identifier(),
-                    color,
-                    getX() - 1f,
-                    getY() - 1f,
-                    width + 2f,
-                    height + 2f,
-                    0,
-                    0,
-                    18,
-                    18,
-                    Texture.HIGHLIGHT.width(),
-                    Texture.HIGHLIGHT.height());
+            float hlSize = 2f * width;
+            float hlOffset = width / 2f;
+            RenderUtils.drawSprite(
+                    g, Texture.HIGHLIGHT_WYNN, color, getX() - hlOffset, getY() - hlOffset, hlSize, hlSize);
         }
 
         // Draw item (MC item icon anchored at button origin, scaled)
