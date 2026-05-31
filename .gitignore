@@ -44,3 +44,4 @@ replay_*.log
 fabric/src/main/resources/key.dat
 neoforge/src/main/resources/key.dat
 /.architectury-transformer
+/.junie
