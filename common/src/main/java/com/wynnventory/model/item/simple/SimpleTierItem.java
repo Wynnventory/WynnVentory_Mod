@@ -83,7 +83,7 @@ public class SimpleTierItem extends SimpleItem {
     private static SimpleTierItem fromMaterialItem(MaterialItem materialItem) {
         return createTierItem(
                 materialItem,
-                ItemStackUtils.getMaterialName(materialItem),
+                materialItem.getMaterialInfo().name(),
                 GearTier.NORMAL,
                 SimpleItemType.MATERIAL,
                 materialItem.getProfessionTypes().toString(),
