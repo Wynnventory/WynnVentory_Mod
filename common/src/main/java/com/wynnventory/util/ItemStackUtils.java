@@ -95,12 +95,6 @@ public class ItemStackUtils {
         return Component.literal(cleanName).withStyle(style);
     }
 
-    public static String getMaterialName(MaterialItem item) {
-        String source = item.getMaterialProfile().getSourceMaterial().name();
-        String resource = item.getMaterialProfile().getResourceType().name();
-        return StringUtils.toCamelCase(source + " " + resource, " ");
-    }
-
     public static String getPowderName(PowderItem item) {
         return item.getPowderProfile().element().getName() + " Powder";
     }
