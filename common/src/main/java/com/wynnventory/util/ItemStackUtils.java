@@ -20,6 +20,8 @@ import com.wynntils.models.items.items.game.PowderItem;
 import com.wynntils.models.items.items.game.RuneItem;
 import com.wynntils.models.items.items.game.SimulatorItem;
 import com.wynntils.models.items.items.game.TomeItem;
+import com.wynntils.models.items.properties.GearTierItemProperty;
+import com.wynntils.models.items.properties.NamedItemProperty;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
 import com.wynntils.utils.mc.LoreUtils;
 import com.wynnventory.core.WynnventoryMod;
@@ -95,6 +97,36 @@ public class ItemStackUtils {
         return Component.literal(cleanName).withStyle(style);
     }
 
+    public static String getWynnItemName(ItemStack stack) {
+        String name = Models.Item.asWynnItemProperty(stack, NamedItemProperty.class)
+                .map(NamedItemProperty::getName)
+                .orElseGet(() -> {
+                    StyledText originalName = getWynntilsOriginalName(stack);
+                    return originalName == null
+                            ? stack.getHoverName().getString()
+                            : originalName.getNormalized().getStringWithoutFormatting();
+                });
+
+        return StringUtils.removeNonAsciiChars(name).trim();
+    }
+
+    public static Component getWynnItemNameComponent(ItemStack stack) {
+        return Component.literal(getWynnItemName(stack)).withStyle(getWynnItemNameStyle(stack));
+    }
+
+    private static Style getWynnItemNameStyle(ItemStack stack) {
+        return switch (getWynnItem(stack)) {
+            case GearTierItemProperty gearTierItem ->
+                Style.EMPTY.withColor(gearTierItem.getGearTier().getChatFormatting());
+            case PowderItem powderItem ->
+                Style.EMPTY.withColor(powderItem.getPowderProfile().element().getLightColor());
+            case RuneItem runeItem ->
+                Style.EMPTY.withColor(runeItem.getType().getColor().asInt());
+            case EmeraldItem ignored -> Style.EMPTY.withColor(ChatFormatting.GREEN);
+            case null, default -> Style.EMPTY.withColor(ChatFormatting.WHITE);
+        };
+    }
+
     public static String getPowderName(PowderItem item) {
         return item.getPowderProfile().element().getName() + " Powder";
     }
@@ -129,7 +161,8 @@ public class ItemStackUtils {
     }
 
     public static String getHorseName(MountItem item) {
-        return StringUtils.toCamelCase(item.getName().orElse(""));
+        if (item.getName().isBlank()) return "";
+        return StringUtils.toCamelCase(item.getName());
     }
 
     public static ChatFormatting getRarityChatFormattingByName(String rarity) {

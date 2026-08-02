@@ -5,13 +5,13 @@ import com.wynntils.models.activities.type.Dungeon;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
-import com.wynntils.screens.guides.augment.AmplifierItemStack;
-import com.wynntils.screens.guides.augment.InsulatorItemStack;
-import com.wynntils.screens.guides.augment.SimulatorItemStack;
+import com.wynntils.screens.guides.augment.GuideAmplifierItemStack;
+import com.wynntils.screens.guides.augment.GuideInsulatorItemStack;
+import com.wynntils.screens.guides.augment.GuideSimulatorItemStack;
+import com.wynntils.screens.guides.dungeonkey.GuideDungeonKeyItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
-import com.wynntils.screens.guides.misc.GuideDungeonKeyItemStack;
-import com.wynntils.screens.guides.misc.RuneItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
+import com.wynntils.screens.guides.rune.GuideRuneItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
 import com.wynnventory.api.service.RewardService;
@@ -453,12 +453,12 @@ public class RewardScreen extends Screen {
                 s -> s.getElement().getName() + " Powder " + s.getTier());
         addStacks(
                 (Models.Rewards.getAllAmplifierInfo().stream()
-                        .map(AmplifierItemStack::new)
+                        .map(GuideAmplifierItemStack::new)
                         .toList()),
                 s -> s.getHoverName().getString());
         addStacks(
                 (Models.Rewards.getAllRuneInfo().stream()
-                        .map(RuneItemStack::new)
+                        .map(GuideRuneItemStack::new)
                         .toList()),
                 s -> s.getHoverName().getString());
 
@@ -466,10 +466,10 @@ public class RewardScreen extends Screen {
 
         addStacks(getDungeonKeyItemStacks(), s -> s.getHoverName().getString());
 
-        InsulatorItemStack insulatorItemStack = new InsulatorItemStack();
+        GuideInsulatorItemStack insulatorItemStack = new GuideInsulatorItemStack();
         wynnItemsByName.put(insulatorItemStack.getHoverName().getString(), insulatorItemStack);
 
-        SimulatorItemStack simulatorItemStack = new SimulatorItemStack();
+        GuideSimulatorItemStack simulatorItemStack = new GuideSimulatorItemStack();
         wynnItemsByName.put(simulatorItemStack.getHoverName().getString(), simulatorItemStack);
     }
 

@@ -4,14 +4,13 @@ import com.wynntils.core.components.Services;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
-import com.wynntils.screens.guides.augment.AmplifierItemStack;
-import com.wynntils.screens.guides.augment.InsulatorItemStack;
-import com.wynntils.screens.guides.augment.SimulatorItemStack;
+import com.wynntils.screens.guides.augment.GuideAmplifierItemStack;
+import com.wynntils.screens.guides.augment.GuideAugmentItemStack;
+import com.wynntils.screens.guides.dungeonkey.GuideDungeonKeyItemStack;
 import com.wynntils.screens.guides.emerald.GuideEmeraldItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
-import com.wynntils.screens.guides.misc.GuideDungeonKeyItemStack;
-import com.wynntils.screens.guides.misc.RuneItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
+import com.wynntils.screens.guides.rune.GuideRuneItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
 import com.wynntils.utils.MathUtils;
 import com.wynntils.utils.colors.CommonColors;
@@ -67,9 +66,9 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
 
         if (simpleItem instanceof SimpleTierItem
                 || itemStack instanceof GuideEmeraldItemStack
-                || itemStack instanceof RuneItemStack
+                || itemStack instanceof GuideRuneItemStack
                 || itemStack instanceof GuidePowderItemStack
-                || itemStack instanceof AmplifierItemStack
+                || itemStack instanceof GuideAmplifierItemStack
                 || itemStack instanceof GuideDungeonKeyItemStack) {
             renderText(
                     g,
@@ -106,7 +105,7 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                         aspectStack.getAspectInfo().classType().getName().substring(0, 2),
                         getCustomColor(),
                         TextShadow.OUTLINE);
-            case AmplifierItemStack amplifierItemStack ->
+            case GuideAmplifierItemStack amplifierItemStack ->
                 renderText(g, MathUtils.toRoman(amplifierItemStack.getTier()), getCustomColor(), TextShadow.OUTLINE);
             default -> {
                 // Nothing special to be rendered
@@ -163,12 +162,8 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                 CustomColor.fromChatFormatting(aspect.getAspectInfo().gearTier().getChatFormatting());
             case GuidePowderItemStack powder ->
                 CustomColor.fromChatFormatting(powder.getElement().getLightColor());
-            case AmplifierItemStack amplifier ->
-                CustomColor.fromChatFormatting(amplifier.getGearTier().getChatFormatting());
-            case InsulatorItemStack insulator ->
-                CustomColor.fromChatFormatting(insulator.getGearTier().getChatFormatting());
-            case SimulatorItemStack simulator ->
-                CustomColor.fromChatFormatting(simulator.getGearTier().getChatFormatting());
+            case GuideAugmentItemStack augment ->
+                CustomColor.fromChatFormatting(augment.getGearTier().getChatFormatting());
             default -> CustomColor.NONE;
         };
     }

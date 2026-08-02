@@ -56,8 +56,9 @@ public final class PriceTooltipFactory {
         if ((snap == null || snap.live() == null) && prediction.response() == null) return List.of();
 
         Component itemName;
-        if (stack instanceof GuideItemStack g) {
-            itemName = g.getHoverName();
+        if (stack instanceof GuideItemStack) {
+            // Guide stacks no longer override getHoverName(), so the vanilla item name would be shown
+            itemName = ItemStackUtils.getWynnItemNameComponent(stack);
         } else {
             itemName = ItemStackUtils.getCleanItemNameComponent(stack);
         }
