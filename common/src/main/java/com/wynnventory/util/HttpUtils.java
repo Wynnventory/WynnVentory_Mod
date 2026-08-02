@@ -62,7 +62,7 @@ public class HttpUtils {
     }
 
     public static CompletableFuture<HttpResponse<String>> sendGetRequest(URI uri) {
-        WynnventoryMod.logDebug("Fetching data from {} endpoint: {}", WynnventoryMod.isBeta() ? "DEV" : "PROD", uri);
+        WynnventoryMod.logInfo("Fetching data from {} endpoint: {}", WynnventoryMod.isBeta() ? "DEV" : "PROD", uri);
 
         HttpRequest request;
         try {

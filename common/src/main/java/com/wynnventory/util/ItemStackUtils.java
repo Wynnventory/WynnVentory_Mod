@@ -161,7 +161,8 @@ public class ItemStackUtils {
     }
 
     public static String getHorseName(MountItem item) {
-        return StringUtils.toCamelCase(item.getName().orElse(""));
+        if (item.getName().isBlank()) return "";
+        return StringUtils.toCamelCase(item.getName());
     }
 
     public static ChatFormatting getRarityChatFormattingByName(String rarity) {
