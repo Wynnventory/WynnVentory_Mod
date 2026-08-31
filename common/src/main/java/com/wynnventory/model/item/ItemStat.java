@@ -32,10 +32,6 @@ public record ItemStat(StatActualValue statActualValue, StatPossibleValues possi
         return statActualValue.statType().getUnit().name();
     }
 
-    public int getStars() {
-        return statActualValue.stars();
-    }
-
     public RangedValue getInternalRoll() {
         return statActualValue.internalRoll();
     }
