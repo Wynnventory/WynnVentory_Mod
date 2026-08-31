@@ -42,7 +42,6 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
         super(x, y, width, height, "");
         this.itemStack = itemStack;
         this.simpleItem = simpleItem;
-        buildTooltip();
     }
 
     @Override
@@ -140,16 +139,6 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
     @Override
     public void onPress(InputWithModifiers inputWithModifiers) {
         // Item buttons are non-interactive
-    }
-
-    private void buildTooltip() {
-        switch (itemStack) {
-            case GuideGearItemStack gear -> gear.buildTooltip();
-            case GuideTomeItemStack tome -> tome.buildTooltip();
-            default -> {
-                // by default no special tooltips need to be generated
-            }
-        }
     }
 
     private CustomColor getCustomColor() {
