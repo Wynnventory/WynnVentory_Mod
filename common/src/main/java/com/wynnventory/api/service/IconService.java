@@ -30,6 +30,8 @@ public enum IconService {
             "https://raw.githubusercontent.com/Wynntils/Static-Storage/refs/heads/main/Reference/aspects.json";
     private static final String TOMES_URL =
             "https://raw.githubusercontent.com/Wynntils/Static-Storage/refs/heads/main/Reference/tomes.json";
+    private static final String CHARMS_URL =
+            "https://raw.githubusercontent.com/Wynntils/Static-Storage/refs/heads/main/Reference/charms.json";
     private static final Gson GSON = new Gson();
 
     private final Map<String, JsonObject> allEntries = new HashMap<>();
@@ -42,12 +44,14 @@ public enum IconService {
         Map<String, JsonObject> ingredientsMap = fetchJson(INGREDIENTS_URL);
         Map<String, JsonObject> aspectsMap = fetchJson(ASPECTS_URL);
         Map<String, JsonObject> tomesMap = fetchJson(TOMES_URL);
+        Map<String, JsonObject> charmsMap = fetchJson(CHARMS_URL);
 
         allEntries.putAll(gearMap);
         allEntries.putAll(materialsMap);
         allEntries.putAll(ingredientsMap);
         allEntries.putAll(flattenAspects(aspectsMap));
         allEntries.putAll(tomesMap);
+        allEntries.putAll(charmsMap);
     }
 
     public Icon resolveIcon(String lookupName, SimpleItemType itemType) {
@@ -70,7 +74,7 @@ public enum IconService {
         return extractIcon(entry);
     }
 
-    private static String defaultIconKey(String name) {
+    public static String defaultIconKey(String name) {
         String raw = StringUtils.toCamelCase(name).replaceAll("[^a-zA-Z0-9]", "");
         return raw.isEmpty() ? raw : Character.toLowerCase(raw.charAt(0)) + raw.substring(1);
     }

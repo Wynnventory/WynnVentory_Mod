@@ -8,9 +8,11 @@ import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.AmplifierItem;
 import com.wynntils.models.items.items.game.AspectItem;
+import com.wynntils.models.items.items.game.CharmItem;
 import com.wynntils.models.items.items.game.DungeonKeyItem;
 import com.wynntils.models.items.items.game.EmeraldItem;
 import com.wynntils.models.items.items.game.EmeraldPouchItem;
+import com.wynntils.models.items.items.game.GatheringToolItem;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.items.items.game.IngredientItem;
 import com.wynntils.models.items.items.game.InsulatorItem;
@@ -53,10 +55,12 @@ public class ItemStackUtils {
         return switch (item) {
             case AmplifierItem amplifierItem -> SimpleTierItem.from(amplifierItem);
             case AspectItem aspectItem -> SimpleItem.from(aspectItem);
+            case CharmItem charmItem -> SimpleGearItem.from(charmItem);
             case DungeonKeyItem dungeonKeyItem -> SimpleItem.from(dungeonKeyItem);
             case EmeraldItem emeraldItem -> SimpleItem.from(emeraldItem);
             case EmeraldPouchItem emeraldPouchItem -> SimpleTierItem.from(emeraldPouchItem);
             case GearItem gearItem -> SimpleGearItem.from(gearItem);
+            case GatheringToolItem gatheringToolItem -> SimpleItem.from(gatheringToolItem);
             case MountItem mountItem -> SimpleTierItem.from(mountItem);
             case IngredientItem ingredientItem -> SimpleTierItem.from(ingredientItem);
             case InsulatorItem insulatorItem -> SimpleItem.from(insulatorItem);

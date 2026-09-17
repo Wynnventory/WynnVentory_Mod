@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wynntils.models.gear.GearModel;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItemData;
+import com.wynntils.models.items.items.game.CharmItem;
 import com.wynntils.models.items.items.game.GearItem;
+import com.wynntils.models.items.properties.IdentifiableItemProperty;
 import com.wynntils.models.stats.type.ShinyStat;
 import com.wynntils.models.stats.type.StatActualValue;
 import com.wynntils.models.stats.type.StatPossibleValues;
@@ -64,7 +66,33 @@ public class SimpleGearItem extends SimpleItem {
             Optional<ShinyStat> shinyStat,
             float overallRollPercentage,
             List<ItemStat> actualStatsWithPercentage) {
-        super(name, rarity, SimpleItemType.GEAR, type, icon, amount);
+        this(
+                name,
+                rarity,
+                SimpleItemType.GEAR,
+                type,
+                icon,
+                amount,
+                unidentified,
+                rerollCount,
+                shinyStat,
+                overallRollPercentage,
+                actualStatsWithPercentage);
+    }
+
+    public SimpleGearItem(
+            String name,
+            GearTier rarity,
+            SimpleItemType itemType,
+            String type,
+            Icon icon,
+            int amount,
+            boolean unidentified,
+            int rerollCount,
+            Optional<ShinyStat> shinyStat,
+            float overallRollPercentage,
+            List<ItemStat> actualStatsWithPercentage) {
+        super(name, rarity, itemType, type, icon, amount);
         this.unidentified = unidentified;
         this.rerollCount = rerollCount;
         this.shinyStat = shinyStat;
@@ -173,7 +201,25 @@ public class SimpleGearItem extends SimpleItem {
                 getActualStats(item));
     }
 
-    private static List<ItemStat> getActualStats(GearItem item) {
+    public static SimpleGearItem from(CharmItem item) {
+        String name = item.getName();
+        ItemStack stack = item.getData().get(WynnItemData.ITEMSTACK_KEY);
+
+        return new SimpleGearItem(
+                name,
+                item.getGearTier(),
+                SimpleItemType.CHARM,
+                item.getGearType().name(),
+                IconService.INSTANCE.resolveIcon(name, SimpleItemType.CHARM),
+                stack.getCount(),
+                item.getItemInstance().isEmpty(),
+                item.getRerollCount(),
+                Optional.empty(),
+                item.getOverallPercentage(),
+                getActualStats(item));
+    }
+
+    private static List<ItemStat> getActualStats(IdentifiableItemProperty<?, ?> item) {
         final List<StatActualValue> actualValues = item.getIdentifications();
         final List<StatPossibleValues> possibleValues = item.getPossibleValues();
 

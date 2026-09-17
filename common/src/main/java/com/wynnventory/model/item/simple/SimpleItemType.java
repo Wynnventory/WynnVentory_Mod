@@ -10,6 +10,7 @@ public enum SimpleItemType {
     ASPECT("AspectItem", false, "aspect"),
     TOME("TomeItem", false, "tome"),
     WARD("WardItem", true, "ward"),
+    GATHERING_TOOL("GatheringToolItem", true, "tool"),
 
     // SimpleTierItems
     INGREDIENT("IngredientItem", true, "ingredient"),
@@ -20,7 +21,8 @@ public enum SimpleItemType {
     EMERALD_POUCH("EmeraldPouchItem", true, "pouch"),
 
     // SimpleGearItems
-    GEAR("GearItem", true, "gear");
+    GEAR("GearItem", true, "gear"),
+    CHARM("CharmItem", true, "charm");
 
     private final String type;
     private final boolean sellable;

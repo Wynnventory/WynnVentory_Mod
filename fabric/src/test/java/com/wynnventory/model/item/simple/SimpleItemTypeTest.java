@@ -19,6 +19,20 @@ public class SimpleItemTypeTest {
     }
 
     @Test
+    void testCharmTypeResolvesFromWynntilsClassName() {
+        assertEquals(SimpleItemType.CHARM, SimpleItemType.fromType("CharmItem"));
+        assertTrue(SimpleItemType.CHARM.isSellable(), "Charms are tradeable on the Trade Market.");
+        assertEquals("charm", SimpleItemType.CHARM.getIconPrefix());
+    }
+
+    @Test
+    void testGatheringToolTypeResolvesFromWynntilsClassName() {
+        assertEquals(SimpleItemType.GATHERING_TOOL, SimpleItemType.fromType("GatheringToolItem"));
+        assertTrue(SimpleItemType.GATHERING_TOOL.isSellable(), "Gathering tools are tradeable on the Trade Market.");
+        assertEquals("tool", SimpleItemType.GATHERING_TOOL.getIconPrefix());
+    }
+
+    @Test
     void testEveryTypeRoundTripsThroughFromType() {
         for (SimpleItemType type : SimpleItemType.values()) {
             assertEquals(type, SimpleItemType.fromType(type.getType()));

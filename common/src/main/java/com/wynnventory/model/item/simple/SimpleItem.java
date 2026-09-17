@@ -12,6 +12,7 @@ import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.AspectItem;
 import com.wynntils.models.items.items.game.DungeonKeyItem;
 import com.wynntils.models.items.items.game.EmeraldItem;
+import com.wynntils.models.items.items.game.GatheringToolItem;
 import com.wynntils.models.items.items.game.InsulatorItem;
 import com.wynntils.models.items.items.game.RuneItem;
 import com.wynntils.models.items.items.game.SimulatorItem;
@@ -34,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
         defaultImpl = SimpleItem.class)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = SimpleGearItem.class, name = "GearItem"),
+    @JsonSubTypes.Type(value = SimpleGearItem.class, name = "CharmItem"),
     @JsonSubTypes.Type(value = SimpleTierItem.class, name = "IngredientItem"),
     @JsonSubTypes.Type(value = SimpleTierItem.class, name = "MaterialItem"),
     @JsonSubTypes.Type(value = SimpleTierItem.class, name = "PowderItem"),
@@ -175,6 +177,7 @@ public class SimpleItem extends TimestampedObject {
             case AspectItem aspectItem -> fromAspectItem(aspectItem);
             case TomeItem tomeItem -> fromTomeItem(tomeItem);
             case WardItem wardItem -> fromWardItem(wardItem);
+            case GatheringToolItem gatheringToolItem -> fromGatheringToolItem(gatheringToolItem);
             case null, default -> null;
         };
     }
@@ -228,6 +231,22 @@ public class SimpleItem extends TimestampedObject {
         String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
         String iconKey = name.split(" ")[0].toLowerCase();
         return createSimpleItem(item, GearTier.NORMAL, SimpleItemType.WARD, StringUtils.toCamelCase(name), iconKey);
+    }
+
+    private static SimpleItem fromGatheringToolItem(GatheringToolItem item) {
+        // The in-game name already carries the tool tier (e.g. "Bronze Axe T4"), so the item is
+        // unique by name and needs no separate tier. Icons on the CDN are keyed without the suffix.
+        String name = item.getName();
+        String iconKey = IconService.defaultIconKey(name.replaceFirst(" T\\d+$", ""));
+        int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
+        Icon icon = IconService.INSTANCE.resolveIcon(name, SimpleItemType.GATHERING_TOOL, iconKey);
+        return new SimpleItem(
+                name,
+                item.getGearTier(),
+                SimpleItemType.GATHERING_TOOL,
+                item.getToolInfo().gatheringToolType().name(),
+                icon,
+                amount);
     }
 
     private static SimpleItem createSimpleItem(WynnItem item, SimpleItemType itemType) {
