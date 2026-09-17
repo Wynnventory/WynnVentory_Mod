@@ -20,6 +20,7 @@ import com.wynntils.models.items.items.game.PowderItem;
 import com.wynntils.models.items.items.game.RuneItem;
 import com.wynntils.models.items.items.game.SimulatorItem;
 import com.wynntils.models.items.items.game.TomeItem;
+import com.wynntils.models.items.items.game.WardItem;
 import com.wynntils.models.items.properties.GearTierItemProperty;
 import com.wynntils.models.items.properties.NamedItemProperty;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
@@ -64,6 +65,7 @@ public class ItemStackUtils {
             case RuneItem runeItem -> SimpleItem.from(runeItem);
             case SimulatorItem simulatorItem -> SimpleItem.from(simulatorItem);
             case TomeItem tomeItem -> SimpleItem.from(tomeItem);
+            case WardItem wardItem -> SimpleItem.from(wardItem);
             case null, default -> null;
         };
     }
@@ -123,6 +125,8 @@ public class ItemStackUtils {
             case RuneItem runeItem ->
                 Style.EMPTY.withColor(runeItem.getType().getColor().asInt());
             case EmeraldItem ignored -> Style.EMPTY.withColor(ChatFormatting.GREEN);
+            case WardItem wardItem when wardItem.getType() != null ->
+                Style.EMPTY.withColor(wardItem.getType().getColor().asInt());
             case null, default -> Style.EMPTY.withColor(ChatFormatting.WHITE);
         };
     }

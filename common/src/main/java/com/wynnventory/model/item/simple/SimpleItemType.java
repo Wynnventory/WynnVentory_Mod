@@ -9,6 +9,7 @@ public enum SimpleItemType {
     EMERALD_ITEM("EmeraldItem", false, "emerald"),
     ASPECT("AspectItem", false, "aspect"),
     TOME("TomeItem", false, "tome"),
+    WARD("WardItem", true, "ward"),
 
     // SimpleTierItems
     INGREDIENT("IngredientItem", true, "ingredient"),

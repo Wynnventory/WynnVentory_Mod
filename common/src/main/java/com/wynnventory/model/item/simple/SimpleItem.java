@@ -16,6 +16,7 @@ import com.wynntils.models.items.items.game.InsulatorItem;
 import com.wynntils.models.items.items.game.RuneItem;
 import com.wynntils.models.items.items.game.SimulatorItem;
 import com.wynntils.models.items.items.game.TomeItem;
+import com.wynntils.models.items.items.game.WardItem;
 import com.wynnventory.api.service.IconService;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.TimestampedObject;
@@ -173,6 +174,7 @@ public class SimpleItem extends TimestampedObject {
             case EmeraldItem emeraldItem -> fromEmeraldItem(emeraldItem);
             case AspectItem aspectItem -> fromAspectItem(aspectItem);
             case TomeItem tomeItem -> fromTomeItem(tomeItem);
+            case WardItem wardItem -> fromWardItem(wardItem);
             case null, default -> null;
         };
     }
@@ -220,6 +222,12 @@ public class SimpleItem extends TimestampedObject {
                 tomeItem.getGearTier(),
                 SimpleItemType.TOME,
                 tomeItem.getItemInfo().type().name());
+    }
+
+    private static SimpleItem fromWardItem(WardItem item) {
+        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
+        String iconKey = name.split(" ")[0].toLowerCase();
+        return createSimpleItem(item, GearTier.NORMAL, SimpleItemType.WARD, StringUtils.toCamelCase(name), iconKey);
     }
 
     private static SimpleItem createSimpleItem(WynnItem item, SimpleItemType itemType) {
