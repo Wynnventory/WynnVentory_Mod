@@ -39,4 +39,25 @@ public class SimpleItemTypeTest {
         }
         assertNull(SimpleItemType.fromType("UnknownItem"));
     }
+
+    @Test
+    void testEveryTypeRoundTripsThroughFromApiLabel() {
+        for (SimpleItemType type : SimpleItemType.values()) {
+            assertEquals(type, SimpleItemType.fromApiLabel(type.getApiLabel()));
+        }
+        assertNull(SimpleItemType.fromApiLabel("unknown"));
+        assertNull(SimpleItemType.fromApiLabel(null));
+    }
+
+    @Test
+    void testApiLabelsFollowTheV2Vocabulary() {
+        // v2 strips the "Item" suffix and snake_cases the rest (see WynnVentory_Web serializers/common.py)
+        assertEquals("gear", SimpleItemType.GEAR.getApiLabel());
+        assertEquals("dungeon_key", SimpleItemType.DUNGEON_KEY.getApiLabel());
+        assertEquals("emerald_pouch", SimpleItemType.EMERALD_POUCH.getApiLabel());
+        assertEquals("gathering_tool", SimpleItemType.GATHERING_TOOL.getApiLabel());
+        assertEquals("emerald", SimpleItemType.EMERALD_ITEM.getApiLabel());
+        assertEquals(SimpleItemType.ASPECT, SimpleItemType.fromApiLabel("aspect"));
+        assertEquals(SimpleItemType.CHARM, SimpleItemType.fromApiLabel("charm"));
+    }
 }
