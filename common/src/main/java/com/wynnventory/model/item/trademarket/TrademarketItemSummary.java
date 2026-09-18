@@ -60,6 +60,8 @@ public class TrademarketItemSummary extends TimestampedObject {
         item.setRarity(rarity);
     }
 
+    // Read side takes the v2 label ("gear"); the getter still reports the storage name ("GearItem") and is never
+    // serialized.
     @JsonProperty("item_type")
     public String getItemType() {
         return item.getItemType();

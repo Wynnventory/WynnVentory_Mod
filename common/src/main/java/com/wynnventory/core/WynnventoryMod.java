@@ -72,6 +72,10 @@ public final class WynnventoryMod {
         LOGGER.warn(msg);
     }
 
+    public static void logWarn(String msg, Object... args) {
+        LOGGER.warn(msg, args);
+    }
+
     public static void logDebug(String msg) {
         LOGGER.debug(msg);
     }

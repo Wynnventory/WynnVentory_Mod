@@ -130,11 +130,14 @@ public class WynnventoryApi {
 
     private List<RewardPoolDocument> toRewardPoolDocuments(PoolResponse pool) {
         List<RewardPoolDocument> documents = new ArrayList<>();
+        int droppedGroups = 0;
+        int droppedItems = 0;
 
         for (PoolGroup group : pool.groups()) {
             RewardPool rewardPool = RewardPool.fromFullName(group.name());
             if (rewardPool == null) {
                 WynnventoryMod.logDebug("Ignoring unknown reward pool '{}'", group.name());
+                droppedGroups++;
                 continue;
             }
 
@@ -144,12 +147,20 @@ public class WynnventoryApi {
                 if (mapped == null) {
                     WynnventoryMod.logDebug(
                             "Ignoring pool item '{}' with unknown item type '{}'", item.name(), item.itemType());
+                    droppedItems++;
                     continue;
                 }
                 items.add(mapped);
             }
 
             documents.add(new RewardPoolDocument(items, rewardPool));
+        }
+
+        if (droppedGroups > 0 || droppedItems > 0) {
+            WynnventoryMod.logWarn(
+                    "Reward pool response dropped {} unknown group(s) and {} item(s) with unknown item types",
+                    droppedGroups,
+                    droppedItems);
         }
 
         return documents;
