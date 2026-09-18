@@ -1,11 +1,7 @@
 package com.wynnventory.model.item.simple;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
@@ -27,22 +23,6 @@ import java.util.Objects;
 import net.minecraft.world.item.ItemStack;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.EXISTING_PROPERTY,
-        property = "itemType",
-        visible = true,
-        defaultImpl = SimpleItem.class)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = SimpleGearItem.class, name = "GearItem"),
-    @JsonSubTypes.Type(value = SimpleGearItem.class, name = "CharmItem"),
-    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "IngredientItem"),
-    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "MaterialItem"),
-    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "PowderItem"),
-    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "AmplifierItem"),
-    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "MountItem"),
-    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "EmeraldPouchItem")
-})
 public class SimpleItem extends TimestampedObject {
     protected String name = "";
     protected GearTier rarity = GearTier.NORMAL;
@@ -85,7 +65,7 @@ public class SimpleItem extends TimestampedObject {
     }
 
     public String getItemType() {
-        return itemType.getType();
+        return itemType != null ? itemType.getType() : null;
     }
 
     @JsonIgnore
@@ -109,12 +89,10 @@ public class SimpleItem extends TimestampedObject {
         this.rarity = GearTier.fromString(rarity);
     }
 
-    public void setItemType(String itemType) {
-        this.itemType = SimpleItemType.fromType(itemType);
+    public void setItemType(SimpleItemType itemType) {
+        this.itemType = itemType;
     }
 
-    @JsonProperty("type")
-    @JsonAlias("subtype")
     public void setType(String type) {
         this.type = type != null ? type : "";
     }

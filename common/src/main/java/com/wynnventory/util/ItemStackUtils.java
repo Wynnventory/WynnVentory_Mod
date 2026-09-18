@@ -129,7 +129,8 @@ public class ItemStackUtils {
             case RuneItem runeItem ->
                 Style.EMPTY.withColor(runeItem.getType().getColor().asInt());
             case EmeraldItem ignored -> Style.EMPTY.withColor(ChatFormatting.GREEN);
-            case WardItem wardItem when wardItem.getType() != null ->
+            case WardItem wardItem
+            when wardItem.getType() != null ->
                 Style.EMPTY.withColor(wardItem.getType().getColor().asInt());
             case null, default -> Style.EMPTY.withColor(ChatFormatting.WHITE);
         };
