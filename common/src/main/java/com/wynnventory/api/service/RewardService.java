@@ -58,20 +58,20 @@ public enum RewardService {
     }
 
     private Comparator<SimpleItem> raidComparator() {
-        return Comparator.comparing(this::getRarityRank, Comparator.reverseOrder())
-                .thenComparing(SimpleItem::getItemType, nullSafeString())
-                .thenComparing(SimpleItem::getType, nullSafeString())
+        // Raid sections group by item type, so order by type (enum declaration order) and alphabetically within it
+        return Comparator.comparing(SimpleItem::getItemTypeEnum, Comparator.nullsLast(Comparator.naturalOrder()))
                 .thenComparing(SimpleItem::getName, nullSafeString())
                 .thenComparing(this::getTierSafe)
                 .thenComparing(SimpleItem::getAmount);
     }
 
     private Comparator<SimpleItem> lootrunComparator() {
+        // Lootrun sections are rarity tiers: shiny first, then item type (enum declaration order), then name
         return Comparator.comparing(this::isShiny, Comparator.reverseOrder())
                 .thenComparing(this::getRarityRank, Comparator.reverseOrder())
+                .thenComparing(SimpleItem::getItemTypeEnum, Comparator.nullsLast(Comparator.naturalOrder()))
                 .thenComparing(SimpleItem::getName, nullSafeString())
-                .thenComparing(SimpleItem::getItemType, nullSafeString())
-                .thenComparing(SimpleItem::getType, nullSafeString())
+                .thenComparing(this::getTierSafe)
                 .thenComparing(SimpleItem::getAmount);
     }
 

@@ -6,12 +6,14 @@ import com.wynntils.screens.guides.GuideItemStack;
 import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.augment.GuideAmplifierItemStack;
 import com.wynntils.screens.guides.augment.GuideAugmentItemStack;
+import com.wynntils.screens.guides.charm.GuideCharmItemStack;
 import com.wynntils.screens.guides.dungeonkey.GuideDungeonKeyItemStack;
 import com.wynntils.screens.guides.emerald.GuideEmeraldItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.rune.GuideRuneItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
+import com.wynntils.screens.guides.ward.GuideWardItemStack;
 import com.wynntils.utils.MathUtils;
 import com.wynntils.utils.colors.CommonColors;
 import com.wynntils.utils.colors.CustomColor;
@@ -68,7 +70,8 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                 || itemStack instanceof GuideRuneItemStack
                 || itemStack instanceof GuidePowderItemStack
                 || itemStack instanceof GuideAmplifierItemStack
-                || itemStack instanceof GuideDungeonKeyItemStack) {
+                || itemStack instanceof GuideDungeonKeyItemStack
+                || itemStack instanceof GuideWardItemStack) {
             renderText(
                     g,
                     String.valueOf(simpleItem.getAmount()),
@@ -147,12 +150,15 @@ public class ItemButton<T extends GuideItemStack> extends WynnventoryButton {
                 CustomColor.fromChatFormatting(gear.getGearInfo().tier().getChatFormatting());
             case GuideTomeItemStack tome ->
                 CustomColor.fromChatFormatting(tome.getTomeInfo().tier().getChatFormatting());
+            case GuideCharmItemStack charm ->
+                CustomColor.fromChatFormatting(charm.getCharmInfo().tier().getChatFormatting());
             case GuideAspectItemStack aspect ->
                 CustomColor.fromChatFormatting(aspect.getAspectInfo().gearTier().getChatFormatting());
             case GuidePowderItemStack powder ->
                 CustomColor.fromChatFormatting(powder.getElement().getLightColor());
             case GuideAugmentItemStack augment ->
                 CustomColor.fromChatFormatting(augment.getGearTier().getChatFormatting());
+            case GuideWardItemStack ward -> ward.getWardType().getColor();
             default -> CustomColor.NONE;
         };
     }
