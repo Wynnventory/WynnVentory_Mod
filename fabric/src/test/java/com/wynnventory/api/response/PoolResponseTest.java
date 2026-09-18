@@ -1,10 +1,12 @@
 package com.wynnventory.api.response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -124,5 +126,22 @@ public class PoolResponseTest {
         assertEquals(Optional.empty(), item.shinyStat());
         assertEquals(0, item.amount());
         assertEquals(List.of(), PoolResponse.EMPTY.groups());
+    }
+
+    @Test
+    void shinyStatIsNeverANullOptional() throws Exception {
+        // Jackson's Jdk8Module hands the record Optional.empty() for both an absent and a null
+        // shiny_stat, so the record needs no null guard (which Sonar S2789 forbids on Optionals).
+        ObjectMapper lenient = MAPPER.copy().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        for (ObjectMapper mapper : List.of(MAPPER, lenient)) {
+            PoolItem absent = mapper.readValue("{\"name\":\"X\",\"item_type\":\"gear\"}", PoolItem.class);
+            assertEquals(Optional.empty(), absent.shinyStat());
+            assertFalse(((SimpleGearItem) absent.toSimpleItem()).isShiny());
+
+            PoolItem explicitNull =
+                    mapper.readValue("{\"name\":\"X\",\"item_type\":\"gear\",\"shiny_stat\":null}", PoolItem.class);
+            assertEquals(Optional.empty(), explicitNull.shinyStat());
+            assertFalse(((SimpleGearItem) explicitNull.toSimpleItem()).isShiny());
+        }
     }
 }

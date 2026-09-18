@@ -27,10 +27,6 @@ public record PoolItem(
         boolean shiny,
         @JsonProperty("shiny_stat") Optional<ShinyStat> shinyStat,
         Icon icon) {
-    public PoolItem {
-        shinyStat = shinyStat == null ? Optional.empty() : shinyStat;
-    }
-
     /**
      * Maps this item onto the domain model the reward screen works with, choosing the subclass by
      * {@code item_type}. Returns null when the label is not one the mod knows.
