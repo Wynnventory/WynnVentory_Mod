@@ -4,21 +4,28 @@ import com.wynntils.core.components.Models;
 import com.wynntils.models.gear.type.GearInfo;
 import com.wynntils.models.items.items.game.GearBoxItem;
 import com.wynnventory.api.service.TrademarketService;
+import com.wynnventory.model.item.Expirable;
 import com.wynnventory.model.item.simple.SimpleGearItem;
 import com.wynnventory.model.item.simple.SimpleItem;
 import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.util.ItemStackUtils;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.world.item.ItemStack;
 
-public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketItemSummary historic) {
+public record TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketItemSummary historic, Instant fetchedAt) {
+    public TrademarketItemSnapshot(TrademarketItemSummary live, TrademarketItemSummary historic) {
+        this(live, historic, Instant.now());
+    }
+
     public boolean hasHistoricData() {
         return historic != null;
     }
 
+    /** Expiry runs on the snapshot's own clock so a "no data" answer (live == null) is retried like any other. */
     public boolean isExpired() {
-        return live != null && live.isExpired();
+        return fetchedAt.isBefore(Instant.now().minus(Expirable.DATA_LIFESPAN));
     }
 
     public static TrademarketItemSnapshot resolveSnapshot(ItemStack stack) {
