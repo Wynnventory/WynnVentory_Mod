@@ -1,6 +1,5 @@
 package com.wynnventory.model.reward;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wynntils.models.gear.type.GearTier;
@@ -51,11 +50,6 @@ public final class RewardPoolDocument extends ModInfoProvider {
 
     public void setRewardPool(RewardPool rewardPool) {
         this.rewardPool = rewardPool;
-    }
-
-    @JsonAlias("region")
-    public void setRegion(String region) {
-        this.rewardPool = RewardPool.fromFullName(region);
     }
 
     @JsonIgnore
