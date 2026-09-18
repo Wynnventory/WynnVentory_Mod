@@ -65,7 +65,7 @@ public class SimpleItem extends TimestampedObject {
     }
 
     public String getItemType() {
-        return itemType.getType();
+        return itemType != null ? itemType.getType() : null;
     }
 
     @JsonIgnore

@@ -29,6 +29,7 @@ public class TrademarketItemSummaryTest {
         assertEquals("Divzer", summary.getName());
         assertFalse(summary.isEmpty());
         assertEquals(SimpleItemType.GEAR, summary.getItem().getItemTypeEnum());
+        assertEquals("GearItem", summary.getItemType());
         assertEquals(12000, summary.getLowestPrice());
         assertEquals(20000, summary.getHighestPrice());
         assertEquals(15500.5, summary.getAveragePrice());
@@ -62,5 +63,14 @@ public class TrademarketItemSummaryTest {
         TrademarketItemSummary summary =
                 MAPPER.readValue("{\"name\":\"X\",\"item_type\":\"weapon\"}", TrademarketItemSummary.class);
         assertNull(summary.getItem().getItemTypeEnum());
+    }
+
+    @Test
+    void typelessPriceStatisticsExposeANullItemTypeWithoutThrowing() throws Exception {
+        // Aggregated history stats carry no item_type; getItemType() must not NPE on the unset enum.
+        String data = "{\"name\":\"Divzer\",\"tier\":null,\"document_count\":7,\"average_price\":15000.0,"
+                + "\"average_p50_ema_price\":14900.0,\"total_count\":80,\"unidentified_count\":3}";
+        TrademarketItemSummary summary = MAPPER.readValue(data, TrademarketItemSummary.class);
+        assertNull(summary.getItemType());
     }
 }
