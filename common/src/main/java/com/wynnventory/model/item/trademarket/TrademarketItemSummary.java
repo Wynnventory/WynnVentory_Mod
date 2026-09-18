@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.TimestampedObject;
 import com.wynnventory.model.item.simple.SimpleItem;
+import com.wynnventory.model.item.simple.SimpleItemType;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -66,7 +67,7 @@ public class TrademarketItemSummary extends TimestampedObject {
 
     @JsonProperty("item_type")
     public void setItemType(String itemType) {
-        item.setItemType(itemType);
+        item.setItemType(SimpleItemType.fromApiLabel(itemType));
     }
 
     @JsonProperty("type")
