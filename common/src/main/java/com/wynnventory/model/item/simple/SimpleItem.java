@@ -1,21 +1,19 @@
 package com.wynnventory.model.item.simple;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.wynntils.models.gear.type.GearTier;
 import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.AspectItem;
 import com.wynntils.models.items.items.game.DungeonKeyItem;
 import com.wynntils.models.items.items.game.EmeraldItem;
+import com.wynntils.models.items.items.game.GatheringToolItem;
 import com.wynntils.models.items.items.game.InsulatorItem;
 import com.wynntils.models.items.items.game.RuneItem;
 import com.wynntils.models.items.items.game.SimulatorItem;
 import com.wynntils.models.items.items.game.TomeItem;
+import com.wynntils.models.items.items.game.WardItem;
 import com.wynnventory.api.service.IconService;
 import com.wynnventory.model.item.Icon;
 import com.wynnventory.model.item.TimestampedObject;
@@ -25,21 +23,6 @@ import java.util.Objects;
 import net.minecraft.world.item.ItemStack;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.EXISTING_PROPERTY,
-        property = "itemType",
-        visible = true,
-        defaultImpl = SimpleItem.class)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = SimpleGearItem.class, name = "GearItem"),
-    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "IngredientItem"),
-    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "MaterialItem"),
-    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "PowderItem"),
-    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "AmplifierItem"),
-    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "MountItem"),
-    @JsonSubTypes.Type(value = SimpleTierItem.class, name = "EmeraldPouchItem")
-})
 public class SimpleItem extends TimestampedObject {
     protected String name = "";
     protected GearTier rarity = GearTier.NORMAL;
@@ -82,7 +65,7 @@ public class SimpleItem extends TimestampedObject {
     }
 
     public String getItemType() {
-        return itemType.getType();
+        return itemType != null ? itemType.getType() : null;
     }
 
     @JsonIgnore
@@ -106,12 +89,10 @@ public class SimpleItem extends TimestampedObject {
         this.rarity = GearTier.fromString(rarity);
     }
 
-    public void setItemType(String itemType) {
-        this.itemType = SimpleItemType.fromType(itemType);
+    public void setItemType(SimpleItemType itemType) {
+        this.itemType = itemType;
     }
 
-    @JsonProperty("type")
-    @JsonAlias("subtype")
     public void setType(String type) {
         this.type = type != null ? type : "";
     }
@@ -173,6 +154,8 @@ public class SimpleItem extends TimestampedObject {
             case EmeraldItem emeraldItem -> fromEmeraldItem(emeraldItem);
             case AspectItem aspectItem -> fromAspectItem(aspectItem);
             case TomeItem tomeItem -> fromTomeItem(tomeItem);
+            case WardItem wardItem -> fromWardItem(wardItem);
+            case GatheringToolItem gatheringToolItem -> fromGatheringToolItem(gatheringToolItem);
             case null, default -> null;
         };
     }
@@ -220,6 +203,28 @@ public class SimpleItem extends TimestampedObject {
                 tomeItem.getGearTier(),
                 SimpleItemType.TOME,
                 tomeItem.getItemInfo().type().name());
+    }
+
+    private static SimpleItem fromWardItem(WardItem item) {
+        String name = ItemStackUtils.getWynntilsOriginalNameAsString(item);
+        String iconKey = name.split(" ")[0].toLowerCase();
+        return createSimpleItem(item, GearTier.NORMAL, SimpleItemType.WARD, StringUtils.toCamelCase(name), iconKey);
+    }
+
+    private static SimpleItem fromGatheringToolItem(GatheringToolItem item) {
+        // The in-game name already carries the tool tier (e.g. "Bronze Axe T4"), so the item is
+        // unique by name and needs no separate tier. Icons on the CDN are keyed without the suffix.
+        String name = item.getName();
+        String iconKey = IconService.defaultIconKey(name.replaceFirst(" T\\d+$", ""));
+        int amount = ((ItemStack) item.getData().get(WynnItemData.ITEMSTACK_KEY)).getCount();
+        Icon icon = IconService.INSTANCE.resolveIcon(name, SimpleItemType.GATHERING_TOOL, iconKey);
+        return new SimpleItem(
+                name,
+                item.getGearTier(),
+                SimpleItemType.GATHERING_TOOL,
+                item.getToolInfo().gatheringToolType().name(),
+                icon,
+                amount);
     }
 
     private static SimpleItem createSimpleItem(WynnItem item, SimpleItemType itemType) {

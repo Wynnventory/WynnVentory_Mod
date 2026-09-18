@@ -73,13 +73,8 @@ public class HttpUtils {
             return CompletableFuture.completedFuture(null);
         }
 
-        return send(request).whenComplete((resp, ex) -> {
-            int code = resp.statusCode();
-            if (code < 200 || code >= 300) {
-                WynnventoryMod.logError(
-                        "Failed to GET from endpoint '{}'. Code '{}', Reason '{}'", uri, code, resp.body());
-            }
-        });
+        // Status handling is the caller's job: on /api/v2 a 404 is the expected "no data" answer.
+        return send(request);
     }
 
     public static String encode(String name) {

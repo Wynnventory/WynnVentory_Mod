@@ -67,6 +67,51 @@ public class HashConsistencyTest {
     }
 
     @Test
+    void testSimpleGearItemAsCharmHash() {
+        SimpleGearItem charm1 = new SimpleGearItem(
+                "Charm of the Corruption",
+                GearTier.FABLED,
+                SimpleItemType.CHARM,
+                "CHARM",
+                null,
+                1,
+                false,
+                2,
+                Optional.empty(),
+                87.5f,
+                new ArrayList<>());
+        SimpleGearItem charm2 = new SimpleGearItem(
+                "Charm of the Corruption",
+                GearTier.FABLED,
+                SimpleItemType.CHARM,
+                "CHARM",
+                null,
+                1,
+                false,
+                2,
+                Optional.empty(),
+                87.5f,
+                new ArrayList<>());
+        SimpleGearItem charmRerolled = new SimpleGearItem(
+                "Charm of the Corruption",
+                GearTier.FABLED,
+                SimpleItemType.CHARM,
+                "CHARM",
+                null,
+                1,
+                false,
+                3,
+                Optional.empty(),
+                87.5f,
+                new ArrayList<>());
+
+        assertEquals("CharmItem", charm1.getItemType(), "Charms keep their own item type.");
+        assertEquals(charm1.hashCode(), charm2.hashCode(), "Identical charms should have same hashes.");
+        assertNotEquals(
+                charm1.hashCode(), charmRerolled.hashCode(), "Charms with different reroll count should differ.");
+    }
+
+    @Test
     void testSimpleTierItemHash() {
         SimpleTierItem tierItem1 =
                 new SimpleTierItem("IngredientA", GearTier.NORMAL, SimpleItemType.INGREDIENT, "TypeA", null, 1, 3);

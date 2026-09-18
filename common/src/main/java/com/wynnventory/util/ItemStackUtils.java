@@ -8,9 +8,11 @@ import com.wynntils.models.items.WynnItem;
 import com.wynntils.models.items.WynnItemData;
 import com.wynntils.models.items.items.game.AmplifierItem;
 import com.wynntils.models.items.items.game.AspectItem;
+import com.wynntils.models.items.items.game.CharmItem;
 import com.wynntils.models.items.items.game.DungeonKeyItem;
 import com.wynntils.models.items.items.game.EmeraldItem;
 import com.wynntils.models.items.items.game.EmeraldPouchItem;
+import com.wynntils.models.items.items.game.GatheringToolItem;
 import com.wynntils.models.items.items.game.GearItem;
 import com.wynntils.models.items.items.game.IngredientItem;
 import com.wynntils.models.items.items.game.InsulatorItem;
@@ -20,6 +22,7 @@ import com.wynntils.models.items.items.game.PowderItem;
 import com.wynntils.models.items.items.game.RuneItem;
 import com.wynntils.models.items.items.game.SimulatorItem;
 import com.wynntils.models.items.items.game.TomeItem;
+import com.wynntils.models.items.items.game.WardItem;
 import com.wynntils.models.items.properties.GearTierItemProperty;
 import com.wynntils.models.items.properties.NamedItemProperty;
 import com.wynntils.models.trademarket.type.TradeMarketPriceInfo;
@@ -52,10 +55,12 @@ public class ItemStackUtils {
         return switch (item) {
             case AmplifierItem amplifierItem -> SimpleTierItem.from(amplifierItem);
             case AspectItem aspectItem -> SimpleItem.from(aspectItem);
+            case CharmItem charmItem -> SimpleGearItem.from(charmItem);
             case DungeonKeyItem dungeonKeyItem -> SimpleItem.from(dungeonKeyItem);
             case EmeraldItem emeraldItem -> SimpleItem.from(emeraldItem);
             case EmeraldPouchItem emeraldPouchItem -> SimpleTierItem.from(emeraldPouchItem);
             case GearItem gearItem -> SimpleGearItem.from(gearItem);
+            case GatheringToolItem gatheringToolItem -> SimpleItem.from(gatheringToolItem);
             case MountItem mountItem -> SimpleTierItem.from(mountItem);
             case IngredientItem ingredientItem -> SimpleTierItem.from(ingredientItem);
             case InsulatorItem insulatorItem -> SimpleItem.from(insulatorItem);
@@ -64,6 +69,7 @@ public class ItemStackUtils {
             case RuneItem runeItem -> SimpleItem.from(runeItem);
             case SimulatorItem simulatorItem -> SimpleItem.from(simulatorItem);
             case TomeItem tomeItem -> SimpleItem.from(tomeItem);
+            case WardItem wardItem -> SimpleItem.from(wardItem);
             case null, default -> null;
         };
     }
@@ -123,6 +129,9 @@ public class ItemStackUtils {
             case RuneItem runeItem ->
                 Style.EMPTY.withColor(runeItem.getType().getColor().asInt());
             case EmeraldItem ignored -> Style.EMPTY.withColor(ChatFormatting.GREEN);
+            case WardItem wardItem
+            when wardItem.getType() != null ->
+                Style.EMPTY.withColor(wardItem.getType().getColor().asInt());
             case null, default -> Style.EMPTY.withColor(ChatFormatting.WHITE);
         };
     }
