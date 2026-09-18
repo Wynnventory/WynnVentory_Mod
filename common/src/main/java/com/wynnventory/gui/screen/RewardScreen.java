@@ -8,11 +8,13 @@ import com.wynntils.screens.guides.aspect.GuideAspectItemStack;
 import com.wynntils.screens.guides.augment.GuideAmplifierItemStack;
 import com.wynntils.screens.guides.augment.GuideInsulatorItemStack;
 import com.wynntils.screens.guides.augment.GuideSimulatorItemStack;
+import com.wynntils.screens.guides.charm.GuideCharmItemStack;
 import com.wynntils.screens.guides.dungeonkey.GuideDungeonKeyItemStack;
 import com.wynntils.screens.guides.gear.GuideGearItemStack;
 import com.wynntils.screens.guides.powder.GuidePowderItemStack;
 import com.wynntils.screens.guides.rune.GuideRuneItemStack;
 import com.wynntils.screens.guides.tome.GuideTomeItemStack;
+import com.wynntils.screens.guides.ward.GuideWardItemStack;
 import com.wynntils.utils.MathUtils;
 import com.wynnventory.api.service.RewardService;
 import com.wynnventory.core.WynnventoryMod;
@@ -33,12 +35,15 @@ import com.wynnventory.model.item.simple.SimpleTierItem;
 import com.wynnventory.model.reward.RewardPool;
 import com.wynnventory.model.reward.RewardType;
 import com.wynnventory.util.ChatUtils;
+import com.wynnventory.util.ItemStackUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -109,6 +114,10 @@ public class RewardScreen extends Screen {
     private static final int BASE_PITCH = 18;
     private static final int INTERIOR_BODY_WIDTH = 176;
     private static final double TOP_AWNING_OVERLAP = 0.5; // Sections start halfway into pool top
+    // Raid item types shown in the "Gear" section, and all types with a dedicated section; the rest is "Misc"
+    private static final Set<SimpleItemType> GEAR_SECTION_TYPES = EnumSet.of(SimpleItemType.GEAR, SimpleItemType.CHARM);
+    private static final Set<SimpleItemType> SECTIONED_RAID_TYPES =
+            EnumSet.of(SimpleItemType.ASPECT, SimpleItemType.TOME, SimpleItemType.CHARM, SimpleItemType.GEAR);
 
     // Compact layout constants
     private static final int COMPACT_ITEM_SIZE = 14;
@@ -442,6 +451,9 @@ public class RewardScreen extends Screen {
         addStacks(Models.Rewards.getAllTomeInfos().map(GuideTomeItemStack::new).toList(), s -> s.getTomeInfo()
                 .name());
         addStacks(
+                Models.Rewards.getAllCharmInfos().map(GuideCharmItemStack::new).toList(),
+                s -> s.getCharmInfo().name());
+        addStacks(
                 Models.Aspect.getAllAspectInfos()
                         .map(info -> new GuideAspectItemStack(info, 1))
                         .toList(),
@@ -460,11 +472,16 @@ public class RewardScreen extends Screen {
                 (Models.Rewards.getAllRuneInfo().stream()
                         .map(GuideRuneItemStack::new)
                         .toList()),
-                s -> s.getHoverName().getString());
+                RewardScreen::getOriginalName);
+        addStacks(
+                (Models.Rewards.getAllWardInfo().stream()
+                        .map(GuideWardItemStack::new)
+                        .toList()),
+                RewardScreen::getOriginalName);
 
         addStacks(Models.Emerald.getAllEmeraldItems(), s -> s.getHoverName().getString());
 
-        addStacks(getDungeonKeyItemStacks(), s -> s.getHoverName().getString());
+        addStacks(getDungeonKeyItemStacks(), RewardScreen::getOriginalName);
 
         GuideInsulatorItemStack insulatorItemStack = new GuideInsulatorItemStack();
         wynnItemsByName.put(insulatorItemStack.getHoverName().getString(), insulatorItemStack);
@@ -477,6 +494,14 @@ public class RewardScreen extends Screen {
         for (T item : items) {
             wynnItemsByName.computeIfAbsent(nameMapper.apply(item), k -> item);
         }
+    }
+
+    /**
+     * The Wynn name a guide stack was built with. Potion-backed stacks (runes, wards, keys) carry no custom name,
+     * so their hover name is the vanilla item's; the original name is what the crowdsourced items are keyed by.
+     */
+    private static String getOriginalName(GuideItemStack stack) {
+        return ItemStackUtils.getWynntilsOriginalName(stack).getStringWithoutFormatting();
     }
 
     private void populateItemWidgets() {
@@ -876,12 +901,16 @@ public class RewardScreen extends Screen {
 
             sections.add(new SectionData("Aspects", grouped.getOrDefault(SimpleItemType.ASPECT, List.of())));
             sections.add(new SectionData("Tomes", grouped.getOrDefault(SimpleItemType.TOME, List.of())));
-            sections.add(new SectionData("Gear", grouped.getOrDefault(SimpleItemType.GEAR, List.of())));
+            // Charms share the gear section; filtering keeps the service's type-then-name order
+            sections.add(new SectionData(
+                    "Gear",
+                    items.stream()
+                            .filter(i -> GEAR_SECTION_TYPES.contains(i.getItemTypeEnum()))
+                            .toList()));
             sections.add(new SectionData(
                     "Misc",
                     items.stream()
-                            .filter(i -> !List.of(SimpleItemType.ASPECT, SimpleItemType.TOME, SimpleItemType.GEAR)
-                                    .contains(i.getItemTypeEnum()))
+                            .filter(i -> !SECTIONED_RAID_TYPES.contains(i.getItemTypeEnum()))
                             .toList()));
         } else { // LOOTRUN by rarity tiers
             Map<GearTier, List<SimpleItem>> groupedByRarity = new EnumMap<>(GearTier.class);
